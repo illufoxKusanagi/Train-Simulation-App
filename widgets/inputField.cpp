@@ -13,7 +13,6 @@ InputField::InputField(const QString &unitText, QWidget *parent)
     unitLabel->setStyleSheet("color: gray;");
 }
 
-
 QString InputField::text() const {
     return input->text();
 }
