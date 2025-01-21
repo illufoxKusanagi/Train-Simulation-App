@@ -34,6 +34,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         widgets/inputField.h
         styles/colors.h
         styles/textStyle.h
+        widgets/inputWidget.h
+        widgets/inputWidget.cpp
+        mainwindow/mainwindowDummy.txt
 
     )
 # Define target properties for Android with Qt 6 as:

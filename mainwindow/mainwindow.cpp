@@ -5,11 +5,11 @@
 #include <qapplication.h>
 #include <qgroupbox.h>
 #include "../pages/trainParameterPage.h"
-#include "../widgets/inputField.h"
+#include "../widgets/InputWidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), menuWidget(new QWidget(this)), stackedWidget(new QStackedWidget(this)) {
-    // Atur layout utama
+    : QMainWindow(parent), menuWidget(new QWidget(this)), stackedWidget(new QStackedWidget(this))
+{
     qApp->setStyleSheet(R"(
     QWidget {
         background-color: white;
@@ -31,11 +31,9 @@ MainWindow::MainWindow(QWidget *parent)
     }
 )");
 
-
     QWidget *centralWidget = new QWidget(this);
     QHBoxLayout *mainLayout = new QHBoxLayout(centralWidget);
 
-    // Setup menu kiri dan konten
     leftPanel();
     constantValuesPage();
     trainParameterPage();
@@ -54,47 +52,40 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow() {}
 
-void MainWindow::leftPanel() {
-    // Layout menu
-    menuWidget->setStyleSheet("background-color: #35476f;"); // Warna biru untuk panel kiri
+void MainWindow::leftPanel()
+{
+    menuWidget->setStyleSheet("background-color: #35476f;");
 
     QVBoxLayout *menuLayout = new QVBoxLayout(menuWidget);
 
     QStringList menuItems = {
-        "Constant Value", "Train Parameter", "Running Parameter",
-        "Track Parameter", "Electrical Parameter", "Export"
-    };
+                             "Constant Value", "Train Parameter", "Running Parameter",
+                             "Track Parameter", "Electrical Parameter", "Export"};
 
     QStringList objectNames = {
-        "constantValueButton", "trainParameterButton", "runningParameterButton",
-        "trackParameterButton","electricalParameterButton","exportButton"
-    };
+                               "constantValueButton", "trainParameterButton", "runningParameterButton",
+                               "trackParameterButton", "electricalParameterButton", "exportButton"};
 
-    for (int i = 0; i < menuItems.size(); ++i) {
+    for (int i = 0; i < menuItems.size(); ++i)
+    {
         QPushButton *menuButton = new QPushButton(menuItems[i], this);
         menuButton->setObjectName(objectNames[i]);
         menuButton->setStyleSheet("text-align: left; padding: 10px; font-size: 14px;"
                                   "background-color: transparent; color: white; border: none;");
         menuLayout->addWidget(menuButton);
 
-        // Navigasi halaman
-        connect(menuButton, &QPushButton::clicked, this, [this, i]() {
-            navigateToPage(i);
-        });
+        connect(menuButton, &QPushButton::clicked, this, [this, i]()
+                { navigateToPage(i); });
     }
-
     menuLayout->addStretch();
-
-    // Set size policy for menuWidget to allow it to expand
     menuWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 }
 
-void MainWindow::constantValuesPage() {
-    // Halaman "Constant Value"
+void MainWindow::constantValuesPage()
+{
     QWidget *formPage1 = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout(formPage1);
 
-    // Group box untuk Constant Values
     QGroupBox *groupBox = new QGroupBox("Constant Values", this);
     QGridLayout *gridLayout = new QGridLayout(groupBox);
 
@@ -110,7 +101,6 @@ void MainWindow::constantValuesPage() {
     inputConversion->setReadOnly(true);
     inputConversion->setStyleSheet("background-color: #f5f5f5;");
 
-    // Tambahkan ke grid layout
     gridLayout->addWidget(labelGravitation, 0, 0);
     gridLayout->addWidget(inputGravitation, 0, 1);
     gridLayout->addWidget(new QLabel("m/s²", this), 0, 2);
@@ -121,18 +111,18 @@ void MainWindow::constantValuesPage() {
 
     layout->addWidget(groupBox);
 
-    // Tambahkan halaman ke QStackedWidget
     stackedWidget->addWidget(formPage1);
 }
 
-void MainWindow::trainParameterPage() {
+void MainWindow::trainParameterPage()
+{
     TrainParameterWidget *trainParameterWidget = new TrainParameterWidget(this);
 
-    // Tambahkan widget custom ke QStackedWidget
     stackedWidget->addWidget(trainParameterWidget);
 }
 
-void MainWindow::runningParameterPage(){
+void MainWindow::runningParameterPage()
+{
     QWidget *formPage = new QWidget(this);
     QGridLayout *formLayout = new QGridLayout(formPage);
 
@@ -142,14 +132,13 @@ void MainWindow::runningParameterPage(){
                           "Weakening Point 4 (Braking)"};
 
     QStringList unitLabels = {
-        "", "m/s²", "m/s²", "km/h", "km/h", "km/h","km/h","km/h"
-    };
+                              "", "m/s²", "m/s²", "km/h", "km/h", "km/h", "km/h", "km/h"};
 
-    for (int i = 0; i < labels.size(); ++i) {
+    for (int i = 0; i < labels.size(); ++i)
+    {
         QLabel *label = new QLabel(labels[i], this);
         QLineEdit *input = new QLineEdit(this);
 
-        // Tambahkan ke grid layout
         formLayout->addWidget(label, i / 2, (i % 2) * 2);
         formLayout->addWidget(input, i / 2, (i % 2) * 2 + 1);
         formLayout->addWidget(new QLabel(unitLabels[i], this), i / 2, (i % 2) * 2 + 1);
@@ -157,30 +146,32 @@ void MainWindow::runningParameterPage(){
     stackedWidget->addWidget(formPage);
 }
 
-void MainWindow::trackParameterPage(){
+void MainWindow::trackParameterPage()
+{
     QWidget *formPage = new QWidget(this);
     QGridLayout *formLayout = new QGridLayout(formPage);
 
     QStringList labels = {"Number of Station", "Station Distance"};
 
-    for (int i = 0; i < labels.size(); ++i) {
+    for (int i = 0; i < labels.size(); ++i)
+    {
         QLabel *label = new QLabel(labels[i], this);
         QLineEdit *input = new QLineEdit(this);
 
-        // Tambahkan ke grid layout
         formLayout->addWidget(label, i / 2, (i % 2) * 2);
         formLayout->addWidget(input, i / 2, (i % 2) * 2 + 1);
     }
     stackedWidget->addWidget(formPage);
 }
 
-void MainWindow::electricalParameterPage(){
-    InputField *inputField = new InputField("testing",this);
+void MainWindow::electricalParameterPage()
+{
+    InputWidget *inputWidget = new InputWidget("Teks yang sangat panjang untuk pengujian", "aifojofiasj", this);
 
-    stackedWidget->addWidget(inputField);
+    stackedWidget->addWidget(inputWidget);
 }
 
-void MainWindow::navigateToPage(int pageIndex) {
-    // Ganti halaman di QStackedWidget
+void MainWindow::navigateToPage(int pageIndex)
+{
     stackedWidget->setCurrentIndex(pageIndex);
 }

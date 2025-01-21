@@ -1,0 +1,33 @@
+#include "mainwindow.h"
+#include <QVBoxLayout>
+#include "../widgets/InputWidget.h"
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+{
+    // Buat widget pusat
+    QWidget *centralWidget = new QWidget(this);
+    setCentralWidget(centralWidget);
+
+    // Layout utama
+    QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
+    centralWidget->setLayout(mainLayout);
+
+    // Tambahkan InputWidget langsung ke layout utama
+    InputWidget *inputWidget = new InputWidget("Mass per One Trainset", "Unit", this);
+    mainLayout->addWidget(inputWidget);
+
+    InputWidget *secondInputWidget = new InputWidget("Mass per One Trainset Fixed", "Lol", this);
+
+    mainLayout->addWidget(secondInputWidget);
+
+    // Pastikan ukuran widget utama menyesuaikan dengan kontennya
+
+}
+
+MainWindow::~MainWindow() {}
+
+void MainWindow::navigateToPage(int pageIndex)
+{
+    stackedWidget->setCurrentIndex(pageIndex);
+}

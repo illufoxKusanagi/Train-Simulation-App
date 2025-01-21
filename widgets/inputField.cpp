@@ -1,22 +1,28 @@
 #include "inputField.h"
 #include <qboxlayout.h>
+#include "../styles/colors.h"
+#include "../styles/textStyle.h"
 
 InputField::InputField(const QString &unitText, QWidget *parent)
-    : QWidget(parent), input(new QLineEdit(this)), unitLabel(new QLabel(unitText, this)){
+    : QWidget(parent), input(new QLineEdit(this)), unitLabel(new QLabel(unitText, this))
+{
     QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setContentsMargins(0,0,0,0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     layout->addWidget(input);
     layout->addWidget(unitLabel);
 
-    input->setStyleSheet("min-width: 100px; max-width: 144px");
-    unitLabel->setStyleSheet("color: gray;");
+    input->setStyleSheet("min-width: 32px; max-width: 64px; padding: 4px 12px; border: 1px solid " + Colors::Secondary400.name() + "; border-radius: 8px;" +
+                         TextStyle::BodySmallRegular() + "color: " + Colors::Secondary400.name() + ";");
+    unitLabel->setStyleSheet(TextStyle::BodySmallRegular() + "color: " + Colors::Secondary700.name() + ";");
 }
 
-QString InputField::text() const {
+QString InputField::text() const
+{
     return input->text();
 }
 
-void InputField::setText(const QString &text) {
+void InputField::setText(const QString &text)
+{
     input->setText(text);
 }
