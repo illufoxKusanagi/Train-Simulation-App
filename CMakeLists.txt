@@ -17,9 +17,8 @@ set(PROJECT_SOURCES
         mainwindow/mainwindow.cpp
         mainwindow/mainwindow.h
         mainwindow/mainwindow.ui
-        pages/TrainParameterPage.cpp
-        pages/TrainParameterPage.h
-        widgets/InputField.h
+        styles/colors.h
+        styles/textStyle.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -33,6 +32,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         pages/trackParameterPage.cpp
         widgets/inputField.cpp
         widgets/inputField.h
+        styles/colors.h
+        styles/textStyle.h
 
     )
 # Define target properties for Android with Qt 6 as:
