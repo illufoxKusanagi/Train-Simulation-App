@@ -1,0 +1,7 @@
+*.idx
+*.o
+*.obj
+*.tmp
+*.log
+*.user
+/build
