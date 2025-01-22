@@ -59,5 +59,4 @@ const QColor Secondary700(16, 25, 59);
 const QColor Secondary800(12, 19, 44);
 const QColor Secondary900(8, 13, 29);
 } // namespace Colors
-
 #endif // COLORS_H

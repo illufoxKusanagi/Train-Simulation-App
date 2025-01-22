@@ -1,11 +1,18 @@
-#include "actionButton.h"
+#include "buttonAction.h"
 #include "../styles/colors.h"
 #include "../styles/textStyle.h"
 #include <qboxlayout.h>
+#include <qstyle.h>
 
-ActionButton::ActionButton(const QString &buttonText, QWidget *parent)
+ButtonAction::ButtonAction(const QString &buttonText,
+                           const QString &isRunButton, QWidget *parent)
     : QPushButton(buttonText, parent) {
   QHBoxLayout *layout = new QHBoxLayout(this);
+  qDebug() << "isRunButton: " << isRunButton;
+  if (isRunButton == "icon") {
+    setIcon(style()->standardIcon(QStyle::SP_FileIcon));
+    setIconSize(QSize(16, 16));
+  }
   setStyleSheet("QPushButton {"
                 "    padding: 12px 4px;"
                 "    border: 0 solid;"
@@ -36,9 +43,19 @@ ActionButton::ActionButton(const QString &buttonText, QWidget *parent)
                 "    color: " +
                 Colors::Grey400.name() +
                 ";"
+                "}"
+                "QPushButton:before {"
+                "    content: '';"
+                "    position: absolute;"
+                "    left: 10px;"
+                "    top: 50%;"
+                "    transform: translateY(-50%);"
+                "    width: 24px;"
+                "    height: 24px;"
+                "    background-image: url(:/icons/icons/nav-arrow-down.png);"
+                "    background-size: contain;"
+                "    background-repeat: no-repeat;"
                 "}");
 }
 
-// In actionButton.cpp
-QString ActionButton::getText() const { return actionButton->text(); }
-// QPushButton* ActionButton::getButton() { return *actionButton; }
+QString ButtonAction::getText() const { return buttonAction->text(); }
