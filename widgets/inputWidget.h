@@ -1,16 +1,16 @@
 #ifndef INPUTWIDGET_H
 #define INPUTWIDGET_H
 
+#include "../resources/inputType.h"
 #include <QLabel>
 
-class InputWidget : public QWidget
-{
-    Q_OBJECT
+class InputWidget : public QWidget {
+  Q_OBJECT
 public:
-    explicit InputWidget(const QString &label = "", const QString &unitLabel = "", QWidget *parent = nullptr);
+  explicit InputWidget(const InputType &inputType, QWidget *parent = nullptr);
 
 private:
-    QLabel *label;
+  QLabel *label;
 };
 
 #endif // INPUTWIDGET_H

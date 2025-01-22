@@ -5,3 +5,4 @@
 *.log
 *.user
 /build
+/.vscode
