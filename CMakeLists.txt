@@ -44,6 +44,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         widgets/inputInvalid.cpp
         widgets/inputUpload.h
         widgets/inputUpload.cpp
+        widgets/actionButton.h
+        widgets/actionButton.cpp
     )
 
 # Define target properties for Android with Qt 6 as:

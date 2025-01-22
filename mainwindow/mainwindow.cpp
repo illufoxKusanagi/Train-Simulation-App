@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "../widgets/InputWidget.h"
+#include "../widgets/actionButton.h"
 #include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
@@ -22,7 +23,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   // InputWidget *invalidWidget = new InputWidget(invalidType,this);
   // mainLayout->addWidget(invalidWidget);
 
-  InputWidget *uploadWidget = new InputWidget(uploadType, this);
+  // InputWidget *uploadWidget = new InputWidget(uploadType, this);
+
+  ActionButton *saveButton = new ActionButton("Save this data", this);
+  connect(saveButton, &ActionButton::clicked, this,
+          [this]() { qDebug() << "Submit button clicked"; });
+  ActionButton *runButton = new ActionButton("Run Simulation", this);
+  connect(runButton, &ActionButton::clicked, this,
+          [this]() { qDebug() << "Run button clicked"; });
+  ActionButton *saveFileButton = new ActionButton("Save all data", this);
+  connect(saveFileButton, &ActionButton::clicked, this,
+          [this]() { qDebug() << "Save all data button clicked"; });
+  mainLayout->addWidget(saveButton);
+  mainLayout->addWidget(runButton);
+  mainLayout->addWidget(saveFileButton);
 }
 
 MainWindow::~MainWindow() {}
