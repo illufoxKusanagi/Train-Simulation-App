@@ -7,7 +7,8 @@
 #include <QPushButton>
 #include <QWidget>
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 
 public:
@@ -27,7 +28,6 @@ private:
     void runningParameterPage();
     void trackParameterPage();
     void electricalParameterPage();
-    // void exportPage();
 };
 
 #endif

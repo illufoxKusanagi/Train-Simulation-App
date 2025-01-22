@@ -3,11 +3,12 @@
 
 #include <QColor>
 
-namespace Colors{
+namespace Colors
+{
     const QColor StandardWhite(Qt::white);
     const QColor StandardBlack(Qt::black);
 
-    const QColor Danger100(252,218,217);
+    const QColor Danger100(252, 218, 217);
     const QColor Danger200(248, 180, 178);
     const QColor Danger300(245, 143, 140);
     const QColor Danger400(241, 105, 101);
