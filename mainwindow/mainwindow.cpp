@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "../widgets/InputWidget.h"
 #include "../widgets/buttonAction.h"
+#include "../widgets/buttonSidebar.h"
 #include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
@@ -25,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
   // InputWidget *uploadWidget = new InputWidget(uploadType, this);
 
-  ButtonAction *saveButton = new ButtonAction("Save this data", "" , this);
+  ButtonAction *saveButton = new ButtonAction("Save this data", "", this);
   connect(saveButton, &ButtonAction::clicked, this,
           [this]() { qDebug() << "Submit button clicked"; });
   ButtonAction *runButton = new ButtonAction("Run Simulation", "icon", this);
@@ -37,6 +38,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   mainLayout->addWidget(saveButton);
   mainLayout->addWidget(runButton);
   mainLayout->addWidget(saveFileButton);
+
+  ButtonSidebar *constantValuesButton =
+      new ButtonSidebar("test", "Constant Values", this);
+  ButtonSidebar *trainParameterButton =
+      new ButtonSidebar("test", "Train Parameter", this);
+  ButtonSidebar *runningParameterButton =
+      new ButtonSidebar("test", "Running Parameter", this);
+  mainLayout->addWidget(constantValuesButton);
+  mainLayout->addWidget(trainParameterButton);
+  mainLayout->addWidget(runningParameterButton);
 }
 
 MainWindow::~MainWindow() {}
