@@ -51,6 +51,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         widgets/buttonSidebarActive.h
         resources/iconPaths.h
         resources/icons.qrc
+        widgets/leftPanel.cpp
+        widgets/leftPanel.h
+        widgets/buttonSidebarWidget.cpp
+        widgets/buttonSidebarWidget.h
     )
 
 # Define target properties for Android with Qt 6 as:
