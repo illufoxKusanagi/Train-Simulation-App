@@ -15,25 +15,65 @@ LeftPanel::LeftPanel(QWidget *parent) : QWidget(parent) {
                 Colors::Secondary500.name() +
                 ";"
                 "}");
-  ButtonSidebarActive *constantValuesButton =
-      new ButtonSidebarActive("constantActive", "Constant Values", this);
-  ButtonSidebarActive *trainParameterButton =
-      new ButtonSidebarActive("trainActive", "Train Parameter", this);
-  ButtonSidebarActive *runningParameterButton =
-      new ButtonSidebarActive("runningActive", "Running Parameter", this);
-  ButtonSidebarActive *trackParameterButton =
-      new ButtonSidebarActive("trackActive", "Track Parameter", this);
-  ButtonSidebarActive *electricalParameterButton =
-      new ButtonSidebarActive("electricalActive", "Electrical Parameter", this);
-  ButtonSidebarActive *outputButton =
-      new ButtonSidebarActive("outputActive", "Output", this);
-  layout->addWidget(constantValuesButton);
-  layout->addWidget(trainParameterButton);
-  layout->addWidget(runningParameterButton);
-  layout->addWidget(trackParameterButton);
-  layout->addWidget(electricalParameterButton);
-  layout->addWidget(outputButton);
-  connect(constantValuesButton, &ButtonSidebarActive::clicked, this,
-          [this]() { qDebug() << "Save all data button clicked"; });
+  sidebarButtons.append(
+      new ButtonSidebarActive("constantActive", "Constant Values", this));
+  sidebarButtons.append(
+      new ButtonSidebarActive("trainActive", "Train Parameter", this));
+  sidebarButtons.append(
+      new ButtonSidebarActive("runningActive", "Running Parameter", this));
+  sidebarButtons.append(
+      new ButtonSidebarActive("trackActive", "Track Parameter", this));
+  sidebarButtons.append(new ButtonSidebarActive("electricalActive",
+                                                "Electrical Parameter", this));
+  sidebarButtons.append(
+      new ButtonSidebarActive("outputActive", "Output", this));
+  for (ButtonSidebarActive *button : sidebarButtons) {
+    layout->addWidget(button);
+  }
   setLayout(layout);
+  // Tombol expand/collapse
+  toggleButton = new QPushButton("Collapse", this);
+  toggleButton->setStyleSheet("QPushButton {"
+                              "    padding: 8px;"
+                              "    color: white;"
+                              "    background-color: " +
+                              Colors::Secondary600.name() +
+                              ";"
+                              "    border: none;"
+                              "    border-radius: 4px;"
+                              "}"
+                              "QPushButton:hover {"
+                              "    background-color: " +
+                              Colors::Secondary300.name() +
+                              ";"
+                              "}");
+  layout->addWidget(toggleButton);
+
+  // Hubungkan tombol toggle ke slot togglePanel
+  connect(toggleButton, &QPushButton::clicked, this, &LeftPanel::togglePanel);
+
+  // Tetapkan layout
+  setLayout(layout);
+}
+
+void LeftPanel::togglePanel() {
+  // Ganti status collapse/expand
+  isCollapsed = !isCollapsed;
+
+  // Ubah ukuran dan teks tombol
+  if (isCollapsed) {
+    setMaximumWidth(200); // Lebar panel saat collapsed
+    toggleButton->setText("Expand");
+  } else {
+    setMaximumWidth(240); // Lebar panel saat expanded
+    toggleButton->setText("Collapse");
+  }
+  setButtonLabelsVisible(!isCollapsed);
+  updateGeometry();
+}
+
+void LeftPanel::setButtonLabelsVisible(bool visible) {
+  for (ButtonSidebarActive *button : sidebarButtons) {
+    button->setLabelVisible(visible);
+  }
 }

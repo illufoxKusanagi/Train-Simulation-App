@@ -9,11 +9,13 @@
 ButtonSidebarActive::ButtonSidebarActive(const QString &iconType,
                                          const QString &buttonLabel,
                                          QWidget *parent)
-    : QPushButton(buttonLabel, parent) {
+    : QPushButton(parent) {
   QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
   QString iconPath = IconPaths::getIconPath(iconType);
   ButtonSidebarWidget *contentWidget =
       new ButtonSidebarWidget(iconType, buttonLabel, this);
+  // contentWidget->setSizePolicy(QSizePolicy::Expanding,
+  // QSizePolicy::Preferred);
   layout->addWidget(contentWidget);
   setStyleSheet("QPushButton {"
                 "    padding: 8px 8px;"
@@ -22,8 +24,8 @@ ButtonSidebarActive::ButtonSidebarActive(const QString &iconType,
                 "    border: 0 solid;"
                 "    border-radius: 12px;"
                 "    background-color: transparent;"
-                "    min-width: 240px;"
-                "    max-width: 240px;"
+                "    min-width: 60px;"
+                // "    max-width: 240px;"
                 "    min-height: 40px;"
                 "    color: " +
                 Colors::StandardWhite.name() +
@@ -49,4 +51,10 @@ ButtonSidebarActive::ButtonSidebarActive(const QString &iconType,
                 Colors::Grey400.name() +
                 ";"
                 "}");
+}
+
+void ButtonSidebarActive::setLabelVisible(bool visible) {
+  if (contentWidget) {
+    contentWidget->setLabelVisible(visible);
+  }
 }
