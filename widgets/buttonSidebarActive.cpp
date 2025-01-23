@@ -14,11 +14,13 @@ ButtonSidebarActive::ButtonSidebarActive(const QString &iconType,
   setIcon(QIcon(iconPath));
   setIconSize(QSize(40, 40));
   setStyleSheet("QPushButton {"
-                "    padding: 12px 8px;"
+                "    padding: 8px 8px;"
                 "    text-align: left;"
                 "    border: 0 solid;"
                 "    border-radius: 12px;"
                 "    background-color: transparent;"
+                "    min-width: 240px;"
+                "    max-width: 240px;"
                 "    color: " +
                 Colors::StandardWhite.name() +
                 ";"
