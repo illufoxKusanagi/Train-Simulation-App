@@ -12,24 +12,22 @@ ButtonSidebarActive::ButtonSidebarActive(const QString &iconType,
   QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
   QString iconPath = IconPaths::getIconPath(iconType);
   setIcon(QIcon(iconPath));
-  setIconSize(QSize(16, 16));
+  setIconSize(QSize(40, 40));
   setStyleSheet("QPushButton {"
                 "    padding: 12px 8px;"
                 "    text-align: left;"
                 "    border: 0 solid;"
                 "    border-radius: 12px;"
-                "    background-color: " +
-                Colors::Primary600.name() +
-                ";"
+                "    background-color: transparent;"
                 "    color: " +
                 Colors::StandardWhite.name() +
                 ";"
                 "    " +
-                TextStyle::BodyMediumBold() +
+                TextStyle::BodyBigBold() +
                 "}"
                 "QPushButton:hover {"
                 "    background-color: " +
-                Colors::Primary500.name() +
+                Colors::Secondary300.name() +
                 ";"
                 "}"
                 "QPushButton:pressed {"
