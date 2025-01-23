@@ -8,7 +8,6 @@ ButtonAction::ButtonAction(const QString &buttonText,
                            const QString &isRunButton, QWidget *parent)
     : QPushButton(buttonText, parent) {
   QHBoxLayout *layout = new QHBoxLayout(this);
-  qDebug() << "isRunButton: " << isRunButton;
   if (isRunButton == "icon") {
     setIcon(style()->standardIcon(QStyle::SP_FileIcon));
     setIconSize(QSize(16, 16));
