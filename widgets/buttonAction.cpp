@@ -9,8 +9,8 @@ ButtonAction::ButtonAction(const QString &buttonText,
     : QPushButton(buttonText, parent) {
   QHBoxLayout *layout = new QHBoxLayout(this);
   if (isRunButton == "icon") {
-    setIcon(style()->standardIcon(QStyle::SP_FileIcon));
-    setIconSize(QSize(16, 16));
+    setIcon(QIcon(":/icons/icons/right-arrow-active.svg"));
+    setIconSize(QSize(24, 24));
   }
   setStyleSheet("QPushButton {"
                 "    padding: 12px 4px;"
