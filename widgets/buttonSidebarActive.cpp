@@ -2,6 +2,7 @@
 #include "../resources/iconPaths.h"
 #include "../styles/colors.h"
 #include "../styles/textStyle.h"
+#include "buttonSidebarWidget.h"
 #include <qboxlayout.h>
 #include <qstyle.h>
 
@@ -11,14 +12,19 @@ ButtonSidebarActive::ButtonSidebarActive(const QString &iconType,
     : QPushButton(buttonLabel, parent) {
   QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
   QString iconPath = IconPaths::getIconPath(iconType);
-  setIcon(QIcon(iconPath));
-  setIconSize(QSize(40, 40));
+  ButtonSidebarWidget *contentWidget =
+      new ButtonSidebarWidget(iconType, buttonLabel, this);
+  layout->addWidget(contentWidget);
   setStyleSheet("QPushButton {"
-                "    padding: 12px 8px;"
+                "    padding: 8px 8px;"
                 "    text-align: left;"
+                "    padding-left: 56px;"
                 "    border: 0 solid;"
                 "    border-radius: 12px;"
                 "    background-color: transparent;"
+                "    min-width: 240px;"
+                "    max-width: 240px;"
+                "    min-height: 40px;"
                 "    color: " +
                 Colors::StandardWhite.name() +
                 ";"

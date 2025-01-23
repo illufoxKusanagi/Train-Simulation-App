@@ -1,32 +1,10 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
+#include "../widgets/leftPanel.h"
 #include <QMainWindow>
-#include <QPushButton>
-#include <QStackedWidget>
-#include <QVBoxLayout>
-#include <QWidget>
 
 class MainWindow : public QMainWindow {
-  Q_OBJECT
-
 public:
-  explicit MainWindow(QWidget *parent = nullptr);
-  ~MainWindow();
-
-private slots:
-  void navigateToPage(int pageIndex);
-
-private:
-  QWidget *menuWidget;
-  QStackedWidget *stackedWidget;
-
-  void leftPanel();
-  void constantValuesPage();
-  void trainParameterPage();
-  void runningParameterPage();
-  void trackParameterPage();
-  void electricalParameterPage();
+  explicit MainWindow(QWidget *parent = nullptr) : QMainWindow(parent) {
+    LeftPanel *sidebar = new LeftPanel(this);
+    setCentralWidget(sidebar); // Sementara sebagai widget utama
+  }
 };
-
-#endif

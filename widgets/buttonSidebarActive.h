@@ -8,8 +8,8 @@ class ButtonSidebarActive : public QPushButton {
 
 public:
   explicit ButtonSidebarActive(const QString &iconType = "",
-                         const QString &buttonLabel = "",
-                         QWidget *parent = nullptr);
+                               const QString &buttonLabel = "",
+                               QWidget *parent = nullptr);
   using QPushButton::setText;
 
 private:
