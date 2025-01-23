@@ -1,12 +1,18 @@
-#include "buttonSidebar.h"
+#include "buttonSidebarActive.h"
+#include "../resources/iconPaths.h"
 #include "../styles/colors.h"
 #include "../styles/textStyle.h"
 #include <qboxlayout.h>
 #include <qstyle.h>
 
-ButtonSidebar::ButtonSidebar(const QString &iconType,
-                             const QString &buttonLabel, QWidget *parent)
+ButtonSidebarActive::ButtonSidebarActive(const QString &iconType,
+                                         const QString &buttonLabel,
+                                         QWidget *parent)
     : QPushButton(buttonLabel, parent) {
+  QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
+  QString iconPath = IconPaths::getIconPath(iconType);
+  setIcon(QIcon(iconPath));
+  setIconSize(QSize(16, 16));
   setStyleSheet("QPushButton {"
                 "    padding: 12px 8px;"
                 "    text-align: left;"
@@ -38,17 +44,5 @@ ButtonSidebar::ButtonSidebar(const QString &iconType,
                 "    color: " +
                 Colors::Grey400.name() +
                 ";"
-                "}"
-                "QPushButton:before {"
-                "    content: '';"
-                "    position: absolute;"
-                "    left: 10px;"
-                "    top: 50%;"
-                "    transform: translateY(-50%);"
-                "    width: 24px;"
-                "    height: 24px;"
-                "    background-image: url(:/icons/icons/nav-arrow-down.png);"
-                "    background-size: contain;"
-                "    background-repeat: no-repeat;"
                 "}");
 }

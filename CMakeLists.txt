@@ -47,8 +47,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         widgets/buttonAction.h
         widgets/buttonAction.cpp
         resources/iconRun.qrc
-        widgets/buttonSidebar.cpp
-        widgets/buttonSidebar.h
+        widgets/buttonSidebarActive.cpp
+        widgets/buttonSidebarActive.h
+        resources/iconPaths.h
     )
 
 # Define target properties for Android with Qt 6 as:

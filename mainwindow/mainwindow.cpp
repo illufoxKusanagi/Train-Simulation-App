@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "../widgets/InputWidget.h"
 #include "../widgets/buttonAction.h"
-#include "../widgets/buttonSidebar.h"
+#include "../widgets/buttonSidebarActive.h"
 #include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
@@ -39,12 +39,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   mainLayout->addWidget(runButton);
   mainLayout->addWidget(saveFileButton);
 
-  ButtonSidebar *constantValuesButton =
-      new ButtonSidebar("test", "Constant Values", this);
-  ButtonSidebar *trainParameterButton =
-      new ButtonSidebar("test", "Train Parameter", this);
-  ButtonSidebar *runningParameterButton =
-      new ButtonSidebar("test", "Running Parameter", this);
+  ButtonSidebarActive *constantValuesButton =
+      new ButtonSidebarActive("runningActive", "Constant Values", this);
+  ButtonSidebarActive *trainParameterButton =
+      new ButtonSidebarActive("run", "Train Parameter", this);
+  ButtonSidebarActive *runningParameterButton =
+      new ButtonSidebarActive("expand", "Running Parameter", this);
   mainLayout->addWidget(constantValuesButton);
   mainLayout->addWidget(trainParameterButton);
   mainLayout->addWidget(runningParameterButton);
