@@ -32,7 +32,7 @@ ButtonSidebarActive::ButtonSidebarActive(const QString &iconType,
                 "}"
                 "QPushButton:pressed {"
                 "    background-color: " +
-                Colors::Primary600.name() +
+                Colors::Secondary600.name() +
                 ";"
                 "}"
                 "QPushButton:disabled {"
