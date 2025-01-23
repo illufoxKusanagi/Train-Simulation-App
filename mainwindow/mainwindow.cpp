@@ -1,8 +1,9 @@
 #include "mainwindow.h"
-#include "../widgets/InputWidget.h"
+#include "../resources/inputType.h"
 #include "../widgets/buttonAction.h"
 #include "../widgets/buttonSidebarActive.h"
 #include <QVBoxLayout>
+
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
@@ -29,25 +30,34 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   // ButtonAction *saveButton = new ButtonAction("Save this data", "", this);
   // connect(saveButton, &ButtonAction::clicked, this,
   //         [this]() { qDebug() << "Submit button clicked"; });
-  // ButtonAction *runButton = new ButtonAction("Run Simulation", "icon", this);
-  // connect(runButton, &ButtonAction::clicked, this,
-  //         [this]() { qDebug() << "Run button clicked"; });
+  ButtonAction *runButton = new ButtonAction("Run", "icon", this);
+  connect(runButton, &ButtonAction::clicked, this,
+          [this]() { qDebug() << "Run button clicked"; });
   // ButtonAction *saveFileButton = new ButtonAction("Save all data", "", this);
   // connect(saveFileButton, &ButtonAction::clicked, this,
   //         [this]() { qDebug() << "Save all data button clicked"; });
   // mainLayout->addWidget(saveButton);
-  // mainLayout->addWidget(runButton);
+  mainLayout->addWidget(runButton);
   // mainLayout->addWidget(saveFileButton);
 
   ButtonSidebarActive *constantValuesButton =
       new ButtonSidebarActive("runningActive", "Constant Values", this);
   ButtonSidebarActive *trainParameterButton =
-      new ButtonSidebarActive("run", "Train Parameter", this);
+      new ButtonSidebarActive("trainActive", "Train Parameter", this);
   ButtonSidebarActive *runningParameterButton =
-      new ButtonSidebarActive("expand", "Running Parameter", this);
+      new ButtonSidebarActive("runningActive", "Running Parameter", this);
+  ButtonSidebarActive *trackParameterButton =
+      new ButtonSidebarActive("trackActive", "Track Parameter", this);
+  ButtonSidebarActive *electricalParameterButton =
+      new ButtonSidebarActive("electricalActive", "Electrical Parameter", this);
+  ButtonSidebarActive *outputButton =
+      new ButtonSidebarActive("outputActive", "Output", this);
   mainLayout->addWidget(constantValuesButton);
   mainLayout->addWidget(trainParameterButton);
   mainLayout->addWidget(runningParameterButton);
+  mainLayout->addWidget(trackParameterButton);
+  mainLayout->addWidget(electricalParameterButton);
+  mainLayout->addWidget(outputButton);
 }
 
 MainWindow::~MainWindow() {}
