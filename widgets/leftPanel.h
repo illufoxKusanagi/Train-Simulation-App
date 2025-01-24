@@ -1,4 +1,5 @@
 #include "buttonSidebarActive.h"
+#include "toggleButton.h"
 #include <QList>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -13,7 +14,7 @@ private slots:
 
 private:
   bool isCollapsed = false;
-  QPushButton *toggleButton;
+  ToggleButton *toggleButton;
   QList<ButtonSidebarActive *> sidebarButtons;
   QWidget *buttonContainer;
   QVBoxLayout *buttonLayout;

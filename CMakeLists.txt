@@ -55,6 +55,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         widgets/leftPanel.h
         widgets/buttonSidebarWidget.cpp
         widgets/buttonSidebarWidget.h
+        widgets/toggleButton.h
+        widgets/toggleButton.cpp
     )
 
 # Define target properties for Android with Qt 6 as:

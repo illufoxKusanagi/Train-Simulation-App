@@ -2,6 +2,7 @@
 #include "../styles/colors.h"
 #include "../styles/textStyle.h"
 #include "buttonSidebarActive.h"
+#include "toggleButton.h"
 #include <QDebug>
 #include <QVBoxLayout>
 
@@ -15,22 +16,22 @@ LeftPanel::LeftPanel(QWidget *parent) : QWidget(parent), buttonLayout(nullptr) {
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(8);
   mainLayout->setAlignment(Qt::AlignVCenter);
-
-  toggleButton = new QPushButton("Collapse", this);
-  toggleButton->setStyleSheet("QPushButton {"
-                              "    padding: 8px;"
-                              "    color: white;"
-                              "    background-color: " +
-                              Colors::Secondary600.name() +
-                              ";"
-                              "    border: none;"
-                              "    border-radius: 4px;"
-                              "}"
-                              "QPushButton:hover {"
-                              "    background-color: " +
-                              Colors::Secondary300.name() +
-                              ";"
-                              "}");
+  toggleButton = new ToggleButton(isCollapsed, this);
+  // toggleButton = new QPushButton("Collapse", this);
+  // toggleButton->setStyleSheet("QPushButton {"
+  //                             "    padding: 8px;"
+  //                             "    color: white;"
+  //                             "    background-color: " +
+  //                             Colors::Secondary600.name() +
+  //                             ";"
+  //                             "    border: none;"
+  //                             "    border-radius: 4px;"
+  //                             "}"
+  //                             "QPushButton:hover {"
+  //                             "    background-color: " +
+  //                             Colors::Secondary300.name() +
+  //                             ";"
+  //                             "}");
   mainLayout->addWidget(toggleButton);
   connect(toggleButton, &QPushButton::clicked, this, &LeftPanel::togglePanel);
 
@@ -62,15 +63,13 @@ LeftPanel::LeftPanel(QWidget *parent) : QWidget(parent), buttonLayout(nullptr) {
 
 void LeftPanel::togglePanel() {
   isCollapsed = !isCollapsed;
-  if (toggleButton) {
-    toggleButton->setText(isCollapsed ? "Expand" : "Collapse");
-    qDebug() << "Toggle button text set to : " << isCollapsed;
-  }
   for (auto *button : sidebarButtons) {
     if (button) {
       button->setLabelVisible(!isCollapsed);
     }
   }
+  toggleButton->toggleCollapse();
+  qDebug() << "Button toggled";
   setFixedWidth(isCollapsed ? 80 : 320);
   if (layout()) {
     layout()->invalidate();
