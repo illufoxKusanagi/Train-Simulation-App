@@ -32,14 +32,15 @@ LeftPanel::LeftPanel(QWidget *parent) : QWidget(parent), buttonLayout(nullptr) {
   //                             Colors::Secondary300.name() +
   //                             ";"
   //                             "}");
-  mainLayout->addWidget(toggleButton);
-  connect(toggleButton, &QPushButton::clicked, this, &LeftPanel::togglePanel);
 
   QWidget *buttonContainer = new QWidget(this);
   buttonLayout = new QVBoxLayout(buttonContainer);
   buttonLayout->setContentsMargins(8, 16, 8, 16);
   buttonLayout->setSpacing(16);
   buttonLayout->setAlignment(Qt::AlignCenter);
+  buttonLayout->addWidget(toggleButton);
+  connect(toggleButton, &QPushButton::clicked, this, &LeftPanel::togglePanel);
+
   sidebarButtons.append(
       new ButtonSidebarActive("constantActive", "Constant Values", this));
   sidebarButtons.append(
@@ -69,7 +70,6 @@ void LeftPanel::togglePanel() {
     }
   }
   toggleButton->toggleCollapse();
-  qDebug() << "Button toggled";
   setFixedWidth(isCollapsed ? 80 : 320);
   if (layout()) {
     layout()->invalidate();
