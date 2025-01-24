@@ -2,38 +2,84 @@
 #include "../styles/colors.h"
 #include "../styles/textStyle.h"
 #include "buttonSidebarActive.h"
+#include "toggleButton.h"
 #include <QDebug>
 #include <QVBoxLayout>
 
-LeftPanel::LeftPanel(QWidget *parent) : QWidget(parent) {
-  QVBoxLayout *layout = new QVBoxLayout(this);
-  layout->setContentsMargins(0, 0, 0, 0);
-  layout->setSpacing(8);
-  layout->setAlignment(Qt::AlignVCenter);
+LeftPanel::LeftPanel(QWidget *parent) : QWidget(parent), buttonLayout(nullptr) {
+  QVBoxLayout *mainLayout = new QVBoxLayout(this);
   setStyleSheet("QWidget {"
                 "    background-color: " +
                 Colors::Secondary500.name() +
                 ";"
                 "}");
-  ButtonSidebarActive *constantValuesButton =
-      new ButtonSidebarActive("constantActive", "Constant Values", this);
-  ButtonSidebarActive *trainParameterButton =
-      new ButtonSidebarActive("trainActive", "Train Parameter", this);
-  ButtonSidebarActive *runningParameterButton =
-      new ButtonSidebarActive("runningActive", "Running Parameter", this);
-  ButtonSidebarActive *trackParameterButton =
-      new ButtonSidebarActive("trackActive", "Track Parameter", this);
-  ButtonSidebarActive *electricalParameterButton =
-      new ButtonSidebarActive("electricalActive", "Electrical Parameter", this);
-  ButtonSidebarActive *outputButton =
-      new ButtonSidebarActive("outputActive", "Output", this);
-  layout->addWidget(constantValuesButton);
-  layout->addWidget(trainParameterButton);
-  layout->addWidget(runningParameterButton);
-  layout->addWidget(trackParameterButton);
-  layout->addWidget(electricalParameterButton);
-  layout->addWidget(outputButton);
-  connect(constantValuesButton, &ButtonSidebarActive::clicked, this,
-          [this]() { qDebug() << "Save all data button clicked"; });
-  setLayout(layout);
+  mainLayout->setContentsMargins(0, 0, 0, 0);
+  mainLayout->setSpacing(8);
+  mainLayout->setAlignment(Qt::AlignVCenter);
+  toggleButton = new ToggleButton(isCollapsed, this);
+  // toggleButton = new QPushButton("Collapse", this);
+  // toggleButton->setStyleSheet("QPushButton {"
+  //                             "    padding: 8px;"
+  //                             "    color: white;"
+  //                             "    background-color: " +
+  //                             Colors::Secondary600.name() +
+  //                             ";"
+  //                             "    border: none;"
+  //                             "    border-radius: 4px;"
+  //                             "}"
+  //                             "QPushButton:hover {"
+  //                             "    background-color: " +
+  //                             Colors::Secondary300.name() +
+  //                             ";"
+  //                             "}");
+
+  QWidget *buttonContainer = new QWidget(this);
+  buttonLayout = new QVBoxLayout(buttonContainer);
+  buttonLayout->setContentsMargins(8, 16, 8, 16);
+  buttonLayout->setSpacing(16);
+  buttonLayout->setAlignment(Qt::AlignCenter);
+  buttonLayout->addWidget(toggleButton);
+  connect(toggleButton, &QPushButton::clicked, this, &LeftPanel::togglePanel);
+
+  sidebarButtons.append(
+      new ButtonSidebarActive("constantActive", "Constant Values", this));
+  sidebarButtons.append(
+      new ButtonSidebarActive("trainActive", "Train Parameter", this));
+  sidebarButtons.append(
+      new ButtonSidebarActive("runningActive", "Running Parameter", this));
+  sidebarButtons.append(
+      new ButtonSidebarActive("trackActive", "Track Parameter", this));
+  sidebarButtons.append(new ButtonSidebarActive("electricalActive",
+                                                "Electrical Parameter", this));
+  sidebarButtons.append(
+      new ButtonSidebarActive("outputActive", "Output", this));
+  for (ButtonSidebarActive *button : sidebarButtons) {
+    button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    buttonLayout->addWidget(button);
+  }
+  mainLayout->addWidget(buttonContainer);
+  setFixedWidth(320);
+  setLayout(mainLayout);
+}
+
+void LeftPanel::togglePanel() {
+  isCollapsed = !isCollapsed;
+  for (auto *button : sidebarButtons) {
+    if (button) {
+      button->setLabelVisible(!isCollapsed);
+    }
+  }
+  toggleButton->toggleCollapse();
+  setFixedWidth(isCollapsed ? 80 : 320);
+  if (layout()) {
+    layout()->invalidate();
+    layout()->update();
+  }
+  updateGeometry();
+}
+
+void LeftPanel::setButtonLabelsVisible(bool visible) {
+  for (ButtonSidebarActive *button : sidebarButtons) {
+    button->setLabelVisible(visible);
+  }
 }
