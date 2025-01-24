@@ -18,45 +18,45 @@ set(PROJECT_SOURCES
     mainwindow/mainwindow.h
     mainwindow/mainwindow.ui
     styles/colors.h
-    styles/textStyle.h
+    styles/text_style.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(TrainAppSimulation
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        pages/trainParameterPage.cpp
-        pages/trainParameterPage.h
-        pages/runningParameterPage.cpp
-        pages/runningParameterPage.h
-        pages/trackParameterPage.cpp
-        widgets/inputField.cpp
-        widgets/inputField.h
+        pages/train_parameter_page.cpp
+        pages/train_parameter_page.h
+        pages/running_parameter_page.cpp
+        pages/running_parameter_page.h
+        pages/track_parameter_page.cpp
+        widgets/input_field.cpp
+        widgets/input_field.h
         styles/colors.h
-        styles/textStyle.h
-        widgets/inputWidget.h
-        widgets/inputWidget.cpp
+        styles/text_style.h
+        widgets/input_widget.h
+        widgets/input_widget.cpp
         mainwindow/mainwindowDummy.txt
-        widgets/inputDropdown.h
-        widgets/inputDropdown.cpp
-        resources/inputType.h
-        widgets/inputInvalid.h
-        widgets/inputInvalid.cpp
-        widgets/inputUpload.h
-        widgets/inputUpload.cpp
-        widgets/buttonAction.h
-        widgets/buttonAction.cpp
+        widgets/input_dropdown.h
+        widgets/input_dropdown.cpp
+        resources/input_type.h
+        widgets/input_invalid.h
+        widgets/input_invalid.cpp
+        widgets/input_upload.h
+        widgets/input_upload.cpp
+        widgets/button_action.h
+        widgets/button_action.cpp
         resources/icons.qrc
-        widgets/buttonSidebarActive.cpp
-        widgets/buttonSidebarActive.h
-        resources/iconPaths.h
+        widgets/button_sidebar_active.cpp
+        widgets/button_sidebar_active.h
+        resources/icon_paths.h
         resources/icons.qrc
-        widgets/leftPanel.cpp
-        widgets/leftPanel.h
-        widgets/buttonSidebarWidget.cpp
-        widgets/buttonSidebarWidget.h
-        widgets/toggleButton.h
-        widgets/toggleButton.cpp
+        widgets/left_panel.cpp
+        widgets/left_panel.h
+        widgets/button_sidebar_widget.cpp
+        widgets/button_sidebar_widget.h
+        widgets/toggle_button.h
+        widgets/toggle_button.cpp
     )
 
 # Define target properties for Android with Qt 6 as:

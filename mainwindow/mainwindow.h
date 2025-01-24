@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "../widgets/leftPanel.h"
+#include "../widgets/left_panel.h"
 #include <QMainWindow>
 #include <QPushButton>
 #include <QStackedWidget>

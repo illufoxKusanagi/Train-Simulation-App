@@ -1,10 +1,10 @@
-#include "inputWidget.h"
+#include "input_widget.h"
 #include "../styles/colors.h"
-#include "../styles/textStyle.h"
-#include "inputDropdown.h"
-#include "inputField.h"
-#include "inputInvalid.h"
-#include "inputUpload.h"
+#include "../styles/text_style.h"
+#include "input_dropdown.h"
+#include "input_field.h"
+#include "input_invalid.h"
+#include "input_upload.h"
 #include <qboxlayout.h>
 
 InputWidget::InputWidget(const InputType &inputType, QWidget *parent)

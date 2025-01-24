@@ -1,8 +1,8 @@
-#include "leftPanel.h"
+#include "left_panel.h"
 #include "../styles/colors.h"
-#include "../styles/textStyle.h"
-#include "buttonSidebarActive.h"
-#include "toggleButton.h"
+#include "../styles/text_style.h"
+#include "button_sidebar_active.h"
+#include "toggle_button.h"
 #include <QVBoxLayout>
 
 LeftPanel::LeftPanel(QWidget *parent) : QWidget(parent), buttonLayout(nullptr) {

@@ -1,8 +1,8 @@
-#include "buttonSidebarActive.h"
-#include "../resources/iconPaths.h"
+#include "button_sidebar_active.h"
+#include "../resources/icon_paths.h"
 #include "../styles/colors.h"
-#include "../styles/textStyle.h"
-#include "buttonSidebarWidget.h"
+#include "../styles/text_style.h"
+#include "button_sidebar_widget.h"
 #include <qboxlayout.h>
 #include <qstyle.h>
 

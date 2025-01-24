@@ -1,9 +1,8 @@
 #ifndef BUTTONSIDEBARACTIVE_H
 #define BUTTONSIDEBARACTIVE_H
 
-#include "buttonSidebarWidget.h"
+#include "button_sidebar_widget.h"
 #include <QPushButton>
-
 
 class ButtonSidebarActive : public QPushButton {
   Q_OBJECT

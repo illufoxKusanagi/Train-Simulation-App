@@ -1,7 +1,7 @@
 #ifndef INPUTWIDGET_H
 #define INPUTWIDGET_H
 
-#include "../resources/inputType.h"
+#include "../resources/input_type.h"
 #include <QLabel>
 
 class InputWidget : public QWidget {

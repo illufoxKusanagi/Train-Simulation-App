@@ -1,4 +1,4 @@
-#include "trainParameterPage.h"
+#include "train_parameter_page.h"
 
 TrainParameterWidget::TrainParameterWidget(QWidget *parent)
     : QWidget(parent), formLayout(new QGridLayout(this)) {

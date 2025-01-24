@@ -1,6 +1,6 @@
-#include "buttonAction.h"
+#include "button_action.h"
 #include "../styles/colors.h"
-#include "../styles/textStyle.h"
+#include "../styles/text_style.h"
 #include <qboxlayout.h>
 #include <qstyle.h>
 
