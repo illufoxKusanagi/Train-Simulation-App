@@ -5,7 +5,7 @@ ToggleButton::ToggleButton(bool isCollapsed, QWidget *parent)
     : QPushButton(parent) {
   updateIcon();
   setIconSize(QSize(36, 36));
-  setFixedSize(64, 48);
+  setFixedSize(64, 56);
   setContentsMargins(16, 16, 16, 16);
   setStyleSheet("QPushButton {"
                 "    padding: 32px;"
