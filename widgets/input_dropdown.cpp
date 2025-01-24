@@ -1,6 +1,6 @@
-#include "inputDropdown.h"
+#include "input_dropdown.h"
 #include "../styles/colors.h"
-#include "../styles/textStyle.h"
+#include "../styles/text_style.h"
 #include <qboxlayout.h>
 #include <qlineedit.h>
 

@@ -1,8 +1,8 @@
-#include "buttonSidebarWidget.h"
-#include "../resources/iconPaths.h"
+#include "button_sidebar_widget.h"
+#include "../resources/icon_paths.h"
 #include "../styles/colors.h"
-#include "../styles/textStyle.h"
-#include <QHBoxLayout> // Use QHBoxLayout instead of QBoxLayout
+#include "../styles/text_style.h"
+#include <QHBoxLayout>
 #include <QPixmap>
 #include <QSizePolicy>
 

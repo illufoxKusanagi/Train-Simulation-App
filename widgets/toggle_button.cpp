@@ -1,4 +1,4 @@
-#include "toggleButton.h"
+#include "toggle_button.h"
 #include "../styles/colors.h"
 
 ToggleButton::ToggleButton(bool isCollapsed, QWidget *parent)
