@@ -7,15 +7,15 @@
 
 class ButtonSidebarWidget : public QWidget {
 public:
-  explicit ButtonSidebarWidget(const QString &iconType = "",
-                               const QString &buttonLabel = "",
+  explicit ButtonSidebarWidget(const QString &iconType,
+                               const QString &buttonLabel,
                                QWidget *parent = nullptr);
   void setLabelVisible(bool visible);
 
 private:
-  QLabel *iconLabel;
-  QLabel *textLabel;
-  QBoxLayout *layout;
+  QLabel *iconLabel = nullptr;
+  QLabel *textLabel = nullptr;
+  QBoxLayout *layout = nullptr;
 };
 
 #endif // BUTTONSIDEBARWIDGET_H

@@ -1,8 +1,9 @@
 #ifndef BUTTONSIDEBARACTIVE_H
 #define BUTTONSIDEBARACTIVE_H
 
-#include <QPushButton>
 #include "buttonSidebarWidget.h"
+#include <QPushButton>
+
 
 class ButtonSidebarActive : public QPushButton {
   Q_OBJECT
@@ -16,7 +17,7 @@ public:
 
 private:
   QPushButton *buttonSidebarActive;
-  ButtonSidebarWidget *contentWidget;
+  ButtonSidebarWidget *m_contentWidget;
   bool isLabelVisible;
 };
 

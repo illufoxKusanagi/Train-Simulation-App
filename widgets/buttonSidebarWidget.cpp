@@ -2,6 +2,7 @@
 #include "../resources/iconPaths.h"
 #include "../styles/colors.h"
 #include "../styles/textStyle.h"
+#include <QHBoxLayout> // Use QHBoxLayout instead of QBoxLayout
 #include <QPixmap>
 #include <QSizePolicy>
 
@@ -9,32 +10,34 @@ ButtonSidebarWidget::ButtonSidebarWidget(const QString &iconType,
                                          const QString &buttonLabel,
                                          QWidget *parent)
     : QWidget(parent) {
-  QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
+  layout = new QHBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
+  layout->setSpacing(16);
   iconLabel = new QLabel(this);
   QString iconPath = IconPaths::getIconPath(iconType);
   QPixmap icon(iconPath);
   iconLabel->setPixmap(
       icon.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-  iconLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-  QLabel *textLabel = new QLabel(buttonLabel, this);
+  iconLabel->setFixedSize(40, 40);
+  iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  textLabel = new QLabel(buttonLabel, this);
   textLabel->setStyleSheet(TextStyle::BodyBigBold() +
                            "color: " + Colors::StandardWhite.name() + ";");
-  textLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+  textLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   layout->addWidget(iconLabel);
-  layout->setSpacing(16);
-  layout->addWidget(textLabel);
+  layout->addWidget(textLabel, 1);
   setLayout(layout);
-  setStyleSheet("QWidget {"
-                "    background-color: transparent;"
-                "}");
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  setMinimumHeight(40);
+  setMaximumHeight(40);
+  setStyleSheet("QWidget { background-color: transparent; }");
 }
 
 void ButtonSidebarWidget::setLabelVisible(bool visible) {
-  textLabel->setVisible(visible);
-  if (visible) {
-    layout->setSpacing(16);
-  } else {
-    layout->setSpacing(0);
+  if (textLabel) {
+    textLabel->setVisible(visible);
+    if (layout) {
+      layout->setSpacing(visible ? 16 : 0);
+    }
   }
 }

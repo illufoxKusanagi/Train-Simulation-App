@@ -12,8 +12,10 @@ private slots:
   void togglePanel();
 
 private:
-  bool isCollapsed;
+  bool isCollapsed = false;
   QPushButton *toggleButton;
   QList<ButtonSidebarActive *> sidebarButtons;
+  QWidget *buttonContainer;
+  QVBoxLayout *buttonLayout;
   void setButtonLabelsVisible(bool visible);
 };
