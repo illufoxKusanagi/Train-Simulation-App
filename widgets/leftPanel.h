@@ -1,22 +1,30 @@
+#ifndef LEFT_PANEL_H
+#define LEFT_PANEL_H
+
 #include "buttonSidebarActive.h"
 #include "toggleButton.h"
-#include <QList>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
 
+
 class LeftPanel : public QWidget {
+  Q_OBJECT
+
 public:
   explicit LeftPanel(QWidget *parent = nullptr);
 
-private slots:
-  void togglePanel();
+signals:
+  void navigateToPage(int pageIndex);
 
 private:
   bool isCollapsed = false;
   ToggleButton *toggleButton;
-  QList<ButtonSidebarActive *> sidebarButtons;
-  QWidget *buttonContainer;
   QVBoxLayout *buttonLayout;
-  void setButtonLabelsVisible(bool visible);
+  QList<ButtonSidebarActive *> sidebarButtons;
+
+  void setupButtons();
+  void emitNavigateSignal(int pageIndex);
 };
+
+#endif // LEFT_PANEL_H

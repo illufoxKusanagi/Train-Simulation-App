@@ -24,11 +24,9 @@ public:
         {"electricalDisabled", ":/icons/icons/electrical-disabled.svg"},
         {"outputDisabled", ":/icons/icons/play-disabled.svg"},
     };
-    // Mengembalikan path ikon jika ditemukan
     if (iconPaths.contains(iconName)) {
       return iconPaths.value(iconName);
     } else {
-      // Mengembalikan string kosong atau path default jika tidak ditemukan
       return QString();
     }
   };
