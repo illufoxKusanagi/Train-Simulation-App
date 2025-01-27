@@ -1,11 +1,15 @@
 #include "constant_values_page.h"
+#include "../styles/colors.h"
+#include "../styles/text_style.h"
 #include <QGroupBox>
 
 ConstantValuesPage::ConstantValuesPage(QWidget *parent) : QWidget(parent) {
-  QBoxLayout *mainLayout = new QVBoxLayout(this);
-  mainLayout->setContentsMargins(0, 0, 0, 0);
+  QVBoxLayout *mainLayout = new QVBoxLayout(this);
+  mainLayout->setAlignment(Qt::AlignCenter);
   QGroupBox *formLayout = new QGroupBox("Constant Values");
+  formLayout->setContentsMargins(16, 16, 16, 16);
   QVBoxLayout *groupBoxLayout = new QVBoxLayout(formLayout);
+  groupBoxLayout->setContentsMargins(16, 16, 16, 16);
   QStringList labels = {"Gravitation", "m/s to km/h"};
   QStringList unitLabels = {"m/s^2", "km/h"};
   InputType gravitationInputType("field", "Gravitation", "m/s^2");
@@ -16,7 +20,22 @@ ConstantValuesPage::ConstantValuesPage(QWidget *parent) : QWidget(parent) {
   groupBoxLayout->addWidget(converterInput);
   formLayout->setLayout(groupBoxLayout);
   mainLayout->addWidget(formLayout);
-  setFixedSize(900, 500);
-  setStyleSheet("QGroupBox { border: 1px solid gray; border-radius: 5px; "
-                "margin-top: 1.5em; max-width: 300; max-height: 300; }");
+  setStyleSheet("QGroupBox { "
+                "border: 1px solid" +
+                Colors::Grey300.name() +
+                ";"
+                "padding: 16px; border-radius: 12px; " +
+                TextStyle::BodyMediumRegular() +
+                "margin-top: 20px;"
+                "}"
+                "min-width: 200px; }"
+                "    QGroupBox::title {"
+                "subcontrol-origin: border;"
+                "subcontrol-position: top left;"
+                "background-color: white;"
+                "padding: 0 5px;"
+                "position: relative;"
+                "left: 20px;"
+                "top: -8px;"
+                "}");
 }

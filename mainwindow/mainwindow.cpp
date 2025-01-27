@@ -6,28 +6,22 @@
 #include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-  // Inisialisasi widget utama
   QWidget *centralWidget = new QWidget(this);
   QHBoxLayout *mainLayout = new QHBoxLayout(centralWidget);
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(0);
 
-  // Setup Left Panel
   leftPanel = new LeftPanel(this);
   connect(leftPanel, &LeftPanel::navigateToPage, this,
           &MainWindow::navigateToPage);
 
-  // Setup Pages
   stackedWidget = new QStackedWidget(this);
   setupPages();
 
-  // Tambahkan Left Panel dan Pages ke Layout Utama
   mainLayout->addWidget(leftPanel);
   mainLayout->addWidget(stackedWidget);
   centralWidget->setLayout(mainLayout);
   setCentralWidget(centralWidget);
-
-  // Atur halaman awal
   navigateToPage(0);
 }
 
@@ -39,6 +33,7 @@ void MainWindow::setupPages() {
   // Untuk mengatur ukuran page
   auto setupFixedSizePage = [this, PAGE_WIDTH, PAGE_HEIGHT](QWidget *page) {
     page->setFixedSize(PAGE_WIDTH, PAGE_HEIGHT);
+    page->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     stackedWidget->addWidget(page);
   };
   ConstantValuesPage *constantValuesPage = new ConstantValuesPage(this);
