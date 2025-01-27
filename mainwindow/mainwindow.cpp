@@ -34,13 +34,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 MainWindow::~MainWindow() {}
 
 void MainWindow::setupPages() {
-  // Tambahkan halaman-halaman ke dalam stackedWidget
-  // QWidget *constantValuesPage = new QWidget(this);
-  // QVBoxLayout *constantLayout = new QVBoxLayout(constantValuesPage);
-  // constantLayout->addWidget(new QLabel("Constant Values Page", this));
-  // constantValuesPage->setLayout(constantLayout);
+  const int PAGE_WIDTH = 700;
+  const int PAGE_HEIGHT = 500;
+  // Untuk mengatur ukuran page
+  auto setupFixedSizePage = [this, PAGE_WIDTH, PAGE_HEIGHT](QWidget *page) {
+    page->setFixedSize(PAGE_WIDTH, PAGE_HEIGHT);
+    stackedWidget->addWidget(page);
+  };
   ConstantValuesPage *constantValuesPage = new ConstantValuesPage(this);
-  stackedWidget->addWidget(constantValuesPage);
+  setupFixedSizePage(constantValuesPage);
 
   QWidget *trainParameterPage = new QWidget(this);
   QVBoxLayout *trainLayout = new QVBoxLayout(trainParameterPage);
