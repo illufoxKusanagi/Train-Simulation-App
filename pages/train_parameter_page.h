@@ -1,23 +1,21 @@
 #ifndef TRAINPARAMETERPAGE_H
 #define TRAINPARAMETERPAGE_H
 
+#include "../widgets/input_widget.h"
 #include <QGridLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QStringList>
 #include <QWidget>
 
-
-class TrainParameterWidget : public QWidget {
+class TrainParameterPage : public QWidget {
   Q_OBJECT
 
 public:
-  explicit TrainParameterWidget(QWidget *parent = nullptr);
+  explicit TrainParameterPage(QWidget *parent = nullptr);
 
 private:
   QGridLayout *formLayout;
-  QStringList labels;
-  QStringList unitLabels;
+  QList<InputWidget *> inputWidgets;
+
+  void setupInputs();
 };
 
 #endif // TRAINPARAMETERPAGE_H
