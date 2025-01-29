@@ -10,6 +10,7 @@ ConstantValuesPage::ConstantValuesPage(QWidget *parent) : QWidget(parent) {
   formLayout->setContentsMargins(16, 16, 16, 16);
   QVBoxLayout *groupBoxLayout = new QVBoxLayout(formLayout);
   groupBoxLayout->setContentsMargins(16, 16, 16, 16);
+
   QStringList labels = {"Gravitation", "m/s to km/h"};
   QStringList unitLabels = {"m/s^2", "km/h"};
   InputType gravitationInputType("field", "Gravitation", "m/s^2");
@@ -18,6 +19,7 @@ ConstantValuesPage::ConstantValuesPage(QWidget *parent) : QWidget(parent) {
   InputWidget *converterInput = new InputWidget(converterInputType, this);
   groupBoxLayout->addWidget(gravitationInput);
   groupBoxLayout->addWidget(converterInput);
+
   formLayout->setLayout(groupBoxLayout);
   mainLayout->addWidget(formLayout);
   setStyleSheet("QGroupBox { "

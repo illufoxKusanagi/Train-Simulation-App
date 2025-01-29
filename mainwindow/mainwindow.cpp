@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "../pages/constant_values_page.h"
+#include "../pages/train_parameter_page.h"
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QStackedWidget>
@@ -39,11 +40,14 @@ void MainWindow::setupPages() {
   ConstantValuesPage *constantValuesPage = new ConstantValuesPage(this);
   setupFixedSizePage(constantValuesPage);
 
-  QWidget *trainParameterPage = new QWidget(this);
-  QVBoxLayout *trainLayout = new QVBoxLayout(trainParameterPage);
-  trainLayout->addWidget(new QLabel("Train Parameter Page", this));
-  trainParameterPage->setLayout(trainLayout);
-  stackedWidget->addWidget(trainParameterPage);
+  TrainParameterPage *trainParameterPage = new TrainParameterPage(this);
+  setupFixedSizePage(trainParameterPage);
+
+  // QWidget *trainParameterPage = new QWidget(this);
+  // QVBoxLayout *trainLayout = new QVBoxLayout(trainParameterPage);
+  // trainLayout->addWidget(new QLabel("Train Parameter Page", this));
+  // trainParameterPage->setLayout(trainLayout);
+  // stackedWidget->addWidget(trainParameterPage);
 
   QWidget *runningParameterPage = new QWidget(this);
   QVBoxLayout *runningLayout = new QVBoxLayout(runningParameterPage);

@@ -12,6 +12,7 @@ public:
   explicit TrainParameterPage(QWidget *parent = nullptr);
 
 private:
+  QVBoxLayout *mainLayout;
   QGridLayout *formLayout;
   QList<InputWidget *> inputWidgets;
 
