@@ -7,7 +7,6 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-
 class TrainParameterPage : public QWidget {
   Q_OBJECT
 
@@ -21,6 +20,7 @@ private:
   QList<InputWidget *> typeInputWidgets;
   QList<InputWidget *> massInputWidgets;
   QList<InputWidget *> passangerInputWidgets;
+  QString groupBoxStyle;
 
   void setupFirstPage(QVBoxLayout *layout);
   void setupSecondPage(QVBoxLayout *layout);
@@ -29,7 +29,6 @@ private:
   void showNextPage();
   void updatePaginationButtons();
 
-  // Metode baru untuk membuat layout
   QGroupBox *createTypeLayout(const QStringList &labels);
   QGroupBox *createMassLayout(const QStringList &labels);
   QGroupBox *createPassengerLayout(const QStringList &labels);
