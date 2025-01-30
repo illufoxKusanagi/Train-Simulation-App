@@ -1,6 +1,7 @@
 #ifndef TRAINPARAMETERPAGE_H
 #define TRAINPARAMETERPAGE_H
 
+#include "../widgets/button_action.h"
 #include "../widgets/input_widget.h"
 #include <QGroupBox>
 #include <QStackedWidget>
@@ -21,6 +22,8 @@ private:
   QList<InputWidget *> massInputWidgets;
   QList<InputWidget *> passangerInputWidgets;
   QString groupBoxStyle;
+  ButtonAction *prevButton;
+  ButtonAction *nextButton;
 
   void setupFirstPage(QVBoxLayout *layout);
   void setupSecondPage(QVBoxLayout *layout);

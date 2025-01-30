@@ -12,7 +12,6 @@ ToggleButton::ToggleButton(bool isCollapsed, QWidget *parent)
                 "    background-color: transparent;"
                 "    border: none;"
                 "    border-radius: 8px;"
-                "    max-size: 80px;"
                 "}"
                 "QPushButton:hover {"
                 "    background-color: " +

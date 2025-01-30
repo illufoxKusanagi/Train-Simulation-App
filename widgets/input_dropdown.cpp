@@ -1,8 +1,9 @@
 #include "input_dropdown.h"
 #include "../styles/colors.h"
 #include "../styles/text_style.h"
-#include <qboxlayout.h>
-#include <qlineedit.h>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QStringList>
 
 InputDropdown::InputDropdown(QWidget *parent)
     : QWidget(parent), dropdown(new QComboBox(this)) {
@@ -17,30 +18,24 @@ InputDropdown::InputDropdown(QWidget *parent)
                           Colors::Secondary400.name() +
                           ";"
                           "    border-radius: 8px;"
-                          "    min-width: 64px;"
-                          "    " +
+                          "    min-width: 100px;" +
                           TextStyle::BodySmallRegular() +
                           "    color: " + Colors::Secondary400.name() +
                           ";"
                           "}"
                           "QComboBox::drop-down {"
-                          "subcontrol-origin: padding;"
-                          "subcontrol-position: center right;"
+                          "    subcontrol-origin: padding;"
+                          "    subcontrol-position: center right;"
                           "    width: 10px;"
-                          "height: 10px;"
+                          "    height: 10px;"
                           "    border: none;"
                           "}"
                           "QComboBox::down-arrow {"
-                          "wdith: 8px;"
-                          "height: 8px;");
+                          "    width: 8px;"
+                          "    height: 8px;"
+                          "}");
+
   layout->addWidget(dropdown);
 }
 
 QString InputDropdown::currentText() const { return dropdown->currentText(); }
-
-void InputDropdown::setCurrentText(const QString &text) {
-  int index = dropdown->findText(text);
-  if (index != 1) {
-    dropdown->setCurrentText(text);
-  }
-}

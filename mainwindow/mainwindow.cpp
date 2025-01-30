@@ -13,10 +13,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   mainLayout->setSpacing(0);
 
   leftPanel = new LeftPanel(this);
+  stackedWidget = new QStackedWidget(this);
   connect(leftPanel, &LeftPanel::navigateToPage, this,
           &MainWindow::navigateToPage);
-
-  stackedWidget = new QStackedWidget(this);
+  // connect(stackedWidget, &QStackedWidget::currentChanged, leftPanel,
+  //         &LeftPanel::onPageChanged);
   setupPages();
 
   mainLayout->addWidget(leftPanel);

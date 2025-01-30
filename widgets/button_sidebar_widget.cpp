@@ -41,3 +41,9 @@ void ButtonSidebarWidget::setLabelVisible(bool visible) {
     }
   }
 }
+
+void ButtonSidebarWidget::updateIcon(const QString &iconPath) {
+  if (iconLabel) {
+    iconLabel->setPixmap(QPixmap(iconPath));
+  }
+}

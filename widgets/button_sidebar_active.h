@@ -13,10 +13,12 @@ public:
                                QWidget *parent = nullptr);
   using QPushButton::setText;
   void setLabelVisible(bool visible);
+  void setEnabled(bool isEnabled);
 
 private:
   QPushButton *buttonSidebarActive;
   ButtonSidebarWidget *m_contentWidget;
+  QString m_iconType;
   bool isLabelVisible;
 };
 

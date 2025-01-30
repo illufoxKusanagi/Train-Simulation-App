@@ -13,6 +13,10 @@ class LeftPanel : public QWidget {
 public:
   explicit LeftPanel(QWidget *parent = nullptr);
 
+public slots:
+  // void onPageChanged(int pageIndex);
+  void emitNavigateSignal(int pageIndex);
+
 signals:
   void navigateToPage(int pageIndex);
 
@@ -23,7 +27,7 @@ private:
   QList<ButtonSidebarActive *> sidebarButtons;
 
   void setupButtons();
-  void emitNavigateSignal(int pageIndex);
+  void setSidebarButtonsEnabled(bool enable);
 };
 
 #endif // LEFT_PANEL_H
