@@ -17,8 +17,7 @@ InputDropdown::InputDropdown(QWidget *parent)
                           Colors::Secondary400.name() +
                           ";"
                           "    border-radius: 8px;"
-                          "    min-width: 32px;"
-                          "    max-width: 64px;"
+                          "    min-width: 64px;"
                           "    " +
                           TextStyle::BodySmallRegular() +
                           "    color: " + Colors::Secondary400.name() +
