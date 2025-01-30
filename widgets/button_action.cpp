@@ -7,7 +7,6 @@
 ButtonAction::ButtonAction(const QString &buttonText,
                            const QString &isRunButton, QWidget *parent)
     : QPushButton(buttonText, parent) {
-  // Set up layout or other initialization...
   QHBoxLayout *layout = new QHBoxLayout(this);
   if (isRunButton == "yes") {
     setIcon(QIcon(":/icons/icons/right-arrow-active.svg"));
@@ -18,10 +17,7 @@ ButtonAction::ButtonAction(const QString &buttonText,
 QString ButtonAction::getText() const { return text(); }
 
 void ButtonAction::setEnabled(bool isEnabled) {
-  // Call the base class to avoid recursion
   QPushButton::setEnabled(isEnabled);
-
-  // Use different styles, depending on the enabled state
   if (isEnabled) {
     setStyleSheet("QPushButton {"
                   "    padding: 12px 4px;"

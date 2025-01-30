@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 MainWindow::~MainWindow() {}
 
 void MainWindow::setupPages() {
-  const int PAGE_WIDTH = 900;
+  const int PAGE_WIDTH = 960;
   const int PAGE_HEIGHT = 720;
   // Untuk mengatur ukuran page
   auto setupFixedSizePage = [this, PAGE_WIDTH, PAGE_HEIGHT](QWidget *page) {
@@ -43,12 +43,6 @@ void MainWindow::setupPages() {
 
   TrainParameterPage *trainParameterPage = new TrainParameterPage(this);
   setupFixedSizePage(trainParameterPage);
-
-  // QWidget *trainParameterPage = new QWidget(this);
-  // QVBoxLayout *trainLayout = new QVBoxLayout(trainParameterPage);
-  // trainLayout->addWidget(new QLabel("Train Parameter Page", this));
-  // trainParameterPage->setLayout(trainLayout);
-  // stackedWidget->addWidget(trainParameterPage);
 
   QWidget *runningParameterPage = new QWidget(this);
   QVBoxLayout *runningLayout = new QVBoxLayout(runningParameterPage);

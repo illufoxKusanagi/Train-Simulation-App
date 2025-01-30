@@ -30,27 +30,18 @@ TrainParameterPage::TrainParameterPage(QWidget *parent)
                   "top: -8px;"
                   "}";
   setStyleSheet("position: relative;");
-
   mainLayout->setAlignment(Qt::AlignCenter);
   mainLayout->setContentsMargins(32, 32, 32, 32);
   setLayout(mainLayout);
-
-  // First page
   QWidget *firstPage = new QWidget(this);
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
   setupFirstPage(firstPageLayout);
-
-  // Second page
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   setupSecondPage(secondPageLayout);
-
-  // Add pages to QStackedWidget
   stackedWidget->addWidget(firstPage);
   stackedWidget->addWidget(secondPage);
   mainLayout->addWidget(stackedWidget);
-
-  // Pagination buttons
   setupPagination();
 }
 
@@ -85,41 +76,26 @@ void TrainParameterPage::setupFirstPage(QVBoxLayout *layout) {
 
 void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
   const QStringList labels = {"Tc", "M1", "M2", "T1", "T2", "T3"};
-
-  // Number of Car container
   QWidget *numberCarContainer = new QWidget(this);
   QHBoxLayout *numberCarLayout = new QHBoxLayout(numberCarContainer);
-
   InputWidget *numberOfCar =
       new InputWidget(InputType("dropdown", "Number of Car", ""), this);
   numberCarLayout->addWidget(numberOfCar);
-
-  // Placeholder widget
   QWidget *placeholderWidget = new QWidget(this);
   placeholderWidget->setFixedSize(400, 80);
   placeholderWidget->setStyleSheet("border: 2px dashed gray; "
                                    "background-color: #f0f0f0;");
   numberCarLayout->addWidget(placeholderWidget);
-
   layout->addWidget(numberCarContainer);
-
-  // Remaining content...
   QWidget *secondPageContainer = new QWidget(this);
   QHBoxLayout *secondPageHLayout = new QHBoxLayout(secondPageContainer);
   secondPageHLayout->setSpacing(40);
-
-  // Type layout
   QGroupBox *typeLayout = createTypeLayout(labels);
   secondPageHLayout->addWidget(typeLayout);
-
-  // Mass layout
   QGroupBox *massLayout = createMassLayout(labels);
   secondPageHLayout->addWidget(massLayout);
-
-  // Passenger layout
   QGroupBox *passengerLayout = createPassengerLayout(labels);
   secondPageHLayout->addWidget(passengerLayout);
-
   layout->addWidget(secondPageContainer);
 }
 
@@ -147,10 +123,8 @@ QGroupBox *TrainParameterPage::createMassLayout(const QStringList &labels) {
     massInputWidgets.append(massInputWidget);
     massFormLayout->addWidget(massInputWidget);
   }
-
-  // Extra: empty trainset mass
   InputWidget *massPerTrainsetEmpty = new InputWidget(
-      InputType("field", "Mass per One Trainset Empty", "ton"), this);
+      InputType("field", "Mass per One Trainset (empty)", "ton"), this);
   massFormLayout->addWidget(massPerTrainsetEmpty);
 
   massLayout->setStyleSheet(groupBoxStyle);
@@ -168,48 +142,31 @@ TrainParameterPage::createPassengerLayout(const QStringList &labels) {
     passangerInputWidgets.append(passengerInputWidget);
     passengerFormLayout->addWidget(passengerInputWidget);
   }
-
-  // Extra: full trainset mass
   InputWidget *massPerTrainsetFull = new InputWidget(
-      InputType("field", "Mass per One Trainset Full", "ton"), this);
+      InputType("field", "Mass per One Trainset(loaded)", "ton"), this);
   passengerFormLayout->addWidget(massPerTrainsetFull);
-
   passengerLayout->setStyleSheet(groupBoxStyle);
   return passengerLayout;
 }
 
-// Create and store references to the buttons:
 void TrainParameterPage::setupPagination() {
   QWidget *paginationWidget = new QWidget(this);
   QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
-
-  // Store references in class members
   prevButton = new ButtonAction("Constant Input", "false", this);
   nextButton = new ButtonAction("Trainset", "false", this);
-
   connect(prevButton, &QPushButton::clicked, this,
           &TrainParameterPage::showPreviousPage);
   connect(nextButton, &QPushButton::clicked, this,
           &TrainParameterPage::showNextPage);
-
   paginationLayout->addWidget(prevButton);
   paginationLayout->addWidget(nextButton);
-
   mainLayout->addWidget(paginationWidget);
-
-  // Initialize button states
   updatePaginationButtons();
 }
-
-// Now use the current page index to enable or disable the buttons:
 void TrainParameterPage::updatePaginationButtons() {
   int currentIndex = stackedWidget->currentIndex();
   int lastIndex = stackedWidget->count() - 1;
-
-  // If currentIndex is 0, disable prevButton
   prevButton->setEnabled(currentIndex > 0);
-
-  // If currentIndex is the last page, disable nextButton
   nextButton->setEnabled(currentIndex < lastIndex);
 }
 

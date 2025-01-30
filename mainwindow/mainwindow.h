@@ -19,21 +19,19 @@ private slots:
   void navigateToPage(int pageIndex);
 
 private:
-  QWidget *menuWidget;           // Panel untuk menu di kiri
-  QStackedWidget *stackedWidget; // Widget untuk menyimpan halaman
+  QWidget *menuWidget;
+  QStackedWidget *stackedWidget;
 
-  void setupLeftPanel(); // Mengatur LeftPanel
-  void setupPages();     // Mengatur halaman di QStackedWidget
-  // QStackedWidget *stackedWidget;
+  void setupLeftPanel();
+  void setupPages();
 
-  // void leftPanel();
   // void constantValuesPage();
   // void trainParameterPage();
   // void runningParameterPage();
   // void trackParameterPage();
   // void electricalParameterPage();
 
-  LeftPanel *leftPanel; // Sidebar panel
+  LeftPanel *leftPanel;
 };
 
 #endif // MAINWINDOW_H
