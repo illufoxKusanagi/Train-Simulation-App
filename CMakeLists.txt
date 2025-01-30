@@ -12,54 +12,72 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
+# Main sources
 set(PROJECT_SOURCES
     main.cpp
     mainwindow/mainwindow.cpp
     mainwindow/mainwindow.h
     mainwindow/mainwindow.ui
+)
+
+# Pages
+set(PAGE_SOURCES
+    pages/train_parameter_page.cpp
+    pages/train_parameter_page.h
+    pages/running_parameter_page.cpp
+    pages/running_parameter_page.h
+    pages/track_parameter_page.cpp
+    pages/track_parameter_page.h
+    pages/constant_values_page.cpp
+    pages/constant_values_page.h
+    pages/electrical_parameter_page.cpp
+    pages/electrical_parameter_page.h
+    pages/output_page.cpp
+    pages/output_page.h
+)
+
+# Widgets
+set(WIDGET_SOURCES
+    widgets/input_field.cpp
+    widgets/input_field.h
+    widgets/input_widget.cpp
+    widgets/input_widget.h
+    widgets/input_dropdown.cpp
+    widgets/input_dropdown.h
+    widgets/input_invalid.cpp
+    widgets/input_invalid.h
+    widgets/input_upload.cpp
+    widgets/input_upload.h
+    widgets/button_action.cpp
+    widgets/button_action.h
+    widgets/button_sidebar_active.cpp
+    widgets/button_sidebar_active.h
+    widgets/button_sidebar_widget.cpp
+    widgets/button_sidebar_widget.h
+    widgets/toggle_button.cpp
+    widgets/toggle_button.h
+    widgets/left_panel.cpp
+    widgets/left_panel.h
+)
+
+# Styles and Resources
+set(RESOURCE_SOURCES
     styles/colors.h
     styles/text_style.h
+    resources/input_type.h
+    resources/icon_paths.h
+    resources/icons.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(TrainAppSimulation
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        pages/train_parameter_page.cpp
-        pages/train_parameter_page.h
-        pages/running_parameter_page.cpp
-        pages/running_parameter_page.h
-        pages/track_parameter_page.cpp
-        widgets/input_field.cpp
-        widgets/input_field.h
-        styles/colors.h
-        styles/text_style.h
-        widgets/input_widget.h
-        widgets/input_widget.cpp
-        mainwindow/mainwindowDummy.txt
-        widgets/input_dropdown.h
-        widgets/input_dropdown.cpp
-        resources/input_type.h
-        widgets/input_invalid.h
-        widgets/input_invalid.cpp
-        widgets/input_upload.h
-        widgets/input_upload.cpp
-        widgets/button_action.h
-        widgets/button_action.cpp
-        resources/icons.qrc
-        widgets/button_sidebar_active.cpp
-        widgets/button_sidebar_active.h
-        resources/icon_paths.h
-        resources/icons.qrc
-        widgets/left_panel.cpp
-        widgets/left_panel.h
-        widgets/button_sidebar_widget.cpp
-        widgets/button_sidebar_widget.h
-        widgets/toggle_button.h
-        widgets/toggle_button.cpp
-        pages/constant_values_page.h
-        pages/constant_values_page.cpp
+        ${PAGE_SOURCES}
+        ${WIDGET_SOURCES}
+        ${RESOURCE_SOURCES}
     )
+# ...existing code...
 
 # Define target properties for Android with Qt 6 as:
 # set_property(TARGET TrainAppSimulation APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
