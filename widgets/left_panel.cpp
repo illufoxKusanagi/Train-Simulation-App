@@ -56,8 +56,22 @@ void LeftPanel::setupButtons() {
     sidebarButtons.append(button);
     buttonLayout->addWidget(button);
   }
+  // setSidebarButtonsEnabled(false);
 }
+
+// void LeftPanel::setSidebarButtonsEnabled(bool enable) {
+//   for (auto *button : sidebarButtons) {
+//     if (button) {
+//       button->setEnabled(enable);
+//     }
+//   }
+// }
 
 void LeftPanel::emitNavigateSignal(int pageIndex) {
   emit navigateToPage(pageIndex);
 }
+
+// void LeftPanel::onPageChanged(int pageIndex) {
+//   // For example, only enable the buttons if we’re past page 0
+//   setSidebarButtonsEnabled(pageIndex > 0);
+// }

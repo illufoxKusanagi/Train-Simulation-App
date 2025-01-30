@@ -12,6 +12,7 @@ public:
                         QWidget *parent = nullptr);
   using QPushButton::setText;
   QString getText() const;
+  void setEnabled(bool isEnabled);
 
 private:
   QPushButton *buttonAction;

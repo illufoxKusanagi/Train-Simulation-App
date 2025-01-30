@@ -29,8 +29,8 @@ ConstantValuesPage::ConstantValuesPage(QWidget *parent) : QWidget(parent) {
                 "padding: 16px; border-radius: 12px; " +
                 TextStyle::BodyMediumRegular() +
                 "margin-top: 20px;"
+                "min-width: 200px;"
                 "}"
-                "min-width: 200px; }"
                 "    QGroupBox::title {"
                 "subcontrol-origin: border;"
                 "subcontrol-position: top left;"

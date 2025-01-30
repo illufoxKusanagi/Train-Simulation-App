@@ -9,7 +9,8 @@
 
 TrainParameterPage::TrainParameterPage(QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
-      stackedWidget(new QStackedWidget(this)) {
+      stackedWidget(new QStackedWidget(this)), prevButton(nullptr),
+      nextButton(nullptr) {
   groupBoxStyle = "QGroupBox { "
                   "border: 1px solid" +
                   Colors::Grey300.name() +
@@ -17,9 +18,9 @@ TrainParameterPage::TrainParameterPage(QWidget *parent)
                   "padding: 16px; border-radius: 12px; " +
                   TextStyle::BodyMediumRegular() +
                   "margin-top: 20px;"
+                  "min-width: 200px;"
                   "}"
-                  "min-width: 200px; }"
-                  "    QGroupBox::title {"
+                  "QGroupBox::title {"
                   "subcontrol-origin: border;"
                   "subcontrol-position: top left;"
                   "background-color: white;"
@@ -28,30 +29,19 @@ TrainParameterPage::TrainParameterPage(QWidget *parent)
                   "left: 20px;"
                   "top: -8px;"
                   "}";
-  setStyleSheet("positon: relative;");
-
+  setStyleSheet("position: relative;");
   mainLayout->setAlignment(Qt::AlignCenter);
   mainLayout->setContentsMargins(32, 32, 32, 32);
   setLayout(mainLayout);
-
-  // Buat halaman pertama
   QWidget *firstPage = new QWidget(this);
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
   setupFirstPage(firstPageLayout);
-
-  // Buat halaman kedua
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   setupSecondPage(secondPageLayout);
-
-  // Tambahkan halaman ke QStackedWidget
   stackedWidget->addWidget(firstPage);
   stackedWidget->addWidget(secondPage);
-
-  // Tambahkan stackedWidget ke main layout
   mainLayout->addWidget(stackedWidget);
-
-  // Setup pagination
   setupPagination();
 }
 
@@ -86,44 +76,26 @@ void TrainParameterPage::setupFirstPage(QVBoxLayout *layout) {
 
 void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
   const QStringList labels = {"Tc", "M1", "M2", "T1", "T2", "T3"};
-
-  // Container untuk Number of Car dan Placeholder
   QWidget *numberCarContainer = new QWidget(this);
   QHBoxLayout *numberCarLayout = new QHBoxLayout(numberCarContainer);
-
-  // Number of Car Dropdown
   InputWidget *numberOfCar =
       new InputWidget(InputType("dropdown", "Number of Car", ""), this);
   numberCarLayout->addWidget(numberOfCar);
-
-  // Placeholder Widget
   QWidget *placeholderWidget = new QWidget(this);
-  placeholderWidget->setFixedSize(400, 80); // Ukuran tetap
+  placeholderWidget->setFixedSize(400, 80);
   placeholderWidget->setStyleSheet("border: 2px dashed gray; "
                                    "background-color: #f0f0f0;");
   numberCarLayout->addWidget(placeholderWidget);
-
   layout->addWidget(numberCarContainer);
-
-  // Sisanya tetap sama seperti sebelumnya...
-
-  // Buat layout untuk type, mass, dan passenger secara terpisah
   QWidget *secondPageContainer = new QWidget(this);
   QHBoxLayout *secondPageHLayout = new QHBoxLayout(secondPageContainer);
   secondPageHLayout->setSpacing(40);
-
-  // Type Layout
   QGroupBox *typeLayout = createTypeLayout(labels);
   secondPageHLayout->addWidget(typeLayout);
-
-  // Mass Layout
   QGroupBox *massLayout = createMassLayout(labels);
   secondPageHLayout->addWidget(massLayout);
-
-  // Passenger Layout
   QGroupBox *passengerLayout = createPassengerLayout(labels);
   secondPageHLayout->addWidget(passengerLayout);
-
   layout->addWidget(secondPageContainer);
 }
 
@@ -138,7 +110,6 @@ QGroupBox *TrainParameterPage::createTypeLayout(const QStringList &labels) {
     typeFormLayout->addWidget(typeInputWidget);
   }
   typeLayout->setStyleSheet(groupBoxStyle);
-
   return typeLayout;
 }
 
@@ -152,11 +123,10 @@ QGroupBox *TrainParameterPage::createMassLayout(const QStringList &labels) {
     massInputWidgets.append(massInputWidget);
     massFormLayout->addWidget(massInputWidget);
   }
-
-  // Tambahkan input massa kosong trainset
   InputWidget *massPerTrainsetEmpty = new InputWidget(
-      InputType("field", "Mass per One Trainset Empty", "ton"), this);
+      InputType("field", "Mass per One Trainset (empty)", "ton"), this);
   massFormLayout->addWidget(massPerTrainsetEmpty);
+
   massLayout->setStyleSheet(groupBoxStyle);
   return massLayout;
 }
@@ -172,38 +142,32 @@ TrainParameterPage::createPassengerLayout(const QStringList &labels) {
     passangerInputWidgets.append(passengerInputWidget);
     passengerFormLayout->addWidget(passengerInputWidget);
   }
-
-  // Tambahkan input massa penuh trainset
   InputWidget *massPerTrainsetFull = new InputWidget(
-      InputType("field", "Mass per One Trainset Full", "ton"), this);
+      InputType("field", "Mass per One Trainset(loaded)", "ton"), this);
   passengerFormLayout->addWidget(massPerTrainsetFull);
-
   passengerLayout->setStyleSheet(groupBoxStyle);
-
   return passengerLayout;
 }
+
 void TrainParameterPage::setupPagination() {
   QWidget *paginationWidget = new QWidget(this);
   QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
-
-  // ButtonAction *prevButton = new ButtonAction("Constant Input", "false",
-  // this); ButtonAction *nextButton = new ButtonAction("Trainset", "false",
-  // this);
-  QPushButton *prevButton = new QPushButton("Constant input", this);
-  QPushButton *nextButton = new QPushButton("Trainset", this);
-
-  // Disable previous button pada halaman pertama
-  prevButton->setEnabled(false);
-
+  prevButton = new ButtonAction("Constant Input", "false", this);
+  nextButton = new ButtonAction("Trainset", "false", this);
   connect(prevButton, &QPushButton::clicked, this,
           &TrainParameterPage::showPreviousPage);
   connect(nextButton, &QPushButton::clicked, this,
           &TrainParameterPage::showNextPage);
-
   paginationLayout->addWidget(prevButton);
   paginationLayout->addWidget(nextButton);
-
   mainLayout->addWidget(paginationWidget);
+  updatePaginationButtons();
+}
+void TrainParameterPage::updatePaginationButtons() {
+  int currentIndex = stackedWidget->currentIndex();
+  int lastIndex = stackedWidget->count() - 1;
+  prevButton->setEnabled(currentIndex > 0);
+  nextButton->setEnabled(currentIndex < lastIndex);
 }
 
 void TrainParameterPage::showPreviousPage() {
@@ -217,19 +181,5 @@ void TrainParameterPage::showNextPage() {
   if (stackedWidget->currentIndex() < stackedWidget->count() - 1) {
     stackedWidget->setCurrentIndex(stackedWidget->currentIndex() + 1);
     updatePaginationButtons();
-  }
-}
-
-void TrainParameterPage::updatePaginationButtons() {
-  // Akses tombol Previous dan Next
-  QList<QPushButton *> buttons = findChildren<QPushButton *>();
-  if (buttons.size() >= 2) {
-    QPushButton *prevButton = buttons[0];
-    QPushButton *nextButton = buttons[1];
-
-    // Update status tombol berdasarkan halaman saat ini
-    prevButton->setEnabled(stackedWidget->currentIndex() > 0);
-    nextButton->setEnabled(stackedWidget->currentIndex() <
-                           stackedWidget->count() - 1);
   }
 }
