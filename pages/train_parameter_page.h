@@ -2,8 +2,11 @@
 #define TRAINPARAMETERPAGE_H
 
 #include "../widgets/input_widget.h"
-#include <QGridLayout>
+#include <QGroupBox>
+#include <QStackedWidget>
+#include <QVBoxLayout>
 #include <QWidget>
+
 
 class TrainParameterPage : public QWidget {
   Q_OBJECT
@@ -13,10 +16,23 @@ public:
 
 private:
   QVBoxLayout *mainLayout;
-  QGridLayout *formLayout;
+  QStackedWidget *stackedWidget;
   QList<InputWidget *> inputWidgets;
+  QList<InputWidget *> typeInputWidgets;
+  QList<InputWidget *> massInputWidgets;
+  QList<InputWidget *> passangerInputWidgets;
 
-  void setupInputs();
+  void setupFirstPage(QVBoxLayout *layout);
+  void setupSecondPage(QVBoxLayout *layout);
+  void setupPagination();
+  void showPreviousPage();
+  void showNextPage();
+  void updatePaginationButtons();
+
+  // Metode baru untuk membuat layout
+  QGroupBox *createTypeLayout(const QStringList &labels);
+  QGroupBox *createMassLayout(const QStringList &labels);
+  QGroupBox *createPassengerLayout(const QStringList &labels);
 };
 
 #endif // TRAINPARAMETERPAGE_H
