@@ -56,11 +56,15 @@ void MainWindow::setupPages() {
   TrackParameterPage *trackParameterPage = new TrackParameterPage(this);
   setupFixedSizePage(trackParameterPage);
 
-  QWidget *electricalParameterPage = new QWidget(this);
-  QVBoxLayout *electricalLayout = new QVBoxLayout(electricalParameterPage);
-  electricalLayout->addWidget(new QLabel("Electrical Parameter Page", this));
-  electricalParameterPage->setLayout(electricalLayout);
-  stackedWidget->addWidget(electricalParameterPage);
+  // QWidget *electricalParameterPage = new QWidget(this);
+  // QVBoxLayout *electricalLayout = new QVBoxLayout(electricalParameterPage);
+  // electricalLayout->addWidget(new QLabel("Electrical Parameter Page", this));
+  // electricalParameterPage->setLayout(electricalLayout);
+  // stackedWidget->addWidget(electricalParameterPage);
+
+  ElectricalParameterPage *electricalParameterPage =
+      new ElectricalParameterPage(this);
+  setupFixedSizePage(electricalParameterPage);
 
   QWidget *outputPage = new QWidget(this);
   QVBoxLayout *outputLayout = new QVBoxLayout(outputPage);
