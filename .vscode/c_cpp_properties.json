@@ -1,0 +1,25 @@
+{
+  "configurations": [
+    {
+      "name": "Win32",
+      "includePath": [
+        //Modify these paths to match your own Qt installation
+        //For example, if you installed Qt in C:/Qt, you should change these paths to "C:/Qt/5.15.2/mingw81_64/include", etc.
+        "${workspaceFolder}/**",
+        "E:/QtCreatorFixed/6.8.1/mingw_64/include/**",
+        "E:/QtCreatorFixed/6.8.1/mingw_64/include/QtWidgets",
+        "E:/QtCreatorFixed/6.8.1/mingw_64/include/QtCore",
+        "E:/QtCreatorFixed/6.8.1/mingw_64/include/QtGui",
+        "E:/QtCreatorFixed/6.8.1/mingw_64/include/QtNetwork",
+        "E:/QtCreatorFixed/Tools/mingw1310_64/include/**"
+      ],
+      "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
+      //Modify these paths to match your own Qt g++ installation
+      "compilerPath": "E:/QtCreatorFixed/Tools/mingw1310_64/bin/g++.exe",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "windows-gcc-x64"
+    }
+  ],
+  "version": 4
+}
