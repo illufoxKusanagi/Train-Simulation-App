@@ -13,7 +13,6 @@ RunningParameterPage::RunningParameterPage(QWidget *parent)
   formLayout = new QWidget();
   formLayout->setContentsMargins(16, 16, 16, 16);
   inputsLayout = new QGridLayout(formLayout);
-  inputsLayout->setContentsMargins(16, 16, 16, 16);
   inputsLayout->setHorizontalSpacing(80);
   inputsLayout->setVerticalSpacing(24);
 
