@@ -1,11 +1,4 @@
 #include "train_parameter_page.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
-#include "../widgets/button_action.h"
-#include "../widgets/input_widget.h"
-#include <QGroupBox>
-#include <QPushButton>
-#include <QStackedWidget>
 
 TrainParameterPage::TrainParameterPage(QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),

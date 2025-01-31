@@ -1,8 +1,5 @@
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
-#include "input_field.h"
-#include <qboxlayout.h>
 
+#include "input_field.h"
 
 InputField::InputField(const QString &unitText, QWidget *parent)
     : QWidget(parent), input(new QLineEdit(this)),

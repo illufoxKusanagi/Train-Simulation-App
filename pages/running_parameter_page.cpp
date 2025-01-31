@@ -1,10 +1,4 @@
 #include "running_parameter_page.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
-#include "../widgets/input_widget.h"
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QVBoxLayout>
 
 RunningParameterPage::RunningParameterPage(QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)), formLayout(nullptr),

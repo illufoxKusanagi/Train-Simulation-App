@@ -1,8 +1,10 @@
 #ifndef TOGGLEBUTTON_H
 #define TOGGLEBUTTON_H
 
+#include "../styles/colors.h"
 #include <QPushButton>
 #include <QWidget>
+
 
 class ToggleButton : public QPushButton {
   Q_OBJECT

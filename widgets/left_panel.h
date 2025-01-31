@@ -1,11 +1,14 @@
 #ifndef LEFT_PANEL_H
 #define LEFT_PANEL_H
 
+#include "../styles/colors.h"
+#include "../styles/text_style.h"
 #include "button_sidebar_active.h"
 #include "toggle_button.h"
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
+
 
 class LeftPanel : public QWidget {
   Q_OBJECT

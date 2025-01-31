@@ -1,7 +1,4 @@
 #include "input_upload.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
-#include <qboxlayout.h>
 
 InputUpload::InputUpload(QWidget *parent)
     : QWidget(parent), uploadButton(new QPushButton("Choose csv File", this)),

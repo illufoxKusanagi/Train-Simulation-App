@@ -1,7 +1,12 @@
 #ifndef INPUTDROPDOWN_H
 #define INPUTDROPDOWN_H
 
+#include "../styles/colors.h"
+#include "../styles/text_style.h"
 #include <QComboBox>
+#include <QHBoxLayout>
+#include <QStringList>
+
 
 class InputDropdown : public QWidget {
   Q_OBJECT
