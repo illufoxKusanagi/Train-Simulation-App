@@ -1,7 +1,4 @@
 #include "constant_values_page.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
-#include <QGroupBox>
 
 ConstantValuesPage::ConstantValuesPage(QWidget *parent) : QWidget(parent) {
   QVBoxLayout *mainLayout = new QVBoxLayout(this);

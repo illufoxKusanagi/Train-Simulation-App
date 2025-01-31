@@ -1,8 +1,5 @@
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
-#include "input_invalid.h"
-#include <qboxlayout.h>
 
+#include "input_invalid.h"
 
 InputInvalid::InputInvalid(const QString &label, QWidget *parent)
     : QWidget(parent),

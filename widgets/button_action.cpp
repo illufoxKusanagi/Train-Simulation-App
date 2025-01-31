@@ -1,8 +1,4 @@
 #include "button_action.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
-#include <QHBoxLayout>
-#include <QStyle>
 
 ButtonAction::ButtonAction(const QString &buttonText,
                            const QString &isRunButton, QWidget *parent)

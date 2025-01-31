@@ -1,10 +1,4 @@
 #include "button_sidebar_widget.h"
-#include "../resources/icon_paths.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
-#include <QHBoxLayout>
-#include <QPixmap>
-#include <QSizePolicy>
 
 ButtonSidebarWidget::ButtonSidebarWidget(const QString &iconType,
                                          const QString &buttonLabel,

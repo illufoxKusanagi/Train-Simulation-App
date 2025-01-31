@@ -1,9 +1,4 @@
 #include "input_dropdown.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
-#include <QComboBox>
-#include <QHBoxLayout>
-#include <QStringList>
 
 InputDropdown::InputDropdown(QWidget *parent)
     : QWidget(parent), dropdown(new QComboBox(this)) {

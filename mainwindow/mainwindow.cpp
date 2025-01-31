@@ -1,12 +1,4 @@
 #include "mainwindow.h"
-#include "../pages/constant_values_page.h"
-#include "../pages/running_parameter_page.h"
-#include "../pages/train_parameter_page.h"
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QStackedWidget>
-#include <QVBoxLayout>
-
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
