@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "qstring": "cpp",
-        "qgridlayout": "cpp",
-        "qvboxlayout": "cpp",
-        "qpushbutton": "cpp"
-    },
-    "C_Cpp.default.compilerPath": ""
-}
