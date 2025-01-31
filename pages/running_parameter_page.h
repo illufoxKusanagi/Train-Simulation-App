@@ -6,14 +6,16 @@
 #include <QGridLayout>
 #include <QWidget>
 
-
-class RunningParameterWidget : public QWidget {
+class RunningParameterPage : public QWidget {
   Q_OBJECT
 public:
-  explicit RunningParameterWidget(QWidget *parent = nullptr);
+  explicit RunningParameterPage(QWidget *parent = nullptr);
 
 private:
-  QGridLayout *formLayout;
+  QVBoxLayout *mainLayout;
+  QWidget *formLayout;
+  QGridLayout *inputsLayout;
+  void createInputs();
 };
 
 #endif // RUNNINGPARAMETERWIDGET_H
