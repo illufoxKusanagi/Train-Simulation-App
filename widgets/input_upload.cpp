@@ -9,12 +9,27 @@ InputUpload::InputUpload(QWidget *parent)
   layout->addWidget(uploadButton);
   layout->addWidget(uploadLabel);
 
-  uploadButton->setStyleSheet("min-width: 64px; padding: 4px 12px; "
+  uploadButton->setStyleSheet("QPushButton{"
+                              "min-width: 64px;"
+                              "padding: 4px 12px; "
                               "border: 1px solid " +
                               Colors::Secondary400.name() +
-                              "; border-radius: 8px;" +
+                              ";"
+                              "border-radius: 8px;" +
                               TextStyle::BodySmallRegular() +
-                              "color: " + Colors::Secondary400.name() + ";");
+                              "color: " + Colors::Secondary400.name() +
+                              ";"
+                              "}"
+                              "QPushButton:hover{"
+                              "background-color: " +
+                              Colors::Secondary50.name() +
+                              ";"
+                              "}"
+                              "QPushButton:pressed {"
+                              "background-color: " +
+                              Colors::Secondary100.name() +
+                              ";"
+                              "}");
   uploadLabel->setStyleSheet(TextStyle::SubttileSmallRegular() +
                              "color: " + Colors::Secondary700.name() + ";");
 }
