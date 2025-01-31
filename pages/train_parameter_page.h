@@ -25,7 +25,7 @@ private:
   ButtonAction *prevButton;
   ButtonAction *nextButton;
 
-  void setupFirstPage(QVBoxLayout *layout);
+  void setupFirstPage(QWidget *firstPageWidget);
   void setupSecondPage(QVBoxLayout *layout);
   void setupPagination();
   void showPreviousPage();

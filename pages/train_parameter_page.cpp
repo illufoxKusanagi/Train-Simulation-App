@@ -33,19 +33,18 @@ TrainParameterPage::TrainParameterPage(QWidget *parent)
   mainLayout->setAlignment(Qt::AlignCenter);
   mainLayout->setContentsMargins(32, 32, 32, 32);
   setLayout(mainLayout);
-  QWidget *firstPage = new QWidget(this);
-  QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
-  setupFirstPage(firstPageLayout);
+  QWidget *firstPageWidget = new QWidget(this);
+  setupFirstPage(firstPageWidget);
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   setupSecondPage(secondPageLayout);
-  stackedWidget->addWidget(firstPage);
+  stackedWidget->addWidget(firstPageWidget);
   stackedWidget->addWidget(secondPage);
   mainLayout->addWidget(stackedWidget);
   setupPagination();
 }
 
-void TrainParameterPage::setupFirstPage(QVBoxLayout *layout) {
+void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
   QStringList labels = {"Inertial Coefficient Trailer",
                         "Number of Axle",
                         "Inertial Coefficient Motor",
@@ -57,21 +56,17 @@ void TrainParameterPage::setupFirstPage(QVBoxLayout *layout) {
 
   QStringList unitLabels = {"", "", "", "", "mm", "kg", "", "ton"};
 
-  QWidget *formContainer = new QWidget(this);
-  QGridLayout *formLayout = new QGridLayout(formContainer);
-  formContainer->setFixedSize(500, 350);
+  QGridLayout *formLayout = new QGridLayout(firstPageWidget);
   formLayout->setAlignment(Qt::AlignCenter);
   formLayout->setContentsMargins(16, 16, 16, 16);
   formLayout->setHorizontalSpacing(64);
-  formLayout->setVerticalSpacing(16);
+  formLayout->setVerticalSpacing(24);
 
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
         new InputWidget(InputType("field", labels[i], unitLabels[i]), this);
-    inputWidgets.append(inputWidget);
     formLayout->addWidget(inputWidget, i / 2, i % 2);
   }
-  layout->addWidget(formContainer);
 }
 
 void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
@@ -163,6 +158,7 @@ void TrainParameterPage::setupPagination() {
   mainLayout->addWidget(paginationWidget);
   updatePaginationButtons();
 }
+
 void TrainParameterPage::updatePaginationButtons() {
   int currentIndex = stackedWidget->currentIndex();
   int lastIndex = stackedWidget->count() - 1;

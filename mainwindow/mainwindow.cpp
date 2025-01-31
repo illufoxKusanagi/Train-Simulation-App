@@ -1,10 +1,12 @@
 #include "mainwindow.h"
 #include "../pages/constant_values_page.h"
+#include "../pages/running_parameter_page.h"
 #include "../pages/train_parameter_page.h"
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QStackedWidget>
 #include <QVBoxLayout>
+
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QWidget *centralWidget = new QWidget(this);
@@ -44,11 +46,14 @@ void MainWindow::setupPages() {
   TrainParameterPage *trainParameterPage = new TrainParameterPage(this);
   setupFixedSizePage(trainParameterPage);
 
-  QWidget *runningParameterPage = new QWidget(this);
-  QVBoxLayout *runningLayout = new QVBoxLayout(runningParameterPage);
-  runningLayout->addWidget(new QLabel("Running Parameter Page", this));
-  runningParameterPage->setLayout(runningLayout);
-  stackedWidget->addWidget(runningParameterPage);
+  // QWidget *runningParameterPage = new QWidget(this);
+  // QVBoxLayout *runningLayout = new QVBoxLayout(runningParameterPage);
+  // runningLayout->addWidget(new QLabel("Running Parameter Page", this));
+  // runningParameterPage->setLayout(runningLayout);
+  // stackedWidget->addWidget(runningParameterPage);
+
+  RunningParameterPage *runningParameterPage = new RunningParameterPage(this);
+  setupFixedSizePage(runningParameterPage);
 
   QWidget *trackParameterPage = new QWidget(this);
   QVBoxLayout *trackLayout = new QVBoxLayout(trackParameterPage);
