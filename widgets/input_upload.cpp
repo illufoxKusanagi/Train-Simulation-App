@@ -20,14 +20,9 @@ InputUpload::InputUpload(QWidget *parent)
                               "color: " + Colors::Secondary400.name() +
                               ";"
                               "}"
-                              "QPushButton:hover{"
-                              "background-color: " +
-                              Colors::Secondary50.name() +
-                              ";"
-                              "}"
                               "QPushButton:pressed {"
                               "background-color: " +
-                              Colors::Secondary100.name() +
+                              Colors::Secondary50.name() +
                               ";"
                               "}");
   uploadLabel->setStyleSheet(TextStyle::SubttileSmallRegular() +
