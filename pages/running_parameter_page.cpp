@@ -1,12 +1,10 @@
 #include "running_parameter_page.h"
 
 RunningParameterPage::RunningParameterPage(QWidget *parent)
-    : QWidget(parent), mainLayout(new QVBoxLayout(this)), formLayout(nullptr),
-      inputsLayout(nullptr) {
+    : QWidget(parent), mainLayout(new QVBoxLayout(this)),
+      formLayout(new QWidget(this)), inputsLayout(new QGridLayout(formLayout)) {
   mainLayout->setAlignment(Qt::AlignCenter);
-  formLayout = new QWidget();
   formLayout->setContentsMargins(16, 16, 16, 16);
-  inputsLayout = new QGridLayout(formLayout);
   inputsLayout->setHorizontalSpacing(80);
   inputsLayout->setVerticalSpacing(24);
 
