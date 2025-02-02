@@ -14,10 +14,10 @@ public:
 
   QString currentText() const;
   void setCurrentText(const QString &text);
+  void setSize(int width, int height);
 
 private:
   QComboBox *dropdown;
-  void setSize(int width, int height);
 };
 
 #endif // INPUTDROPDOWN_H

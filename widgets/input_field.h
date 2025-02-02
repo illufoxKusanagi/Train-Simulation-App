@@ -12,12 +12,10 @@ class InputField : public QWidget {
 public:
   explicit InputField(const QString &unitText = "", QWidget *parent = nullptr);
   QString text() const;
-  void setText(const QString &text);
 
 private:
   QLineEdit *input;
   QLabel *unitLabel;
-  void setSize(int width, int height);
 };
 
 #endif
