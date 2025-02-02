@@ -19,6 +19,7 @@ public:
 
 private:
   QPushButton *buttonAction;
+  void setSize(int width, int height);
 };
 
 #endif // BUTTONACTION_H

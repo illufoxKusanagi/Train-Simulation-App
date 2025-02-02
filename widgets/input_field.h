@@ -17,6 +17,7 @@ public:
 private:
   QLineEdit *input;
   QLabel *unitLabel;
+  void setSize(int width, int height);
 };
 
 #endif

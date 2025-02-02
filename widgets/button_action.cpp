@@ -8,7 +8,6 @@ ButtonAction::ButtonAction(const QString &buttonText,
     setIcon(QIcon(":/icons/icons/right-arrow-active.svg"));
     setIconSize(QSize(24, 24));
   }
-  setFixedSize(200, 40);
 }
 
 QString ButtonAction::getText() const { return text(); }
@@ -55,4 +54,8 @@ void ButtonAction::setEnabled(bool isEnabled) {
                   "    " +
                   TextStyle::BodyMediumBold() + "}");
   }
+}
+
+void ButtonAction::setSize(int width, int height) {
+  setFixedSize(width, height);
 }

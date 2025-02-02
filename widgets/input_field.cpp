@@ -22,3 +22,7 @@ InputField::InputField(const QString &unitText, QWidget *parent)
 QString InputField::text() const { return input->text(); }
 
 void InputField::setText(const QString &text) { input->setText(text); }
+
+void InputField::setSize(int width, int height) {
+  input->setFixedSize(width, height);
+}

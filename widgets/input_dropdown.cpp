@@ -34,3 +34,11 @@ InputDropdown::InputDropdown(QWidget *parent)
 }
 
 QString InputDropdown::currentText() const { return dropdown->currentText(); }
+
+void InputDropdown::setCurrentText(const QString &text) {
+  dropdown->setCurrentText(text);
+}
+
+void InputDropdown::setSize(int width, int height) {
+  dropdown->setFixedSize(width, height);
+}

@@ -86,6 +86,10 @@ void OutputPage::createChartButtons(QChartView *chartView) {
   saveCurrentData->setEnabled(true);
   saveAllData->setEnabled(true);
 
+  saveButton->setFixedSize(150, 40);
+  saveCurrentData->setFixedSize(150, 40);
+  saveAllData->setFixedSize(150, 40);
+
   buttonLayout->addWidget(saveButton);
   buttonLayout->addWidget(saveCurrentData);
   buttonLayout->addWidget(saveAllData);

@@ -7,7 +7,6 @@
 #include <QHBoxLayout>
 #include <QStringList>
 
-
 class InputDropdown : public QWidget {
   Q_OBJECT
 public:
@@ -18,6 +17,7 @@ public:
 
 private:
   QComboBox *dropdown;
+  void setSize(int width, int height);
 };
 
 #endif // INPUTDROPDOWN_H
