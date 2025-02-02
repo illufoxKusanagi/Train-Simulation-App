@@ -16,6 +16,7 @@ public:
 private:
   QPushButton *uploadButton;
   QLabel *uploadLabel;
+  void setSize(int width, int height);
 };
 
 #endif // INPUTUPLOAD_H
