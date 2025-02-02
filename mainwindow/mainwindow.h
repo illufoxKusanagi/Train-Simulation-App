@@ -3,6 +3,7 @@
 
 #include "../pages/constant_values_page.h"
 #include "../pages/electrical_parameter_page.h"
+#include "../pages/output_page.h"
 #include "../pages/running_parameter_page.h"
 #include "../pages/track_parameter_page.h"
 #include "../pages/train_parameter_page.h"
@@ -14,7 +15,6 @@
 #include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QWidget>
-
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
