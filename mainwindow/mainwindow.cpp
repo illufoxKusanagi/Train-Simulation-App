@@ -45,12 +45,6 @@ void MainWindow::setupPages() {
       new ElectricalParameterPage(this);
   setupFixedSizePage(electricalParameterPage);
 
-  // QWidget *outputPage = new QWidget(this);
-  // QVBoxLayout *outputLayout = new QVBoxLayout(outputPage);
-  // outputLayout->addWidget(new QLabel("Output Page", this));
-  // outputPage->setLayout(outputLayout);
-  // stackedWidget->addWidget(outputPage);
-
   OutputPage *outputPage = new OutputPage(this);
   setupFixedSizePage(outputPage);
 }
