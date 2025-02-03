@@ -2,17 +2,13 @@
 
 LeftPanel::LeftPanel(QWidget *parent) : QWidget(parent), buttonLayout(nullptr) {
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
-  setStyleSheet("QWidget {"
-                "    background-color: " +
-                Colors::Secondary500.name() +
-                ";"
-                "}");
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(8);
-  mainLayout->setAlignment(Qt::AlignVCenter);
-
+  // QVBoxLayout *buttonLayout new QVBoxLayout(this);
+  // mainLayout->setAlignment(Qt::AlignVCenter);
   toggleButton = new ToggleButton(isCollapsed, this);
   QWidget *buttonContainer = new QWidget(this);
+
   buttonLayout = new QVBoxLayout(buttonContainer);
   buttonLayout->setContentsMargins(8, 16, 8, 16);
   buttonLayout->setSpacing(16);
@@ -33,6 +29,11 @@ LeftPanel::LeftPanel(QWidget *parent) : QWidget(parent), buttonLayout(nullptr) {
   mainLayout->addWidget(buttonContainer);
   setFixedWidth(320);
   setLayout(mainLayout);
+  setStyleSheet("QWidget {"
+                "    background-color: " +
+                Colors::Secondary500.name() +
+                ";"
+                "}");
 }
 
 void LeftPanel::setupButtons() {
