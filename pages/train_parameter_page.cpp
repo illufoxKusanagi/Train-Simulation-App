@@ -81,7 +81,6 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
 
   QWidget *secondPageContainer = new QWidget(this);
   QHBoxLayout *secondPageHLayout = new QHBoxLayout(secondPageContainer);
-  secondPageContainer->setStyleSheet("background-color: red;");
   secondPageHLayout->setSpacing(40);
   QGroupBox *typeLayout = createTypeLayout(labels);
   secondPageHLayout->addWidget(typeLayout);
@@ -95,7 +94,7 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
 QGroupBox *TrainParameterPage::createTypeLayout(const QStringList &labels) {
   QGroupBox *typeLayout = new QGroupBox("Type");
   QVBoxLayout *typeFormLayout = new QVBoxLayout(typeLayout);
-  // typeFormLayout->setSpacing(0);
+  typeFormLayout->setAlignment(Qt::AlignTop);
   for (const QString &label : labels) {
     InputWidget *typeInputWidget =
         new InputWidget(InputType("field", label, ""), this);
@@ -109,7 +108,6 @@ QGroupBox *TrainParameterPage::createTypeLayout(const QStringList &labels) {
 QGroupBox *TrainParameterPage::createMassLayout(const QStringList &labels) {
   QGroupBox *massLayout = new QGroupBox("Mass");
   QVBoxLayout *massFormLayout = new QVBoxLayout(massLayout);
-  // massFormLayout->setSpacing(4);
   for (const QString &label : labels) {
     InputWidget *massInputWidget =
         new InputWidget(InputType("field", label, "ton"), this);
@@ -128,7 +126,6 @@ QGroupBox *
 TrainParameterPage::createPassengerLayout(const QStringList &labels) {
   QGroupBox *passengerLayout = new QGroupBox("Passenger");
   QVBoxLayout *passengerFormLayout = new QVBoxLayout(passengerLayout);
-  // passengerFormLayout->setSpacing(4);
   for (const QString &label : labels) {
     InputWidget *passengerInputWidget =
         new InputWidget(InputType("field", label, "person"), this);
@@ -144,7 +141,6 @@ TrainParameterPage::createPassengerLayout(const QStringList &labels) {
 
 void TrainParameterPage::setupPagination() {
   QWidget *paginationWidget = new QWidget(this);
-  paginationWidget->setStyleSheet("background-color: red;");
   QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
   prevButton = new ButtonAction("Constant Input", "false", this);
   nextButton = new ButtonAction("Trainset", "false", this);
