@@ -12,7 +12,6 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
 
-
 class OutputPage : public QWidget {
   Q_OBJECT
 
