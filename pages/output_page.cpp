@@ -4,26 +4,18 @@ OutputPage::OutputPage(QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       stackedWidget(new QStackedWidget(this)), chartLayout(nullptr) {
 
-  // // Example signals
-  // connect(prevButton, &QPushButton::clicked, this, [=]() {
-  //   // TODO: show previous page logic
-  // });
-  // connect(nextButton, &QPushButton::clicked, this, [=]() {
-  //   // TODO: show next page logic
-  // });
-
-  QHBoxLayout *runButtonLayout = new QHBoxLayout();
+  QWidget *runButtonWidget = new QWidget();
+  QHBoxLayout *runButtonLayout = new QHBoxLayout(runButtonWidget);
   ButtonAction *runButton = new ButtonAction("Run Simulation", "yes", this);
   runButton->setEnabled(true);
   runButtonLayout->addWidget(runButton);
-  runButton->setFixedSize(150, 40);
-  runButtonLayout->setAlignment(Qt::AlignBottom);
-  mainLayout->addLayout(runButtonLayout);
+  runButtonLayout->setAlignment(Qt::AlignLeft);
+  runButton->setFixedSize(200, 48);
+  mainLayout->addWidget(runButtonWidget);
   mainLayout->addWidget(stackedWidget);
-
   setupFirstPage();
   setupSecondPage();
-
+  setupThirdPage();
   setupPagination();
 
   setLayout(mainLayout);
@@ -33,7 +25,7 @@ void OutputPage::setupFirstPage() {
   QWidget *page1 = new QWidget();
   QVBoxLayout *layout1 = new QVBoxLayout(page1);
   layout1->setAlignment(Qt::AlignCenter);
-  layout1->setSpacing(32);
+  layout1->setSpacing(0);
   QLineSeries *series = new QLineSeries();
   series->setName("Speed");
 
@@ -56,38 +48,56 @@ void OutputPage::setupSecondPage() {
   QWidget *page2 = new QWidget;
   QVBoxLayout *layout2 = new QVBoxLayout(page2);
   layout2->setAlignment(Qt::AlignCenter);
-  layout2->setSpacing(32);
+  layout2->setSpacing(0);
   QLineSeries *series = new QLineSeries();
   series->setName("Voltage");
   series->append(0.0, 0.0);
   series->append(1.1, 2.1);
   series->append(4.1, 3.3);
 
-  setupChart(series); // Reuses chartView, chartLayout
+  setupChart(series);
   layout2->addLayout(chartLayout);
 
   page2->setLayout(layout2);
   stackedWidget->addWidget(page2);
 }
 
-void OutputPage::setupThirdPage() {}
+void OutputPage::setupThirdPage() {
+  QWidget *page3 = new QWidget();
+  QVBoxLayout *layout3 = new QVBoxLayout(page3);
+  layout3->setAlignment(Qt::AlignCenter);
+  layout3->setSpacing(0);
+
+  QLineSeries *series = new QLineSeries();
+  series->setName("Current");
+
+  series->append(0.0, 0.0);
+  series->append(1.0, 1.5);
+  series->append(2.0, 3.0);
+  series->append(3.0, 2.5);
+  series->append(4.0, 4.0);
+
+  setupChart(series);
+  layout3->addLayout(chartLayout);
+
+  page3->setLayout(layout3);
+  stackedWidget->addWidget(page3);
+}
 
 void OutputPage::setupChart(QLineSeries *series) {
 
-  // Create chart, add series
   QChart *chart = new QChart();
   chart->addSeries(series);
   chart->setTitle("Mass to Speed graph");
   chart->createDefaultAxes();
 
-  // Create chart view
   chartView = new QChartView(chart);
   chartView->setRenderHint(QPainter::Antialiasing);
-  chartView->setFixedSize(700, 500);
+  chartView->setFixedSize(600, 450);
 
   chartLayout = new QVBoxLayout();
-  chartLayout->addWidget(chartView, 0, Qt::AlignHCenter);
-
+  chartLayout->setContentsMargins(0, 0, 0, 0);
+  chartLayout->addWidget(chartView, 0, Qt::AlignCenter);
   createChartButtons(chartView);
 }
 
@@ -131,7 +141,6 @@ void OutputPage::createChartButtons(QChartView *chartView) {
 void OutputPage::createActionButtons() {}
 
 void OutputPage::setupPagination() {
-  // Pagination / buttons
   QHBoxLayout *buttonLayout = new QHBoxLayout();
   ButtonAction *prevButton = new ButtonAction("Prev", "normal", this);
   ButtonAction *nextButton = new ButtonAction("Next", "normal", this);
@@ -146,12 +155,10 @@ void OutputPage::setupPagination() {
     if (index > 0)
       stackedWidget->setCurrentIndex(index - 1);
   });
-
   connect(nextButton, &QPushButton::clicked, this, [this]() {
     int index = stackedWidget->currentIndex();
     if (index < stackedWidget->count() - 1)
       stackedWidget->setCurrentIndex(index + 1);
   });
-
   mainLayout->addLayout(buttonLayout);
 }
