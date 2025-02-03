@@ -11,6 +11,11 @@
 #include <QBoxLayout>
 #include <QLabel>
 
+struct InputSize {
+  int width;
+  int height;
+};
+
 class InputWidget : public QWidget {
   Q_OBJECT
 public:
@@ -18,6 +23,7 @@ public:
 
 private:
   QLabel *label;
+  QWidget *m_inputField;
 };
 
 #endif // INPUTWIDGET_H

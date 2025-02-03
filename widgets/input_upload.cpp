@@ -28,7 +28,3 @@ InputUpload::InputUpload(QWidget *parent)
   uploadLabel->setStyleSheet(TextStyle::SubttileSmallRegular() +
                              "color: " + Colors::Secondary700.name() + ";");
 }
-
-void InputUpload::setSize(int width, int height) {
-  uploadButton->setFixedSize(width, height);
-}

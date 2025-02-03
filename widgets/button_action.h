@@ -16,10 +16,10 @@ public:
   using QPushButton::setText;
   QString getText() const;
   void setEnabled(bool isEnabled);
+  void setSize(int width, int height);
 
 private:
   QPushButton *buttonAction;
-  void setSize(int width, int height);
 };
 
 #endif // BUTTONACTION_H
