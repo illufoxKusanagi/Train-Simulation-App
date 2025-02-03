@@ -8,9 +8,9 @@ TrainParameterPage::TrainParameterPage(QWidget *parent)
                   "border: 1px solid" +
                   Colors::Grey300.name() +
                   ";"
-                  "padding: 16px; border-radius: 12px; " +
+                  "padding: 12px 16px; border-radius: 12px; " +
                   TextStyle::BodyMediumRegular() +
-                  "margin-top: 20px;"
+                  "margin-top: 15px;"
                   "min-width: 200px;"
                   "}"
                   "QGroupBox::title {"
@@ -24,7 +24,8 @@ TrainParameterPage::TrainParameterPage(QWidget *parent)
                   "}";
   setStyleSheet("position: relative;");
   mainLayout->setAlignment(Qt::AlignCenter);
-  mainLayout->setContentsMargins(32, 32, 32, 32);
+  mainLayout->setContentsMargins(32, 16, 32, 16);
+  mainLayout->setSpacing(0);
   setLayout(mainLayout);
   QWidget *firstPageWidget = new QWidget(this);
   setupFirstPage(firstPageWidget);
@@ -69,14 +70,18 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
   InputWidget *numberOfCar =
       new InputWidget(InputType("dropdown", "Number of Car", ""), this);
   numberCarLayout->addWidget(numberOfCar);
+  layout->setSpacing(0);
+
   QWidget *placeholderWidget = new QWidget(this);
   placeholderWidget->setFixedSize(400, 80);
   placeholderWidget->setStyleSheet("border: 2px dashed gray; "
                                    "background-color: #f0f0f0;");
   numberCarLayout->addWidget(placeholderWidget);
   layout->addWidget(numberCarContainer);
+
   QWidget *secondPageContainer = new QWidget(this);
   QHBoxLayout *secondPageHLayout = new QHBoxLayout(secondPageContainer);
+  secondPageContainer->setStyleSheet("background-color: red;");
   secondPageHLayout->setSpacing(40);
   QGroupBox *typeLayout = createTypeLayout(labels);
   secondPageHLayout->addWidget(typeLayout);
@@ -90,7 +95,7 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
 QGroupBox *TrainParameterPage::createTypeLayout(const QStringList &labels) {
   QGroupBox *typeLayout = new QGroupBox("Type");
   QVBoxLayout *typeFormLayout = new QVBoxLayout(typeLayout);
-  typeFormLayout->setSpacing(0);
+  // typeFormLayout->setSpacing(0);
   for (const QString &label : labels) {
     InputWidget *typeInputWidget =
         new InputWidget(InputType("field", label, ""), this);
@@ -104,7 +109,7 @@ QGroupBox *TrainParameterPage::createTypeLayout(const QStringList &labels) {
 QGroupBox *TrainParameterPage::createMassLayout(const QStringList &labels) {
   QGroupBox *massLayout = new QGroupBox("Mass");
   QVBoxLayout *massFormLayout = new QVBoxLayout(massLayout);
-  massFormLayout->setSpacing(0);
+  // massFormLayout->setSpacing(4);
   for (const QString &label : labels) {
     InputWidget *massInputWidget =
         new InputWidget(InputType("field", label, "ton"), this);
@@ -123,7 +128,7 @@ QGroupBox *
 TrainParameterPage::createPassengerLayout(const QStringList &labels) {
   QGroupBox *passengerLayout = new QGroupBox("Passenger");
   QVBoxLayout *passengerFormLayout = new QVBoxLayout(passengerLayout);
-  passengerFormLayout->setSpacing(0);
+  // passengerFormLayout->setSpacing(4);
   for (const QString &label : labels) {
     InputWidget *passengerInputWidget =
         new InputWidget(InputType("field", label, "person"), this);
@@ -139,6 +144,7 @@ TrainParameterPage::createPassengerLayout(const QStringList &labels) {
 
 void TrainParameterPage::setupPagination() {
   QWidget *paginationWidget = new QWidget(this);
+  paginationWidget->setStyleSheet("background-color: red;");
   QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
   prevButton = new ButtonAction("Constant Input", "false", this);
   nextButton = new ButtonAction("Trainset", "false", this);
