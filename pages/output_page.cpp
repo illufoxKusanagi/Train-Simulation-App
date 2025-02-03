@@ -9,10 +9,12 @@ OutputPage::OutputPage(QWidget *parent)
   ButtonAction *runButton = new ButtonAction("Run Simulation", "yes", this);
   runButton->setEnabled(true);
   runButtonLayout->addWidget(runButton);
-  runButtonLayout->setAlignment(Qt::AlignLeft);
+  runButtonLayout->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
   runButton->setFixedSize(200, 48);
   mainLayout->addWidget(runButtonWidget);
   mainLayout->addWidget(stackedWidget);
+  mainLayout->setAlignment(Qt::AlignCenter);
+  stackedWidget->setFixedSize(800, 520);
   setupFirstPage();
   setupSecondPage();
   setupThirdPage();
@@ -25,7 +27,7 @@ void OutputPage::setupFirstPage() {
   QWidget *page1 = new QWidget();
   QVBoxLayout *layout1 = new QVBoxLayout(page1);
   layout1->setAlignment(Qt::AlignCenter);
-  layout1->setSpacing(0);
+  layout1->setSpacing(16);
   QLineSeries *series = new QLineSeries();
   series->setName("Speed");
 
@@ -48,7 +50,7 @@ void OutputPage::setupSecondPage() {
   QWidget *page2 = new QWidget;
   QVBoxLayout *layout2 = new QVBoxLayout(page2);
   layout2->setAlignment(Qt::AlignCenter);
-  layout2->setSpacing(0);
+  layout2->setSpacing(16);
   QLineSeries *series = new QLineSeries();
   series->setName("Voltage");
   series->append(0.0, 0.0);
@@ -66,7 +68,7 @@ void OutputPage::setupThirdPage() {
   QWidget *page3 = new QWidget();
   QVBoxLayout *layout3 = new QVBoxLayout(page3);
   layout3->setAlignment(Qt::AlignCenter);
-  layout3->setSpacing(0);
+  layout3->setSpacing(16);
 
   QLineSeries *series = new QLineSeries();
   series->setName("Current");
@@ -146,9 +148,12 @@ void OutputPage::setupPagination() {
   ButtonAction *nextButton = new ButtonAction("Next", "normal", this);
   buttonLayout->addWidget(prevButton);
   buttonLayout->addWidget(nextButton);
+  buttonLayout->setAlignment(Qt::AlignLeft);
 
   prevButton->setEnabled(true);
+  prevButton->setFixedSize(80, 48);
   nextButton->setEnabled(true);
+  nextButton->setFixedSize(80, 48);
 
   connect(prevButton, &QPushButton::clicked, this, [this]() {
     int index = stackedWidget->currentIndex();
