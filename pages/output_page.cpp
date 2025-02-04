@@ -2,7 +2,8 @@
 
 OutputPage::OutputPage(QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
-      stackedWidget(new QStackedWidget(this)), chartLayout(nullptr) {
+      stackedWidget(new QStackedWidget(this)), chartLayout(nullptr),
+      chartWidget(nullptr) {
 
   QWidget *runButtonWidget = new QWidget();
   QHBoxLayout *runButtonLayout = new QHBoxLayout(runButtonWidget);
@@ -28,7 +29,6 @@ void OutputPage::setupFirstPage() {
   QVBoxLayout *layout1 = new QVBoxLayout(page1);
   QString chartTitle = "Speed graph";
   layout1->setAlignment(Qt::AlignCenter);
-  layout1->setSpacing(16);
   QLineSeries *series = new QLineSeries();
   series->setName("Speed");
 
@@ -41,7 +41,8 @@ void OutputPage::setupFirstPage() {
   series->append(4.1, 3.3);
 
   setupChart(series, chartTitle);
-  layout1->addLayout(chartLayout);
+  // layout1->addLayout(chartLayout);
+  layout1->addWidget(chartWidget);
 
   page1->setLayout(layout1);
   stackedWidget->addWidget(page1);
@@ -52,7 +53,6 @@ void OutputPage::setupSecondPage() {
   QVBoxLayout *layout2 = new QVBoxLayout(page2);
   QString chartTitle = "Voltage graph";
   layout2->setAlignment(Qt::AlignCenter);
-  layout2->setSpacing(16);
   QLineSeries *series = new QLineSeries();
   series->setName("Voltage");
   series->append(0.0, 0.0);
@@ -60,7 +60,8 @@ void OutputPage::setupSecondPage() {
   series->append(4.1, 3.3);
 
   setupChart(series, chartTitle);
-  layout2->addLayout(chartLayout);
+  // layout2->addLayout(chartLayout);
+  layout2->addWidget(chartWidget);
 
   page2->setLayout(layout2);
   stackedWidget->addWidget(page2);
@@ -71,7 +72,6 @@ void OutputPage::setupThirdPage() {
   QVBoxLayout *layout3 = new QVBoxLayout(page3);
   QString chartTitle = "Current graph";
   layout3->setAlignment(Qt::AlignCenter);
-  layout3->setSpacing(16);
 
   QLineSeries *series = new QLineSeries();
   series->setName("Current");
@@ -83,31 +83,46 @@ void OutputPage::setupThirdPage() {
   series->append(4.0, 4.0);
 
   setupChart(series, chartTitle);
-  layout3->addLayout(chartLayout);
+  // layout3->addLayout(chartLayout);
+  layout3->addWidget(chartWidget);
 
   page3->setLayout(layout3);
   stackedWidget->addWidget(page3);
 }
 
 void OutputPage::setupChart(QLineSeries *series, QString title) {
-
+  chartWidget = new QWidget();
+  // chartWidget->setStyleSheet("background-color: red;");
   QChart *chart = new QChart();
   chart->addSeries(series);
   chart->setTitle(title);
   chart->createDefaultAxes();
 
+  // Style chart title
+  QFont titleFont;
+  titleFont.setPixelSize(20);
+  titleFont.setWeight(QFont::DemiBold);
+  chart->setTitleFont(titleFont);
+  chart->setTitleBrush(QBrush(Colors::StandardBlack));
+
   chartView = new QChartView(chart);
   chartView->setRenderHint(QPainter::Antialiasing);
-  chartView->setFixedSize(600, 450);
+  chartView->setFixedSize(650, 450);
 
-  chartLayout = new QVBoxLayout();
+  chartLayout = new QVBoxLayout(chartWidget);
   chartLayout->setContentsMargins(0, 0, 0, 0);
+  chartLayout->setSpacing(16);
   chartLayout->addWidget(chartView, 0, Qt::AlignCenter);
+  chartView->setStyleSheet("border: 1px solid " + Colors::Grey100.name() +
+                           ";"
+                           "border-radius: 12px;");
   createChartButtons(chartView);
 }
 
 void OutputPage::createChartButtons(QChartView *chartView) {
+  // QWidget *buttonWidget = new QWidget();
   QHBoxLayout *buttonLayout = new QHBoxLayout();
+  // buttonWidget->setStyleSheet("background-color: blue;");
   buttonLayout->setAlignment(Qt::AlignRight);
   buttonLayout->setSpacing(16);
   ButtonAction *saveButton = new ButtonAction("Save Chart", "normal", this);
