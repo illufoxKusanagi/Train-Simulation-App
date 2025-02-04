@@ -4,6 +4,7 @@
 #include "../widgets/button_action.h"
 #include "../widgets/button_pagination.h"
 #include <QFileDialog>
+#include <QFont>
 #include <QHBoxLayout>
 #include <QMessageBox>
 #include <QPushButton>
@@ -23,6 +24,7 @@ private:
   QVBoxLayout *mainLayout;
   QStackedWidget *stackedWidget;
   QWidget *pageContainer;
+  QWidget *chartWidget;
   QVBoxLayout *pageLayout;
   QVBoxLayout *chartLayout;
   QHBoxLayout *buttonLayout;
