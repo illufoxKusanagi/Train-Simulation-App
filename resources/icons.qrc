@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/constant-active.svg</file>
+        <file>icons/constant-disabled.svg</file>
+        <file>icons/electrical-active.svg</file>
+        <file>icons/electrical-disabled.svg</file>
+        <file>icons/expand.svg</file>
+        <file>icons/play-active.svg</file>
+        <file>icons/play-disabled.svg</file>
+        <file>icons/right-arrow-active.svg</file>
+        <file>icons/right-arrow-disabled.svg</file>
+        <file>icons/running-active.svg</file>
+        <file>icons/running-disabled.svg</file>
+        <file>icons/train-active.svg</file>
+        <file>icons/train-disabled.svg</file>
+        <file>icons/train-track-disabled.svg</file>
+        <file>icons/train-track-active.svg</file>
+        <file>icons/collapse.svg</file>
+    </qresource>
+</RCC>

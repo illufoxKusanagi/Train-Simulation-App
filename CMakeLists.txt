@@ -11,41 +11,91 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Charts)
 
+# target_link_libraries(TrainAppSimulation PRIVATE Qt6::Widgets Qt6::Charts)
+# Main sources
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow/mainwindow.cpp
-        mainwindow/mainwindow.h
-        mainwindow/mainwindow.ui
-        pages/TrainParameterPage.cpp
-        pages/TrainParameterPage.h
-        widgets/InputField.h
+    main.cpp
+    mainwindow/mainwindow.cpp
+    mainwindow/mainwindow.h
+    mainwindow/mainwindow.ui
+)
+
+# Pages
+set(PAGE_SOURCES
+    pages/train_parameter_page.cpp
+    pages/train_parameter_page.h
+    pages/running_parameter_page.cpp
+    pages/running_parameter_page.h
+    pages/track_parameter_page.cpp
+    pages/track_parameter_page.h
+    pages/constant_values_page.cpp
+    pages/constant_values_page.h
+    pages/electrical_parameter_page.cpp
+    pages/electrical_parameter_page.h
+    pages/output_page.cpp
+    pages/output_page.h
+)
+
+# Widgets
+set(WIDGET_SOURCES
+    widgets/input_field.cpp
+    widgets/input_field.h
+    widgets/input_widget.cpp
+    widgets/input_widget.h
+    widgets/input_dropdown.cpp
+    widgets/input_dropdown.h
+    widgets/input_invalid.cpp
+    widgets/input_invalid.h
+    widgets/input_upload.cpp
+    widgets/input_upload.h
+    widgets/button_action.cpp
+    widgets/button_action.h
+    widgets/button_sidebar_active.cpp
+    widgets/button_sidebar_active.h
+    widgets/button_sidebar_widget.cpp
+    widgets/button_sidebar_widget.h
+    widgets/button_toggle.cpp
+    widgets/button_toggle.h
+    widgets/left_panel.cpp
+    widgets/left_panel.h
+    widgets/button_pagination.h
+    widgets/button_pagination.cpp
+)
+
+# Styles and Resources
+set(RESOURCE_SOURCES
+    styles/colors.h
+    styles/text_style.h
+    resources/input_type.h
+    resources/icon_paths.h
+    resources/icons.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(TrainAppSimulation
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        pages/trainParameterPage.cpp
-        pages/trainParameterPage.h
-        pages/runningParameterPage.cpp
-        pages/runningParameterPage.h
-        pages/trackParameterPage.cpp
-        widgets/inputField.cpp
-        widgets/inputField.h
-
+        ${PAGE_SOURCES}
+        ${WIDGET_SOURCES}
+        ${RESOURCE_SOURCES}
     )
+
+# ...existing code...
+
 # Define target properties for Android with Qt 6 as:
-#    set_property(TARGET TrainAppSimulation APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+# set_property(TARGET TrainAppSimulation APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+# ${CMAKE_CURRENT_SOURCE_DIR}/android)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
     if(ANDROID)
         add_library(TrainAppSimulation SHARED
             ${PROJECT_SOURCES}
         )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+
+    # Define properties for Android with Qt 5 after find_package() calls as:
+    # set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
         add_executable(TrainAppSimulation
             ${PROJECT_SOURCES}
@@ -54,13 +104,18 @@ else()
 endif()
 
 target_link_libraries(TrainAppSimulation PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(TrainAppSimulation PRIVATE
+    Qt6::Widgets
+    Qt6::Charts
+)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
 if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.TrainAppSimulation)
+    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.TrainAppSimulation)
 endif()
+
 set_target_properties(TrainAppSimulation PROPERTIES
     ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}

@@ -1,0 +1,73 @@
+#include "button_sidebar_active.h"
+#include "../resources/icon_paths.h"
+#include "../styles/colors.h"
+#include "../styles/text_style.h"
+#include "button_sidebar_widget.h"
+#include <qboxlayout.h>
+#include <qstyle.h>
+
+ButtonSidebarActive::ButtonSidebarActive(const QString &iconType,
+                                         const QString &buttonLabel,
+                                         QWidget *parent)
+    : QPushButton(parent), m_contentWidget(nullptr), m_iconType(iconType) {
+  QString iconPath = IconPaths::getIconPath(m_iconType);
+  m_contentWidget = new ButtonSidebarWidget(iconPath, buttonLabel, this);
+  QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
+  layout->setContentsMargins(8, 8, 8, 8);
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  m_contentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  layout->addWidget(m_contentWidget);
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+}
+
+void ButtonSidebarActive::setLabelVisible(bool visible) {
+  if (m_contentWidget) {
+    m_contentWidget->setLabelVisible(visible);
+  }
+}
+
+void ButtonSidebarActive::setEnabled(bool isEnabled) {
+  QString IconPath;
+  if (isEnabled) {
+    IconPath = IconPaths::getIconPath(m_iconType);
+    m_contentWidget->updateIcon(IconPath);
+    setStyleSheet("QPushButton {"
+                  "    padding: 8px 24px;"
+                  "    text-align: left;"
+                  "    border: 0 solid;"
+                  "    border-radius: 12px;"
+                  "    background-color: transparent;"
+                  "    min-height: 40px;"
+                  "    color: " +
+                  Colors::StandardWhite.name() +
+                  ";"
+                  "    " +
+                  TextStyle::BodyBigBold() +
+                  "}"
+                  "QPushButton:hover {"
+                  "    background-color: " +
+                  Colors::Secondary300.name() +
+                  ";"
+                  "}"
+                  "QPushButton:pressed {"
+                  "    background-color: " +
+                  Colors::Secondary600.name() +
+                  ";"
+                  "}");
+  } else {
+    IconPath = IconPaths::getIconPath(m_iconType + "Disabled");
+    m_contentWidget->updateIcon(IconPath);
+    setStyleSheet("QPushButton {"
+                  "    padding: 8px 24px;"
+                  "    text-align: left;"
+                  "    border: 0 solid;"
+                  "    border-radius: 12px;"
+                  "    background-color: transparent;"
+                  "    min-height: 40px;"
+                  "    color: " +
+                  Colors::Grey400.name() +
+                  ";"
+                  "    " +
+                  TextStyle::BodyBigBold() + "}");
+  }
+}
