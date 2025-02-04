@@ -40,9 +40,8 @@ void LeftPanel::setupButtons() {
   const QStringList buttonNames = {"Constant Values",      "Train Parameter",
                                    "Running Parameter",    "Track Parameter",
                                    "Electrical Parameter", "Output"};
-  const QStringList buttonTypes = {"constantActive",   "trainActive",
-                                   "runningActive",    "trackActive",
-                                   "electricalActive", "outputActive"};
+  const QStringList buttonTypes = {"constant", "train",      "running",
+                                   "track",    "electrical", "output"};
 
   for (int i = 0; i < buttonNames.size(); ++i) {
     ButtonSidebarActive *button =
