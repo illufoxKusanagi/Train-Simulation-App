@@ -6,7 +6,7 @@ InputUpload::InputUpload(QWidget *parent)
   QHBoxLayout *layout = new QHBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
   uploadButton->setIcon(QIcon(":/icons/icons/upload.svg"));
-  uploadButton->setIconSize(QSize(24, 24));
+  uploadButton->setIconSize(QSize(16, 16));
 
   layout->addWidget(uploadButton);
   layout->addWidget(uploadLabel);
