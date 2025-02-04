@@ -27,9 +27,7 @@ private:
   QPushButton *buttonSidebarActive;
   ButtonSidebarWidget *m_contentWidget;
   QString m_iconType;
-  QString m_iconPath;
   bool isLabelVisible;
-  void updateIcon(QString iconType);
 };
 
 #endif // BUTTONSIDEBARACTIVE_H

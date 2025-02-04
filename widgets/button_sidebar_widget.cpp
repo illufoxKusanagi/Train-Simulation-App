@@ -37,9 +37,6 @@ void ButtonSidebarWidget::setLabelVisible(bool visible) {
 void ButtonSidebarWidget::updateIcon(bool isEnabled) {
   QString iconPath = IconPaths::getIconPath(
       m_isEnabled ? m_iconType : m_iconType + "Disabled");
-  qDebug() << "This button is " << m_iconType;
-  qDebug() << "the state is" << m_isEnabled;
-  qDebug() << "and the path is : " << iconPath;
   QPixmap icon(iconPath);
   iconLabel->setPixmap(
       icon.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));

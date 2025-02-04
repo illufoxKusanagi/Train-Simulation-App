@@ -4,8 +4,6 @@ LeftPanel::LeftPanel(QWidget *parent) : QWidget(parent), buttonLayout(nullptr) {
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(8);
-  // QVBoxLayout *buttonLayout new QVBoxLayout(this);
-  // mainLayout->setAlignment(Qt::AlignVCenter);
   buttonToggle = new ButtonToggle(isCollapsed, this);
   QWidget *buttonContainer = new QWidget(this);
 
@@ -46,28 +44,30 @@ void LeftPanel::setupButtons() {
   for (int i = 0; i < buttonNames.size(); ++i) {
     ButtonSidebarActive *button =
         new ButtonSidebarActive(buttonTypes[i], buttonNames[i], this);
-    connect(button, &QPushButton::clicked, this,
-            [this, i]() { emitNavigateSignal(i); });
+    connect(button, &QPushButton::clicked, this, [this, i]() {
+      m_currentIndex = i;
+      updateButtonStates();
+      emitNavigateSignal(i);
+    });
     sidebarButtons.append(button);
     buttonLayout->addWidget(button);
-    button->setEnabled(i >= 3);
-    // button->setEnabled(true);
   }
+  updateButtonStates();
 }
 
-// void LeftPanel::setSidebarButtonsEnabled(bool enable) {
-//   for (auto *button : sidebarButtons) {
-//     if (button) {
-//       button->setEnabled(enable);
-//     }
-//   }
-// }
+void LeftPanel::updateButtonStates() {
+  for (int i = 0; i < sidebarButtons.size(); ++i) {
+    if (sidebarButtons[i]) {
+      sidebarButtons[i]->setEnabled(i == m_currentIndex);
+    }
+  }
+}
 
 void LeftPanel::emitNavigateSignal(int pageIndex) {
   emit navigateToPage(pageIndex);
 }
 
-// void LeftPanel::onPageChanged(int pageIndex) {
-//   // For example, only enable the buttons if we’re past page 0
-//   setSidebarButtonsEnabled(pageIndex > 0);
-// }
+void LeftPanel::onPageChanged(int pageIndex) {
+  m_currentIndex = pageIndex;
+  updateButtonStates();
+}

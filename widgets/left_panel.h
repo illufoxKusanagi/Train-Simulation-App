@@ -16,7 +16,7 @@ public:
   explicit LeftPanel(QWidget *parent = nullptr);
 
 public slots:
-  // void onPageChanged(int pageIndex);
+  void onPageChanged(int pageIndex);
   void emitNavigateSignal(int pageIndex);
 
 signals:
@@ -32,7 +32,6 @@ private:
   int getCurrentIndex() const { return m_currentIndex; }
   void setCurrentIndex(int index) { m_currentIndex = index; }
   void setupButtons();
-  void setSidebarButtonsEnabled(bool enable);
   void updateButtonStates();
 };
 
