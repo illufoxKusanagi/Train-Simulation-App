@@ -50,8 +50,9 @@ void LeftPanel::setupButtons() {
             [this, i]() { emitNavigateSignal(i); });
     sidebarButtons.append(button);
     buttonLayout->addWidget(button);
+    button->setEnabled(i >= 3);
+    // button->setEnabled(true);
   }
-  // setSidebarButtonsEnabled(false);
 }
 
 // void LeftPanel::setSidebarButtonsEnabled(bool enable) {

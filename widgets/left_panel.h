@@ -16,7 +16,7 @@ public:
   explicit LeftPanel(QWidget *parent = nullptr);
 
 public slots:
-  void onPageChanged(int pageIndex);
+  // void onPageChanged(int pageIndex);
   void emitNavigateSignal(int pageIndex);
 
 signals:

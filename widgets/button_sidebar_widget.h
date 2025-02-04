@@ -11,19 +11,21 @@
 #include <QSizePolicy>
 #include <Qwidget>
 
-
 class ButtonSidebarWidget : public QWidget {
 public:
   explicit ButtonSidebarWidget(const QString &iconType,
                                const QString &buttonLabel,
                                QWidget *parent = nullptr);
   void setLabelVisible(bool visible);
-  void updateIcon(const QString &IconPath);
+  void updateIcon(bool isEnabled);
+  void setEnabled(bool isEnabled);
 
 private:
   QLabel *iconLabel = nullptr;
   QLabel *textLabel = nullptr;
   QBoxLayout *layout = nullptr;
+  QString m_iconType;
+  bool m_isEnabled = false;
 };
 
 #endif // BUTTONSIDEBARWIDGET_H
