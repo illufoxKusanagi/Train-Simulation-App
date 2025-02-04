@@ -142,8 +142,12 @@ TrainParameterPage::createPassengerLayout(const QStringList &labels) {
 void TrainParameterPage::setupPagination() {
   QWidget *paginationWidget = new QWidget(this);
   QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
+  paginationLayout->setAlignment(Qt::AlignLeft);
+  paginationLayout->setSpacing(16);
   prevButton = new ButtonAction("Constant Input", "false", this);
   nextButton = new ButtonAction("Trainset", "false", this);
+  prevButton->setFixedSize(144, 48);
+  nextButton->setFixedSize(144, 48);
   connect(prevButton, &QPushButton::clicked, this,
           &TrainParameterPage::showPreviousPage);
   connect(nextButton, &QPushButton::clicked, this,

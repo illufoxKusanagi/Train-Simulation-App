@@ -4,11 +4,10 @@
 #include "../styles/colors.h"
 #include "../styles/text_style.h"
 #include "button_sidebar_active.h"
-#include "toggle_button.h"
+#include "button_toggle.h"
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
-
 
 class LeftPanel : public QWidget {
   Q_OBJECT
@@ -25,7 +24,7 @@ signals:
 
 private:
   bool isCollapsed = false;
-  ToggleButton *toggleButton;
+  ButtonToggle *ButtonToggle;
   QVBoxLayout *buttonLayout;
   QList<ButtonSidebarActive *> sidebarButtons;
 

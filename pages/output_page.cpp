@@ -140,20 +140,19 @@ void OutputPage::createChartButtons(QChartView *chartView) {
   chartLayout->addLayout(buttonLayout);
 }
 
-void OutputPage::createActionButtons() {}
-
 void OutputPage::setupPagination() {
   QHBoxLayout *buttonLayout = new QHBoxLayout();
-  ButtonAction *prevButton = new ButtonAction("Prev", "normal", this);
-  ButtonAction *nextButton = new ButtonAction("Next", "normal", this);
+  ButtonAction *prevButton = new ButtonAction("prev", "normal", this);
+  ButtonAction *nextButton = new ButtonAction("next", "normal", this);
+  buttonLayout->setSpacing(32);
   buttonLayout->addWidget(prevButton);
   buttonLayout->addWidget(nextButton);
   buttonLayout->setAlignment(Qt::AlignLeft);
 
   prevButton->setEnabled(true);
-  prevButton->setFixedSize(80, 48);
+  prevButton->setFixedSize(48, 48);
   nextButton->setEnabled(true);
-  nextButton->setFixedSize(80, 48);
+  nextButton->setFixedSize(48, 48);
 
   connect(prevButton, &QPushButton::clicked, this, [this]() {
     int index = stackedWidget->currentIndex();

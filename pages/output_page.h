@@ -32,7 +32,6 @@ private:
   void setupThirdPage();
   void setupChart(QLineSeries *series);
   void createChartButtons(QChartView *chartView);
-  void createActionButtons();
   void setupPagination();
 };
 
