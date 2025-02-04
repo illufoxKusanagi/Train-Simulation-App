@@ -56,12 +56,12 @@ set(WIDGET_SOURCES
     widgets/button_sidebar_active.h
     widgets/button_sidebar_widget.cpp
     widgets/button_sidebar_widget.h
-    widgets/toggle_button.cpp
-    widgets/toggle_button.h
+    widgets/button_toggle.cpp
+    widgets/button_toggle.h
     widgets/left_panel.cpp
     widgets/left_panel.h
-    widgets/pagination-button.h
-    widgets/pagination-button.cpp
+    widgets/button_pagination.h
+    widgets/button_pagination.cpp
 )
 
 # Styles and Resources

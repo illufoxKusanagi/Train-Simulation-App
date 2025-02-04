@@ -1,6 +1,6 @@
-#include "toggle_button.h"
+#include "button_toggle.h"
 
-ToggleButton::ToggleButton(bool isCollapsed, QWidget *parent)
+ButtonToggle::ButtonToggle(bool isCollapsed, QWidget *parent)
     : QPushButton(parent) {
   updateIcon();
   setIconSize(QSize(36, 36));
@@ -19,13 +19,13 @@ ToggleButton::ToggleButton(bool isCollapsed, QWidget *parent)
                 "}");
 }
 
-void ToggleButton::updateIcon() {
+void ButtonToggle::updateIcon() {
   QString iconPath =
       m_isCollapsed ? ":/icons/icons/expand.svg" : ":/icons/icons/collapse.svg";
   setIcon(QIcon(iconPath));
 }
 
-void ToggleButton::toggleCollapse() {
+void ButtonToggle::toggleCollapse() {
   m_isCollapsed = !m_isCollapsed;
   updateIcon();
 }

@@ -6,22 +6,22 @@ LeftPanel::LeftPanel(QWidget *parent) : QWidget(parent), buttonLayout(nullptr) {
   mainLayout->setSpacing(8);
   // QVBoxLayout *buttonLayout new QVBoxLayout(this);
   // mainLayout->setAlignment(Qt::AlignVCenter);
-  toggleButton = new ToggleButton(isCollapsed, this);
+  ButtonToggle = new class ButtonToggle(isCollapsed, this);
   QWidget *buttonContainer = new QWidget(this);
 
   buttonLayout = new QVBoxLayout(buttonContainer);
   buttonLayout->setContentsMargins(8, 16, 8, 16);
   buttonLayout->setSpacing(16);
   buttonLayout->setAlignment(Qt::AlignCenter);
-  buttonLayout->addWidget(toggleButton);
-  connect(toggleButton, &QPushButton::clicked, this, [this]() {
+  buttonLayout->addWidget(ButtonToggle);
+  connect(ButtonToggle, &QPushButton::clicked, this, [this]() {
     isCollapsed = !isCollapsed;
     for (auto *button : sidebarButtons) {
       if (button) {
         button->setLabelVisible(!isCollapsed);
       }
     }
-    toggleButton->toggleCollapse();
+    ButtonToggle->toggleCollapse();
     setFixedWidth(isCollapsed ? 80 : 320);
   });
 
