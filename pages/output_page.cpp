@@ -140,29 +140,43 @@ void OutputPage::createChartButtons(QChartView *chartView) {
   chartLayout->addLayout(buttonLayout);
 }
 
+// void OutputPage::setupPagination() {
+//   QHBoxLayout *buttonLayout = new QHBoxLayout();
+//   ButtonAction *prevButton = new ButtonAction("prev", "normal", this);
+//   ButtonAction *nextButton = new ButtonAction("next", "normal", this);
+//   buttonLayout->setSpacing(32);
+//   buttonLayout->addWidget(prevButton);
+//   buttonLayout->addWidget(nextButton);
+//   buttonLayout->setAlignment(Qt::AlignLeft);
+
+//   prevButton->setEnabled(true);
+//   prevButton->setFixedSize(48, 48);
+//   nextButton->setEnabled(true);
+//   nextButton->setFixedSize(48, 48);
+
+//   connect(prevButton, &QPushButton::clicked, this, [this]() {
+//     int index = stackedWidget->currentIndex();
+//     if (index > 0)
+//       stackedWidget->setCurrentIndex(index - 1);
+//   });
+//   connect(nextButton, &QPushButton::clicked, this, [this]() {
+//     int index = stackedWidget->currentIndex();
+//     if (index < stackedWidget->count() - 1)
+//       stackedWidget->setCurrentIndex(index + 1);
+//   });
+//   mainLayout->addLayout(buttonLayout);
+// }
+
 void OutputPage::setupPagination() {
-  QHBoxLayout *buttonLayout = new QHBoxLayout();
-  ButtonAction *prevButton = new ButtonAction("prev", "normal", this);
-  ButtonAction *nextButton = new ButtonAction("next", "normal", this);
-  buttonLayout->setSpacing(32);
-  buttonLayout->addWidget(prevButton);
-  buttonLayout->addWidget(nextButton);
-  buttonLayout->setAlignment(Qt::AlignLeft);
+  QWidget *paginationWidget = new QWidget();
+  QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
+  paginationLayout->setAlignment(Qt::AlignLeft);
+  ButtonPagination *pagination = new ButtonPagination(this);
+  pagination->updateButtons(0, 3);
 
-  prevButton->setEnabled(true);
-  prevButton->setFixedSize(48, 48);
-  nextButton->setEnabled(true);
-  nextButton->setFixedSize(48, 48);
+  connect(pagination, &ButtonPagination::pageChanged, stackedWidget,
+          &QStackedWidget::setCurrentIndex);
 
-  connect(prevButton, &QPushButton::clicked, this, [this]() {
-    int index = stackedWidget->currentIndex();
-    if (index > 0)
-      stackedWidget->setCurrentIndex(index - 1);
-  });
-  connect(nextButton, &QPushButton::clicked, this, [this]() {
-    int index = stackedWidget->currentIndex();
-    if (index < stackedWidget->count() - 1)
-      stackedWidget->setCurrentIndex(index + 1);
-  });
-  mainLayout->addLayout(buttonLayout);
+  paginationLayout->addWidget(pagination);
+  mainLayout->addWidget(paginationWidget);
 }

@@ -2,6 +2,7 @@
 #define OUTPUT_PAGE_H
 
 #include "../widgets/button_action.h"
+#include "../widgets/button_pagination.h"
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QMessageBox>

@@ -24,7 +24,7 @@ signals:
 
 private:
   bool isCollapsed = false;
-  ButtonToggle *ButtonToggle;
+  ButtonToggle *buttonToggle;
   QVBoxLayout *buttonLayout;
   QList<ButtonSidebarActive *> sidebarButtons;
 
