@@ -60,6 +60,8 @@ set(WIDGET_SOURCES
     widgets/toggle_button.h
     widgets/left_panel.cpp
     widgets/left_panel.h
+    widgets/pagination-button.h
+    widgets/pagination-button.cpp
 )
 
 # Styles and Resources
