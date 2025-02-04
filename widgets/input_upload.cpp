@@ -5,6 +5,8 @@ InputUpload::InputUpload(QWidget *parent)
       uploadLabel(new QLabel("No file selected", this)) {
   QHBoxLayout *layout = new QHBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
+  uploadButton->setIcon(QIcon(":/icons/icons/upload.svg"));
+  uploadButton->setIconSize(QSize(24, 24));
 
   layout->addWidget(uploadButton);
   layout->addWidget(uploadLabel);
