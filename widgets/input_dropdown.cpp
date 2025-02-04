@@ -26,6 +26,7 @@ InputDropdown::InputDropdown(QWidget *parent)
                           "    border: none;"
                           "}"
                           "QComboBox::down-arrow {"
+                          "    image: url(:/icons/icons/expand.svg);"
                           "    width: 8px;"
                           "    height: 8px;"
                           "}");
