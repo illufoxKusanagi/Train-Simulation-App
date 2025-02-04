@@ -26,6 +26,7 @@ OutputPage::OutputPage(QWidget *parent)
 void OutputPage::setupFirstPage() {
   QWidget *page1 = new QWidget();
   QVBoxLayout *layout1 = new QVBoxLayout(page1);
+  QString chartTitle = "Speed graph";
   layout1->setAlignment(Qt::AlignCenter);
   layout1->setSpacing(16);
   QLineSeries *series = new QLineSeries();
@@ -39,7 +40,7 @@ void OutputPage::setupFirstPage() {
   series->append(3.4, 3.0);
   series->append(4.1, 3.3);
 
-  setupChart(series);
+  setupChart(series, chartTitle);
   layout1->addLayout(chartLayout);
 
   page1->setLayout(layout1);
@@ -49,6 +50,7 @@ void OutputPage::setupFirstPage() {
 void OutputPage::setupSecondPage() {
   QWidget *page2 = new QWidget;
   QVBoxLayout *layout2 = new QVBoxLayout(page2);
+  QString chartTitle = "Voltage graph";
   layout2->setAlignment(Qt::AlignCenter);
   layout2->setSpacing(16);
   QLineSeries *series = new QLineSeries();
@@ -57,7 +59,7 @@ void OutputPage::setupSecondPage() {
   series->append(1.1, 2.1);
   series->append(4.1, 3.3);
 
-  setupChart(series);
+  setupChart(series, chartTitle);
   layout2->addLayout(chartLayout);
 
   page2->setLayout(layout2);
@@ -67,6 +69,7 @@ void OutputPage::setupSecondPage() {
 void OutputPage::setupThirdPage() {
   QWidget *page3 = new QWidget();
   QVBoxLayout *layout3 = new QVBoxLayout(page3);
+  QString chartTitle = "Current graph";
   layout3->setAlignment(Qt::AlignCenter);
   layout3->setSpacing(16);
 
@@ -79,18 +82,18 @@ void OutputPage::setupThirdPage() {
   series->append(3.0, 2.5);
   series->append(4.0, 4.0);
 
-  setupChart(series);
+  setupChart(series, chartTitle);
   layout3->addLayout(chartLayout);
 
   page3->setLayout(layout3);
   stackedWidget->addWidget(page3);
 }
 
-void OutputPage::setupChart(QLineSeries *series) {
+void OutputPage::setupChart(QLineSeries *series, QString title) {
 
   QChart *chart = new QChart();
   chart->addSeries(series);
-  chart->setTitle("Mass to Speed graph");
+  chart->setTitle(title);
   chart->createDefaultAxes();
 
   chartView = new QChartView(chart);
