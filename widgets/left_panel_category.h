@@ -1,7 +1,9 @@
 #ifndef LEFT_PANEL_INPUTS_H
 #define LEFT_PANEL_INPUTS_H
 
+#include "button_panel_category.h"
 #include "button_sidebar_active.h"
+#include "button_sidebar_category.cpp"
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -27,6 +29,7 @@ private:
   int m_currentIndex = 0;
   const QStringList m_buttonNames;
   const QStringList m_buttonTypes;
+  ButtonSidebarCategory *m_categoryLabel;
   QVBoxLayout *buttonLayout;
   QList<ButtonSidebarActive *> m_sidebarButtons;
   PanelType m_type;

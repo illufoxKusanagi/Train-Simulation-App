@@ -17,7 +17,8 @@ public:
                                QWidget *parent = nullptr);
   using QPushButton::setText;
   void setLabelVisible(bool visible);
-  void setEnabled(bool isEnabled);
+  virtual void setEnabled(bool isEnabled);
+  QString m_iconType;
 
 private:
   static const QString s_styleHover;
@@ -26,7 +27,6 @@ private:
 
   QPushButton *buttonSidebarActive;
   ButtonSidebarWidget *m_contentWidget;
-  QString m_iconType;
   bool isLabelVisible;
 };
 
