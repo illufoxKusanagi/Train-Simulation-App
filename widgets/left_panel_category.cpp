@@ -32,7 +32,7 @@ void LeftPanelInputs::setupButtons() {
 }
 
 void LeftPanelInputs::updateButtonStates() {
-  m_categoryLabel->setActive(m_currentIndex == -1);
+  m_categoryLabel->setActive(m_currentIndex == -1, m_currentIndex == 0);
   for (int i = 0; i < m_sidebarButtons.size(); i++) {
     if (m_sidebarButtons[i]) {
       m_sidebarButtons[i]->setEnabled(i == m_currentIndex);

@@ -22,7 +22,7 @@ signals:
   void navigateToPage(int pageIndex);
 
 private:
-  bool isCollapsed = false;
+  bool m_isCollapsed = false;
   int m_currentIndex = 0;
   ButtonToggle *buttonToggle;
   QVBoxLayout *buttonLayout;
