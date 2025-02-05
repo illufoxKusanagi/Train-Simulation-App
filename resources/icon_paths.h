@@ -29,11 +29,10 @@ public:
         {"powerDisabled", ":/icons/icons/power-disabled.svg"},
         {"traction", ":/icons/icons/friction-active.svg"},
         {"tractionDisabled", ":/icons/icons/friction-disabled.svg"},
-        {"category", ":/icons/icons/category-active.svg"},
-        {"categoryCollapsed", ":/icons/icons/category-collapse.svg"},
-        {"categoryDisabled", ":/icons/icons/category-disabled.svg"},
-        {"categoryCollapsedDisabled",
-         ":/icons/icons/category-collapse-disabled.svg"},
+        {"categoryCollapsed", ":/icons/icons/category-active.svg"},
+        {"category", ":/icons/icons/category-collapse.svg"},
+        {"categoryCollapsedDisabled", ":/icons/icons/category-disabled.svg"},
+        {"categoryDisabled", ":/icons/icons/category-collapse-disabled.svg"},
     };
     if (iconPaths.contains(iconName)) {
       return iconPaths.value(iconName);

@@ -32,7 +32,6 @@ private:
 
   QPushButton *buttonSidebarActive;
   ButtonSidebarWidget *m_contentWidget;
-  // QBoxLayout *m_layout;
   QHBoxLayout *m_layout;
   bool isLabelVisible;
 };
