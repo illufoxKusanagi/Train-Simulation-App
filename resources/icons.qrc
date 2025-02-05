@@ -16,6 +16,5 @@
         <file>icons/train-track-disabled.svg</file>
         <file>icons/train-track-active.svg</file>
         <file>icons/collapse.svg</file>
-        <file>icons/upload.svg</file>
     </qresource>
 </RCC>

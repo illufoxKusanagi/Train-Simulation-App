@@ -41,7 +41,9 @@ void OutputPage::setupFirstPage() {
   series->append(4.1, 3.3);
 
   setupChart(series, chartTitle);
+  // layout1->addLayout(chartLayout);
   layout1->addWidget(chartWidget);
+
   page1->setLayout(layout1);
   stackedWidget->addWidget(page1);
 }
@@ -58,6 +60,7 @@ void OutputPage::setupSecondPage() {
   series->append(4.1, 3.3);
 
   setupChart(series, chartTitle);
+  // layout2->addLayout(chartLayout);
   layout2->addWidget(chartWidget);
 
   page2->setLayout(layout2);
@@ -80,6 +83,7 @@ void OutputPage::setupThirdPage() {
   series->append(4.0, 4.0);
 
   setupChart(series, chartTitle);
+  // layout3->addLayout(chartLayout);
   layout3->addWidget(chartWidget);
 
   page3->setLayout(layout3);
@@ -88,11 +92,13 @@ void OutputPage::setupThirdPage() {
 
 void OutputPage::setupChart(QLineSeries *series, QString title) {
   chartWidget = new QWidget();
+  // chartWidget->setStyleSheet("background-color: red;");
   QChart *chart = new QChart();
   chart->addSeries(series);
   chart->setTitle(title);
   chart->createDefaultAxes();
 
+  // Style chart title
   QFont titleFont;
   titleFont.setPixelSize(20);
   titleFont.setWeight(QFont::DemiBold);
@@ -114,7 +120,9 @@ void OutputPage::setupChart(QLineSeries *series, QString title) {
 }
 
 void OutputPage::createChartButtons(QChartView *chartView) {
+  // QWidget *buttonWidget = new QWidget();
   QHBoxLayout *buttonLayout = new QHBoxLayout();
+  // buttonWidget->setStyleSheet("background-color: blue;");
   buttonLayout->setAlignment(Qt::AlignRight);
   buttonLayout->setSpacing(16);
   ButtonAction *saveButton = new ButtonAction("Save Chart", "normal", this);
@@ -149,6 +157,33 @@ void OutputPage::createChartButtons(QChartView *chartView) {
 
   chartLayout->addLayout(buttonLayout);
 }
+
+// void OutputPage::setupPagination() {
+//   QHBoxLayout *buttonLayout = new QHBoxLayout();
+//   ButtonAction *prevButton = new ButtonAction("prev", "normal", this);
+//   ButtonAction *nextButton = new ButtonAction("next", "normal", this);
+//   buttonLayout->setSpacing(32);
+//   buttonLayout->addWidget(prevButton);
+//   buttonLayout->addWidget(nextButton);
+//   buttonLayout->setAlignment(Qt::AlignLeft);
+
+//   prevButton->setEnabled(true);
+//   prevButton->setFixedSize(48, 48);
+//   nextButton->setEnabled(true);
+//   nextButton->setFixedSize(48, 48);
+
+//   connect(prevButton, &QPushButton::clicked, this, [this]() {
+//     int index = stackedWidget->currentIndex();
+//     if (index > 0)
+//       stackedWidget->setCurrentIndex(index - 1);
+//   });
+//   connect(nextButton, &QPushButton::clicked, this, [this]() {
+//     int index = stackedWidget->currentIndex();
+//     if (index < stackedWidget->count() - 1)
+//       stackedWidget->setCurrentIndex(index + 1);
+//   });
+//   mainLayout->addLayout(buttonLayout);
+// }
 
 void OutputPage::setupPagination() {
   QWidget *paginationWidget = new QWidget();

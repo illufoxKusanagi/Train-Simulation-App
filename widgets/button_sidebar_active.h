@@ -8,6 +8,7 @@
 #include <QBoxLayout>
 #include <QPushButton>
 
+
 class ButtonSidebarActive : public QPushButton {
   Q_OBJECT
 
@@ -20,10 +21,6 @@ public:
   void setEnabled(bool isEnabled);
 
 private:
-  static const QString s_styleHover;
-  static const QString s_stylePressed;
-  static const QString s_styleBase;
-
   QPushButton *buttonSidebarActive;
   ButtonSidebarWidget *m_contentWidget;
   QString m_iconType;
