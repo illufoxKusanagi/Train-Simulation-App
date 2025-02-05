@@ -5,7 +5,8 @@ LeftPanel::LeftPanel(QWidget *parent)
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(8);
-  buttonToggle = new ButtonToggle(m_isCollapsed, this);
+ buttonToggle = new ButtonToggle(m_isCollapsed, this);
+
   QWidget *buttonContainer = new QWidget(this);
 
   buttonLayout = new QVBoxLayout(buttonContainer);
@@ -38,7 +39,7 @@ LeftPanel::LeftPanel(QWidget *parent)
                 "}");
 }
 
-// void LeftPanel::setupButtons() {
+/ void LeftPanel::setupButtons() {
 //   const QStringList buttonNames = {"Constant Values",      "Train Parameter",
 //                                    "Running Parameter",    "Track Parameter",
 //                                    "Electrical Parameter", "Output"};
