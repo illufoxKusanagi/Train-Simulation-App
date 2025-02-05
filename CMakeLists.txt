@@ -64,6 +64,10 @@ set(WIDGET_SOURCES
     widgets/button_pagination.cpp
     widgets/input_upload_widget.h
     widgets/input_upload_widget.cpp
+    widgets/left_panel_category.h
+    widgets/left_panel_category.cpp
+    widgets/left_panel_outputs.h
+    widgets/left_panel_outputs.cpp
 )
 
 # Styles and Resources
