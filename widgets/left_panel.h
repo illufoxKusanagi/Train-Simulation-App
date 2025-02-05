@@ -23,19 +23,18 @@ signals:
 
 private:
   bool isCollapsed = false;
-  int m_currentIndex = 0;
   ButtonToggle *buttonToggle;
   QVBoxLayout *buttonLayout;
   QList<ButtonSidebarActive *> sidebarButtons;
   LeftPanelInputs *m_inputPanel;
   LeftPanelInputs *m_outputPanel;
-
   int getCurrentIndex() const { return m_currentIndex; }
   void setCurrentIndex(int index) { m_currentIndex = index; }
   // void setupButtons();
   // void updateButtonStates();
   void setupInputPageButtons();
   void setupOutputPageButtons();
+
 };
 
 #endif // LEFT_PANEL_H
