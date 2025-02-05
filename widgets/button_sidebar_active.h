@@ -16,14 +16,17 @@ public:
   explicit ButtonSidebarActive(const QString &iconType = "",
                                const QString &buttonLabel = "",
                                QWidget *parent = nullptr);
+  virtual ~ButtonSidebarActive() = default;
   using QPushButton::setText;
-  void setLabelVisible(bool visible);
-  void setEnabled(bool isEnabled);
+  virtual void setLabelVisible(bool visible);
+  virtual void setEnabled(bool isEnabled);
+
+protected:
+  QString m_iconType;
 
 private:
   QPushButton *buttonSidebarActive;
   ButtonSidebarWidget *m_contentWidget;
-  QString m_iconType;
   bool isLabelVisible;
 };
 

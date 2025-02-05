@@ -1,6 +1,7 @@
 #ifndef LEFT_PANEL_INPUTS_H
 #define LEFT_PANEL_INPUTS_H
 
+#include "button_panel_category.h"
 #include "button_sidebar_active.h"
 #include <QVBoxLayout>
 #include <QWidget>
