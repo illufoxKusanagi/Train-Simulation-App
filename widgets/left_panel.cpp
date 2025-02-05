@@ -16,13 +16,14 @@ LeftPanel::LeftPanel(QWidget *parent)
   connect(buttonToggle, &QPushButton::clicked, this, [this]() {
     m_isCollapsed = !m_isCollapsed;
     m_inputPanel->toggleCollapse(m_isCollapsed);
+    m_outputPanel->toggleCollapse(m_isCollapsed);
     // for (auto *button : sidebarButtons) {
     //   if (button) {
     //     button->setLabelVisible(!isCollapsed);
     //   }
     // }
     buttonToggle->toggleCollapse();
-    setFixedWidth(m_isCollapsed ? 80 : 320);
+    setFixedWidth(m_isCollapsed ? 120 : 320);
   });
 
   // setupButtons();

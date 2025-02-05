@@ -28,7 +28,9 @@ private:
   int m_currentIndex = 0;
   const QStringList m_buttonNames;
   const QStringList m_buttonTypes;
-  QVBoxLayout *buttonLayout;
+  QVBoxLayout *local_buttonLayout;
+  QVBoxLayout *m_buttonLayout;
+  ButtonSidebarActive *m_categoryButton;
   QList<ButtonSidebarActive *> m_sidebarButtons;
   PanelType m_type;
   void setupButtons();
