@@ -11,8 +11,6 @@ LeftPanelInputs::LeftPanelInputs(PanelType type, QWidget *parent)
   // ButtonPanelCategory *categoryLabel = new ButtonPanelCategory(
   //     "category", type == INPUT ? "Inputs" : "Outputs", this);
   // buttonLayout->addWidget(categoryLabel);
-  m_categoryLabel = new ButtonSidebarCategory(
-      "category", type == INPUT ? "Inputs" : "Outputs", this);
   setupButtons();
 }
 
@@ -32,7 +30,7 @@ void LeftPanelInputs::setupButtons() {
 }
 
 void LeftPanelInputs::updateButtonStates() {
-  m_categoryLabel->setActive(m_currentIndex == -1, m_currentIndex == 0);
+  // m_categoryLabel->setActive(m_currentIndex == -1, m_currentIndex == 0);
   for (int i = 0; i < m_sidebarButtons.size(); i++) {
     if (m_sidebarButtons[i]) {
       m_sidebarButtons[i]->setEnabled(i == m_currentIndex);
@@ -46,7 +44,7 @@ void LeftPanelInputs::onPageChanged(int pageIndex) {
 }
 
 void LeftPanelInputs::toggleCollapse(bool isCollapsed) {
-  m_categoryLabel->setLabelVisible(!isCollapsed);
+  // m_categoryLabel->setLabelVisible(!isCollapsed);
   for (auto *button : m_sidebarButtons) {
     if (button) {
       button->setLabelVisible(!isCollapsed);
