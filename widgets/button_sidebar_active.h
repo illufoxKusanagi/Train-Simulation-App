@@ -20,6 +20,7 @@ public:
   virtual void setLabelVisible(bool visible);
   virtual void setIconVisible(bool visible);
   virtual void setEnabled(bool isEnabled);
+  virtual void updateIcon(bool isHidden);
 
 protected:
   QString m_iconType;

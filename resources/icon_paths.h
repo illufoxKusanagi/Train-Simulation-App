@@ -29,10 +29,12 @@ public:
         {"powerDisabled", ":/icons/icons/power-disabled.svg"},
         {"traction", ":/icons/icons/friction-active.svg"},
         {"tractionDisabled", ":/icons/icons/friction-disabled.svg"},
-        {"input", ":/icons/icons/arrow-up.svg"},
-        {"inputCollapse", ":/icons/icons/arrow-down.svg"},
-        {"inputDisabled", ":/icons/icons/arrow-up-disabled.svg"},
-        {"inputCollapseDisabled", ":/icons/icons/arrow-down-disabled.svg"}};
+        {"category", ":/icons/icons/category-active.svg"},
+        {"categoryCollapsed", ":/icons/icons/category-collapse.svg"},
+        {"categoryDisabled", ":/icons/icons/category-disabled.svg"},
+        {"categoryCollapsedDisabled",
+         ":/icons/icons/category-collapse-disabled.svg"},
+    };
     if (iconPaths.contains(iconName)) {
       return iconPaths.value(iconName);
     } else {

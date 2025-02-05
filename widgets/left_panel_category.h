@@ -26,15 +26,18 @@ private:
   static const QStringList OUTPUT_BUTTON_TYPES;
 
   int m_currentIndex = 0;
+  bool m_isShown = true;
   const QStringList m_buttonNames;
   const QStringList m_buttonTypes;
   QVBoxLayout *local_buttonLayout;
-  QVBoxLayout *m_buttonLayout;
+  QWidget *local_buttonContainer;
+  QVBoxLayout *mainLayout;
   ButtonSidebarActive *m_categoryButton;
   QList<ButtonSidebarActive *> m_sidebarButtons;
   PanelType m_type;
   void setupButtons();
   void updateButtonStates();
+  void toggleButtons();
 };
 
 #endif // LEFT_PANEL_INPUTS_H

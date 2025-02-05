@@ -43,6 +43,12 @@ void ButtonSidebarWidget::setIconVisible(bool visible) {
   }
 }
 
+void ButtonSidebarWidget::updateAppearance(bool isShown) {
+  static QString originalIconType = m_iconType;
+  m_iconType = isShown ? originalIconType : originalIconType + "Collapsed";
+  updateIcon(m_isEnabled);
+}
+
 void ButtonSidebarWidget::updateIcon(bool isEnabled) {
   QString iconPath = IconPaths::getIconPath(
       m_isEnabled ? m_iconType : m_iconType + "Disabled");
