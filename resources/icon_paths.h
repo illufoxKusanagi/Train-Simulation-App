@@ -23,7 +23,16 @@ public:
         {"trackDisabled", ":/icons/icons/train-track-disabled.svg"},
         {"electricalDisabled", ":/icons/icons/electrical-disabled.svg"},
         {"outputDisabled", ":/icons/icons/play-disabled.svg"},
-    };
+        {"speed", ":/icons/icons/speed-active.svg"},
+        {"speedDisabled", ":/icons/icons/speed-disabled.svg"},
+        {"power", ":/icons/icons/power-active.svg"},
+        {"powerDisabled", ":/icons/icons/power-disabled.svg"},
+        {"traction", ":/icons/icons/friction-active.svg"},
+        {"tractionDisabled", ":/icons/icons/friction-disabled.svg"},
+        {"input", ":/icons/icons/arrow-up.svg"},
+        {"inputCollapse", ":/icons/icons/arrow-down.svg"},
+        {"inputDisabled", ":/icons/icons/arrow-up-disabled.svg"},
+        {"inputCollapseDisabled", ":/icons/icons/arrow-down-disabled.svg"}};
     if (iconPaths.contains(iconName)) {
       return iconPaths.value(iconName);
     } else {

@@ -15,11 +15,9 @@ ButtonSidebarWidget::ButtonSidebarWidget(const QString &iconType,
   textLabel = new QLabel(buttonLabel, this);
   textLabel->setStyleSheet(TextStyle::BodyBigBold() +
                            "color: " + Colors::StandardWhite.name() + ";");
-  textLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   layout->addWidget(iconLabel);
   layout->addWidget(textLabel, 1);
   setLayout(layout);
-  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   setMinimumHeight(40);
   setMaximumHeight(40);
   setStyleSheet("QWidget { background-color: transparent; }");
@@ -30,6 +28,17 @@ void ButtonSidebarWidget::setLabelVisible(bool visible) {
     textLabel->setVisible(visible);
     if (layout) {
       layout->setSpacing(visible ? 16 : 0);
+    }
+  }
+}
+
+void ButtonSidebarWidget::setIconVisible(bool visible) {
+  if (iconLabel) {
+    iconLabel->setVisible(visible);
+    if (layout) {
+      layout->setSpacing(visible ? 16 : 0);
+      layout->setAlignment(textLabel,
+                           visible ? Qt::AlignLeft : Qt::AlignCenter);
     }
   }
 }

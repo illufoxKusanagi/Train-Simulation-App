@@ -17,5 +17,15 @@
         <file>icons/train-track-active.svg</file>
         <file>icons/collapse.svg</file>
         <file>icons/upload.svg</file>
+        <file>icons/arrow-down.svg</file>
+        <file>icons/arrow-down-disabled.svg</file>
+        <file>icons/arrow-up.svg</file>
+        <file>icons/arrow-up-disabled.svg</file>
+        <file>icons/speed-disabled.svg</file>
+        <file>icons/speed-active.svg</file>
+        <file>icons/friction-disabled.svg</file>
+        <file>icons/friction-active.svg</file>
+        <file>icons/power-disabled.svg</file>
+        <file>icons/power-active.svg</file>
     </qresource>
 </RCC>

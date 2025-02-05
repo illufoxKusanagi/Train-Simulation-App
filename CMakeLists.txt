@@ -64,6 +64,10 @@ set(WIDGET_SOURCES
     widgets/button_pagination.cpp
     widgets/input_upload_widget.h
     widgets/input_upload_widget.cpp
+    widgets/left_panel_category.h
+    widgets/left_panel_category.cpp
+    widgets/button_panel_category.h
+    widgets/button_panel_category.cpp
 )
 
 # Styles and Resources
@@ -82,6 +86,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PAGE_SOURCES}
         ${WIDGET_SOURCES}
         ${RESOURCE_SOURCES}
+        widgets/buttonsidebarcategory.h
+        widgets/buttonsidebarcategory.cpp
+
     )
 
 # ...existing code...

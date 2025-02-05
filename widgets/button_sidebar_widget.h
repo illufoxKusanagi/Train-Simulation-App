@@ -17,6 +17,7 @@ public:
                                const QString &buttonLabel,
                                QWidget *parent = nullptr);
   void setLabelVisible(bool visible);
+  void setIconVisible(bool visible);
   void updateIcon(bool isEnabled);
   void setEnabled(bool isEnabled);
 
