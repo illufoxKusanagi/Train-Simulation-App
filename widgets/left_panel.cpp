@@ -21,7 +21,6 @@ LeftPanel::LeftPanel(QWidget *parent)
     setFixedWidth(m_isCollapsed ? 120 : 320);
   });
 
-  // setupButtons();
   setupInputPageButtons();
   setupOutputPageButtons();
   mainLayout->addWidget(buttonContainer);
@@ -49,8 +48,6 @@ void LeftPanel::setupInputPageButtons() {
             m_outputPanel->setCurrentIndex(m_currentIndex - m_currentIndex - 1);
             qDebug() << "Left Panel input Current Index: " << m_currentIndex;
           });
-  // connect(m_outputPanel, &LeftPanelInputs::buttonClicked, this,
-  //         [this](int index) { m_currentIndex = index; });
   buttonLayout->addWidget(m_inputPanel);
 }
 
@@ -65,7 +62,5 @@ void LeftPanel::setupOutputPageButtons() {
             m_inputPanel->updateCategoryButton(m_currentIndex);
             m_inputPanel->setCurrentIndex(m_currentIndex);
           });
-  // connect(m_inputPanel, &LeftPanelInputs::buttonClicked, this,
-  //         [this](int index) { m_currentIndex = index + 5; });
   buttonLayout->addWidget(m_outputPanel);
 }

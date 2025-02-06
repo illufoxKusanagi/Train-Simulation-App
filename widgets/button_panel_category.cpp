@@ -6,7 +6,6 @@ ButtonPanelCategory::ButtonPanelCategory(const QString &iconType,
     : QPushButton(parent), m_buttonPanelCategory(nullptr), layout(nullptr),
       m_iconLabel(nullptr), m_textLabel(nullptr), m_iconType(iconType),
       m_buttonLabel(buttonLabel) {
-  //   m_buttonPanelCategory = new QPushButton(this);
   layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
   layout->setContentsMargins(8, 8, 8, 8);
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -29,7 +28,6 @@ void ButtonPanelCategory::setTextIcon() {
   QHBoxLayout *iconLayout = new QHBoxLayout(iconWidget);
   iconLayout->setContentsMargins(0, 0, 0, 0);
   m_iconLabel = new QLabel(this);
-  //   updateIcon(m_isActive);
   m_textLabel = new QLabel(m_buttonLabel, this);
   iconLayout->addWidget(m_iconLabel);
   iconLayout->addWidget(m_textLabel, 1);
