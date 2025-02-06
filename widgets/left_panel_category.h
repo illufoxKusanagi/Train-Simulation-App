@@ -6,11 +6,11 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-class LeftPanelInputs : public QWidget {
+class LeftPanelCategory : public QWidget {
   Q_OBJECT
 public:
   enum PanelType { INPUT, OUTPUT };
-  explicit LeftPanelInputs(PanelType type, QWidget *parent = nullptr);
+  explicit LeftPanelCategory(PanelType type, QWidget *parent = nullptr);
   void toggleCollapse(bool isCollapsed);
 
 public slots:

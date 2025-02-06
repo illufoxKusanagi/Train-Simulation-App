@@ -1,6 +1,6 @@
 #include "left_panel_category.h"
 
-LeftPanelInputs::LeftPanelInputs(PanelType type, QWidget *parent)
+LeftPanelCategory::LeftPanelCategory(PanelType type, QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)), m_type(type),
       m_buttonTypes(type == INPUT ? INPUT_BUTTON_TYPES : OUTPUT_BUTTON_TYPES),
       m_buttonNames(type == INPUT ? INPUT_BUTTON_NAMES : OUTPUT_BUTTON_NAMES) {
@@ -13,10 +13,10 @@ LeftPanelInputs::LeftPanelInputs(PanelType type, QWidget *parent)
   mainLayout->addWidget(m_categoryButton);
   setupButtons();
   connect(m_categoryButton, &QPushButton::clicked, this,
-          &::LeftPanelInputs::toggleButtons);
+          &::LeftPanelCategory::toggleButtons);
 }
 
-void LeftPanelInputs::setupButtons() {
+void LeftPanelCategory::setupButtons() {
   local_buttonContainer = new QWidget(this);
   local_buttonLayout = new QVBoxLayout(local_buttonContainer);
   local_buttonLayout->setContentsMargins(16, 0, 0, 0);
@@ -36,19 +36,19 @@ void LeftPanelInputs::setupButtons() {
   updateButtonStates();
 }
 
-void LeftPanelInputs::setCurrentIndex(int index) {
+void LeftPanelCategory::setCurrentIndex(int index) {
   m_currentIndex = index;
   updateButtonStates();
 }
 
-void LeftPanelInputs::toggleButtons() {
+void LeftPanelCategory::toggleButtons() {
   m_isShown = !m_isShown;
   // m_categoryButton->setEnabled(m_currentIndex == -1);
   m_categoryButton->updateIcon(m_isShown);
   local_buttonContainer->setVisible(m_isShown);
 }
 
-void LeftPanelInputs::updateButtonStates() {
+void LeftPanelCategory::updateButtonStates() {
   // m_categoryLabel->setActive(m_currentIndex == -1, m_currentIndex == 0);
   m_categoryButton->setEnabled(m_type == INPUT ? m_currentIndex <= 4
                                                : m_currentIndex > 4);
@@ -60,12 +60,12 @@ void LeftPanelInputs::updateButtonStates() {
   }
 }
 
-void LeftPanelInputs::onPageChanged(int pageIndex) {
+void LeftPanelCategory::onPageChanged(int pageIndex) {
   m_currentIndex = pageIndex;
   updateButtonStates();
 }
 
-void LeftPanelInputs::toggleCollapse(bool isCollapsed) {
+void LeftPanelCategory::toggleCollapse(bool isCollapsed) {
   m_categoryButton->setIconVisible(!isCollapsed);
   mainLayout->setAlignment(isCollapsed ? Qt::AlignCenter : Qt::AlignLeft);
   local_buttonLayout->setContentsMargins(isCollapsed ? 0 : 16, 0, 0, 0);
@@ -75,15 +75,15 @@ void LeftPanelInputs::toggleCollapse(bool isCollapsed) {
     }
   }
 }
-const QStringList LeftPanelInputs::INPUT_BUTTON_NAMES = {
+const QStringList LeftPanelCategory::INPUT_BUTTON_NAMES = {
     "Constant Values", "Train Parameter", "Running Parameter",
     "Track Parameter", "Electrical Parameter"};
 
-const QStringList LeftPanelInputs::INPUT_BUTTON_TYPES = {
+const QStringList LeftPanelCategory::INPUT_BUTTON_TYPES = {
     "constant", "train", "running", "track", "electrical"};
 
-const QStringList LeftPanelInputs::OUTPUT_BUTTON_NAMES = {
+const QStringList LeftPanelCategory::OUTPUT_BUTTON_NAMES = {
     "Train Speed", "Traction Effort", "Train Power"};
 
-const QStringList LeftPanelInputs::OUTPUT_BUTTON_TYPES = {"speed", "traction",
-                                                          "power"};
+const QStringList LeftPanelCategory::OUTPUT_BUTTON_TYPES = {"speed", "traction",
+                                                            "power"};

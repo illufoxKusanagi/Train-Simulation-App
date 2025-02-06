@@ -39,8 +39,8 @@ void LeftPanel::emitNavigateSignal(int pageIndex) {
 }
 
 void LeftPanel::setupInputPageButtons() {
-  m_inputPanel = new LeftPanelInputs(LeftPanelInputs::INPUT, this);
-  connect(m_inputPanel, &LeftPanelInputs::buttonClicked, this,
+  m_inputPanel = new LeftPanelCategory(LeftPanelCategory::INPUT, this);
+  connect(m_inputPanel, &LeftPanelCategory::buttonClicked, this,
           [this](int index) {
             m_currentIndex = index;
             emitNavigateSignal(index);
@@ -49,8 +49,8 @@ void LeftPanel::setupInputPageButtons() {
 }
 
 void LeftPanel::setupOutputPageButtons() {
-  m_outputPanel = new LeftPanelInputs(LeftPanelInputs::OUTPUT, this);
-  connect(m_outputPanel, &LeftPanelInputs::buttonClicked, this,
+  m_outputPanel = new LeftPanelCategory(LeftPanelCategory::OUTPUT, this);
+  connect(m_outputPanel, &LeftPanelCategory::buttonClicked, this,
           [this](int index) {
             m_currentIndex = index;
             emitNavigateSignal(index + 5);
