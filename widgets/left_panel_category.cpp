@@ -9,7 +9,7 @@ LeftPanelInputs::LeftPanelInputs(PanelType type, QWidget *parent)
   mainLayout->setAlignment(Qt::AlignCenter);
   m_categoryButton = new ButtonSidebarActive(
       "category", type == INPUT ? "Inputs" : "Outputs", this);
-  // m_categoryButton->setEnabled(m_currentIndex == -1);
+  m_categoryButton->setEnabled(m_currentIndex);
   mainLayout->addWidget(m_categoryButton);
   setupButtons();
   connect(m_categoryButton, &QPushButton::clicked, this,
@@ -26,6 +26,7 @@ void LeftPanelInputs::setupButtons() {
     connect(button, &QPushButton::clicked, this, [this, i]() {
       m_currentIndex = i;
       updateButtonStates();
+      qDebug() << i << "th button created";
       emit buttonClicked(i);
     });
     m_sidebarButtons.append(button);

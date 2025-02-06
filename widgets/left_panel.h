@@ -23,7 +23,7 @@ signals:
 
 private:
   bool m_isCollapsed = false;
-  int m_currentIndex = 0;
+  int m_currentIndex = -1;
   ButtonToggle *buttonToggle;
   QVBoxLayout *buttonLayout;
   QList<ButtonSidebarActive *> sidebarButtons;

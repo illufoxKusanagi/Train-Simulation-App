@@ -27,7 +27,7 @@ private:
   static const QStringList OUTPUT_BUTTON_NAMES;
   static const QStringList OUTPUT_BUTTON_TYPES;
 
-  int m_currentIndex = 0;
+  int m_currentIndex = -1;
   bool m_isShown = true;
   const QStringList m_buttonNames;
   const QStringList m_buttonTypes;
