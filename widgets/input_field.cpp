@@ -20,5 +20,3 @@ InputField::InputField(const QString &unitText, QWidget *parent)
 }
 
 QString InputField::text() const { return input->text(); }
-
-// void InputField::setText(const QString &text) { input->setText(text); }

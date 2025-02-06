@@ -40,7 +40,6 @@ void LeftPanelCategory::setupButtons() {
 
 void LeftPanelInputs::updateCategoryButton(int index) {
   m_currentIndex = index;
-  // m_categoryButton->setEnabled(m_currentIndex == m_type == INPUT ? -1 : 4);
   m_categoryButton->setEnabled(m_type == INPUT ? m_currentIndex <= 4
                                                : m_currentIndex > 4);
 }
@@ -53,13 +52,11 @@ void LeftPanelInputs::setCurrentIndex(int index) {
 
 void LeftPanelCategory::toggleButtons() {
   m_isShown = !m_isShown;
-  // m_categoryButton->setEnabled(m_currentIndex == -1);
   m_categoryButton->updateIcon(m_isShown);
   local_buttonContainer->setVisible(m_isShown);
 }
 
-oid LeftPanelCategory::updateButtonStates() {
-  // m_categoryLabel->setActive(m_currentIndex == -1, m_currentIndex == 0);
+void LeftPanelInputs::updateButtonStates() {
   updateCategoryButton(m_currentIndex);
   qDebug() << "Panel category Current Index: " << m_currentIndex;
   for (int i = 0; i < m_sidebarButtons.size(); i++) {

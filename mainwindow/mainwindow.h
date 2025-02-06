@@ -37,12 +37,6 @@ private:
   void setupLeftPanel();
   void setupPages();
 
-  // void constantValuesPage();
-  // void trainParameterPage();
-  // void runningParameterPage();
-  // void trackParameterPage();
-  // void electricalParameterPage();
-
   LeftPanel *leftPanel;
 };
 
