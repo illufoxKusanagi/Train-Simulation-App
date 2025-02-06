@@ -27,9 +27,11 @@
         <file>icons/friction-active.svg</file>
         <file>icons/power-disabled.svg</file>
         <file>icons/power-active.svg</file>
+
         <file>icons/category-collapse-disabled.svg</file>
         <file>icons/category-collapse.svg</file>
         <file>icons/category-disabled.svg</file>
         <file>icons/category-active.svg</file>
+
     </qresource>
 </RCC>

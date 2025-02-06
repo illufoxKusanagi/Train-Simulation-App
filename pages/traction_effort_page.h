@@ -14,4 +14,4 @@ private:
   QVBoxLayout *mainLayout;
 };
 
-#endif // TRACTION_EFFORT_PAGE_H
+endif // TRACTION_EFFORT_PAGE_H

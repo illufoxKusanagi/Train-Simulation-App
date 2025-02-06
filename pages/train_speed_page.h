@@ -14,4 +14,4 @@ private:
   QVBoxLayout *mainLayout;
 };
 
-#endif // TRAIN_SPEED_PAGE_H
+endif // TRAIN_SPEED_PAGE_H
