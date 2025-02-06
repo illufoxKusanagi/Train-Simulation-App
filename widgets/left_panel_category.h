@@ -6,11 +6,11 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-class LeftPanelInputs : public QWidget {
+class LeftPanelCategory : public QWidget {
   Q_OBJECT
 public:
   enum PanelType { INPUT, OUTPUT };
-  explicit LeftPanelInputs(PanelType type, QWidget *parent = nullptr);
+  explicit LeftPanelCategory(PanelType type, QWidget *parent = nullptr);
   void toggleCollapse(bool isCollapsed);
 
 public slots:
@@ -37,6 +37,7 @@ private:
   ButtonSidebarActive *m_categoryButton;
   QList<ButtonSidebarActive *> m_sidebarButtons;
   PanelType m_type;
+  void setCurrentIndex(int index);
   void setupButtons();
   void updateButtonStates();
   void toggleButtons();
