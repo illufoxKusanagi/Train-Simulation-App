@@ -18,7 +18,11 @@ public:
                                const QString &buttonLabel,
                                QWidget *parent = nullptr);
   void setLabelVisible(bool visible);
-  void updateIcon(const QString &IconPath);
+
+  void setIconVisible(bool visible);
+  void updateIcon(bool isEnabled);
+  void setEnabled(bool isEnabled);
+  void updateAppearance(bool isShown);
 
 private:
   QLabel *iconLabel = nullptr;

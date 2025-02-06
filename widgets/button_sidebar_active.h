@@ -19,7 +19,9 @@ public:
   virtual ~ButtonSidebarActive() = default;
   using QPushButton::setText;
   virtual void setLabelVisible(bool visible);
+  virtual void setIconVisible(bool visible);
   virtual void setEnabled(bool isEnabled);
+  virtual void updateIcon(bool isHidden);
 
 protected:
   QString m_iconType;
@@ -27,6 +29,7 @@ protected:
 private:
   QPushButton *buttonSidebarActive;
   ButtonSidebarWidget *m_contentWidget;
+  QHBoxLayout *m_layout;
   bool isLabelVisible;
 };
 

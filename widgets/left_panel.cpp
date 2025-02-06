@@ -17,13 +17,9 @@ LeftPanel::LeftPanel(QWidget *parent)
   connect(buttonToggle, &QPushButton::clicked, this, [this]() {
     m_isCollapsed = !m_isCollapsed;
     m_inputPanel->toggleCollapse(m_isCollapsed);
-    // for (auto *button : sidebarButtons) {
-    //   if (button) {
-    //     button->setLabelVisible(!isCollapsed);
-    //   }
-    // }
+    m_outputPanel->toggleCollapse(m_isCollapsed);
     buttonToggle->toggleCollapse();
-    setFixedWidth(m_isCollapsed ? 80 : 320);
+    setFixedWidth(m_isCollapsed ? 120 : 320);
   });
 
   // setupButtons();
@@ -71,11 +67,6 @@ LeftPanel::LeftPanel(QWidget *parent)
 void LeftPanel::emitNavigateSignal(int pageIndex) {
   emit navigateToPage(pageIndex);
 }
-
-// void LeftPanel::onPageChanged(int pageIndex) {
-//   m_currentIndex = pageIndex;
-//   updateButtonStates();
-// }
 
 void LeftPanel::setupInputPageButtons() {
   m_inputPanel = new LeftPanelInputs(LeftPanelInputs::INPUT, this);
