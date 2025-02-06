@@ -36,6 +36,7 @@ private:
   // void updateButtonStates();
   void setupInputPageButtons();
   void setupOutputPageButtons();
+
 };
 
 #endif // LEFT_PANEL_H

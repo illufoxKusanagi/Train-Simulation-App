@@ -8,6 +8,7 @@
 #include <QBoxLayout>
 #include <QPushButton>
 
+
 class ButtonSidebarActive : public QPushButton {
   Q_OBJECT
 
@@ -20,18 +21,17 @@ public:
   virtual void setLabelVisible(bool visible);
   virtual void setIconVisible(bool visible);
   virtual void setEnabled(bool isEnabled);
+
   virtual void updateIcon(bool isHidden);
+
 
 protected:
   QString m_iconType;
 
 private:
-  static const QString s_styleHover;
-  static const QString s_stylePressed;
-  static const QString s_styleBase;
-
   QPushButton *buttonSidebarActive;
   ButtonSidebarWidget *m_contentWidget;
+
   QHBoxLayout *m_layout;
   bool isLabelVisible;
 };
