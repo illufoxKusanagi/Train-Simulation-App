@@ -44,7 +44,13 @@ void LeftPanel::setupInputPageButtons() {
           [this](int index) {
             m_currentIndex = index;
             emitNavigateSignal(index);
+            m_inputPanel->updateCategoryButton(m_currentIndex);
+            m_outputPanel->updateCategoryButton(m_currentIndex);
+            m_outputPanel->setCurrentIndex(m_currentIndex);
+            qDebug() << "Left Panel input Current Index: " << m_currentIndex;
           });
+  // connect(m_outputPanel, &LeftPanelInputs::buttonClicked, this,
+  //         [this](int index) { m_currentIndex = index; });
   buttonLayout->addWidget(m_inputPanel);
 }
 
@@ -52,8 +58,14 @@ void LeftPanel::setupOutputPageButtons() {
   m_outputPanel = new LeftPanelInputs(LeftPanelInputs::OUTPUT, this);
   connect(m_outputPanel, &LeftPanelInputs::buttonClicked, this,
           [this](int index) {
-            m_currentIndex = index;
-            emitNavigateSignal(index + 5);
+            m_currentIndex = index + 5;
+            qDebug() << "Left Panel output Current Index: " << m_currentIndex;
+            emitNavigateSignal(m_currentIndex);
+            m_outputPanel->updateCategoryButton(m_currentIndex);
+            m_inputPanel->updateCategoryButton(m_currentIndex);
+            m_inputPanel->setCurrentIndex(m_currentIndex);
           });
+  // connect(m_inputPanel, &LeftPanelInputs::buttonClicked, this,
+  //         [this](int index) { m_currentIndex = index + 5; });
   buttonLayout->addWidget(m_outputPanel);
 }

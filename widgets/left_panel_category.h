@@ -15,6 +15,8 @@ public:
 
 public slots:
   void onPageChanged(int pageIndex);
+  void updateCategoryButton(int index);
+  void setCurrentIndex(int index);
 
 signals:
   void buttonClicked(int index);
@@ -35,7 +37,6 @@ private:
   ButtonSidebarActive *m_categoryButton;
   QList<ButtonSidebarActive *> m_sidebarButtons;
   PanelType m_type;
-  void setCurrentIndex(int index);
   void setupButtons();
   void updateButtonStates();
   void toggleButtons();

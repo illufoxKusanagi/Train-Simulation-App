@@ -9,7 +9,7 @@ LeftPanelInputs::LeftPanelInputs(PanelType type, QWidget *parent)
   mainLayout->setAlignment(Qt::AlignCenter);
   m_categoryButton = new ButtonSidebarActive(
       "category", type == INPUT ? "Inputs" : "Outputs", this);
-  m_categoryButton->setEnabled(m_currentIndex == -1);
+  // m_categoryButton->setEnabled(m_currentIndex == -1);
   mainLayout->addWidget(m_categoryButton);
   setupButtons();
   connect(m_categoryButton, &QPushButton::clicked, this,
@@ -36,6 +36,13 @@ void LeftPanelInputs::setupButtons() {
   updateButtonStates();
 }
 
+void LeftPanelInputs::updateCategoryButton(int index) {
+  m_currentIndex = index;
+  // m_categoryButton->setEnabled(m_currentIndex == m_type == INPUT ? -1 : 4);
+  m_categoryButton->setEnabled(m_type == INPUT ? m_currentIndex <= 4
+                                               : m_currentIndex > 4);
+}
+
 void LeftPanelInputs::setCurrentIndex(int index) {
   m_currentIndex = index;
   updateButtonStates();
@@ -50,9 +57,8 @@ void LeftPanelInputs::toggleButtons() {
 
 void LeftPanelInputs::updateButtonStates() {
   // m_categoryLabel->setActive(m_currentIndex == -1, m_currentIndex == 0);
-  m_categoryButton->setEnabled(m_type == INPUT ? m_currentIndex <= 4
-                                               : m_currentIndex > 4);
-  qDebug() << "Current Index: " << m_currentIndex;
+  updateCategoryButton(m_currentIndex);
+  qDebug() << "Panel category Current Index: " << m_currentIndex;
   for (int i = 0; i < m_sidebarButtons.size(); i++) {
     if (m_sidebarButtons[i]) {
       m_sidebarButtons[i]->setEnabled(i == m_currentIndex);
