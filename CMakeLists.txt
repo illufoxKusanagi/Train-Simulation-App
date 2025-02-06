@@ -86,8 +86,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PAGE_SOURCES}
         ${WIDGET_SOURCES}
         ${RESOURCE_SOURCES}
-        widgets/buttonsidebarcategory.h
-        widgets/buttonsidebarcategory.cpp
 
     )
 

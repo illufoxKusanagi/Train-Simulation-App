@@ -35,6 +35,7 @@ private:
   ButtonSidebarActive *m_categoryButton;
   QList<ButtonSidebarActive *> m_sidebarButtons;
   PanelType m_type;
+  void setCurrentIndex(int index);
   void setupButtons();
   void updateButtonStates();
   void toggleButtons();
