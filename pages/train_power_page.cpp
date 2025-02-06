@@ -5,4 +5,5 @@ TrainPowerPage::TrainPowerPage(QWidget *parent)
   mainLayout->setAlignment(Qt::AlignCenter);
   setLayout(mainLayout);
   QLabel *label = new QLabel("Train Power Page", this);
+
 }
