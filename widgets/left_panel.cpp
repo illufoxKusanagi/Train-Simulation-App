@@ -5,6 +5,7 @@ LeftPanel::LeftPanel(QWidget *parent)
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(8);
+
  buttonToggle = new ButtonToggle(m_isCollapsed, this);
 
   QWidget *buttonContainer = new QWidget(this);
@@ -18,6 +19,7 @@ LeftPanel::LeftPanel(QWidget *parent)
     m_isCollapsed = !m_isCollapsed;
     m_inputPanel->toggleCollapse(m_isCollapsed);
     m_outputPanel->toggleCollapse(m_isCollapsed);
+
     buttonToggle->toggleCollapse();
     setFixedWidth(m_isCollapsed ? 120 : 320);
   });
@@ -35,7 +37,8 @@ LeftPanel::LeftPanel(QWidget *parent)
                 "}");
 }
 
-/ void LeftPanel::setupButtons() {
+// void LeftPanel::setupButtons() {
+
 //   const QStringList buttonNames = {"Constant Values",      "Train Parameter",
 //                                    "Running Parameter",    "Track Parameter",
 //                                    "Electrical Parameter", "Output"};
@@ -67,6 +70,7 @@ LeftPanel::LeftPanel(QWidget *parent)
 void LeftPanel::emitNavigateSignal(int pageIndex) {
   emit navigateToPage(pageIndex);
 }
+
 
 void LeftPanel::setupInputPageButtons() {
   m_inputPanel = new LeftPanelInputs(LeftPanelInputs::INPUT, this);

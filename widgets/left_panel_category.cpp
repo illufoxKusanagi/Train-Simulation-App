@@ -31,6 +31,7 @@ void LeftPanelInputs::setupButtons() {
     m_sidebarButtons.append(button);
     local_buttonLayout->addWidget(button);
   }
+
   local_buttonContainer->setLayout(local_buttonLayout);
   mainLayout->addWidget(local_buttonContainer);
   updateButtonStates();
@@ -42,6 +43,7 @@ void LeftPanelInputs::toggleButtons() {
   m_categoryButton->updateIcon(m_isShown);
   local_buttonContainer->setVisible(m_isShown);
 }
+
 
 void LeftPanelInputs::updateButtonStates() {
   // m_categoryLabel->setActive(m_currentIndex == -1, m_currentIndex == 0);
@@ -59,7 +61,9 @@ void LeftPanelInputs::onPageChanged(int pageIndex) {
 
 void LeftPanelInputs::toggleCollapse(bool isCollapsed) {
   m_categoryButton->setIconVisible(!isCollapsed);
+
   mainLayout->setAlignment(isCollapsed ? Qt::AlignCenter : Qt::AlignLeft);
+
   local_buttonLayout->setContentsMargins(isCollapsed ? 0 : 16, 0, 0, 0);
   for (auto *button : m_sidebarButtons) {
     if (button) {

@@ -29,6 +29,7 @@ private:
   QList<ButtonSidebarActive *> sidebarButtons;
   LeftPanelInputs *m_inputPanel;
   LeftPanelInputs *m_outputPanel;
+
   int getCurrentIndex() const { return m_currentIndex; }
   void setCurrentIndex(int index) { m_currentIndex = index; }
   // void setupButtons();

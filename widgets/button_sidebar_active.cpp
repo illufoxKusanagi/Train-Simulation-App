@@ -3,6 +3,7 @@
 ButtonSidebarActive::ButtonSidebarActive(const QString &iconType,
                                          const QString &buttonLabel,
                                          QWidget *parent)
+
    : QPushButton(parent), m_contentWidget(nullptr), m_layout(nullptr) {
   m_iconType = iconType;
   m_contentWidget = new ButtonSidebarWidget(m_iconType, buttonLabel, this);
@@ -56,6 +57,7 @@ void ButtonSidebarActive::setIconVisible(bool visible) {
     m_contentWidget->setIconVisible(visible);
   }
 }
+
 
 void ButtonSidebarActive::updateIcon(bool isShown) {
   if (m_contentWidget) {
