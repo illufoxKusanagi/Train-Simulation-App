@@ -5,7 +5,8 @@ LeftPanel::LeftPanel(QWidget *parent)
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(8);
-  buttonToggle = new ButtonToggle(m_isCollapsed, this);
+ buttonToggle = new ButtonToggle(m_isCollapsed, this);
+
   QWidget *buttonContainer = new QWidget(this);
 
   buttonLayout = new QVBoxLayout(buttonContainer);
@@ -33,6 +34,35 @@ LeftPanel::LeftPanel(QWidget *parent)
                 ";"
                 "}");
 }
+
+/ void LeftPanel::setupButtons() {
+//   const QStringList buttonNames = {"Constant Values",      "Train Parameter",
+//                                    "Running Parameter",    "Track Parameter",
+//                                    "Electrical Parameter", "Output"};
+//   const QStringList buttonTypes = {"constant", "train",      "running",
+//                                    "track",    "electrical", "output"};
+
+//   for (int i = 0; i < buttonNames.size(); ++i) {
+//     ButtonSidebarActive *button =
+//         new ButtonSidebarActive(buttonTypes[i], buttonNames[i], this);
+//     connect(button, &QPushButton::clicked, this, [this, i]() {
+//       m_currentIndex = i;
+//       updateButtonStates();
+//       emitNavigateSignal(i);
+//     });
+//     sidebarButtons.append(button);
+//     buttonLayout->addWidget(button);
+//   }
+//   updateButtonStates();
+// }
+
+// void LeftPanel::updateButtonStates() {
+//   for (int i = 0; i < sidebarButtons.size(); ++i) {
+//     if (sidebarButtons[i]) {
+//       sidebarButtons[i]->setEnabled(i == m_currentIndex);
+//     }
+//   }
+// }
 
 void LeftPanel::emitNavigateSignal(int pageIndex) {
   emit navigateToPage(pageIndex);

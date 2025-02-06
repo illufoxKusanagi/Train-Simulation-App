@@ -8,8 +8,10 @@ ButtonSidebarWidget::ButtonSidebarWidget(const QString &iconType,
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(16);
   iconLabel = new QLabel(this);
-  m_iconType = iconType;
-  updateIcon(m_isEnabled);
+  QString iconPath = IconPaths::getIconPath(iconType);
+  QPixmap icon(iconPath);
+  iconLabel->setPixmap(
+      icon.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
   iconLabel->setFixedSize(40, 40);
   iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   textLabel = new QLabel(buttonLabel, this);
