@@ -6,7 +6,10 @@
 #include "../pages/output_page.h"
 #include "../pages/running_parameter_page.h"
 #include "../pages/track_parameter_page.h"
+#include "../pages/traction_effort_page.h"
 #include "../pages/train_parameter_page.h"
+#include "../pages/train_power_page.h"
+#include "../pages/train_speed_page.h"
 #include "../widgets/left_panel.h"
 #include <QHBoxLayout>
 #include <QLabel>
@@ -15,6 +18,7 @@
 #include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QWidget>
+
 
 class MainWindow : public QMainWindow {
   Q_OBJECT

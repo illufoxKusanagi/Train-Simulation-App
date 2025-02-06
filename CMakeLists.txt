@@ -36,6 +36,12 @@ set(PAGE_SOURCES
     pages/electrical_parameter_page.h
     pages/output_page.cpp
     pages/output_page.h
+    pages/train_speed_page.h
+    pages/train_speed_page.cpp
+    pages/traction_effort_page.h
+    pages/traction_effort_page.cpp
+    pages/train_power_page.h
+    pages/train_power_page.cpp
 )
 
 # Widgets
