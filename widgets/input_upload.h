@@ -14,8 +14,8 @@ public:
   explicit InputUpload(QWidget *parent = nullptr);
 
 private:
-  QPushButton *uploadButton;
-  QLabel *uploadLabel;
+  QPushButton *m_uploadButton;
+  QLabel *m_uploadLabel;
 };
 
 #endif // INPUTUPLOAD_H

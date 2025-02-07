@@ -8,7 +8,6 @@
 #include <QLabel>
 #include <QPushButton>
 
-
 class ButtonPanelCategory : public QPushButton {
   Q_OBJECT
 public:
@@ -24,7 +23,7 @@ private:
   static const QString s_styleInactive;
 
   QPushButton *m_buttonPanelCategory;
-  QBoxLayout *layout;
+  QBoxLayout *mainLayout;
   QString m_buttonLabel;
   QString m_iconType;
   QLabel *m_textLabel;

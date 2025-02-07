@@ -3,11 +3,11 @@
 ButtonPanelCategory::ButtonPanelCategory(const QString &iconType,
                                          const QString &buttonLabel,
                                          QWidget *parent)
-    : QPushButton(parent), m_buttonPanelCategory(nullptr), layout(nullptr),
+    : QPushButton(parent), m_buttonPanelCategory(nullptr), mainLayout(nullptr),
       m_iconLabel(nullptr), m_textLabel(nullptr), m_iconType(iconType),
       m_buttonLabel(buttonLabel) {
-  layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
-  layout->setContentsMargins(8, 8, 8, 8);
+  mainLayout = new QBoxLayout(QBoxLayout::LeftToRight, this);
+  mainLayout->setContentsMargins(8, 8, 8, 8);
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   setFixedHeight(40);
   m_buttonPanelCategory->setSizePolicy(QSizePolicy::Expanding,
@@ -33,7 +33,7 @@ void ButtonPanelCategory::setTextIcon() {
   iconLayout->addWidget(m_textLabel, 1);
   iconWidget->setLayout(iconLayout);
   iconWidget->setStyleSheet("QWidget { background-color: transparent; }");
-  layout->addWidget(iconWidget);
+  mainLayout->addWidget(iconWidget);
   qDebug() << "Set text icon called : " << m_buttonLabel;
 }
 
