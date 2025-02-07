@@ -14,8 +14,8 @@ public:
   QString text() const;
 
 private:
-  QLineEdit *input;
-  QLabel *unitLabel;
+  QLineEdit *m_input;
+  QLabel *m_unitLabel;
 };
 
 #endif

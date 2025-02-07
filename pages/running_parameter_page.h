@@ -7,7 +7,6 @@
 #include <QGridLayout>
 #include <QWidget>
 
-
 class RunningParameterPage : public QWidget {
   Q_OBJECT
 public:
@@ -15,8 +14,8 @@ public:
 
 private:
   QVBoxLayout *mainLayout;
-  QWidget *formLayout;
-  QGridLayout *inputsLayout;
+  QWidget *m_formLayout;
+  QGridLayout *m_inputsLayout;
   void createInputs();
 };
 

@@ -4,43 +4,41 @@ ButtonSidebarWidget::ButtonSidebarWidget(const QString &iconType,
                                          const QString &buttonLabel,
                                          QWidget *parent)
     : QWidget(parent) {
-  layout = new QHBoxLayout(this);
-  layout->setContentsMargins(0, 0, 0, 0);
-  layout->setSpacing(16);
-  iconLabel = new QLabel(this);
-  QString iconPath = IconPaths::getIconPath(iconType);
-  QPixmap icon(iconPath);
-  iconLabel->setPixmap(
-      icon.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-  iconLabel->setFixedSize(40, 40);
-  iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  textLabel = new QLabel(buttonLabel, this);
-  textLabel->setStyleSheet(TextStyle::BodyBigBold() +
-                           "color: " + Colors::StandardWhite.name() + ";");
-  layout->addWidget(iconLabel);
-  layout->addWidget(textLabel, 1);
-  setLayout(layout);
+  mainLayout = new QHBoxLayout(this);
+  mainLayout->setContentsMargins(0, 0, 0, 0);
+  mainLayout->setSpacing(16);
+  m_iconLabel = new QLabel(this);
+  m_iconType = iconType;
+  updateIcon(m_isEnabled);
+  m_iconLabel->setFixedSize(40, 40);
+  m_iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  m_textLabel = new QLabel(buttonLabel, this);
+  m_textLabel->setStyleSheet(TextStyle::BodyBigBold() +
+                             "color: " + Colors::StandardWhite.name() + ";");
+  mainLayout->addWidget(m_iconLabel);
+  mainLayout->addWidget(m_textLabel, 1);
+  setLayout(mainLayout);
   setMinimumHeight(40);
   setMaximumHeight(40);
   setStyleSheet("QWidget { background-color: transparent; }");
 }
 
 void ButtonSidebarWidget::setLabelVisible(bool visible) {
-  if (textLabel) {
-    textLabel->setVisible(visible);
-    if (layout) {
-      layout->setSpacing(visible ? 16 : 0);
+  if (m_textLabel) {
+    m_textLabel->setVisible(visible);
+    if (mainLayout) {
+      mainLayout->setSpacing(visible ? 16 : 0);
     }
   }
 }
 
 void ButtonSidebarWidget::setIconVisible(bool visible) {
-  if (iconLabel) {
-    iconLabel->setVisible(visible);
-    if (layout) {
-      layout->setSpacing(visible ? 16 : 0);
-      layout->setAlignment(textLabel,
-                           visible ? Qt::AlignLeft : Qt::AlignCenter);
+  if (m_iconLabel) {
+    m_iconLabel->setVisible(visible);
+    if (mainLayout) {
+      mainLayout->setSpacing(visible ? 16 : 0);
+      mainLayout->setAlignment(m_textLabel,
+                               visible ? Qt::AlignLeft : Qt::AlignCenter);
     }
   }
 }
@@ -55,12 +53,12 @@ void ButtonSidebarWidget::updateIcon(bool isEnabled) {
   QString iconPath = IconPaths::getIconPath(
       m_isEnabled ? m_iconType : m_iconType + "Disabled");
   QPixmap icon(iconPath);
-  iconLabel->setPixmap(
+  m_iconLabel->setPixmap(
       icon.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }
 
 void ButtonSidebarWidget::setEnabled(bool isEnabled) {
-  textLabel->setStyleSheet(
+  m_textLabel->setStyleSheet(
       TextStyle::BodyBigBold() + "color: " +
       (isEnabled ? Colors::StandardWhite : Colors::Grey400).name() + ";");
   m_isEnabled = isEnabled;

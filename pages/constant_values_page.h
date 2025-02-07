@@ -7,15 +7,11 @@
 #include <QGridLayout>
 #include <QGroupBox>
 
-
 class ConstantValuesPage : public QWidget {
   Q_OBJECT
 
 public:
   explicit ConstantValuesPage(QWidget *parent = nullptr);
-
-private:
-  QGridLayout *formLayout;
 };
 
 #endif // CONSTANT_VALUES_PAGE_H

@@ -22,7 +22,7 @@ public:
   explicit InputWidget(const InputType &inputType, QWidget *parent = nullptr);
 
 private:
-  QLabel *label;
+  QLabel *m_label;
   QWidget *m_inputField;
 };
 

@@ -17,7 +17,7 @@ public:
   void setSize(int width, int height);
 
 private:
-  QComboBox *dropdown;
+  QComboBox *m_dropdown;
 };
 
 #endif // INPUTDROPDOWN_H

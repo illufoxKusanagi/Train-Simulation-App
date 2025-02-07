@@ -2,14 +2,14 @@
 
 ElectricalParameterPage::ElectricalParameterPage(QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
-      formContainer(new QWidget(this)),
-      formLayout(new QGridLayout(formContainer)) {
+      m_formContainer(new QWidget(this)),
+      m_formLayout(new QGridLayout(m_formContainer)) {
   mainLayout->setContentsMargins(16, 16, 16, 16);
   mainLayout->setAlignment(Qt::AlignCenter);
-  formLayout->setHorizontalSpacing(80);
-  formLayout->setVerticalSpacing(32);
+  m_formLayout->setHorizontalSpacing(80);
+  m_formLayout->setVerticalSpacing(32);
   createInputs();
-  mainLayout->addWidget(formContainer);
+  mainLayout->addWidget(m_formContainer);
   setLayout(mainLayout);
 }
 
@@ -24,6 +24,6 @@ void ElectricalParameterPage::createInputs() {
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
         new InputWidget(InputType("upload", labels[i], ""), this);
-    formLayout->addWidget(inputWidget, i / 2, i % 2);
+    m_formLayout->addWidget(inputWidget, i / 2, i % 2);
   }
 }

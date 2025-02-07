@@ -11,7 +11,6 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-
 class TrainParameterPage : public QWidget {
   Q_OBJECT
 
@@ -26,8 +25,8 @@ private:
   QList<InputWidget *> massInputWidgets;
   QList<InputWidget *> passangerInputWidgets;
   QString groupBoxStyle;
-  ButtonAction *prevButton;
-  ButtonAction *nextButton;
+  ButtonAction *m_prevButton;
+  ButtonAction *m_nextButton;
 
   void setupFirstPage(QWidget *firstPageWidget);
   void setupSecondPage(QVBoxLayout *layout);

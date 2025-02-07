@@ -76,6 +76,8 @@ set(WIDGET_SOURCES
     widgets/left_panel_category.cpp
     widgets/button_panel_category.h
     widgets/button_panel_category.cpp
+    widgets/chart_widget.h
+    widgets/chart_widget.cpp
 )
 
 # Styles and Resources

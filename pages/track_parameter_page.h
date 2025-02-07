@@ -12,8 +12,8 @@ public:
 
 private:
   QVBoxLayout *mainLayout;
-  QWidget *formContainer;
-  QGridLayout *formLayout;
+  QWidget *m_formContainer;
+  QGridLayout *m_formLayout;
 
   void createInputs();
 };

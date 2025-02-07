@@ -25,9 +25,11 @@ public:
   void updateAppearance(bool isShown);
 
 private:
-  QLabel *iconLabel = nullptr;
-  QLabel *textLabel = nullptr;
-  QBoxLayout *layout = nullptr;
+  QLabel *m_iconLabel = nullptr;
+  QLabel *m_textLabel = nullptr;
+  QBoxLayout *mainLayout = nullptr;
+  QString m_iconType;
+  bool m_isEnabled = false;
 };
 
 #endif // BUTTONSIDEBARWIDGET_H

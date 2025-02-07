@@ -23,11 +23,10 @@ signals:
 private:
   bool m_isCollapsed = false;
   int m_currentIndex = -1;
-  ButtonToggle *buttonToggle;
-  QVBoxLayout *buttonLayout;
-  QList<ButtonSidebarActive *> sidebarButtons;
-  LeftPanelCategory *m_inputPanel;
-  LeftPanelCategory *m_outputPanel;
+  ButtonToggle *m_buttonToggle;
+  QVBoxLayout *m_buttonLayout;
+  LeftPanelInputs *m_inputPanel;
+  LeftPanelInputs *m_outputPanel;
 
   int getCurrentIndex() const { return m_currentIndex; }
   void setCurrentIndex(int index) { m_currentIndex = index; }
