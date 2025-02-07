@@ -16,19 +16,16 @@
 class ChartWidget : public QWidget {
   Q_OBJECT
 public:
-  explicit ChartWidget(QWidget *parent = nullptr);
+  explicit ChartWidget(QString chartTitle, QString seriesName,
+                       QWidget *parent = nullptr);
 
 private:
   QVBoxLayout *mainLayout;
-  QWidget *chartWidget;
-  QVBoxLayout *chartLayout;
-  QHBoxLayout *buttonLayout;
-  QChartView *chartView;
-  QChart *chart;
-  void buildDummyLine();
+  QWidget *m_chartWidget;
+  QVBoxLayout *m_chartLayout;
+  void buildDummyLine(QString chartTitle, QString seriesName);
   void setupChart(QLineSeries *series, QString title);
   void createChartButtons(QChartView *chartView);
-  void setupPagination();
 };
 
 #endif // CHART_WIDGET_H
