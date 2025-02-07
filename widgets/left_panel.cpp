@@ -46,7 +46,6 @@ void LeftPanel::setupInputPageButtons() {
             m_inputPanel->updateCategoryButton(m_currentIndex);
             m_outputPanel->updateCategoryButton(m_currentIndex);
             m_outputPanel->setCurrentIndex(m_currentIndex - m_currentIndex - 1);
-            qDebug() << "Left Panel input Current Index: " << m_currentIndex;
           });
   m_buttonLayout->addWidget(m_inputPanel);
 }
@@ -56,7 +55,6 @@ void LeftPanel::setupOutputPageButtons() {
   connect(m_outputPanel, &LeftPanelInputs::buttonClicked, this,
           [this](int index) {
             m_currentIndex = index + 5;
-            qDebug() << "Left Panel output Current Index: " << m_currentIndex;
             emitNavigateSignal(m_currentIndex);
             m_outputPanel->updateCategoryButton(m_currentIndex);
             m_inputPanel->updateCategoryButton(m_currentIndex);
