@@ -69,7 +69,6 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
   QHBoxLayout *numberCarLayout = new QHBoxLayout(numberCarContainer);
   numberCarLayout->setSpacing(32);
   numberCarLayout->setAlignment(Qt::AlignLeft);
-  numberCarLayout->setContentsMargins(16, 0, 0, 0);
   InputWidget *numberOfCar =
       new InputWidget(InputType("dropdown", "Number of Car", ""), this);
   numberCarLayout->addWidget(numberOfCar);

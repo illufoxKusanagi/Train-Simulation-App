@@ -32,6 +32,7 @@ private:
   void setCurrentIndex(int index) { m_currentIndex = index; }
   void setupInputPageButtons();
   void setupOutputPageButtons();
+
 };
 
 #endif // LEFT_PANEL_H

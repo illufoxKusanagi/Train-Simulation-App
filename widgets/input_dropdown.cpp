@@ -6,7 +6,6 @@ InputDropdown::InputDropdown(QWidget *parent)
   QStringList options = {"12", "10", "8", "6"};
   layout->setContentsMargins(0, 0, 0, 0);
   m_dropdown->addItems(options);
-
   m_dropdown->setStyleSheet("QComboBox {"
                             "    padding: 4px 8px;"
                             "    border: 1px solid " +

@@ -42,7 +42,7 @@ set(PAGE_SOURCES
     pages/traction_effort_page.cpp
     pages/train_power_page.h
     pages/train_power_page.cpp
-    pages/traction_effort_page.h
+   pages/traction_effort_page.h
     pages/traction_effort_page.cpp
 )
 

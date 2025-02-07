@@ -5,5 +5,4 @@
 *.log
 *.user
 /build
-/.vscode
 /.trunk
