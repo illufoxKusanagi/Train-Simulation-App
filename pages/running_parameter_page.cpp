@@ -2,14 +2,15 @@
 
 RunningParameterPage::RunningParameterPage(QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
-      formLayout(new QWidget(this)), inputsLayout(new QGridLayout(formLayout)) {
+      m_formLayout(new QWidget(this)),
+      m_inputsLayout(new QGridLayout(m_formLayout)) {
   mainLayout->setAlignment(Qt::AlignCenter);
-  formLayout->setContentsMargins(16, 16, 16, 16);
-  inputsLayout->setHorizontalSpacing(80);
-  inputsLayout->setVerticalSpacing(24);
+  m_formLayout->setContentsMargins(16, 16, 16, 16);
+  m_inputsLayout->setHorizontalSpacing(80);
+  m_inputsLayout->setVerticalSpacing(24);
 
   createInputs();
-  mainLayout->addWidget(formLayout);
+  mainLayout->addWidget(m_formLayout);
   setLayout(mainLayout);
 }
 
@@ -30,6 +31,6 @@ void RunningParameterPage::createInputs() {
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
         new InputWidget(InputType("field", labels[i], unitLabels[i]), this);
-    inputsLayout->addWidget(inputWidget, i / 2, i % 2);
+    m_inputsLayout->addWidget(inputWidget, i / 2, i % 2);
   }
 }

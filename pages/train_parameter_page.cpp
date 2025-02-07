@@ -2,8 +2,8 @@
 
 TrainParameterPage::TrainParameterPage(QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
-      stackedWidget(new QStackedWidget(this)), prevButton(nullptr),
-      nextButton(nullptr) {
+      stackedWidget(new QStackedWidget(this)), m_prevButton(nullptr),
+      m_nextButton(nullptr) {
   groupBoxStyle = "QGroupBox { "
                   "border: 1px solid" +
                   Colors::Grey300.name() +
@@ -147,16 +147,16 @@ void TrainParameterPage::setupPagination() {
   QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
   paginationLayout->setAlignment(Qt::AlignLeft);
   paginationLayout->setSpacing(16);
-  prevButton = new ButtonAction("Constant Input", "false", this);
-  nextButton = new ButtonAction("Trainset", "false", this);
-  prevButton->setFixedSize(144, 48);
-  nextButton->setFixedSize(144, 48);
-  connect(prevButton, &QPushButton::clicked, this,
+  m_prevButton = new ButtonAction("Constant Input", "false", this);
+  m_nextButton = new ButtonAction("Trainset", "false", this);
+  m_prevButton->setFixedSize(144, 48);
+  m_nextButton->setFixedSize(144, 48);
+  connect(m_prevButton, &QPushButton::clicked, this,
           &TrainParameterPage::showPreviousPage);
-  connect(nextButton, &QPushButton::clicked, this,
+  connect(m_nextButton, &QPushButton::clicked, this,
           &TrainParameterPage::showNextPage);
-  paginationLayout->addWidget(prevButton);
-  paginationLayout->addWidget(nextButton);
+  paginationLayout->addWidget(m_prevButton);
+  paginationLayout->addWidget(m_nextButton);
   mainLayout->addWidget(paginationWidget);
   updatePaginationButtons();
 }
@@ -164,8 +164,8 @@ void TrainParameterPage::setupPagination() {
 void TrainParameterPage::updatePaginationButtons() {
   int currentIndex = stackedWidget->currentIndex();
   int lastIndex = stackedWidget->count() - 1;
-  prevButton->setEnabled(currentIndex > 0);
-  nextButton->setEnabled(currentIndex < lastIndex);
+  m_prevButton->setEnabled(currentIndex > 0);
+  m_nextButton->setEnabled(currentIndex < lastIndex);
 }
 
 void TrainParameterPage::showPreviousPage() {
