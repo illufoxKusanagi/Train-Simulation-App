@@ -4,23 +4,18 @@
 TrainSpeedPage::TrainSpeedPage(QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)) {
   mainLayout->setAlignment(Qt::AlignCenter);
-  setLayout(mainLayout);
-
+  mainLayout->setSpacing(16);
   QWidget *runButtonWidget = new QWidget();
   QHBoxLayout *runButtonLayout = new QHBoxLayout(runButtonWidget);
   ButtonAction *runButton = new ButtonAction("Run Simulation", "yes", this);
   ChartWidget *chartWidget = new ChartWidget("Train Speed", "speed", this);
   runButton->setEnabled(true);
   runButtonLayout->addWidget(runButton);
+  runButtonLayout->setContentsMargins(0, 0, 0, 0);
   runButtonLayout->setAlignment(Qt::AlignBottom | Qt::AlignLeft);
   runButton->setFixedSize(200, 48);
-  runButtonWidget->setStyleSheet("QWidget#runButtonContainer {"
-                                 "   background-color: red;"
-                                 "   position: absolute;"
-                                 "   margin-top: 20px;"
-                                 "   margin-right: 20px;"
-                                 "}");
-  mainLayout->addWidget(runButtonWidget, 0, Qt::AlignTop | Qt::AlignRight);
+  mainLayout->addWidget(runButtonWidget);
   mainLayout->addWidget(runButtonWidget);
   mainLayout->addWidget(chartWidget);
+  setLayout(mainLayout);
 }
