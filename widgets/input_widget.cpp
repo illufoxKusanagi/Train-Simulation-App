@@ -4,12 +4,12 @@ InputWidget::InputWidget(const InputType &inputType, QWidget *parent)
     : QWidget(parent) {
   QVBoxLayout *layout = new QVBoxLayout(this);
 
-  label = new QLabel(inputType.label, this);
+  m_label = new QLabel(inputType.label, this);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(8);
-  layout->addWidget(label);
-  label->setStyleSheet(TextStyle::BodyMediumRegular() +
-                       "color: " + Colors::Secondary700.name() + ";");
+  layout->addWidget(m_label);
+  m_label->setStyleSheet(TextStyle::BodyMediumRegular() +
+                         "color: " + Colors::Secondary700.name() + ";");
 
   if (inputType.type == "field") {
     m_inputField = new InputField(inputType.unit, this);
