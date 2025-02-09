@@ -69,7 +69,6 @@ void LeftPanelInputs::onPageChanged(int pageIndex) {
 }
 
 void LeftPanelInputs::toggleCollapse(bool isCollapsed) {
-  // m_categoryButton->setIconVisible(!isCollapsed);
   mainLayout->setAlignment(isCollapsed ? Qt::AlignCenter : Qt::AlignLeft);
   local_buttonLayout->setContentsMargins(isCollapsed ? 0 : 16, 0, 0, 0);
   for (auto *button : m_sidebarButtons) {
