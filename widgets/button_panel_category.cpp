@@ -34,7 +34,6 @@ void ButtonPanelCategory::setTextIcon() {
   iconWidget->setLayout(iconLayout);
   iconWidget->setStyleSheet("QWidget { background-color: transparent; }");
   mainLayout->addWidget(iconWidget);
-  qDebug() << "Set text icon called : " << m_buttonLabel;
 }
 
 void ButtonPanelCategory::updateIcon(bool isActive) {

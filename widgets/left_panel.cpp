@@ -4,13 +4,13 @@ LeftPanel::LeftPanel(QWidget *parent)
     : QWidget(parent), m_buttonLayout(nullptr), m_inputPanel(nullptr) {
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->setContentsMargins(0, 0, 0, 0);
-  mainLayout->setSpacing(8);
+  // mainLayout->setSpacing(8);
   m_buttonToggle = new ButtonToggle(m_isCollapsed, this);
 
   QWidget *buttonContainer = new QWidget(this);
   m_buttonLayout = new QVBoxLayout(buttonContainer);
   m_buttonLayout->setContentsMargins(8, 16, 8, 16);
-  m_buttonLayout->setSpacing(16);
+  m_buttonLayout->setSpacing(4);
   m_buttonLayout->setAlignment(Qt::AlignCenter);
   m_buttonLayout->addWidget(m_buttonToggle);
 
@@ -19,7 +19,7 @@ LeftPanel::LeftPanel(QWidget *parent)
     m_inputPanel->toggleCollapse(m_isCollapsed);
     m_outputPanel->toggleCollapse(m_isCollapsed);
     m_buttonToggle->toggleCollapse();
-    setFixedWidth(m_isCollapsed ? 120 : 320);
+    setFixedWidth(m_isCollapsed ? 160 : 320);
   });
 
   setupInputPageButtons();
@@ -40,11 +40,17 @@ void LeftPanel::emitNavigateSignal(int pageIndex) {
 }
 
 void LeftPanel::createRunButton() {
-  ButtonAction *runButton = new ButtonAction("Run Simulation", "yes", this);
+  QWidget *runButtonWidget = new QWidget();
+  QHBoxLayout *runButtonLayout = new QHBoxLayout(runButtonWidget);
+  ButtonAction *runButton = new ButtonAction("Run", "yes", this);
   connect(runButton, &ButtonAction::clicked, this,
           [this]() { emitNavigateSignal(m_currentIndex); });
   runButton->setEnabled(true);
-  m_buttonLayout->addWidget(runButton);
+  runButton->setSize(80, 40);
+  runButtonLayout->setContentsMargins(0, 0, 0, 0);
+  runButtonLayout->setAlignment(Qt::AlignCenter);
+  runButtonLayout->addWidget(runButton);
+  m_buttonLayout->addWidget(runButtonWidget);
 }
 void LeftPanel::setupInputPageButtons() {
   m_inputPanel = new LeftPanelInputs(LeftPanelInputs::INPUT, this);

@@ -14,6 +14,12 @@ ButtonSidebarActive::ButtonSidebarActive(const QString &iconType,
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 
+void ButtonSidebarActive::setIconSize(int width, int height) {
+  if (m_contentWidget) {
+    m_contentWidget->setIconSize(width, height);
+  }
+}
+
 void ButtonSidebarActive::setLabelVisible(bool visible) {
   if (m_contentWidget) {
     m_contentWidget->setLabelVisible(visible);

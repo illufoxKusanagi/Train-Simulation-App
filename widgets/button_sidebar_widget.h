@@ -18,6 +18,7 @@ public:
                                QWidget *parent = nullptr);
   void setLabelVisible(bool visible);
   void setIconVisible(bool visible);
+  void setIconSize(int width, int height);
   void updateIcon(bool isEnabled);
   void setEnabled(bool isEnabled);
   void updateAppearance(bool isShown);

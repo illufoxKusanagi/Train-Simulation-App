@@ -10,7 +10,8 @@ ButtonSidebarWidget::ButtonSidebarWidget(const QString &iconType,
   m_iconLabel = new QLabel(this);
   m_iconType = iconType;
   updateIcon(m_isEnabled);
-  m_iconLabel->setFixedSize(40, 40);
+  // m_iconLabel->setFixedSize(40, 40);
+  m_iconLabel->setMinimumSize(20, 20);
   m_iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   m_textLabel = new QLabel(buttonLabel, this);
   m_textLabel->setStyleSheet(TextStyle::BodyBigBold() +
@@ -21,6 +22,10 @@ ButtonSidebarWidget::ButtonSidebarWidget(const QString &iconType,
   setMinimumHeight(40);
   setMaximumHeight(40);
   setStyleSheet("QWidget { background-color: transparent; }");
+}
+
+void ButtonSidebarWidget::setIconSize(int width, int height) {
+  m_iconLabel->setFixedSize(width, height);
 }
 
 void ButtonSidebarWidget::setLabelVisible(bool visible) {

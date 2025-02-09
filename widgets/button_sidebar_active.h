@@ -15,12 +15,13 @@ public:
   explicit ButtonSidebarActive(const QString &iconType = "",
                                const QString &buttonLabel = "",
                                QWidget *parent = nullptr);
-  virtual ~ButtonSidebarActive() = default;
-  using QPushButton::setText;
-  virtual void setLabelVisible(bool visible);
-  virtual void setIconVisible(bool visible);
-  virtual void setEnabled(bool isEnabled);
-  virtual void updateIcon(bool isHidden);
+  // virtual ~ButtonSidebarActive() = default;
+  // using QPushButton::setText;
+  void setLabelVisible(bool visible);
+  void setIconVisible(bool visible);
+  void setEnabled(bool isEnabled);
+  void updateIcon(bool isHidden);
+  void setIconSize(int width, int height);
 
 protected:
   QString m_iconType;

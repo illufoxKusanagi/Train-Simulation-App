@@ -5,7 +5,7 @@ LeftPanelInputs::LeftPanelInputs(PanelType type, QWidget *parent)
       m_buttonTypes(type == INPUT ? INPUT_BUTTON_TYPES : OUTPUT_BUTTON_TYPES),
       m_buttonNames(type == INPUT ? INPUT_BUTTON_NAMES : OUTPUT_BUTTON_NAMES) {
   mainLayout->setContentsMargins(0, 0, 0, 0);
-  mainLayout->setSpacing(16);
+  mainLayout->setSpacing(4);
   mainLayout->setAlignment(Qt::AlignCenter);
   m_categoryButton = new ButtonSidebarActive(
       "category", type == INPUT ? "Inputs" : "Outputs", this);
@@ -23,10 +23,10 @@ void LeftPanelInputs::setupButtons() {
   for (int i = 0; i < m_buttonNames.size(); i++) {
     ButtonSidebarActive *button =
         new ButtonSidebarActive(m_buttonTypes[i], m_buttonNames[i], this);
+    button->setIconSize(40, 40);
     connect(button, &QPushButton::clicked, this, [this, i]() {
       m_currentIndex = i;
       updateButtonStates();
-      qDebug() << i << "th button created";
       emit buttonClicked(i);
     });
     m_sidebarButtons.append(button);
@@ -56,7 +56,6 @@ void LeftPanelInputs::toggleButtons() {
 
 void LeftPanelInputs::updateButtonStates() {
   updateCategoryButton(m_currentIndex);
-  qDebug() << "Panel category Current Index: " << m_currentIndex;
   for (int i = 0; i < m_sidebarButtons.size(); i++) {
     if (m_sidebarButtons[i]) {
       m_sidebarButtons[i]->setEnabled(i == m_currentIndex);
@@ -70,7 +69,7 @@ void LeftPanelInputs::onPageChanged(int pageIndex) {
 }
 
 void LeftPanelInputs::toggleCollapse(bool isCollapsed) {
-  m_categoryButton->setIconVisible(!isCollapsed);
+  // m_categoryButton->setIconVisible(!isCollapsed);
   mainLayout->setAlignment(isCollapsed ? Qt::AlignCenter : Qt::AlignLeft);
   local_buttonLayout->setContentsMargins(isCollapsed ? 0 : 16, 0, 0, 0);
   for (auto *button : m_sidebarButtons) {
