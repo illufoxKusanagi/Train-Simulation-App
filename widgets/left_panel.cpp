@@ -4,7 +4,6 @@ LeftPanel::LeftPanel(QWidget *parent)
     : QWidget(parent), m_buttonLayout(nullptr), m_inputPanel(nullptr) {
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->setContentsMargins(0, 0, 0, 0);
-  // mainLayout->setSpacing(8);
   m_buttonToggle = new ButtonToggle(m_isCollapsed, this);
 
   QWidget *buttonContainer = new QWidget(this);

@@ -45,9 +45,6 @@ void MainWindow::setupPages() {
       new ElectricalParameterPage(this);
   setupFixedSizePage(electricalParameterPage);
 
-  // OutputPage *outputPage = new OutputPage(this);
-  // setupFixedSizePage(outputPage);
-
   TrainSpeedPage *trainSpeedPage = new TrainSpeedPage(this);
   setupFixedSizePage(trainSpeedPage);
 
