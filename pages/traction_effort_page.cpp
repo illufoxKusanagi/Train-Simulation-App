@@ -7,7 +7,7 @@ TractionEffortPage::TractionEffortPage(QWidget *parent)
   QWidget *runButtonWidget = new QWidget();
   QHBoxLayout *runButtonLayout = new QHBoxLayout(runButtonWidget);
   ButtonAction *runButton = new ButtonAction("Run Simulation", "yes", this);
-  ChartWidget *chartWidget = new ChartWidget("Train Speed", "speed", this);
+  ChartWidget *chartWidget = new ChartWidget("Traction Effort", "speed", this);
   runButton->setEnabled(true);
   runButtonLayout->addWidget(runButton);
   runButtonLayout->setContentsMargins(0, 0, 0, 0);

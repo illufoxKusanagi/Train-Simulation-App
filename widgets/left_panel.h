@@ -1,12 +1,14 @@
 #ifndef LEFT_PANEL_H
 #define LEFT_PANEL_H
 
+#include "../widgets/button_action.h"
 #include "button_sidebar_active.h"
 #include "button_toggle.h"
 #include "left_panel_category.h"
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
+
 
 class LeftPanel : public QWidget {
   Q_OBJECT
@@ -30,6 +32,7 @@ private:
 
   int getCurrentIndex() const { return m_currentIndex; }
   void setCurrentIndex(int index) { m_currentIndex = index; }
+  void createRunButton();
   void setupInputPageButtons();
   void setupOutputPageButtons();
 };
