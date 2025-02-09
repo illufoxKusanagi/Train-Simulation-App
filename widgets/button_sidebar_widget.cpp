@@ -9,9 +9,11 @@ ButtonSidebarWidget::ButtonSidebarWidget(const QString &iconType,
   mainLayout->setSpacing(16);
   m_iconLabel = new QLabel(this);
   m_iconType = iconType;
+  m_fixedHeight = MINIMUM_SIZE;
+  m_fixedWidth = MINIMUM_SIZE;
   updateIcon(m_isEnabled);
   // m_iconLabel->setFixedSize(40, 40);
-  m_iconLabel->setMinimumSize(20, 20);
+  m_iconLabel->setMinimumSize(MINIMUM_SIZE, MINIMUM_SIZE);
   m_iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   m_textLabel = new QLabel(buttonLabel, this);
   m_textLabel->setStyleSheet(TextStyle::BodyBigBold() +
@@ -25,7 +27,9 @@ ButtonSidebarWidget::ButtonSidebarWidget(const QString &iconType,
 }
 
 void ButtonSidebarWidget::setIconSize(int width, int height) {
-  m_iconLabel->setFixedSize(width, height);
+  m_fixedWidth = width;
+  m_fixedHeight = height;
+  m_iconLabel->setFixedSize(m_fixedWidth, m_fixedHeight);
 }
 
 void ButtonSidebarWidget::setLabelVisible(bool visible) {
@@ -58,8 +62,9 @@ void ButtonSidebarWidget::updateIcon(bool isEnabled) {
   QString iconPath = IconPaths::getIconPath(
       m_isEnabled ? m_iconType : m_iconType + "Disabled");
   QPixmap icon(iconPath);
-  m_iconLabel->setPixmap(
-      icon.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+  m_iconLabel->setPixmap(icon.scaled(m_fixedWidth, m_fixedHeight,
+                                     Qt::KeepAspectRatio,
+                                     Qt::SmoothTransformation));
 }
 
 void ButtonSidebarWidget::setEnabled(bool isEnabled) {

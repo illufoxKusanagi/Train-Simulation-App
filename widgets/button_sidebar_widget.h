@@ -29,6 +29,9 @@ private:
   QBoxLayout *mainLayout = nullptr;
   QString m_iconType;
   bool m_isEnabled = false;
+  int m_fixedHeight;
+  int m_fixedWidth;
+  const int MINIMUM_SIZE = 32;
 };
 
 #endif // BUTTONSIDEBARWIDGET_H
