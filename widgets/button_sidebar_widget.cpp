@@ -12,7 +12,6 @@ ButtonSidebarWidget::ButtonSidebarWidget(const QString &iconType,
   m_fixedHeight = MINIMUM_SIZE;
   m_fixedWidth = MINIMUM_SIZE;
   updateIcon(m_isEnabled);
-  // m_iconLabel->setFixedSize(40, 40);
   m_iconLabel->setMinimumSize(MINIMUM_SIZE, MINIMUM_SIZE);
   m_iconLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   m_textLabel = new QLabel(buttonLabel, this);

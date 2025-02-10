@@ -15,8 +15,6 @@ public:
   explicit ButtonSidebarActive(const QString &iconType = "",
                                const QString &buttonLabel = "",
                                QWidget *parent = nullptr);
-  // virtual ~ButtonSidebarActive() = default;
-  // using QPushButton::setText;
   void setLabelVisible(bool visible);
   void setIconVisible(bool visible);
   void setEnabled(bool isEnabled);
