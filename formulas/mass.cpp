@@ -1,65 +1,63 @@
 #include <iostream>
 
-int m_motorEmpty;
-int m_trailerEmpty;
-int m_motorLoaded;
-int m_trailerLoaded;
-int m_totalEmpty;
-int m_totalWithLoad;
+float m_Me;
+float m_Te;
+float m_M;
+float m_T;
+double m_totalEmpty;
+double m_totalLoad;
+double m_totalInertial;
 
-int n_motor1;
-int n_motor2;
-int n_trailerCabin;
-int n_trailer1;
-int n_trailer2;
-int n_trailer3;
-int m_motor1;
-int m_motor2;
-int m_trailerCabin;
-int m_trailer1;
-int m_trailer2;
-int m_trailer3;
+float n_M1;
+float n_M2;
+float n_Tc;
+float n_T1;
+float n_T2;
+float n_T3;
+float m_M1;
+float m_M2;
+float m_TC;
+float m_T1;
+float m_T2;
+float m_T3;
 
-int m_passenger;
-int n_passengerMotorCar1;
-int n_passengerMotorCar2;
+float m_P;
+float n_PM1;
+float n_PM2;
 
-int n_passengerTrailerCabin;
-int n_passengerTrailerCar1;
-int n_passengerTrailerCar2;
-int n_passengerTrailerCar3;
+float n_PTc;
+float n_PT1;
+float n_PT2;
+float n_PT3;
 
-int numberOfCar;
-int loadPerCar;
+float N;
+float load;
 
-int i_coeficientMotor;
-int i_coeficientTrailer;
-int m_inertialMotor;
-int m_inertialTrailer;
-int m_totalInertial;
+float i_Cm;
+float i_Ct;
+float m_Mi;
+float m_Ti;
 
 void countMassEmptyCar() {
   std::cout << "===Calculate Mass of Empty Car===" << std::endl;
   std::cout << "Enter number and mass of motor car type 1: ";
-  std::cin >> n_motor1 >> m_motor1;
+  std::cin >> n_M1 >> m_M1;
   std::cout << "Enter number and mass of motor car type 2: ";
-  std::cin >> n_motor2 >> m_motor2;
+  std::cin >> n_M2 >> m_M2;
   std::cout << "Enter number and mass of trailer car: ";
-  std::cin >> n_trailerCabin >> m_trailerCabin;
+  std::cin >> n_Tc >> m_TC;
   std::cout << "Enter number and mass of trailer car type 1: ";
-  std::cin >> n_trailer1 >> m_trailer1;
+  std::cin >> n_T1 >> m_T1;
   std::cout << "Enter number and mass of trailer car type 2: ";
-  std::cin >> n_trailer2 >> m_trailer2;
+  std::cin >> n_T2 >> m_T2;
   std::cout << "Enter number and mass of trailer car type 3: ";
-  std::cin >> n_trailer3 >> m_trailer3;
+  std::cin >> n_T3 >> m_T3;
 
-  m_motorEmpty = (n_motor1 * m_motor1) + (n_motor2 + m_motor2);
-  m_trailerEmpty = (n_trailerCabin * m_trailerCabin) +
-                   (n_trailer1 * m_trailer1) + (n_trailer2 * m_trailer2) +
-                   (n_trailer3 * m_trailer3);
-  m_totalEmpty = m_motorEmpty + m_trailerEmpty;
-  std::cout << "Empty motor car mass : " << m_motorEmpty << std::endl;
-  std::cout << "Empty trailer car mass : " << m_trailerEmpty << std::endl;
+  m_Me = (n_M1 * m_M1) + (n_M2 * m_M2);
+  m_Te = (n_Tc * m_TC) + (n_T1 * m_T1) + (n_T2 * m_T2) + (n_T3 * m_T3);
+  m_totalEmpty = m_Me + m_Te;
+  std::cout << "Empty motor car mass : " << m_Me << std::endl;
+  std::cout << "Empty trailer car mass : " << m_Te << std::endl;
   std::cout << "Total empty trainset mass : " << m_totalEmpty << std::endl;
   std::cout << std::endl;
   std::cout << std::endl;
@@ -67,35 +65,30 @@ void countMassEmptyCar() {
 
 void countMassWithLoad() {
   std::cout << "===Calculate Mass with Load===" << std::endl;
-  std::cout << "Enter mass of passanger : ";
-  std::cin >> m_passenger;
+  std::cout << "Enter mass of passanger (kg) : ";
+  std::cin >> m_P;
   std::cout << "Enter first number Mass of passenger : ";
-  std::cin >> n_passengerMotorCar1;
+  std::cin >> n_PM1;
   std::cout << "Enter second number Mass of passenger : ";
-  std::cin >> n_passengerMotorCar2;
+  std::cin >> n_PM2;
   std::cout << "Enter number of passenger for trailer car : ";
-  std::cin >> n_passengerTrailerCabin;
+  std::cin >> n_PTc;
   std::cout << "Enter number of passenger for first type of trailer car : ";
-  std::cin >> n_passengerTrailerCar1;
+  std::cin >> n_PT1;
   std::cout << "Enter number of passenger for second type of trailer car : ";
-  std::cin >> n_passengerTrailerCar2;
+  std::cin >> n_PT2;
   std::cout << "Enter number of passenger for third type of trailer car : ";
-  std::cin >> n_passengerTrailerCar3;
+  std::cin >> n_PT3;
+  m_P = m_P / 1000;
+  std::cout << "Mass of passenger : " << m_P << std::endl;
 
-  m_motorLoaded = m_motorEmpty +
-                  n_motor1 * (m_passenger * n_passengerMotorCar1) +
-                  n_motor2 * (m_passenger * n_passengerMotorCar2);
-  m_trailerLoaded = m_trailerEmpty +
-                    n_trailerCabin * (m_passenger * n_passengerTrailerCabin) +
-                    n_trailer1 * (m_passenger * n_passengerTrailerCar1) +
-                    n_trailer2 * (m_passenger * n_passengerTrailerCar2) +
-                    n_trailer3 * (m_passenger * n_passengerTrailerCar3);
-  m_totalWithLoad = m_motorLoaded + m_trailerLoaded;
-  std::cout << "Mass of loaded motor car value : " << m_motorLoaded
-            << std::endl;
-  std::cout << "Mass of loaded trailer car value : " << m_trailerLoaded
-            << std::endl;
-  std::cout << "Total loaded trainset mass : " << m_totalWithLoad << std::endl;
+  m_M = m_Me + n_M1 * (m_P * n_PM1) + n_M2 * (m_P * n_PM2);
+  m_T = m_Te + n_Tc * (m_P * n_PTc) + n_T1 * (m_P * n_PT1) +
+        n_T2 * (m_P * n_PT2) + n_T3 * (m_P * n_PT3);
+  m_totalLoad = m_M + m_T;
+  std::cout << "Mass of loaded motor car value : " << m_M << std::endl;
+  std::cout << "Mass of loaded trailer car value : " << m_T << std::endl;
+  std::cout << "Total loaded trainset mass : " << m_totalLoad << std::endl;
   std::cout << std::endl;
   std::cout << std::endl;
 }
@@ -103,32 +96,26 @@ void countMassWithLoad() {
 void countMassLoadInput() {
   std::cout << "===Mass With Load Input===" << std::endl;
   std::cout << "Enter number of car : ";
-  std::cin >> numberOfCar;
+  std::cin >> N;
   std::cout << "Enter load per car : ";
-  std::cin >> loadPerCar;
-  m_totalWithLoad = m_totalEmpty + numberOfCar * loadPerCar;
-  std::cout << "Total loaded trainset mass (input) : " << m_totalWithLoad;
+  std::cin >> load;
+  m_totalLoad = m_totalEmpty + N * load;
+  std::cout << "Total loaded trainset mass (input) : " << m_totalLoad;
   std::cout << std::endl;
   std::cout << std::endl;
 }
 
-void countIntertialMass() {
+void countInertialMass() {
   std::cout << "===Calculate Inertial Mass===" << std::endl;
   std::cout << "Enter inertial motor car mass : ";
-  std::cin >> i_coeficientMotor;
+  std::cin >> i_Cm;
   std::cout << "Enter inertial trailer car mass : ";
-  std::cin >> i_coeficientTrailer;
+  std::cin >> i_Ct;
   ;
-  m_inertialMotor = (m_motorEmpty * i_coeficientMotor) +
-                    (n_motor1 * (m_passenger * n_passengerMotorCar1) +
-                     n_motor2 * (m_passenger * n_passengerMotorCar2));
-  m_inertialTrailer =
-      (m_trailerEmpty * i_coeficientTrailer) +
-      (n_trailerCabin * (m_passenger * n_passengerTrailerCabin) +
-       n_trailer1 * (m_passenger * n_passengerTrailerCar1) +
-       n_trailer2 * (m_passenger * n_passengerTrailerCar2) +
-       n_trailer3 * (m_passenger * n_passengerTrailerCar3));
-  m_totalInertial = m_inertialMotor + m_inertialTrailer;
+  m_Mi = (m_Me * i_Cm) + (n_M1 * (m_P * n_PM1) + n_M2 * (m_P * n_PM2));
+  m_Ti = (m_Te * i_Ct) + (n_Tc * (m_P * n_PTc) + n_T1 * (m_P * n_PT1) +
+                          n_T2 * (m_P * n_PT2) + n_T3 * (m_P * n_PT3));
+  m_totalInertial = m_Mi + m_Ti;
   std::cout << "Total Inertial Trainset Mass: " << m_totalInertial << std::endl;
   std::cout << std::endl;
   std::cout << std::endl;
@@ -137,21 +124,19 @@ void countIntertialMass() {
 void countInertialMassInput() {
   std::cout << "===Inertial Mass Input===" << std::endl;
   std::cout << "Enter number of load : ";
-  std::cin >> numberOfCar;
+  std::cin >> N;
   std::cout << "Enter load value : ";
-  std::cin >> loadPerCar;
-  m_totalWithLoad = m_totalEmpty + numberOfCar * loadPerCar;
-  m_totalInertial = (m_motorEmpty * i_coeficientMotor) +
-                    (m_trailerEmpty * i_coeficientTrailer) +
-                    (numberOfCar * loadPerCar);
-  std::cout << "Total intertial trainset mass (input) : " << m_totalInertial;
+  std::cin >> load;
+  m_totalLoad = m_totalEmpty + N * load;
+  m_totalInertial = (m_Me * i_Cm) + (m_Te * i_Ct) + (N * load);
+  std::cout << "Total floatertial trainset mass (input) : " << m_totalInertial;
 }
 
 int main() {
   countMassEmptyCar();
   countMassWithLoad();
   countMassLoadInput();
-  countIntertialMass();
+  countInertialMass();
   countInertialMassInput();
   return 0;
 }
