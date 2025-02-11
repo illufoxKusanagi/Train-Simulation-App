@@ -3,7 +3,7 @@
 float f_tractionMotor;
 float t_motor;
 float rpm_motor;
-int d_wheel;
+int wheel;
 double gearRatio;
 
 int main() {
