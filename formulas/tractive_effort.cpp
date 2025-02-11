@@ -16,8 +16,6 @@ int notch;
 float f_total;
 
 void calculatePoweringForce() {
-  std::cout << "Enter speed : ";
-  std::cin >> v;
   std::cout << "Enter weakening point 1 : ";
   std::cin >> v_p1;
   std::cout << "Enter weakening point 2 : ";
@@ -36,8 +34,6 @@ void calculatePoweringForce() {
 }
 
 void calculateBrakingForce() {
-  std::cout << "Enter speed : ";
-  std::cin >> v;
   std::cout << "Enter braking point 1 : ";
   std::cin >> v_b1;
   std::cout << "Enter braking point 2 : ";
@@ -56,9 +52,7 @@ void calculateBrakingForce() {
 }
 
 void calculateCoastingForce() {
-  std::cout << "Enter speed : ";
-  std::cin >> v;
-  std::cout << "Enter notch : ";
+  std::cout << "Enter notch (-1 to 1) : ";
   std::cin >> notch;
   f_motor = 0;
   if (notch == 1) {
@@ -80,6 +74,8 @@ int main() {
   std::cin >> acc;
   std::cout << "Enter deceleration : ";
   std::cin >> dec;
+  std::cout << "Enter speed : ";
+  std::cin >> v;
   calculatePoweringForce();
   calculateBrakingForce();
   calculateCoastingForce();
