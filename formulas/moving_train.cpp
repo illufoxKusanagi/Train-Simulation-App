@@ -4,7 +4,7 @@
 using namespace std;
 
 const float g = 9.8;
-const float dt = 2;
+const float dt = 1;
 const float v_p1 = 35;
 const float v_p2 = 65;
 
@@ -19,7 +19,7 @@ double r_run;
 
 float v = 0.0;
 
-double acc_start = 1.0;
+double acc_start;
 double f_res;
 double f_resStart;
 double f_resRunning;
@@ -48,7 +48,7 @@ void inputData() {
   cout << "Slope : " << slope << endl;
   numberOfCar = 12.0;
   cout << "Number of Car : " << numberOfCar << endl;
-  // acc = 1.0;
+  acc_start = 1.0;
   cout << "Acceleration : " << acc_start << endl;
   cout << "Time difference : " << dt << endl;
 }
@@ -88,8 +88,6 @@ void calculatePoweringForce(float acc) {
   if (v == 0) {
     f_start = m_totalInertial * (acc_start / c) + f_resStart;
   }
-  if (v < 1e-6)
-    v = 1e-6; // Hindari pembagian nol
   if (v <= v_p1) {
     f_motor = f_start;
   } else if (v > v_p1 && v <= v_p2) {
@@ -101,11 +99,7 @@ void calculatePoweringForce(float acc) {
 }
 
 void calculateTotalForce() {
-  if (v == 0) {
-    f_total = f_motor - f_resStart;
-  } else {
-    f_total = f_motor - f_resRunning;
-  }
+  f_total = f_motor - (v < 1 ? f_resStart : f_resRunning);
   cout << "Motor force : " << f_motor << " kN" << endl;
   cout << "Total force : " << f_total << " kN" << endl;
 }
@@ -118,27 +112,20 @@ void calculateValues(float acc) {
     if (v > 0) {
       f_resRunning = calculateRunningRes(v);
     }
+    calculatePoweringForce(acc);
+    calculateTotalForce();
+    acc = c * f_total / m_totalInertial;
+    v += acc * dt;
+
+    i++;
     cout << "Resistance Train : " << r_train << " kN" << endl;
     cout << "Resistance Slope : " << r_slope << " kN" << endl;
     cout << "Resistance Radius : " << r_radius << " kN" << endl;
     cout << "Resistance Running : " << r_run << " kN" << endl;
     cout << "Resistance Force Start : " << f_resStart << " kN" << endl;
     cout << "Resistance Force Running : " << f_resRunning << " kN" << endl;
-
-    calculatePoweringForce(acc);
-    calculateTotalForce();
-
-    // Perhitungan percepatan sebelum memperbarui kecepatan
-    acc = c * f_total / m_totalInertial;
-    // acc = max(0.0, min(c * f_total / m_totalInertial, 5.0));
-    // acc = max(0.0, c * f_total / m_totalInertial);
     cout << "Acceleration : " << acc << " km/h/s" << endl;
-
-    // Memperbarui kecepatan
-    v += acc * dt;
     cout << "Speed : " << v << " km/h" << endl;
-
-    i++;
   }
 }
 
