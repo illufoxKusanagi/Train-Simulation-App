@@ -4,7 +4,7 @@
 using namespace std;
 
 const float g = 9.8;
-const float dt = 0.5;
+const float dt = 1.0;
 const float v_p1 = 35;
 const float v_p2 = 65;
 
@@ -19,7 +19,10 @@ double r_run;
 
 float v = 0.0;
 
+double acc_start;
 double f_res;
+double f_resStart;
+double f_resRunning;
 double f_total;
 double f_start;
 double f_motor;
@@ -27,31 +30,31 @@ double f_motor;
 float acc;
 
 float m_totalInertial;
-float m_M = 10;
-float m_T = 10;
+float m_M = 10.0;
+float m_T = 10.0;
 
 float numberOfCar;
 float c = 3.6;
 int i = 0;
 
 void inputData() {
-  m_totalInertial = 100;
+  m_totalInertial = 100.0;
   cout << "Inertial mass train : " << m_totalInertial << endl;
-  startRes = 10;
+  startRes = 4.0;
   cout << "Start resistance : " << startRes << endl;
-  radius = 6;
+  radius = 2000;
   cout << "Radius : " << radius << endl;
-  slope = 10;
+  slope = 0;
   cout << "Slope : " << slope << endl;
   numberOfCar = 12.0;
   cout << "Number of Car : " << numberOfCar << endl;
-  acc = 1.0;
-  cout << "Acceleration : " << acc << endl;
+  acc_start = 1.0;
+  cout << "Acceleration : " << acc_start << endl;
   cout << "Time difference : " << dt << endl;
 }
 
 double calculateResTrain(float m, float startRes) {
-  return ((m * g * startRes) / 1000);
+  return ((m * startRes) / 1000);
 }
 
 double calculateResSlope(float m, float slope) {
@@ -70,7 +73,7 @@ double calculateStartRes() {
   return (r_train + r_slope + r_radius);
 }
 
-double calculateRunningRes(float v) {
+double calculateRunningRes() {
   r_slope = calculateResSlope(m_totalInertial, slope);
   r_radius = calculateResRadius(m_totalInertial, radius);
   r_run =
@@ -81,10 +84,14 @@ double calculateRunningRes(float v) {
   return r_run + r_slope + r_radius;
 }
 
-void calculatePoweringForce(float acc) {
-  f_start = m_totalInertial * (acc / c) + f_res;
+void calculatePoweringForce() {
+  if (v == 0) {
+    double calculationValue = m_totalInertial * (acc_start / c);
+    f_start = calculationValue + f_resStart;
+    cout << "Resistance Force Start : " << calculationValue << " kN" << endl;
+  }
   if (v < 1e-6)
-    v = 1e-6; // Hindari pembagian nol
+    v = 1e-6;
   if (v <= v_p1) {
     f_motor = f_start;
   } else if (v > v_p1 && v <= v_p2) {
@@ -96,28 +103,39 @@ void calculatePoweringForce(float acc) {
 }
 
 void calculateTotalForce() {
-  f_total = f_motor - f_res;
+  f_total = f_motor - (v < 1 ? f_resStart : f_resRunning);
+  // if (v == 0) {
+  //   f_total = f_motor - f_resStart;
+  // } else {
+  //   f_total = f_motor - f_resRunning;
+  // }
   cout << "Total force : " << f_total << " kN" << endl;
 }
 
-void calculateValues(float acc) {
-  while (v < 10) {
+void calculateValues() {
+  while (v < 5) {
     cout << "\nIteration : " << i + 1 << endl;
 
-    f_res = (v == 0) ? calculateStartRes() : calculateRunningRes(v);
+    f_resStart = calculateStartRes();
+    if (v > 0) {
+      f_resRunning = calculateRunningRes();
+    }
+    calculatePoweringForce();
+    calculateTotalForce();
+
     cout << "Resistance Train : " << r_train << " kN" << endl;
     cout << "Resistance Slope : " << r_slope << " kN" << endl;
     cout << "Resistance Radius : " << r_radius << " kN" << endl;
     cout << "Resistance Running : " << r_run << " kN" << endl;
-    cout << "Resistance Force : " << f_res << " kN" << endl;
-
-    calculatePoweringForce(acc);
-    calculateTotalForce();
-
+    cout << "Resistance Force Running : " << f_resRunning << " kN" << endl;
     // Perhitungan percepatan sebelum memperbarui kecepatan
-    // acc = c * f_total / m_totalInertial;
-    acc = max(0.0, min(c * f_total / m_totalInertial, 5.0));
-    // acc = max(0.0, c * f_total / m_totalInertial);
+    // acc = v == 0 ? acc_start : c * f_total / m_totalInertial;
+    // acc = max(0.0, min(c * f_total / m_totalInertial, 5.0));
+    if (v == 0) {
+      acc = acc_start;
+    } else {
+      acc = c * f_total / m_totalInertial;
+    }
     cout << "Acceleration : " << acc << " km/h/s" << endl;
 
     // Memperbarui kecepatan
@@ -130,6 +148,6 @@ void calculateValues(float acc) {
 
 int main() {
   inputData();
-  calculateValues(acc);
+  calculateValues();
   return 0;
 }
