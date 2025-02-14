@@ -5,19 +5,18 @@
 using namespace std;
 
 const float g = 9.8;
-const float dt = 0.1;
+const float dt = 0.5;
 const float c = 3.6;
 const float v_p1 = 35;
 const float v_p2 = 65;
-const float v_b1 = 35;
-const float v_b2 = 65;
+const float v_b1 = 55;
+const float v_b2 = 70;
 const float v_limit = 70.0;
 const float v_diffCoast = 5.0;
 
 float startRes;
 float slope;
 float radius;
-// float time;
 
 double r_train;
 double r_slope;
@@ -40,15 +39,15 @@ float acc;
 float decc;
 
 float m_totalInertial;
-float m_M = 10;
-float m_T = 10;
+float m_M = 180;
+float m_T = 180;
 
 float numberOfCar;
 int i = 0;
 
 void inputData() {
-  m_totalInertial = 100.0;
-  startRes = 4.0;
+  m_totalInertial = 360.0;
+  startRes = 39.2;
   radius = 2000;
   slope = 0;
   numberOfCar = 12.0;
@@ -96,7 +95,7 @@ double calculateRunningRes(float v) {
 }
 
 void calculatePoweringForce(float acc) {
-  if (v == 0) {
+  if (v <= 0) {
     f_start = m_totalInertial * (acc / c) + f_resStart;
   }
   if (v <= v_p1) {
@@ -148,45 +147,16 @@ void calculateBrakingValue() {
   }
 }
 
-void calculateValues(float acc) {
-  while (v < v_limit) {
-    cout << endl << "\nIteration : " << i + 1 << endl;
-    f_resStart = calculateStartRes();
-
-    if (v > 0) {
-      f_resRunning = calculateRunningRes(v);
-    }
-    calculatePoweringForce(acc);
-    calculateTotalForce();
-    acc = c * f_total / m_totalInertial;
-    v += acc * dt;
-
-    // TODO : need to add condition of minimum total force, at acceleration = 0
-    if (f_total <= 0.02)
-      break;
-    i++;
-
-    cout << "Resistance Train : " << r_train << " kN" << endl;
-    cout << "Resistance Slope : " << r_slope << " kN" << endl;
-    cout << "Resistance Radius : " << r_radius << " kN" << endl;
-    cout << "Resistance Running : " << r_run << " kN" << endl;
-    cout << "Resistance Force Start : " << f_resStart << " kN" << endl;
-    cout << "Resistance Force Running : " << f_resRunning << " kN" << endl;
-    cout << "Acceleration : " << acc << " km/h/s" << endl;
-    cout << "Speed : " << v << " km/h" << endl;
-  }
-}
-
 void simulateTrainMovement(float acc, float decc) {
   i = 0;
-  bool isAccelerating = true;
-  bool isCoasting = false; // Flag untuk tracking fase coasting
-  float time = 0;          // Waktu mulai
+  bool isAccelerating = true; // Flag untuk tracking fase accelerating
+  bool isCoasting = false;    // Flag untuk tracking fase coasting
+  float time = 0;
   string phase;
   int coastingCount = 0;
 
   std::ofstream outFile("train_simulation.csv", std::ios::app);
-  if (i == 0) { // Tambahkan header hanya sekali
+  if (i == 0) { // Add header
     outFile
         << "Phase,Iteration,Time,Speed,Acceleration,F_motor,F_res,F_total\n";
   }
@@ -216,7 +186,6 @@ void simulateTrainMovement(float acc, float decc) {
         isAccelerating = true;
         coastingCount++;
         if (coastingCount >= 3) {
-          // Start braking after 3 coasting cycles
           isAccelerating = false;
           isCoasting = false;
         }
@@ -237,7 +206,7 @@ void simulateTrainMovement(float acc, float decc) {
         break;
     }
 
-    time += dt; // Update waktu
+    time += dt;
     i++;
 
     // Simpan data ke file CSV
@@ -245,6 +214,7 @@ void simulateTrainMovement(float acc, float decc) {
             << (isAccelerating || isCoasting ? acc : decc) << "," << f_motor
             << "," << (v < 1 ? f_resStart : f_resRunning) << "," << f_total
             << "\n";
+
     cout << "Phase: " << phase << endl;
     cout << "Speed : " << v << " km/h" << endl;
     cout << "Force motor : " << f_motor << " kN" << endl;
@@ -258,54 +228,8 @@ void simulateTrainMovement(float acc, float decc) {
   outFile.close();
 }
 
-void simulateTrainMovementLLL() {
-  i = 0;
-  bool isAccelerating = true;
-
-  while (v >= 0) {
-    cout << "\nIteration : " << i + 1 << endl;
-
-    f_resStart = calculateStartRes();
-    if (v > 0) {
-      f_resRunning = calculateRunningRes(v);
-    }
-    if (isAccelerating) {
-      if (v >= v_limit) {
-        isAccelerating = false;
-        continue;
-      }
-      calculatePoweringForce(acc_start);
-      calculateTotalForce();
-      acc = c * f_total / m_totalInertial;
-      v += acc * dt;
-    } else {
-      // calculateStoppingForce();
-      calculateTotalBrakeForce();
-      decc = c * f_total / m_totalInertial;
-      v += decc * dt;
-
-      if (v <= 0)
-        break; // Stop when velocity reaches 0
-    }
-
-    i++;
-
-    cout << "Phase: " << (isAccelerating ? "Accelerating" : "Braking") << endl;
-    cout << "Speed : " << v << " km/h" << endl;
-    cout << "Force motor : " << f_motor << " kN" << endl;
-    cout << "Force total : " << f_total << " kN" << endl;
-    if (isAccelerating) {
-      cout << "Acceleration : " << acc << " km/h/s" << endl;
-    } else {
-      cout << "Deceleration : " << decc << " km/h/s" << endl;
-    }
-  }
-}
-
 int main() {
   inputData();
   simulateTrainMovement(acc_start, decc_start);
-  // calculateValues(acc_start);
-  // calculateBrakingValue();
   return 0;
 }
