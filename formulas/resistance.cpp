@@ -1,13 +1,13 @@
 #include <iostream>
 
 const float g = 9.8;
-float mass;
+float m;
 float startRes;
 float slope;
 float radius;
 float speed;
-float m_m = 130;
-float m_t = 120;
+float m_M = 130;
+float m_T = 120;
 int numberOfCar = 5;
 
 double r_train;
@@ -19,8 +19,8 @@ double f_res;
 
 void collectData() {
   std::cout << "===Calculate Start Resistance===" << std::endl;
-  std::cout << "Enter train mass : ";
-  std::cin >> mass;
+  std::cout << "Enter train m : ";
+  std::cin >> m;
   std::cout << "Enter start resistance : ";
   std::cin >> startRes;
   std::cout << "Enter radius : ";
@@ -40,36 +40,36 @@ void printData() {
             << std::endl;
 }
 
-double calculateResTrain(float mass, float startRes) {
-  return (mass * g * startRes * (1.0 / 1000));
+double calculateResTrain(float m, float startRes) {
+  return (m * g * startRes * (1.0 / 1000));
 }
 
-double calculateResSlope(float mass, float slope) {
-  return (mass * g * slope * (1.0 / 1000));
+double calculateResSlope(float m, float slope) {
+  return (m * g * slope * (1.0 / 1000));
 }
 
-double calculateResRadius(float mass, float radius) {
-  return (mass * g * (6.0 / radius) * (1.0 / 1000));
+double calculateResRadius(float m, float radius) {
+  return (m * g * (6.0 / radius) * (1.0 / 1000));
 }
 
 double countStartRes() {
   collectData();
-  r_train = calculateResTrain(mass, startRes);
-  r_slope = calculateResSlope(mass, slope);
-  r_radius = calculateResRadius(mass, radius);
+  r_train = calculateResTrain(m, startRes);
+  r_slope = calculateResSlope(m, slope);
+  r_radius = calculateResRadius(m, radius);
   printData();
   return (r_train + r_slope + r_radius);
 }
 
 float countRunningRes(float speed) {
   collectData();
-  r_train = calculateResTrain(mass, startRes);
-  r_slope = calculateResSlope(mass, slope);
-  r_radius = calculateResRadius(mass, radius);
+  r_train = calculateResTrain(m, startRes);
+  r_slope = calculateResSlope(m, slope);
+  r_radius = calculateResRadius(m, radius);
   printData();
   return (1 / 1000 *
-              (((1.65 + (0.0247 * speed)) * (m_m * g)) +
-               ((0.78 + (0.0028 * speed) * (m_t * g)) +
+              (((1.65 + (0.0247 * speed)) * (m_M * g)) +
+               ((0.78 + (0.0028 * speed) * (m_T * g)) +
                 (g * (0.028 + 0.0078 * (numberOfCar - 1)) * (speed * speed)))) +
           r_slope + r_radius);
 }
