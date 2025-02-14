@@ -5,7 +5,7 @@
 using namespace std;
 
 const float g = 9.8;
-const float dt = 1;
+const float dt = 0.1;
 const float c = 3.6;
 const float v_p1 = 35;
 const float v_p2 = 65;
@@ -111,7 +111,7 @@ void calculatePoweringForce(float acc) {
 
 void calculateStoppingForce(float decc) {
   f_brake = m_totalInertial * (decc_start / c);
-  // f_brake = m_totalInertial * (decc / c);
+  // f_brake = m_totalInertial * (abs(decc) / c);
   if (v < v_b1) {
     f_motor = -f_brake;
   } else if (v > v_b1 && v <= v_b2) {
@@ -242,8 +242,9 @@ void simulateTrainMovement(float acc, float decc) {
 
     // Simpan data ke file CSV
     outFile << phase << "," << i + 1 << "," << time << "," << v << ","
-            << (isAccelerating ? acc : decc) << "," << f_motor << ","
-            << (v < 1 ? f_resStart : f_resRunning) << "," << f_total << "\n";
+            << (isAccelerating || isCoasting ? acc : decc) << "," << f_motor
+            << "," << (v < 1 ? f_resStart : f_resRunning) << "," << f_total
+            << "\n";
     cout << "Phase: " << phase << endl;
     cout << "Speed : " << v << " km/h" << endl;
     cout << "Force motor : " << f_motor << " kN" << endl;
