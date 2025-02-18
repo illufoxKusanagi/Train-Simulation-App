@@ -15,7 +15,7 @@ float mM1 = 20.0;
 double f_motor = 72.4678;
 float v = 10.0;
 
-int n_train = 12;
+int n_train = 24;
 int n_ax = 4;
 float gearRatio;
 float wheel;
