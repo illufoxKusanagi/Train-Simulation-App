@@ -95,12 +95,12 @@ void storeMass() {
   m_T2 = 10;
   n_T3 = 1;
   m_T3 = 10;
-  n_PM1 = 20;
-  n_PM2 = 20;
-  n_PTc = 10;
-  n_PT1 = 10;
-  n_PT2 = 10;
-  n_PT3 = 10;
+  n_PM1 = 200;
+  n_PM2 = 200;
+  n_PTc = 100;
+  n_PT1 = 200;
+  n_PT2 = 200;
+  n_PT3 = 200;
   i_M = 1.2;
   i_T = 1.2;
   m_P = 70;
@@ -237,7 +237,6 @@ void countTrainMass() {
 void inputData() {
   storeMass();
   countTrainMass();
-  // m_totalInertial = 360.0;
   startRes = 39.2;
   radius = 2000;
   slope = 0;
