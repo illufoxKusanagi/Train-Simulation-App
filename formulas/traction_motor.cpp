@@ -16,7 +16,7 @@ double f_motor = 72.4678;
 float v = 10.0;
 
 int n_train = 12;
-int n_ax;
+int n_ax = 4;
 float gearRatio;
 float wheel;
 
@@ -40,8 +40,10 @@ int main() {
   calculateTractionForce();
   calculateTorque();
   calculateRpm();
+  calculateAdhesive();
   cout << "Traction force: " << tm_f << " N" << endl;
   cout << "Torque: " << tm_t << " Nm" << endl;
   cout << "RPM: " << tm_rpm << " rpm" << endl;
+  cout << "Adhesive weight: " << tm_adhesive << " N" << endl;
   return 0;
 }
