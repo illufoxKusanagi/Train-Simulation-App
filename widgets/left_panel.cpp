@@ -41,14 +41,17 @@ void LeftPanel::emitNavigateSignal(int pageIndex) {
 void LeftPanel::createRunButton() {
   QWidget *runButtonWidget = new QWidget();
   QHBoxLayout *runButtonLayout = new QHBoxLayout(runButtonWidget);
+  runButtonLayout->setSpacing(16);
   ButtonAction *runButton = new ButtonAction("Run", "yes", this);
-  connect(runButton, &ButtonAction::clicked, this,
-          [this]() { emitNavigateSignal(m_currentIndex); });
   runButton->setEnabled(true);
-  runButton->setSize(80, 40);
-  runButtonLayout->setContentsMargins(0, 0, 0, 0);
+  runButton->setSize(120, 40);
+  ButtonAction *runStaticButton = new ButtonAction("Static Run", "yes", this);
+  runStaticButton->setEnabled(true);
+  runStaticButton->setSize(120, 40);
+  runButtonLayout->setContentsMargins(16, 0, 0, 0);
   runButtonLayout->setAlignment(Qt::AlignCenter);
   runButtonLayout->addWidget(runButton);
+  runButtonLayout->addWidget(runStaticButton);
   m_buttonLayout->addWidget(runButtonWidget);
 }
 void LeftPanel::setupInputPageButtons() {
