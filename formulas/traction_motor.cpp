@@ -10,6 +10,7 @@ double tm_f;
 double tm_t;
 double tm_rpm;
 double tm_adhesive;
+float tm_f_res;
 float mM1 = 20.0;
 
 double f_motor = 72.4678;
@@ -31,6 +32,8 @@ void calculateRpm() {
 void calculateAdhesive() {
   tm_adhesive = (tm_f * coversion) / ((mM1 * 1000) / n_ax);
 }
+
+void calculateResForcePerMotorCar() { tm_f_res = 0; }
 
 int main() {
   cout << "Enter gear ratio: ";
