@@ -8,35 +8,3 @@ mP, mTe, mMe, MT, MM, mMi, mTi
 0.07,60,120,130,204,228,142
 Total empty mass, Total load mass, Total inertial mass
 180,334,370
-
-
-nTc, nM1, nM2, nT1, nT2, nT3
-2,3,3,2,1,1
-mTC, mT1, mT2, mT3, mMe, mTe
-10,10,10,10,120,60
-nPM1, nPM2, nPTc, nPT1, nPT2, nPT3
-200,200,100,200,200,200
-mP, mTe, mMe, MT, MM, mMi, mTi
-0.07,60,120,130,204,228,142
-Total empty mass, Total load mass, Total inertial mass
-180,334,370
-nTc, nM1, nM2, nT1, nT2, nT3
-2,3,3,2,1,1
-mTC, mT1, mT2, mT3, mMe, mTe
-10,10,10,10,120,60
-nPM1, nPM2, nPTc, nPT1, nPT2, nPT3
-200,200,100,200,200,200
-mP, mTe, mMe, MT, MM, mMi, mTi
-0.07,60,120,130,204,228,142
-Total empty mass, Total load mass, Total inertial mass
-180,334,370
-nTc, nM1, nM2, nT1, nT2, nT3
-2,3,3,2,1,1
-mTC, mT1, mT2, mT3, mMe, mTe
-10,10,10,10,120,60
-nPM1, nPM2, nPTc, nPT1, nPT2, nPT3
-200,200,100,200,200,200
-mP, mTe, mMe, MT, MM, mMi, mTi
-0.07,60,120,130,204,228,142
-Total empty mass, Total load mass, Total inertial mass
-180,334,370

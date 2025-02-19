@@ -268,7 +268,7 @@ double calculateResRadius(float m, float radius) {
 }
 
 double calculateStartRes() {
-  r_train = calculateResTrain(m_totalInertial, startRes);
+  r_train = calculateResTrain(m_totalLoad, startRes);
   r_slope = calculateResSlope(m_totalInertial, slope);
   r_radius = calculateResRadius(m_totalInertial, radius);
 
