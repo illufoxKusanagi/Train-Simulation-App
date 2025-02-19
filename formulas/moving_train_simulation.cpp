@@ -5,7 +5,7 @@
 using namespace std;
 
 const float g = 9.8;
-const float c = 3.6;
+const float cV = 3.6;
 
 const float dt = 0.5;
 const float v_p1 = 35;
@@ -82,8 +82,6 @@ float numberOfCar;
 int i = 0;
 string answer;
 
-std::ofstream outFile("train_simulation.csv", std::ios::app);
-
 void storeMass() {
   n_M1 = 3;
   n_M2 = 3;
@@ -145,7 +143,6 @@ void inputDatas() {
 }
 
 void countMassEmptyCar() {
-  // storeMass();
   m_Me = (n_M1 * m_M1) + (n_M2 * m_M2);
   m_Te = (n_Tc * m_TC) + (n_T1 * m_T1) + (n_T2 * m_T2) + (n_T3 * m_T3);
   m_totalEmpty = m_Me + m_Te;
@@ -176,7 +173,6 @@ void countMassLoadInput() {
 }
 
 void countInertialMass() {
-
   m_Mi = (m_Me * i_M) + (n_M1 * (m_P * n_PM1) + n_M2 * (m_P * n_PM2));
   m_Ti = (m_Te * i_T) + (n_Tc * (m_P * n_PTc) + n_T1 * (m_P * n_PT1) +
                          n_T2 * (m_P * n_PT2) + n_T3 * (m_P * n_PT3));
@@ -195,7 +191,7 @@ void countInertialMassInput() {
   std::cout << "Total inertial trainset mass (input) : " << m_totalInertial;
 }
 
-void storeCsvDatas() {
+void storeMassCsvDatas() {
   std::ofstream outFile("mass_train_simulation.csv", std::ios::app);
   outFile << "nTc, nM1, nM2, nT1, nT2, nT3\n";
   outFile << n_Tc << "," << n_M1 << "," << n_M2 << "," << n_T1 << "," << n_T2
@@ -232,7 +228,7 @@ void countTrainMass() {
     countMassLoadInput();
     countInertialMassInput();
   }
-  storeCsvDatas();
+  storeMassCsvDatas();
 }
 
 void inputData() {
@@ -288,7 +284,7 @@ double calculateRunningRes(float v) {
 
 void calculatePoweringForce(float acc) {
   if (v <= 0) {
-    f_start = m_totalInertial * (acc / c) + f_resStart;
+    f_start = m_totalInertial * (acc / cV) + f_resStart;
   }
   if (v <= v_p1) {
     f_motor = f_start;
@@ -297,11 +293,11 @@ void calculatePoweringForce(float acc) {
   } else if (v > v_p2) {
     f_motor = (f_start * v_p1 * v_p2) / (v * v);
   }
-  cout << "Resistance due to force : " << f_motor << " kN" << endl;
+  // cout << "Resistance due to force : " << f_motor << " kN" << endl;
 }
 
 void calculateStoppingForce(float decc) {
-  f_brake = m_totalInertial * (decc_start / c);
+  f_brake = m_totalInertial * (decc_start / cV);
   if (v < v_b1) {
     f_motor = -f_brake;
   } else if (v > v_b1 && v <= v_b2) {
@@ -325,7 +321,7 @@ void calculateBrakingValue() {
     f_resRunning = calculateRunningRes(v);
     // calculateStoppingForce();
     calculateTotalBrakeForce();
-    decc = c * f_total / m_totalInertial;
+    decc = cV * f_total / m_totalInertial;
     v += decc * dt;
     i++;
 
@@ -338,7 +334,7 @@ void calculateBrakingValue() {
   }
 }
 
-void simulateDynamicTrainMovement(float acc, float decc) {
+void simulateDynamicTrainMovement(float acc, float decc, ofstream &outFile) {
   i = 0;
   bool isAccelerating = true;
   bool isCoasting = false;
@@ -360,7 +356,7 @@ void simulateDynamicTrainMovement(float acc, float decc) {
       phase = "Accelerating";
       calculatePoweringForce(acc);
       calculateTotalForce(v);
-      acc = c * f_total / m_totalInertial;
+      acc = cV * f_total / m_totalInertial;
       v += acc * dt;
     } else if (isCoasting) {
       if (v <= (v_limit - v_diffCoast)) {
@@ -376,13 +372,13 @@ void simulateDynamicTrainMovement(float acc, float decc) {
       phase = "Coasting";
       f_motor = 0;
       f_total = -f_resRunning;
-      acc = c * f_total / m_totalInertial;
+      acc = cV * f_total / m_totalInertial;
       v += acc * dt;
     } else {
       phase = "Braking";
       calculateStoppingForce(decc);
       calculateTotalBrakeForce();
-      decc = c * f_total / m_totalInertial;
+      decc = cV * f_total / m_totalInertial;
       v += decc * dt;
       if (v <= 0)
         break;
@@ -400,21 +396,21 @@ void simulateDynamicTrainMovement(float acc, float decc) {
             << "," << (v > 0 ? f_resRunning : f_resStart) << "," << f_total
             << "\n";
 
-    cout << "\nIteration : " << i + 1 << endl;
-    cout << "Phase: " << phase << endl;
-    cout << "Speed : " << v << " km/h" << endl;
-    cout << "Force motor : " << f_motor << " kN" << endl;
-    cout << "Force total : " << f_total << " kN" << endl;
-    if (isAccelerating) {
-      cout << "Acceleration : " << acc << " km/h/s" << endl;
-    } else {
-      cout << "Deceleration : " << decc << " km/h/s" << endl;
-    }
+    // cout << "\nIteration : " << i + 1 << endl;
+    // cout << "Phase: " << phase << endl;
+    // cout << "Speed : " << v << " km/h" << endl;
+    // cout << "Force motor : " << f_motor << " kN" << endl;
+    // cout << "Force total : " << f_total << " kN" << endl;
+    // if (isAccelerating) {
+    //   cout << "Acceleration : " << acc << " km/h/s" << endl;
+    // } else {
+    //   cout << "Deceleration : " << decc << " km/h/s" << endl;
+    // }
     i++;
   }
 }
 
-void simulateStaticTrainMovement(float acc, float decc) {
+void simulateStaticTrainMovement(float acc, float decc, ofstream &outFile) {
   v_limit = 130;
   i = 0;
   bool isAccelerating = true;
@@ -436,7 +432,7 @@ void simulateStaticTrainMovement(float acc, float decc) {
       phase = "Accelerating";
       calculatePoweringForce(acc);
       calculateTotalForce(v);
-      acc = c * f_total / m_totalInertial;
+      acc = cV * f_total / m_totalInertial;
       v++;
     } else if (isCoasting) {
       if (v <= (v_limit - v_diffCoast)) {
@@ -452,13 +448,13 @@ void simulateStaticTrainMovement(float acc, float decc) {
       phase = "Coasting";
       f_motor = 0;
       f_total = -f_resRunning;
-      acc = c * f_total / m_totalInertial;
+      acc = cV * f_total / m_totalInertial;
       v++;
     } else {
       phase = "Braking";
       calculateStoppingForce(decc);
       calculateTotalBrakeForce();
-      decc = c * f_total / m_totalInertial;
+      decc = cV * f_total / m_totalInertial;
       v++;
       if (v <= 0)
         break;
@@ -476,28 +472,34 @@ void simulateStaticTrainMovement(float acc, float decc) {
             << "," << (v > 0 ? f_resRunning : f_resStart) << "," << f_total
             << "\n";
 
-    cout << "\nIteration : " << i + 1 << endl;
-    cout << "Phase: " << phase << endl;
-    cout << "Speed : " << v << " km/h" << endl;
-    cout << "Force motor : " << f_motor << " kN" << endl;
-    cout << "Force total : " << f_total << " kN" << endl;
-    if (isAccelerating) {
-      cout << "Acceleration : " << acc << " km/h/s" << endl;
-    } else {
-      cout << "Deceleration : " << decc << " km/h/s" << endl;
-    }
+    // cout << "\nIteration : " << i + 1 << endl;
+    // cout << "Phase: " << phase << endl;
+    // cout << "Speed : " << v << " km/h" << endl;
+    // cout << "Force motor : " << f_motor << " kN" << endl;
+    // cout << "Force total : " << f_total << " kN" << endl;
+    // if (isAccelerating) {
+    //   cout << "Acceleration : " << acc << " km/h/s" << endl;
+    // } else {
+    //   cout << "Deceleration : " << decc << " km/h/s" << endl;
+    // }
     i++;
   }
 }
 
 void simulateTrainMovement(float acc, float decc) {
+  string option;
+  string filename;
+  cout << "Mau yang statis atau dinamis? (s/d)" << endl;
+  cin >> option;
+  option == "d" ? filename = "dynamic_train_simulation.csv"
+                : filename = "static_train_simulation.csv";
+  std::ofstream outFile(filename, std::ios::app);
   if (i == 0) {
     outFile
         << "Phase,Iteration,Time,Speed,Acceleration,F_motor,F_res,F_total\n";
   }
-
-  // simulateDynamicTrainMovement(acc, decc);
-  simulateStaticTrainMovement(acc, decc);
+  option == "d" ? simulateDynamicTrainMovement(acc, decc, outFile)
+                : simulateStaticTrainMovement(acc, decc, outFile);
 
   outFile << "Stopped" << "," << i + 1 << "," << time << "," << 0 << "," << 0
           << "," << f_motor << "," << (v > 0 ? f_resRunning : f_resStart) << ","
@@ -508,5 +510,6 @@ void simulateTrainMovement(float acc, float decc) {
 int main() {
   inputData();
   simulateTrainMovement(acc_start, decc_start);
+  cout << "Simulation complete!";
   return 0;
 }
