@@ -224,6 +224,13 @@ void initTrainMassDataCsvDatas() {
   outFile.close();
 }
 
+void saveAdhesionCsv() {
+  std::ofstream outFile("adhesion_train_simulation.csv", std::ios::app);
+  outFile << "adhesion\n";
+  outFile << tm_adh << "\n";
+  outFile.close();
+}
+
 void countTrainMass() {
   string answer;
   cout << "Manual data input? (y/n)" << endl;
@@ -470,24 +477,24 @@ void simulateStaticTrainMovement(float acc, float decc, ofstream &outFile) {
     tm_f_res = calculateResForcePerMotorCar(v > 0 ? f_resRunning : f_resStart);
     tm_f = calculateTractionForce(f_motor);
     tm_t = calculateTorque(f_motor);
-    tm_adh = calculateAdhesion();
     acc = cV * f_total / m_totalInertial;
     v++;
     tm_rpm = calculateRpm(v);
     if (i == 0) {
+      tm_adh = calculateAdhesion();
       outFile << "Starting" << "," << i << "," << time << "," << 0 << "," << acc
               << "," << f_motor << "," << f_resStart << "," << f_total << ","
               << tm_f_res << "," << tm_f << "," << tm_t << "," << 0 << ","
-              << tm_adh << "\n";
+              << "\n";
     }
     time += dt;
     outFile << phase << "," << i + 1 << "," << time << "," << v << "," << acc
             << "," << f_motor << "," << (v > 0 ? f_resRunning : f_resStart)
             << "," << f_total << "," << tm_f_res << "," << tm_f << "," << tm_t
-            << "," << tm_rpm << "," << tm_adh << "\n";
-
+            << "," << tm_rpm << "," << "\n";
     i++;
   }
+  saveAdhesionCsv();
 }
 
 void simulate(float acc, float decc) {
@@ -500,7 +507,7 @@ void simulate(float acc, float decc) {
   std::ofstream outFile(filename, std::ios::app);
   if (i == 0) {
     outFile << "Phase,Iteration,Time,Speed,Acceleration,F motor,F res,F "
-               "total,F motor/TM,F res/TM,Torque,RPM,Adhesion \n";
+               "total,F motor/TM,F res/TM,Torque,RPM \n";
   }
   option == "d" ? simulateDynamicTrainMovement(acc, decc, outFile)
                 : simulateStaticTrainMovement(acc, decc, outFile);
