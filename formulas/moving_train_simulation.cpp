@@ -87,7 +87,6 @@ float decc;
 
 // float n;
 float load;
-
 float numberOfCar;
 int i = 0;
 int tm_n = 24;
@@ -243,7 +242,7 @@ void countTrainMass() {
     countMassLoadInput();
     countInertialMassInput();
   }
-  initTrainMassDataCsvDatas();
+  // initTrainMassDataCsvDatas();
 }
 
 void initData() {
@@ -260,6 +259,8 @@ void initData() {
   v_p2 = 65;
   v_b1 = 55;
   v_b2 = 70;
+  gearRatio = 3.0;
+  wheel = 500.0;
 
   cout << "Start resistance : " << startRes << endl;
   cout << "Radius : " << radius << endl;
@@ -302,7 +303,7 @@ double calculateRunningRes(float v) {
   return r_run + r_slope + r_radius;
 }
 
-void calculatePoweringForce(float acc) {
+void calculatePoweringForce(float acc, float v) {
   if (v <= 0) {
     f_start = m_totalInertial * (acc / cV) + f_resStart;
   }
@@ -313,7 +314,6 @@ void calculatePoweringForce(float acc) {
   } else if (v > v_p2) {
     f_motor = (f_start * v_p1 * v_p2) / (v * v);
   }
-  // cout << "Resistance due to force : " << f_motor << " kN" << endl;
 }
 
 void calculateStoppingForce(float decc) {
@@ -358,17 +358,14 @@ void calculateBrakingValue() {
 double calculateTractionForce(double f_motor) { return (f_motor / tm_n); }
 
 double calculateTorque(double f_motor) {
-  // tm_t
   return ((f_motor * (wheel / (2 * 1000))) / gearRatio);
 }
 
 double calculateRpm(double v) {
-  // tm_rpm
   return ((v * 1000 / 60) * gearRatio) / ((M_PI * wheel) / 1000);
 }
 
 double calculateAdhesion() {
-  // tm_adh
   return ((tm_f * cF) / (((m_M1 + m_M2) * 1000) / n_ax));
 }
 
@@ -397,7 +394,7 @@ void simulateDynamicTrainMovement(float acc, float decc, ofstream &outFile) {
         continue;
       }
       phase = "Accelerating";
-      calculatePoweringForce(acc);
+      calculatePoweringForce(acc, v);
       calculateTotalForce(v);
       acc = cV * f_total / m_totalInertial;
       v += acc * dt;
@@ -464,48 +461,31 @@ void simulateStaticTrainMovement(float acc, float decc, ofstream &outFile) {
   float time = 0;
   string phase;
   int coastingCount = 0;
-  // while (v >= 0 && f_total >= 0) {
+  phase = "Accelerating";
   while (v <= v_limit) {
-    // if (v >= v_limit) {
-    //   isAccelerating = false;
-    //   isCoasting = true;
-    //   phase = "Coasting";
-    //   continue;
-    // }
     f_resStart = calculateStartRes();
     f_resRunning = calculateRunningRes(v);
-    tm_f_res = calculateResForcePerMotorCar(v > 0 ? f_resRunning : f_resStart);
-    phase = "Accelerating";
-    calculatePoweringForce(acc);
+    calculatePoweringForce(acc, v);
     calculateTotalForce(v);
+    tm_f_res = calculateResForcePerMotorCar(v > 0 ? f_resRunning : f_resStart);
     tm_f = calculateTractionForce(f_motor);
     tm_t = calculateTorque(f_motor);
-    tm_rpm = calculateRpm(v);
     tm_adh = calculateAdhesion();
     acc = cV * f_total / m_totalInertial;
     v++;
+    tm_rpm = calculateRpm(v);
     if (i == 0) {
       outFile << "Starting" << "," << i << "," << time << "," << 0 << "," << acc
               << "," << f_motor << "," << f_resStart << "," << f_total << ","
-              << tm_f_res << "," << tm_f << "," << tm_adh << "\n";
+              << tm_f_res << "," << tm_f << "," << tm_t << "," << 0 << ","
+              << tm_adh << "\n";
     }
     time += dt;
-    // Simpan data ke file CSV
     outFile << phase << "," << i + 1 << "," << time << "," << v << "," << acc
             << "," << f_motor << "," << (v > 0 ? f_resRunning : f_resStart)
-            << "," << f_total << "," << tm_f_res << "," << tm_f << "," << tm_adh
-            << "\n";
+            << "," << f_total << "," << tm_f_res << "," << tm_f << "," << tm_t
+            << "," << tm_rpm << "," << tm_adh << "\n";
 
-    // cout << "\nIteration : " << i + 1 << endl;
-    // cout << "Phase: " << phase << endl;
-    // cout << "Speed : " << v << " km/h" << endl;
-    // cout << "Force motor : " << f_motor << " kN" << endl;
-    // cout << "Force total : " << f_total << " kN" << endl;
-    // if (isAccelerating) {
-    //   cout << "Acceleration : " << acc << " km/h/s" << endl;
-    // } else {
-    //   cout << "Deceleration : " << decc << " km/h/s" << endl;
-    // }
     i++;
   }
 }
@@ -513,14 +493,14 @@ void simulateStaticTrainMovement(float acc, float decc, ofstream &outFile) {
 void simulate(float acc, float decc) {
   string option;
   string filename;
-  cout << "Mau yang statis atau dinamis? (s/d)" << endl;
+  cout << "Which simulation? static or dynamic (s/d)" << endl;
   cin >> option;
   option == "d" ? filename = "dynamic_train_simulation.csv"
                 : filename = "static_train_simulation.csv";
   std::ofstream outFile(filename, std::ios::app);
   if (i == 0) {
     outFile << "Phase,Iteration,Time,Speed,Acceleration,F motor,F res,F "
-               "total,F motor/TM,F res/TM,Adhesion \n";
+               "total,F motor/TM,F res/TM,Torque,RPM,Adhesion \n";
   }
   option == "d" ? simulateDynamicTrainMovement(acc, decc, outFile)
                 : simulateStaticTrainMovement(acc, decc, outFile);
