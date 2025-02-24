@@ -18,7 +18,7 @@ void ElectricalParameterPage::createInputs() {
                         "Power Factor of Traction Motor",
                         "Motor Voltage",
                         "Efficiency of Gearbox",
-                        "Efficiancy of VVVF",
+                        "Efficiency of VVVF",
                         "Auxiliary Power",
                         "Efficiency of Traction Motor"};
   for (int i = 0; i < labels.size(); i++) {
