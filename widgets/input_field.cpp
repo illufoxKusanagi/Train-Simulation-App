@@ -10,19 +10,26 @@ InputField::InputField(const QString &unitText, QWidget *parent)
   layout->addWidget(m_input);
   layout->addWidget(m_unitLabel);
 
-  m_input->setStyleSheet("min-width: 32px; max-width: 64px; padding: 4px 12px; "
-                         "border: 1px solid " +
+  m_input->setStyleSheet("padding: 4px 12px; border: 1px solid " +
                          Colors::Secondary400.name() + "; border-radius: 8px;" +
                          TextStyle::BodySmallRegular() +
                          "color: " + Colors::Secondary400.name() + ";");
+  m_input->setFixedSize(128, 24);
   m_unitLabel->setStyleSheet(TextStyle::BodySmallRegular() +
                              "color: " + Colors::Secondary700.name() + ";");
 }
 
 QString InputField::text() const { return m_input->text(); }
 
-double setValue(double value) { return value; }
+double InputField::setValue(double value) {
+  m_input->setText(QString::number(value));
+  return value;
+}
 
-void InputField::setPlaceholder(const QString &placeholder) {
-  m_input->setPlaceholderText(placeholder);
+void InputField::setPlaceholder() {
+  m_input->setPlaceholderText("enter value...");
+}
+
+void InputField::setReadOnly(bool isReadOnly) {
+  m_input->setReadOnly(isReadOnly);
 }

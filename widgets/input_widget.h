@@ -23,8 +23,13 @@ public:
 
 private:
   QLabel *m_label;
-  QWidget *m_inputField;
+  InputField *m_inputField;
+  InputDropdown *m_inputDropdown;
+  InputUpload *m_inputUpload;
+  InputInvalid *m_inputInvalid;
   void setPlaceholder(const QString &placeholder);
+  void setValue(double value);
+  void getValue();
 };
 
 #endif // INPUTWIDGET_H

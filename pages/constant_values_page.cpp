@@ -10,12 +10,17 @@ ConstantValuesPage::ConstantValuesPage(QWidget *parent) : QWidget(parent) {
 
   QStringList labels = {"Gravitation", "m/s to km/h"};
   QStringList unitLabels = {"m/s^2", "km/h"};
-  InputType gravitationInputType("field", "Gravitation", "m/s^2");
-  InputType converterInputType("field", "m/s to km/h", "km/h");
+  InputType gravitationInputType("field", "Gravitation", "m/s^2", 9.8, true);
+  InputType speedConverterInputType("field", "m/s to km/h", "", 3.6, true);
+  InputType forceConverterInputType("field", "kW to kgf", "", 101.972, true);
   InputWidget *gravitationInput = new InputWidget(gravitationInputType, this);
-  InputWidget *converterInput = new InputWidget(converterInputType, this);
+  InputWidget *speedConverterInput =
+      new InputWidget(speedConverterInputType, this);
+  InputWidget *forceConverterInput =
+      new InputWidget(forceConverterInputType, this);
   groupBoxLayout->addWidget(gravitationInput);
-  groupBoxLayout->addWidget(converterInput);
+  groupBoxLayout->addWidget(speedConverterInput);
+  groupBoxLayout->addWidget(forceConverterInput);
 
   formLayout->setLayout(groupBoxLayout);
   mainLayout->addWidget(formLayout);
