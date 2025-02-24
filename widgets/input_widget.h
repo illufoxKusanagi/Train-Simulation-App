@@ -24,6 +24,7 @@ public:
 private:
   QLabel *m_label;
   QWidget *m_inputField;
+  void setPlaceholder(const QString &placeholder);
 };
 
 #endif // INPUTWIDGET_H

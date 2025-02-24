@@ -20,3 +20,9 @@ InputField::InputField(const QString &unitText, QWidget *parent)
 }
 
 QString InputField::text() const { return m_input->text(); }
+
+double setValue(double value) { return value; }
+
+void InputField::setPlaceholder(const QString &placeholder) {
+  m_input->setPlaceholderText(placeholder);
+}

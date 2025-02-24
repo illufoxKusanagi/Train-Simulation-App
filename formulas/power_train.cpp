@@ -27,9 +27,9 @@ float dt = 0.5;
 
 void inputData() {
   v = 72;
-  eff_gear = 0.34;
-  eff_motor = 0.14;
-  eff_vvvf = 0.4;
+  eff_gear = 0.98;
+  eff_motor = 0.89;
+  eff_vvvf = 0.96;
   f_motor = 115.881;
   p_aps = 30;
   cout << "Speed : " << v << " km/h" << endl;

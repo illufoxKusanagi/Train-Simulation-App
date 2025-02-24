@@ -284,9 +284,9 @@ void initData() {
   v_b2 = 70;
   gearRatio = 3.0;
   wheel = 500.0;
-  eff_gear = 0.34;
-  eff_motor = 0.14;
-  eff_vvvf = 0.4;
+  eff_gear = 0.98;
+  eff_motor = 0.89;
+  eff_vvvf = 0.96;
   p_aps = 30;
 
   cout << "Start resistance : " << startRes << endl;

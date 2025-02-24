@@ -1,7 +1,7 @@
 #include "input_widget.h"
 
 InputWidget::InputWidget(const InputType &inputType, QWidget *parent)
-    : QWidget(parent) {
+    : QWidget(parent), m_inputField(nullptr) {
   QVBoxLayout *layout = new QVBoxLayout(this);
 
   m_label = new QLabel(inputType.label, this);
