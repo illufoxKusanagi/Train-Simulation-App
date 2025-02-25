@@ -19,8 +19,6 @@ InputField::InputField(const QString &unitText, QWidget *parent)
                              "color: " + Colors::Secondary700.name() + ";");
 }
 
-QString InputField::text() const { return m_input->text(); }
-
 double InputField::setValue(double value) {
   m_input->setText(QString::number(value));
   return value;
