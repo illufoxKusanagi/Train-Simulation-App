@@ -13,6 +13,8 @@ LeftPanel::LeftPanel(QWidget *parent)
   m_buttonLayout->setAlignment(Qt::AlignCenter);
   m_buttonLayout->addWidget(m_buttonToggle);
 
+  m_trainSimulation = new TrainSimulation(this);
+
   connect(m_buttonToggle, &QPushButton::clicked, this, [this]() {
     m_isCollapsed = !m_isCollapsed;
     m_inputPanel->toggleCollapse(m_isCollapsed);
@@ -52,6 +54,10 @@ void LeftPanel::createRunButton() {
   runButtonLayout->setAlignment(Qt::AlignCenter);
   runButtonLayout->addWidget(runButton);
   runButtonLayout->addWidget(runStaticButton);
+  connect(runButton, &ButtonAction::clicked, this,
+          [this]() { m_trainSimulation->simulateDynamicTrainMovement(); });
+  connect(runStaticButton, &ButtonAction::clicked, this,
+          [this]() { m_trainSimulation->simulateStaticTrainMovement(); });
   m_buttonLayout->addWidget(runButtonWidget);
 }
 void LeftPanel::setupInputPageButtons() {

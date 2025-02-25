@@ -38,19 +38,19 @@ struct MassData {
 
 struct LoadData {
   float load;
-  float n_M1;
-  float n_M2;
-  float n_Tc;
-  float n_T1;
-  float n_T2;
-  float n_T3;
+  int n_M1;
+  int n_M2;
+  int n_Tc;
+  int n_T1;
+  int n_T2;
+  int n_T3;
   float m_P;
-  float n_PM1;
-  float n_PM2;
-  float n_PTc;
-  float n_PT1;
-  float n_PT2;
-  float n_PT3;
+  int n_PM1;
+  int n_PM2;
+  int n_PTc;
+  int n_PT1;
+  int n_PT2;
+  int n_PT3;
 };
 
 struct ResistanceData {

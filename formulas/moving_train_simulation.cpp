@@ -362,26 +362,6 @@ void calculateTotalForce(float v) {
 
 void calculateTotalBrakeForce() { f_total = f_motor; }
 
-void calculateBrakingValue() {
-  i = 0;
-  while (v > 0) {
-    f_resStart = calculateStartRes();
-    f_resRunning = calculateRunningRes(v);
-    // calculateBrakingForce();
-    calculateTotalBrakeForce();
-    decc = cV * f_total / m_totalInertial;
-    v += decc * dt;
-    i++;
-
-    cout << "Iteration " << i << endl;
-    cout << "Braking force : " << f_brake << " kN" << endl;
-    cout << "Motor force : " << f_motor << " kN" << endl;
-    cout << "Total force : " << f_total << " kN" << endl;
-    cout << "Decceleration : " << decc << " km/h/s" << endl;
-    cout << "Speed : " << v << " km/h" << endl;
-  }
-}
-
 double calculateTractionForce(double f_motor) { return (f_motor / tm_n); }
 
 double calculateTorque(double f_motor) {
