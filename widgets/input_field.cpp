@@ -14,7 +14,7 @@ InputField::InputField(const QString &unitText, QWidget *parent)
                          Colors::Secondary400.name() + "; border-radius: 8px;" +
                          TextStyle::BodySmallRegular() +
                          "color: " + Colors::Secondary400.name() + ";");
-  m_input->setFixedSize(128, 24);
+  m_input->setFixedSize(128, 32);
   m_unitLabel->setStyleSheet(TextStyle::BodySmallRegular() +
                              "color: " + Colors::Secondary700.name() + ";");
 }
