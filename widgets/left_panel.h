@@ -1,6 +1,8 @@
 #ifndef LEFT_PANEL_H
 #define LEFT_PANEL_H
 
+#include "../models/train_data.h"
+#include "../models/train_simulation.h"
 #include "../widgets/button_action.h"
 #include "button_sidebar_active.h"
 #include "button_toggle.h"
@@ -8,7 +10,6 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
-
 
 class LeftPanel : public QWidget {
   Q_OBJECT
@@ -29,6 +30,7 @@ private:
   QVBoxLayout *m_buttonLayout;
   LeftPanelInputs *m_inputPanel;
   LeftPanelInputs *m_outputPanel;
+  TrainSimulation *m_trainSimulation;
 
   int getCurrentIndex() const { return m_currentIndex; }
   void setCurrentIndex(int index) { m_currentIndex = index; }
