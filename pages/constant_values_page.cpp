@@ -7,24 +7,26 @@ ConstantValuesPage::ConstantValuesPage(QWidget *parent) : QWidget(parent) {
   formLayout->setContentsMargins(16, 16, 16, 16);
   QVBoxLayout *groupBoxLayout = new QVBoxLayout(formLayout);
   groupBoxLayout->setContentsMargins(16, 16, 16, 16);
-  ConstantValues constantValues;
 
   QStringList labels = {"Gravitation", "m/s to km/h"};
   QStringList unitLabels = {"m/s^2", "km/h"};
-  InputType gravitationInputType("field", "Gravitation", "m/s^2",
-                                 constantValues.getGravitation(), true);
-  InputType speedConverterInputType("field", "m/s to km/h", "",
-                                    constantValues.getSpeedConverter(), true);
-  InputType forceConverterInputType("field", "kW to kgf", "",
-                                    constantValues.getForceConverter(), true);
+  InputType gravitationInputType("field", "Gravitation", "m/s^2", constants.g,
+                                 true);
+  InputType speedConverterInputType("field", "m/s to km/h", "", constants.cV,
+                                    true);
+  InputType forceConverterInputType("field", "kW to kgf", "", constants.cF,
+                                    true);
+  InputType timeStepInputType("field", "Time Step", "s", constants.dt, true);
   InputWidget *gravitationInput = new InputWidget(gravitationInputType, this);
   InputWidget *speedConverterInput =
       new InputWidget(speedConverterInputType, this);
   InputWidget *forceConverterInput =
       new InputWidget(forceConverterInputType, this);
+  InputWidget *timeStepInput = new InputWidget(timeStepInputType, this);
   groupBoxLayout->addWidget(gravitationInput);
   groupBoxLayout->addWidget(speedConverterInput);
   groupBoxLayout->addWidget(forceConverterInput);
+  groupBoxLayout->addWidget(timeStepInput);
 
   formLayout->setLayout(groupBoxLayout);
   mainLayout->addWidget(formLayout);

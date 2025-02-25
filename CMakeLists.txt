@@ -82,8 +82,9 @@ set(WIDGET_SOURCES
 
 # Models
 set(RESOURCE_SOURCES
-    models/constant_values.h
-    models/constant_values.cpp
+    models/train_data.h
+    models/train_simulation.h
+    models/train_simulation.cpp
 )
 
 # Styles and Resources

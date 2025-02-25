@@ -5,7 +5,7 @@ r_    : Resistance due to... value in kN (e.g., r_train = train resistance)
 f_    : Force value in kN (e.g., f_motor = motor force)
 v_    : Velocity/speed value in km/h (e.g., v_b1 = braking point 1 on certain speed)
 i_    : Inertial related value (e.g., i_Cm = inertial coefficient motor)
-tm_   : Motor per traction motor (e.g., tm_f = traction force of motor per traction motor)
+tm_   : Motor per traction motor/Traction motor (e.g., tm_f = traction force of motor per traction motor)
 x_    : Distance related value in m (e.g., s_section = section distance)
 p_    : Power related value in kW (e.g., p_wheel = power at wheel)
 e_    : Energy consumption related value in kW (e.g., e_regen = energy of regenerative, e_motor = energy consumption of traction motor)
@@ -14,7 +14,6 @@ vol_  : Voltage related value in Volt (e.g., vol_motor = motor voltage)
 curr_ : RMS Current related value in Ampere (e.g., curr_vvvf = RMS VVVF Current)
 
 GENERIC VARIABLES:
-n         : Number of Car
 notch     : Notch position (-1 to 1)
 load      : Load per car (ton)
 acc       : Acceleration (km/h/s)
@@ -41,6 +40,7 @@ m_totalLoad     : Total loaded mass of train
 m_totalInertial : Total inertial mass of train
 n_PTc           : Number of passengers per trailer car
 n_M1            : Number of Motor car 1
+n_ax            : Number of Axle
 f_res           : Resistance force
 f_brake         : Braking force
 r_train         : Resistance due to train itself at start
