@@ -27,9 +27,9 @@ float dt = 0.5;
 
 void inputData() {
   v = 72;
-  eff_gear = 0.34;
-  eff_motor = 0.14;
-  eff_vvvf = 0.4;
+  eff_gear = 0.98;
+  eff_motor = 0.89;
+  eff_vvvf = 0.96;
   f_motor = 115.881;
   p_aps = 30;
   cout << "Speed : " << v << " km/h" << endl;
@@ -53,25 +53,25 @@ void calculatePowerOfCatenary() { p_catenary = p_vvvfIn + p_aps; }
 
 void calculateEnergyMotorConsumption() {
   for (int i = 0; i < t; i++)
-    e_motor += (p_motorOut * t / 3600) * dt;
+    e_motor += (p_motorOut / 3600) * dt;
   cout << "Calculate Energy of Motor Consumption for 0 to 10 second" << endl;
 }
 
 void calculateEnergyOfPowering() {
   for (int i = 0; i < t; i++)
-    f_pow += (p_vvvfIn * t / 3600) * dt;
+    f_pow += (p_vvvfIn / 3600) * dt;
   cout << "Calculate Energy of Powering for 0 to 10 second" << endl;
 }
 
 void calculateEnergyRegeneration() {
   for (int i = 0; i < t; i++)
-    e_reg += (p_vvvfIn * t / 3600) * dt;
+    e_reg += (p_vvvfIn / 3600) * dt;
   cout << "Calculate Energy of Regenerative for 0 to 10 second" << endl;
 }
 
 void calculateEnergyOfAps() {
   for (int i = 0; i < t; i++)
-    e_aps += (p_aps * t / 3600) * dt;
+    e_aps += (p_aps / 3600) * dt;
   cout << "Calculate Energy of APS for 0 to 10 second" << endl;
 }
 

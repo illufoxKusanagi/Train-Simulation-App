@@ -11,7 +11,9 @@ class InputField : public QWidget {
   Q_OBJECT
 public:
   explicit InputField(const QString &unitText = "", QWidget *parent = nullptr);
-  QString text() const;
+  double setValue(double value);
+  void setPlaceholder();
+  void setReadOnly(bool isReadOnly);
 
 private:
   QLineEdit *m_input;

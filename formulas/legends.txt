@@ -10,6 +10,7 @@ x_    : Distance related value in m (e.g., s_section = section distance)
 p_    : Power related value in kW (e.g., p_wheel = power at wheel)
 e_    : Energy consumption related value in kW (e.g., e_regen = energy of regenerative, e_motor = energy consumption of traction motor)
 eff_  : Efficiency related value in % (e.g., eff_gear = efficiency of gearbox)
+vol_  : Voltage related value in Volt (e.g., vol_motor = motor voltage)
 curr_ : RMS Current related value in Ampere (e.g., curr_vvvf = RMS VVVF Current)
 
 GENERIC VARIABLES:
