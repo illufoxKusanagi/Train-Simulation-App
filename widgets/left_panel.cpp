@@ -8,7 +8,7 @@ LeftPanel::LeftPanel(QWidget *parent)
 
   QWidget *buttonContainer = new QWidget(this);
   m_buttonLayout = new QVBoxLayout(buttonContainer);
-  m_buttonLayout->setContentsMargins(8, 16, 8, 16);
+  m_buttonLayout->setContentsMargins(8, 8, 8, 8);
   m_buttonLayout->setSpacing(8);
   m_buttonLayout->setAlignment(Qt::AlignCenter);
   m_buttonLayout->addWidget(m_buttonToggle);

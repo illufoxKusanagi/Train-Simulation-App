@@ -23,7 +23,7 @@ TrainParameterPage::TrainParameterPage(QWidget *parent)
                   "top: -8px;"
                   "}";
   setStyleSheet("position: relative;");
-  mainLayout->setAlignment(Qt::AlignCenter);
+  mainLayout->setAlignment(Qt::AlignVCenter);
   mainLayout->setContentsMargins(32, 16, 32, 16);
   mainLayout->setSpacing(0);
   setLayout(mainLayout);
@@ -53,8 +53,8 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
   QGridLayout *formLayout = new QGridLayout(firstPageWidget);
   formLayout->setAlignment(Qt::AlignCenter);
   formLayout->setContentsMargins(16, 16, 16, 16);
-  formLayout->setHorizontalSpacing(64);
-  formLayout->setVerticalSpacing(24);
+  formLayout->setHorizontalSpacing(128);
+  formLayout->setVerticalSpacing(32);
 
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =

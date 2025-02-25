@@ -80,8 +80,15 @@ set(WIDGET_SOURCES
     widgets/chart_widget.cpp
 )
 
-# Styles and Resources
+# Models
 set(RESOURCE_SOURCES
+    models/train_data.h
+    models/train_simulation.h
+    models/train_simulation.cpp
+)
+
+# Styles and Resources
+set(MODEL_SOURCES
     styles/colors.h
     styles/text_style.h
     resources/input_type.h
@@ -95,10 +102,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         ${PAGE_SOURCES}
         ${WIDGET_SOURCES}
+        ${MODEL_SOURCES}
         ${RESOURCE_SOURCES}
     )
-
-# ...existing code...
 
 # Define target properties for Android with Qt 6 as:
 # set_property(TARGET TrainAppSimulation APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
