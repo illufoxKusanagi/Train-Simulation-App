@@ -521,7 +521,7 @@ void simulateStaticTrainMovement(float acc, float decc, ofstream &outFile) {
     tm_f = calculateTractionForce(f_motor);
     tm_t = calculateTorque(f_motor);
     acc = cV * f_total / m_totalInertial;
-    v++;
+    v += 0.5;
     tm_rpm = calculateRpm(v);
     if (i == 0) {
       tm_adh = calculateAdhesion();

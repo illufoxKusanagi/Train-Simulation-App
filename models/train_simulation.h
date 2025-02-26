@@ -9,12 +9,16 @@
 
 class TrainSimulation : public QObject {
   Q_OBJECT
-public:
-  explicit TrainSimulation(QObject *parent = nullptr);
+
+signals:
+  void simulationCompleted();
 
 public slots:
   void simulateStaticTrainMovement();
   void simulateDynamicTrainMovement();
+
+public:
+  explicit TrainSimulation(QObject *parent = nullptr);
 
 private:
   ConstantData constantData;
