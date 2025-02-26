@@ -40,9 +40,10 @@ private:
   void showNextPage();
   void updatePaginationButtons();
 
-  QGroupBox *createTypeLayout(const QStringList &labels);
-  QGroupBox *createMassLayout(const QStringList &labels);
-  QGroupBox *createPassengerLayout(const QStringList &labels);
+  QGroupBox *createTypeLayout(const QStringList &labels, QList<double> values);
+  QGroupBox *createMassLayout(const QStringList &labels, QList<double> values);
+  QGroupBox *createPassengerLayout(const QStringList &labels,
+                                   QList<double> values);
 };
 
 #endif // TRAINPARAMETERPAGE_H

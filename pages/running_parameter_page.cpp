@@ -27,10 +27,13 @@ void RunningParameterPage::createInputs() {
   };
   QStringList unitLabels = {"",      "km/h", "m/s^2", "km/h",
                             "m/s^2", "km/h", "km/h",  "km/h"};
+  QList<double> values = {39.2, 35, 1, 65, 1, 1, 5, 70};
 
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
         new InputWidget(InputType("field", labels[i], unitLabels[i]), this);
+    inputWidget->setValue(values[i]);
     m_inputsLayout->addWidget(inputWidget, i / 2, i % 2);
+    m_inputWidgets[labels[i]] = inputWidget;
   }
 }

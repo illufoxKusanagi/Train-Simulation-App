@@ -7,17 +7,17 @@ TrainSimulation::TrainSimulation(QObject *parent) : QObject(parent) {
 }
 
 void TrainSimulation::initTrainMassData() {
+  loadData.n_Tc = 2;
   loadData.n_M1 = 3;
   loadData.n_M2 = 3;
+  loadData.n_T1 = 2;
+  loadData.n_T2 = 1;
+  loadData.n_T3 = 1;
   massData.m_M1 = 20.0;
   massData.m_M2 = 20.0;
-  loadData.n_Tc = 2;
   massData.m_TC = 10.0;
-  loadData.n_T1 = 2;
   massData.m_T1 = 10.0;
-  loadData.n_T2 = 1;
   massData.m_T2 = 10.0;
-  loadData.n_T3 = 1;
   massData.m_T3 = 10.0;
   loadData.n_PM1 = 200;
   loadData.n_PM2 = 200;
