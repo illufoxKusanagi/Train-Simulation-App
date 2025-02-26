@@ -2,6 +2,7 @@
 
 #define _USE_MATH_DEFINES
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -411,6 +412,7 @@ void calculateEnergyOfAps(float time) {
 }
 
 void simulateDynamicTrainMovement(float acc, float decc, ofstream &outFile) {
+  auto startTime = std::chrono::high_resolution_clock::now();
   i = 0;
   bool isAccelerating = true;
   bool isCoasting = false;
@@ -501,6 +503,11 @@ void simulateDynamicTrainMovement(float acc, float decc, ofstream &outFile) {
           << p_motorOut << "," << p_motorIn << "," << p_vvvfIn << ","
           << p_catenary << "," << e_motor << "," << e_pow << "," << e_reg << ","
           << e_aps << "\n";
+  auto endTime = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+      endTime - startTime);
+  cout << "Dynamic train simulation completed in: " << duration.count()
+       << " ms (" << (duration.count() / 1000.0) << " seconds)" << endl;
 }
 
 void simulateStaticTrainMovement(float acc, float decc, ofstream &outFile) {

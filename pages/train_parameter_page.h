@@ -16,10 +16,15 @@ class TrainParameterPage : public QWidget {
 
 public:
   explicit TrainParameterPage(QWidget *parent = nullptr);
+  double getParameterValue(const QString &paramName);
 
 private:
   QVBoxLayout *mainLayout;
   QStackedWidget *stackedWidget;
+  QMap<QString, InputWidget *> m_inputWidgets;
+  QMap<QString, InputWidget *> m_typeInputWidgets;
+  QMap<QString, InputWidget *> m_massInputWidgets;
+  QMap<QString, InputWidget *> m_passengerInputWidgets;
   QList<InputWidget *> inputWidgets;
   QList<InputWidget *> typeInputWidgets;
   QList<InputWidget *> massInputWidgets;

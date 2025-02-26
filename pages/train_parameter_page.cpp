@@ -49,6 +49,7 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
                         "Load per Car (ton)"};
 
   QStringList unitLabels = {"", "", "", "", "mm", "kg", "", "ton"};
+  QList<double> values = {1.2, 4, 1.2, 24, 500, 70, 3.0, 0.0};
 
   QGridLayout *formLayout = new QGridLayout(firstPageWidget);
   formLayout->setAlignment(Qt::AlignCenter);
@@ -59,7 +60,9 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
         new InputWidget(InputType("field", labels[i], unitLabels[i]), this);
+    inputWidget->setValue(values[i]);
     formLayout->addWidget(inputWidget, i / 2, i % 2);
+    m_inputWidgets[labels[i]] = inputWidget;
   }
 }
 
@@ -180,4 +183,11 @@ void TrainParameterPage::showNextPage() {
     stackedWidget->setCurrentIndex(stackedWidget->currentIndex() + 1);
     updatePaginationButtons();
   }
+}
+
+double TrainParameterPage::getParameterValue(const QString &paramName) {
+  if (m_inputWidgets.contains(paramName)) {
+    return m_inputWidgets[paramName]->getValue();
+  }
+  return 0.0;
 }
