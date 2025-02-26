@@ -41,6 +41,7 @@ void TrainSimulation::initData() {
   movingData.acc_start = 1.0;
   movingData.decc_start = 1.0;
   movingData.v_limit = 70.0;
+  movingData.v_diffCoast = 5.0;
   movingData.v = 0.0;
   movingData.v_p1 = 35;
   movingData.v_p2 = 65;
@@ -261,11 +262,12 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   QString phase;
   int coastingCount = 0;
   movingData.v = 0.0;
+  movingData.acc = movingData.acc_start;
   while (movingData.v >= 0) {
     resistanceData.f_resStart = calculateStartRes();
     resistanceData.f_resRunning = calculateRunningRes(movingData.v);
     if (isAccelerating) {
-      if (movingData.v <= movingData.v_limit) {
+      if (movingData.v >= movingData.v_limit) {
         isAccelerating = false;
         isCoasting = true;
         phase = "Coasting";
@@ -299,7 +301,10 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       calculateBrakingForce();
       resistanceData.f_brake = calculateTotalBrakeForce();
 
-      if (movingData.v)
+      movingData.decc =
+          constantData.cV * resistanceData.f_total / massData.m_totalInertial;
+      movingData.v += movingData.decc * constantData.dt;
+      if (movingData.v <= 0)
         break;
     }
     trainMotorData.tm_f_res = calculateResistanceForcePerMotor(
@@ -333,7 +338,8 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     time += constantData.dt;
     qDebug() << "Phase: " << phase << "\nIteration: " << i + 1
              << "\nTime: " << time << "\nVelocity: " << movingData.v
-             << "\nAcceleration: " << movingData.acc
+             << "\nAcceleration: "
+             << (phase == "Braking" ? movingData.decc : movingData.acc)
              << "\nMotor Force: " << resistanceData.f_motor
              << "\nSpeed: " << movingData.v << "\nResistance: "
              << (movingData.v > 0 ? resistanceData.f_resRunning
