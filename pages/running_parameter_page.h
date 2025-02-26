@@ -16,6 +16,7 @@ private:
   QVBoxLayout *mainLayout;
   QWidget *m_formLayout;
   QGridLayout *m_inputsLayout;
+  QMap<QString, InputWidget *> m_inputWidgets;
   void createInputs();
 };
 

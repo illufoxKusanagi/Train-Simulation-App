@@ -16,10 +16,15 @@ class TrainParameterPage : public QWidget {
 
 public:
   explicit TrainParameterPage(QWidget *parent = nullptr);
+  double getParameterValue(const QString &paramName);
 
 private:
   QVBoxLayout *mainLayout;
   QStackedWidget *stackedWidget;
+  QMap<QString, InputWidget *> m_inputWidgets;
+  QMap<QString, InputWidget *> m_typeInputWidgets;
+  QMap<QString, InputWidget *> m_massInputWidgets;
+  QMap<QString, InputWidget *> m_passengerInputWidgets;
   QList<InputWidget *> inputWidgets;
   QList<InputWidget *> typeInputWidgets;
   QList<InputWidget *> massInputWidgets;
@@ -35,9 +40,10 @@ private:
   void showNextPage();
   void updatePaginationButtons();
 
-  QGroupBox *createTypeLayout(const QStringList &labels);
-  QGroupBox *createMassLayout(const QStringList &labels);
-  QGroupBox *createPassengerLayout(const QStringList &labels);
+  QGroupBox *createTypeLayout(const QStringList &labels, QList<double> values);
+  QGroupBox *createMassLayout(const QStringList &labels, QList<double> values);
+  QGroupBox *createPassengerLayout(const QStringList &labels,
+                                   QList<double> values);
 };
 
 #endif // TRAINPARAMETERPAGE_H

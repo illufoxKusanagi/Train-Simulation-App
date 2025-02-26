@@ -37,6 +37,9 @@ InputWidget::InputWidget(const InputType &inputType, QWidget *parent)
   adjustSize();
 }
 
-void InputWidget::setValue(double value) {}
+void InputWidget::setValue(double value) {
+  m_inputValue = value;
+  m_inputField->setValue(value);
+}
 
-void InputWidget::getValue() {}
+double InputWidget::getValue() { return m_inputValue; }

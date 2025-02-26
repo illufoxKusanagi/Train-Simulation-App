@@ -17,11 +17,13 @@ void TrackParameterPage::createInputs() {
   QStringList labels = {"Number of Station", "Radius per Section",
                         "Station Distance",  "Slope per Section",
                         "Section Distance",  "Speed Limit"};
-  QString unit = "m/s^2";
+  QStringList units = {"m/s2", "m", "m", "m", "‰", "km/h"};
+  QList<double> values = {0, 2000, 0, 0, 0, 70};
   for (int i = 0; i < labels.size(); i++) {
-    InputWidget *inputWidget = new InputWidget(
-        InputType(i > 0 ? "upload" : "field", labels[i], i > 0 ? "" : unit),
-        this);
+    InputWidget *inputWidget =
+        new InputWidget(InputType("field", labels[i], ""), this);
+    inputWidget->setValue(values[i]);
+    m_inputWidgets[labels[i]] = inputWidget;
     m_formLayout->addWidget(inputWidget, i / 2, i % 2);
   }
 }

@@ -21,9 +21,13 @@ void ElectricalParameterPage::createInputs() {
                         "Efficiency of VVVF",
                         "Auxiliary Power",
                         "Efficiency of Traction Motor"};
+  QStringList units = {"V", "%", "V", "%", "%", "kW", "%"};
+  QList<double> values = {0, 0, 0, 0.98, 0.96, 30, 0.89};
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
-        new InputWidget(InputType("upload", labels[i], ""), this);
+        new InputWidget(InputType("field", labels[i], ""), this);
+    inputWidget->setValue(values[i]);
+    m_inputWidgets[labels[i]] = inputWidget;
     m_formLayout->addWidget(inputWidget, i / 2, i % 2);
   }
 }

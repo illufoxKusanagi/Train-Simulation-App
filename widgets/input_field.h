@@ -6,6 +6,7 @@
 #include <QBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <optional>
 
 class InputField : public QWidget {
   Q_OBJECT

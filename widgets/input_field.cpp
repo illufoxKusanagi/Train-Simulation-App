@@ -20,7 +20,8 @@ InputField::InputField(const QString &unitText, QWidget *parent)
 }
 
 double InputField::setValue(double value) {
-  m_input->setText(QString::number(value));
+  if (value != 0)
+    m_input->setText(QString::number(value));
   return value;
 }
 

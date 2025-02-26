@@ -2,6 +2,7 @@
 #define INPUTTYPE_H
 
 #include <QString>
+#include <optional>
 
 class InputType {
 public:
@@ -12,7 +13,7 @@ public:
   bool isReadOnly;
 
   InputType(const QString &inputType, const QString &inputLabel,
-            const QString &inputUnit = "", double value = 10.985,
+            const QString &inputUnit = "", double value = 0.0,
             bool isReadOnly = false)
       : type(inputType), label(inputLabel), unit(inputUnit),
         isReadOnly(isReadOnly), value(value) {}
