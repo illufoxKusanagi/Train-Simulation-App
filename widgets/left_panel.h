@@ -1,15 +1,16 @@
 #ifndef LEFT_PANEL_H
 #define LEFT_PANEL_H
 
-#include "../models/train_data.h"
 #include "../models/train_simulation.h"
 #include "../widgets/button_action.h"
-#include "button_sidebar_active.h"
 #include "button_toggle.h"
 #include "left_panel_category.h"
+#include <QFuture>
+#include <QFutureWatcher>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QtConcurrent/QtConcurrent>
 
 class LeftPanel : public QWidget {
   Q_OBJECT
@@ -37,6 +38,8 @@ private:
   void createRunButton();
   void setupInputPageButtons();
   void setupOutputPageButtons();
+  void updateButtonState(QFuture<void> future, ButtonAction *runButton,
+                         ButtonAction *staticRunButton);
 };
 
 #endif // LEFT_PANEL_H
