@@ -1,6 +1,7 @@
 #ifndef TRAINPARAMETERPAGE_H
 #define TRAINPARAMETERPAGE_H
 
+#include "../models/train_data.h"
 #include "../styles/colors.h"
 #include "../styles/text_style.h"
 #include "../widgets/button_action.h"
@@ -16,7 +17,6 @@ class TrainParameterPage : public QWidget {
 
 public:
   explicit TrainParameterPage(QWidget *parent = nullptr);
-  double getParameterValue(const QString &paramName);
 
 private:
   QVBoxLayout *mainLayout;
@@ -32,6 +32,9 @@ private:
   QString groupBoxStyle;
   ButtonAction *m_prevButton;
   ButtonAction *m_nextButton;
+  TrainData trainData;
+  MassData massData;
+  LoadData loadData;
 
   void setupFirstPage(QWidget *firstPageWidget);
   void setupSecondPage(QVBoxLayout *layout);
@@ -39,6 +42,18 @@ private:
   void showPreviousPage();
   void showNextPage();
   void updatePaginationButtons();
+  double getParameterValue(const QString &paramName);
+  double getTypeParameterValue(const QString &paramName);
+  double getMassParameterValue(const QString &paramName);
+  double getPassengerParameterValue(const QString &paramName);
+  void setParameterValue();
+  void setTypeValue();
+  void setMassValue();
+  void setPassengerValue();
+  void connectInputSignals();
+  void connectTypeInputSignals();
+  void connectMassInputSignals();
+  void connectPassengerInputSignals();
 
   QGroupBox *createTypeLayout(const QStringList &labels, QList<double> values);
   QGroupBox *createMassLayout(const QStringList &labels, QList<double> values);

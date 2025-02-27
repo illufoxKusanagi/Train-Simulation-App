@@ -43,7 +43,6 @@ void InputWidget::buildInputField(InputType inputType) {
   connect(m_inputField->findChild<QLineEdit *>(), &QLineEdit::textChanged, this,
           [this]() {
             m_inputValue = m_inputField->getValue();
-            qDebug() << "Input value changed to : " << m_inputValue;
             emit valueChanged();
           });
   layout->addWidget(m_inputField);
