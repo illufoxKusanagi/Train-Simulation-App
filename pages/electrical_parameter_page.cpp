@@ -30,4 +30,39 @@ void ElectricalParameterPage::createInputs() {
     m_inputWidgets[labels[i]] = inputWidget;
     m_formLayout->addWidget(inputWidget, i / 2, i % 2);
   }
+  connectInputSignals();
+}
+
+double
+ElectricalParameterPage::getParameterValue(const QString &paramName) const {
+  if (m_inputWidgets.contains(paramName)) {
+    return m_inputWidgets[paramName]->getValue();
+  }
+  return 0.0;
+}
+
+void ElectricalParameterPage::setParameterValue() {
+  efficiencyData.eff_gear = getParameterValue("Efficiency of Gearbox");
+  efficiencyData.eff_motor = getParameterValue("Efficiency of Traction Motor");
+  efficiencyData.eff_vvvf = getParameterValue("Efficiency of VVVF");
+  powerData.p_aps = getParameterValue("Auxiliary Power");
+}
+
+void ElectricalParameterPage::connectInputSignals() {
+  for (auto it = m_inputWidgets.constBegin(); it != m_inputWidgets.constEnd();
+       ++it) {
+    QString paramName = it.key();
+    InputWidget *widget = it.value();
+    connect(it.value(), &InputWidget::valueChanged, this, [this, paramName]() {
+      setParameterValue();
+      double value = getParameterValue(paramName);
+      qDebug() << "Parameter" << paramName << "changed to:" << value;
+
+      // Additional debug information
+      qDebug() << "Efficiency of Gearbox:" << efficiencyData.eff_gear;
+      qDebug() << "Efficiency of Traction Motor:" << efficiencyData.eff_motor;
+      qDebug() << "Efficiency of VVVF:" << efficiencyData.eff_vvvf;
+      qDebug() << "Auxiliary Power:" << powerData.p_aps;
+    });
+  }
 }
