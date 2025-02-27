@@ -26,4 +26,37 @@ void TrackParameterPage::createInputs() {
     m_inputWidgets[labels[i]] = inputWidget;
     m_formLayout->addWidget(inputWidget, i / 2, i % 2);
   }
+  connectInputSignals();
+}
+
+double TrackParameterPage::getParameterValue(const QString &paramName) const {
+  if (m_inputWidgets.contains(paramName)) {
+    return m_inputWidgets[paramName]->getValue();
+  }
+  return 0.0;
+}
+
+void TrackParameterPage::setParameterValue() {
+  movingData.v_limit = getParameterValue("Speed Limit");
+  resistanceData.r_radius = getParameterValue("Radius per Section");
+  resistanceData.r_slope = getParameterValue("Sloper per Section");
+}
+
+void TrackParameterPage::connectInputSignals() {
+  for (auto it = m_inputWidgets.constBegin(); it != m_inputWidgets.constEnd();
+       ++it) {
+    QString paramName = it.key();
+    InputWidget *widget = it.value();
+    connect(it.value(), &InputWidget::valueChanged, this, [this, paramName]() {
+      setParameterValue();
+      double value = getParameterValue(paramName);
+      qDebug() << "Parameter" << paramName << "changed to:" << value;
+
+      // Additional debug information
+      qDebug() << "Current data values : ";
+      qDebug() << "Speed Limit : " << movingData.v_limit;
+      qDebug() << "Radius per Section : " << resistanceData.r_radius;
+      qDebug() << "Slope per Section : " << resistanceData.r_slope;
+    });
+  }
 }

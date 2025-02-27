@@ -1,6 +1,7 @@
 #ifndef TRACK_PARAMETER_PAGE_H
 #define TRACK_PARAMETER_PAGE_H
 
+#include "../models/train_data.h"
 #include "../widgets/input_widget.h"
 #include <QGridLayout>
 #include <QWidget>
@@ -15,8 +16,12 @@ private:
   QWidget *m_formContainer;
   QGridLayout *m_formLayout;
   QMap<QString, InputWidget *> m_inputWidgets;
-
+  ResistanceData resistanceData;
+  MovingData movingData;
   void createInputs();
+  double getParameterValue(const QString &paramName) const;
+  void setParameterValue();
+  void connectInputSignals();
 };
 
 #endif // TRACK_PARAMETER_PAGE_H
