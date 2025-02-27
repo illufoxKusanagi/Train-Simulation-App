@@ -20,6 +20,13 @@ class InputWidget : public QWidget {
   Q_OBJECT
 public:
   explicit InputWidget(const InputType &inputType, QWidget *parent = nullptr);
+  void setValue(double value);
+  double getValue();
+  bool isModified() const;
+  void setModified(bool modified);
+
+signals:
+  void valueChanged();
 
 private:
   QLabel *m_label;
@@ -27,9 +34,10 @@ private:
   InputDropdown *m_inputDropdown;
   InputUpload *m_inputUpload;
   InputInvalid *m_inputInvalid;
+  QVBoxLayout *layout;
+  double m_inputValue;
   void setPlaceholder(const QString &placeholder);
-  void setValue(double value);
-  void getValue();
+  void buildInputField(InputType inputType);
 };
 
 #endif // INPUTWIDGET_H

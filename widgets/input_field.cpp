@@ -19,10 +19,13 @@ InputField::InputField(const QString &unitText, QWidget *parent)
                              "color: " + Colors::Secondary700.name() + ";");
 }
 
-double InputField::setValue(double value) {
-  m_input->setText(QString::number(value));
-  return value;
+void InputField::setValue(double value) {
+  if (value != 0)
+    m_input->setText(QString::number(value));
+  m_input->setModified(false);
 }
+
+double InputField::getValue() { return m_input->text().toDouble(); }
 
 void InputField::setPlaceholder() {
   m_input->setPlaceholderText("enter value...");
@@ -31,3 +34,14 @@ void InputField::setPlaceholder() {
 void InputField::setReadOnly(bool isReadOnly) {
   m_input->setReadOnly(isReadOnly);
 }
+
+void InputField::connectTextChanged() {
+  connect(m_input, &QLineEdit::textChanged, [this](const QString &text) {
+    double value = text.toDouble();
+    emit valueChanged(value);
+  });
+}
+
+bool InputField::isModified() const { return m_input->isModified(); }
+
+void InputField::setModified(bool modified) { m_input->setModified(modified); }

@@ -49,6 +49,7 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
                         "Load per Car (ton)"};
 
   QStringList unitLabels = {"", "", "", "", "mm", "kg", "", "ton"};
+  QList<double> values = {1.2, 4, 1.2, 24, 500, 70, 3.0, 0.0};
 
   QGridLayout *formLayout = new QGridLayout(firstPageWidget);
   formLayout->setAlignment(Qt::AlignCenter);
@@ -59,12 +60,17 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
         new InputWidget(InputType("field", labels[i], unitLabels[i]), this);
+    inputWidget->setValue(values[i]);
     formLayout->addWidget(inputWidget, i / 2, i % 2);
+    m_inputWidgets[labels[i]] = inputWidget;
   }
 }
 
 void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
   const QStringList labels = {"Tc", "M1", "M2", "T1", "T2", "T3"};
+  QList<double> trainValues = {2, 3, 3, 2, 1, 1};
+  QList<double> passengerValues = {10, 20, 20, 10, 10, 10};
+  QList<double> massValues = {100, 200, 200, 200, 200, 200};
   QWidget *numberCarContainer = new QWidget(this);
   QHBoxLayout *numberCarLayout = new QHBoxLayout(numberCarContainer);
   numberCarLayout->setSpacing(32);
@@ -85,22 +91,24 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
   QWidget *secondPageContainer = new QWidget(this);
   QHBoxLayout *secondPageHLayout = new QHBoxLayout(secondPageContainer);
   secondPageHLayout->setSpacing(40);
-  QGroupBox *typeLayout = createTypeLayout(labels);
+  QGroupBox *typeLayout = createTypeLayout(labels, trainValues);
   secondPageHLayout->addWidget(typeLayout);
-  QGroupBox *massLayout = createMassLayout(labels);
+  QGroupBox *massLayout = createMassLayout(labels, massValues);
   secondPageHLayout->addWidget(massLayout);
-  QGroupBox *passengerLayout = createPassengerLayout(labels);
+  QGroupBox *passengerLayout = createPassengerLayout(labels, passengerValues);
   secondPageHLayout->addWidget(passengerLayout);
   layout->addWidget(secondPageContainer);
 }
 
-QGroupBox *TrainParameterPage::createTypeLayout(const QStringList &labels) {
+QGroupBox *TrainParameterPage::createTypeLayout(const QStringList &labels,
+                                                QList<double> values) {
   QGroupBox *typeLayout = new QGroupBox("Type");
   QVBoxLayout *typeFormLayout = new QVBoxLayout(typeLayout);
   typeFormLayout->setAlignment(Qt::AlignTop);
   for (const QString &label : labels) {
     InputWidget *typeInputWidget =
         new InputWidget(InputType("field", label, ""), this);
+    typeInputWidget->setValue(values[labels.indexOf(label)]);
     typeInputWidgets.append(typeInputWidget);
     typeFormLayout->addWidget(typeInputWidget);
   }
@@ -108,12 +116,14 @@ QGroupBox *TrainParameterPage::createTypeLayout(const QStringList &labels) {
   return typeLayout;
 }
 
-QGroupBox *TrainParameterPage::createMassLayout(const QStringList &labels) {
+QGroupBox *TrainParameterPage::createMassLayout(const QStringList &labels,
+                                                QList<double> values) {
   QGroupBox *massLayout = new QGroupBox("Mass");
   QVBoxLayout *massFormLayout = new QVBoxLayout(massLayout);
   for (const QString &label : labels) {
     InputWidget *massInputWidget =
         new InputWidget(InputType("field", label, "ton"), this);
+    massInputWidget->setValue(values[labels.indexOf(label)]);
     massInputWidgets.append(massInputWidget);
     massFormLayout->addWidget(massInputWidget);
   }
@@ -125,13 +135,14 @@ QGroupBox *TrainParameterPage::createMassLayout(const QStringList &labels) {
   return massLayout;
 }
 
-QGroupBox *
-TrainParameterPage::createPassengerLayout(const QStringList &labels) {
+QGroupBox *TrainParameterPage::createPassengerLayout(const QStringList &labels,
+                                                     QList<double> values) {
   QGroupBox *passengerLayout = new QGroupBox("Passenger");
   QVBoxLayout *passengerFormLayout = new QVBoxLayout(passengerLayout);
   for (const QString &label : labels) {
     InputWidget *passengerInputWidget =
         new InputWidget(InputType("field", label, "person"), this);
+    passengerInputWidget->setValue(values[labels.indexOf(label)]);
     passangerInputWidgets.append(passengerInputWidget);
     passengerFormLayout->addWidget(passengerInputWidget);
   }
@@ -180,4 +191,11 @@ void TrainParameterPage::showNextPage() {
     stackedWidget->setCurrentIndex(stackedWidget->currentIndex() + 1);
     updatePaginationButtons();
   }
+}
+
+double TrainParameterPage::getParameterValue(const QString &paramName) {
+  if (m_inputWidgets.contains(paramName)) {
+    return m_inputWidgets[paramName]->getValue();
+  }
+  return 0.0;
 }
