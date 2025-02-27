@@ -14,12 +14,6 @@ class RunningParameterPage : public QWidget {
   Q_OBJECT
 public:
   explicit RunningParameterPage(QWidget *parent = nullptr);
-  QMap<QString, double> getAllParameters() const;
-  QMap<QString, double> getModifiedParameters() const;
-  void resetModifiedStatus();
-
-  // signals:
-  //   void parameterChanged();
 
 private:
   QVBoxLayout *mainLayout;
