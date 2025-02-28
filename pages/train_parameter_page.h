@@ -16,7 +16,10 @@ class TrainParameterPage : public QWidget {
   Q_OBJECT
 
 public:
-  explicit TrainParameterPage(QWidget *parent = nullptr);
+  explicit TrainParameterPage(QWidget *parent = nullptr,
+                              TrainData *ptrainData = nullptr,
+                              MassData *pmassData = nullptr,
+                              LoadData *ploadData = nullptr);
 
 private:
   QVBoxLayout *mainLayout;
@@ -32,9 +35,9 @@ private:
   QString groupBoxStyle;
   ButtonAction *m_prevButton;
   ButtonAction *m_nextButton;
-  TrainData trainData;
-  MassData massData;
-  LoadData loadData;
+  TrainData *trainData;
+  MassData *massData;
+  LoadData *loadData;
 
   void setupFirstPage(QWidget *firstPageWidget);
   void setupSecondPage(QVBoxLayout *layout);

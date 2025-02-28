@@ -18,20 +18,29 @@ public slots:
   void simulateDynamicTrainMovement();
 
 public:
-  explicit TrainSimulation(QObject *parent = nullptr);
+  explicit TrainSimulation(QObject *parent = nullptr,
+                           TrainData *trainData = nullptr,
+                           MassData *massData = nullptr,
+                           LoadData *loadData = nullptr,
+                           ResistanceData *resistanceData = nullptr,
+                           MovingData *movingData = nullptr,
+                           TrainMotorData *trainMotorData = nullptr,
+                           EfficiencyData *efficiencyData = nullptr,
+                           PowerData *powerData = nullptr,
+                           EnergyData *energyData = nullptr);
+  ;
 
 private:
-  ConstantData constantData;
-  TrainData trainData;
-  MassData massData;
-  LoadData loadData;
-  ResistanceData resistanceData;
-  MovingData movingData;
-  TrainMotorData trainMotorData;
-  EfficiencyData efficiencyData;
-  PowerData powerData;
-  EnergyData energyData;
-
+  ConstantData *constantData;
+  TrainData *trainData;
+  MassData *massData;
+  LoadData *loadData;
+  ResistanceData *resistanceData;
+  MovingData *movingData;
+  TrainMotorData *trainMotorData;
+  EfficiencyData *efficiencyData;
+  PowerData *powerData;
+  EnergyData *energyData;
   void initTrainMassData();
   void initData();
   double countMassEmptyCar();

@@ -1,7 +1,10 @@
 #include "left_panel.h"
 
-LeftPanel::LeftPanel(QWidget *parent)
-    : QWidget(parent), m_buttonLayout(nullptr), m_inputPanel(nullptr) {
+TrainSimulation LeftPanel::defaultTrainSimulation = TrainSimulation();
+
+LeftPanel::LeftPanel(QWidget *parent, TrainSimulation &trainSimulation)
+    : QWidget(parent), m_buttonLayout(nullptr), m_inputPanel(nullptr),
+      m_trainSimulation(&trainSimulation) {
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->setContentsMargins(0, 0, 0, 0);
   m_buttonToggle = new ButtonToggle(m_isCollapsed, this);
@@ -12,8 +15,6 @@ LeftPanel::LeftPanel(QWidget *parent)
   m_buttonLayout->setSpacing(8);
   m_buttonLayout->setAlignment(Qt::AlignCenter);
   m_buttonLayout->addWidget(m_buttonToggle);
-
-  m_trainSimulation = new TrainSimulation(this);
 
   connect(m_buttonToggle, &QPushButton::clicked, this, [this]() {
     m_isCollapsed = !m_isCollapsed;
