@@ -1,8 +1,9 @@
 #include "input_widget.h"
 
 InputWidget::InputWidget(const InputType &inputType, QWidget *parent)
-    : QWidget(parent), m_inputField(nullptr) {
-  QVBoxLayout *layout = new QVBoxLayout(this);
+    : QWidget(parent), m_inputField(nullptr), m_inputUpload(nullptr),
+      m_inputDropdown(nullptr), m_inputInvalid(nullptr) {
+  layout = new QVBoxLayout(this);
 
   m_label = new QLabel(inputType.label, this);
   layout->setContentsMargins(0, 0, 0, 0);
@@ -12,12 +13,7 @@ InputWidget::InputWidget(const InputType &inputType, QWidget *parent)
                          "color: " + Colors::Secondary700.name() + ";");
 
   if (inputType.type == "field") {
-    m_inputField = new InputField(inputType.unit, this);
-    m_inputField->setPlaceholder();
-    m_inputField->setReadOnly(inputType.isReadOnly);
-    m_inputField->setValue(inputType.value);
-    layout->addWidget(m_inputField);
-    layout->setAlignment(m_inputField, Qt::AlignLeft);
+    buildInputField(inputType);
   } else if (inputType.type == "dropdown") {
     m_inputDropdown = new InputDropdown(this);
     m_inputDropdown->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -37,6 +33,35 @@ InputWidget::InputWidget(const InputType &inputType, QWidget *parent)
   adjustSize();
 }
 
-void InputWidget::setValue(double value) {}
+void InputWidget::buildInputField(InputType inputType) {
+  m_inputField = new InputField(inputType.unit, this);
+  m_inputField->setPlaceholder();
+  m_inputField->setReadOnly(inputType.isReadOnly);
+  m_inputField->setValue(inputType.value);
+  m_inputField->connectTextChanged();
 
-void InputWidget::getValue() {}
+  connect(m_inputField->findChild<QLineEdit *>(), &QLineEdit::textChanged, this,
+          [this]() {
+            m_inputValue = m_inputField->getValue();
+            emit valueChanged();
+          });
+  layout->addWidget(m_inputField);
+  layout->setAlignment(m_inputField, Qt::AlignLeft);
+}
+
+void InputWidget::setValue(double value) {
+  m_inputValue = value;
+  m_inputField->setValue(value);
+}
+
+double InputWidget::getValue() { return m_inputValue; }
+
+bool InputWidget::isModified() const {
+  return m_inputField ? m_inputField->isModified() : false;
+}
+
+void InputWidget::setModified(bool modified) {
+  if (m_inputField) {
+    m_inputField->setModified(modified);
+  }
+}

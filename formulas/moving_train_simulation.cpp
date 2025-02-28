@@ -2,6 +2,7 @@
 
 #define _USE_MATH_DEFINES
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -362,26 +363,6 @@ void calculateTotalForce(float v) {
 
 void calculateTotalBrakeForce() { f_total = f_motor; }
 
-void calculateBrakingValue() {
-  i = 0;
-  while (v > 0) {
-    f_resStart = calculateStartRes();
-    f_resRunning = calculateRunningRes(v);
-    // calculateBrakingForce();
-    calculateTotalBrakeForce();
-    decc = cV * f_total / m_totalInertial;
-    v += decc * dt;
-    i++;
-
-    cout << "Iteration " << i << endl;
-    cout << "Braking force : " << f_brake << " kN" << endl;
-    cout << "Motor force : " << f_motor << " kN" << endl;
-    cout << "Total force : " << f_total << " kN" << endl;
-    cout << "Decceleration : " << decc << " km/h/s" << endl;
-    cout << "Speed : " << v << " km/h" << endl;
-  }
-}
-
 double calculateTractionForce(double f_motor) { return (f_motor / tm_n); }
 
 double calculateTorque(double f_motor) {
@@ -431,6 +412,7 @@ void calculateEnergyOfAps(float time) {
 }
 
 void simulateDynamicTrainMovement(float acc, float decc, ofstream &outFile) {
+  auto startTime = std::chrono::high_resolution_clock::now();
   i = 0;
   bool isAccelerating = true;
   bool isCoasting = false;
@@ -521,6 +503,11 @@ void simulateDynamicTrainMovement(float acc, float decc, ofstream &outFile) {
           << p_motorOut << "," << p_motorIn << "," << p_vvvfIn << ","
           << p_catenary << "," << e_motor << "," << e_pow << "," << e_reg << ","
           << e_aps << "\n";
+  auto endTime = std::chrono::high_resolution_clock::now();
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+      endTime - startTime);
+  cout << "Dynamic train simulation completed in: " << duration.count()
+       << " ms (" << (duration.count() / 1000.0) << " seconds)" << endl;
 }
 
 void simulateStaticTrainMovement(float acc, float decc, ofstream &outFile) {
@@ -541,7 +528,7 @@ void simulateStaticTrainMovement(float acc, float decc, ofstream &outFile) {
     tm_f = calculateTractionForce(f_motor);
     tm_t = calculateTorque(f_motor);
     acc = cV * f_total / m_totalInertial;
-    v++;
+    v += 0.5;
     tm_rpm = calculateRpm(v);
     if (i == 0) {
       tm_adh = calculateAdhesion();

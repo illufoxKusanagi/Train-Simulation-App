@@ -2,61 +2,61 @@
 #define TRAIN_DATA_H
 
 struct ConstantData {
-  const float g = 9.8;
-  const float cV = 3.6;
-  const float cF = 101.972;
-  const float dt = 0.5;
+  const double g = 9.8;
+  const double cV = 3.6;
+  const double cF = 101.972;
+  const double dt = 0.5;
 };
 
 struct TrainData {
-  int n_tm;
-  int n_axle;
-  int n_car;
-  float gearRatio;
-  float wheel;
+  double n_tm;
+  double n_axle;
+  double n_car;
+  double gearRatio;
+  double wheel;
 };
 
 struct MassData {
-  float m_Me;
-  float m_Te;
-  float m_M;
-  float m_T;
-  float m_M1;
-  float m_M2;
-  float m_TC;
-  float m_T1;
-  float m_T2;
-  float m_T3;
-  float i_M;
-  float i_T;
-  float m_Mi;
-  float m_Ti;
+  double m_Me;
+  double m_Te;
+  double m_M;
+  double m_T;
+  double m_M1;
+  double m_M2;
+  double m_TC;
+  double m_T1;
+  double m_T2;
+  double m_T3;
+  double i_M;
+  double i_T;
+  double m_Mi;
+  double m_Ti;
   double m_totalEmpty;
   double m_totalLoad;
   double m_totalInertial;
 };
 
 struct LoadData {
-  float load;
-  float n_M1;
-  float n_M2;
-  float n_Tc;
-  float n_T1;
-  float n_T2;
-  float n_T3;
-  float m_P;
-  float n_PM1;
-  float n_PM2;
-  float n_PTc;
-  float n_PT1;
-  float n_PT2;
-  float n_PT3;
+  double load;
+  double n_M1;
+  double n_M2;
+  double n_Tc;
+  double n_T1;
+  double n_T2;
+  double n_T3;
+  double m_P;
+  double n_PM1;
+  double n_PM2;
+  double n_PTc;
+  double n_PT1;
+  double n_PT2;
+  double n_PT3;
 };
 
 struct ResistanceData {
-  float startRes;
-  float slope;
-  float radius;
+  double startRes;
+  double slope;
+  double radius;
   double r_train;
   double r_slope;
   double r_radius;
@@ -71,17 +71,17 @@ struct ResistanceData {
 };
 
 struct MovingData {
-  float acc;
-  float decc;
-  float acc_start;
-  float decc_start;
+  double acc;
+  double decc;
+  double acc_start;
+  double decc_start;
   double v;
-  float v_limit;
-  float v_p1;
-  float v_p2;
-  float v_b1;
-  float v_b2;
-  float v_diffCoast;
+  double v_limit;
+  double v_p1;
+  double v_p2;
+  double v_b1;
+  double v_b2;
+  double v_diffCoast;
 };
 
 struct TrainMotorData {
@@ -93,9 +93,9 @@ struct TrainMotorData {
 };
 
 struct EfficiencyData {
-  float eff_gear;
-  float eff_motor;
-  float eff_vvvf;
+  double eff_gear;
+  double eff_motor;
+  double eff_vvvf;
 };
 
 struct PowerData {
