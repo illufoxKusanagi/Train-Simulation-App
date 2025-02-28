@@ -9,15 +9,18 @@
 class TrackParameterPage : public QWidget {
   Q_OBJECT
 public:
-  explicit TrackParameterPage(QWidget *parent = nullptr);
+  explicit TrackParameterPage(QWidget *parent = nullptr,
+                              MovingData *movingData = nullptr,
+                              ResistanceData *resistanceData = nullptr);
 
 private:
   QVBoxLayout *mainLayout;
   QWidget *m_formContainer;
   QGridLayout *m_formLayout;
   QMap<QString, InputWidget *> m_inputWidgets;
-  ResistanceData resistanceData;
-  MovingData movingData;
+  ResistanceData *resistanceData;
+  MovingData *movingData;
+
   void createInputs();
   double getParameterValue(const QString &paramName) const;
   void setParameterValue();

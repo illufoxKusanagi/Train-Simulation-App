@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "../models/train_data.h"
+#include "../models/train_simulation.h"
 #include "../pages/constant_values_page.h"
 #include "../pages/electrical_parameter_page.h"
 #include "../pages/output_page.h"
@@ -24,7 +26,6 @@ class MainWindow : public QMainWindow {
 
 public:
   explicit MainWindow(QWidget *parent = nullptr);
-  ~MainWindow();
 
 private slots:
   void navigateToPage(int pageIndex);
@@ -32,11 +33,20 @@ private slots:
 private:
   QWidget *menuWidget;
   QStackedWidget *stackedWidget;
+  TrainSimulation *m_trainSimulation;
+  TrainData m_trainData;
+  MovingData m_movingData;
+  MassData m_massData;
+  LoadData m_loadData;
+  ResistanceData m_resistanceData;
+  TrainMotorData m_trainMotorData;
+  EfficiencyData m_efficiencyData;
+  PowerData m_powerData;
+  EnergyData m_energyData;
+  LeftPanel *leftPanel;
 
   void setupLeftPanel();
   void setupPages();
-
-  LeftPanel *leftPanel;
 };
 
 #endif // MAINWINDOW_H

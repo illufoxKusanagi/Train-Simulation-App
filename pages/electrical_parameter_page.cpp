@@ -1,9 +1,12 @@
 #include "electrical_parameter_page.h"
 
-ElectricalParameterPage::ElectricalParameterPage(QWidget *parent)
+ElectricalParameterPage::ElectricalParameterPage(QWidget *parent,
+                                                 EfficiencyData *efficiencyData,
+                                                 PowerData *powerData)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_formContainer(new QWidget(this)),
-      m_formLayout(new QGridLayout(m_formContainer)) {
+      m_formLayout(new QGridLayout(m_formContainer)),
+      efficiencyData(efficiencyData), powerData(powerData) {
   mainLayout->setContentsMargins(16, 16, 16, 16);
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setHorizontalSpacing(80);
@@ -30,6 +33,7 @@ void ElectricalParameterPage::createInputs() {
     m_inputWidgets[labels[i]] = inputWidget;
     m_formLayout->addWidget(inputWidget, i / 2, i % 2);
   }
+  setParameterValue();
   connectInputSignals();
 }
 
@@ -42,10 +46,10 @@ ElectricalParameterPage::getParameterValue(const QString &paramName) const {
 }
 
 void ElectricalParameterPage::setParameterValue() {
-  efficiencyData.eff_gear = getParameterValue("Efficiency of Gearbox");
-  efficiencyData.eff_motor = getParameterValue("Efficiency of Traction Motor");
-  efficiencyData.eff_vvvf = getParameterValue("Efficiency of VVVF");
-  powerData.p_aps = getParameterValue("Auxiliary Power");
+  efficiencyData->eff_gear = getParameterValue("Efficiency of Gearbox");
+  efficiencyData->eff_motor = getParameterValue("Efficiency of Traction Motor");
+  efficiencyData->eff_vvvf = getParameterValue("Efficiency of VVVF");
+  powerData->p_aps = getParameterValue("Auxiliary Power");
 }
 
 void ElectricalParameterPage::connectInputSignals() {
@@ -59,10 +63,10 @@ void ElectricalParameterPage::connectInputSignals() {
       qDebug() << "Parameter" << paramName << "changed to:" << value;
 
       // Additional debug information
-      qDebug() << "Efficiency of Gearbox:" << efficiencyData.eff_gear;
-      qDebug() << "Efficiency of Traction Motor:" << efficiencyData.eff_motor;
-      qDebug() << "Efficiency of VVVF:" << efficiencyData.eff_vvvf;
-      qDebug() << "Auxiliary Power:" << powerData.p_aps;
+      qDebug() << "Efficiency of Gearbox:" << efficiencyData->eff_gear;
+      qDebug() << "Efficiency of Traction Motor:" << efficiencyData->eff_motor;
+      qDebug() << "Efficiency of VVVF:" << efficiencyData->eff_vvvf;
+      qDebug() << "Auxiliary Power:" << powerData->p_aps;
     });
   }
 }

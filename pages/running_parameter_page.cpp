@@ -1,9 +1,12 @@
 #include "running_parameter_page.h"
 
-RunningParameterPage::RunningParameterPage(QWidget *parent)
+RunningParameterPage::RunningParameterPage(QWidget *parent,
+                                           MovingData *movingData,
+                                           ResistanceData *resistanceData)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_formLayout(new QWidget(this)),
-      m_inputsLayout(new QGridLayout(m_formLayout)) {
+      m_inputsLayout(new QGridLayout(m_formLayout)),
+      resistanceData(resistanceData), movingData(movingData) {
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setContentsMargins(16, 16, 16, 16);
   m_inputsLayout->setHorizontalSpacing(80);
@@ -28,7 +31,7 @@ void RunningParameterPage::createInputs() {
   };
   QStringList unitLabels = {"",      "km/h", "m/s^2", "km/h",
                             "m/s^2", "km/h", "km/h",  "km/h"};
-  QList<double> values = {39.2, 35, 1, 65, 1, 1, 5, 70};
+  QList<double> values = {39.2, 35, 1, 65, 1, 55, 5, 70};
 
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
@@ -48,14 +51,23 @@ double RunningParameterPage::getParameterValue(const QString &paramName) const {
 }
 
 void RunningParameterPage::setParameterValue() {
-  resistanceData.startRes = getParameterValue("Starting Resistance");
-  movingData.v_p1 = getParameterValue("Weakening Point 1 (Powering)");
-  movingData.acc_start = getParameterValue("Acceleration");
-  movingData.v_p2 = getParameterValue("Weakening Point 2 (Powering)");
-  movingData.decc_start = getParameterValue("Deceleration");
-  movingData.v_b1 = getParameterValue("Weakening Point 3 (Braking)");
-  movingData.v_diffCoast = getParameterValue("Difference Coasting Speed");
-  movingData.v_b2 = getParameterValue("Weakening Point 4 (Braking)");
+  resistanceData->startRes = getParameterValue("Starting Resistance");
+  movingData->v_p1 = getParameterValue("Weakening Point 1 (Powering)");
+  movingData->acc_start = getParameterValue("Acceleration");
+  movingData->v_p2 = getParameterValue("Weakening Point 2 (Powering)");
+  movingData->decc_start = getParameterValue("Deceleration");
+  movingData->v_b1 = getParameterValue("Weakening Point 3 (Braking)");
+  movingData->v_diffCoast = getParameterValue("Difference Coasting Speed");
+  movingData->v_b2 = getParameterValue("Weakening Point 4 (Braking)");
+  qDebug() << "Current data values:";
+  qDebug() << "  Starting Resistance:" << resistanceData->startRes;
+  qDebug() << "  v_p1:" << movingData->v_p1;
+  qDebug() << "  acc_start:" << movingData->acc_start;
+  qDebug() << "  v_p2:" << movingData->v_p2;
+  qDebug() << "  decc_start:" << movingData->decc_start;
+  qDebug() << "  v_b1:" << movingData->v_b1;
+  qDebug() << "  v_diffCoast:" << movingData->v_diffCoast;
+  qDebug() << "  v_b2:" << movingData->v_b2;
 }
 
 void RunningParameterPage::connectInputSignals() {
@@ -70,14 +82,14 @@ void RunningParameterPage::connectInputSignals() {
 
       // Additional debug information
       qDebug() << "Current data values:";
-      qDebug() << "  Starting Resistance:" << resistanceData.startRes;
-      qDebug() << "  v_p1:" << movingData.v_p1;
-      qDebug() << "  acc_start:" << movingData.acc_start;
-      qDebug() << "  v_p2:" << movingData.v_p2;
-      qDebug() << "  decc_start:" << movingData.decc_start;
-      qDebug() << "  v_b1:" << movingData.v_b1;
-      qDebug() << "  v_diffCoast:" << movingData.v_diffCoast;
-      qDebug() << "  v_b2:" << movingData.v_b2;
+      qDebug() << "  Starting Resistance:" << resistanceData->startRes;
+      qDebug() << "  v_p1:" << movingData->v_p1;
+      qDebug() << "  acc_start:" << movingData->acc_start;
+      qDebug() << "  v_p2:" << movingData->v_p2;
+      qDebug() << "  decc_start:" << movingData->decc_start;
+      qDebug() << "  v_b1:" << movingData->v_b1;
+      qDebug() << "  v_diffCoast:" << movingData->v_diffCoast;
+      qDebug() << "  v_b2:" << movingData->v_b2;
     });
   }
 }

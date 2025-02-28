@@ -1,9 +1,11 @@
 #include "track_parameter_page.h"
 
-TrackParameterPage::TrackParameterPage(QWidget *parent)
+TrackParameterPage::TrackParameterPage(QWidget *parent, MovingData *movingData,
+                                       ResistanceData *resistanceData)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_formContainer(new QWidget(this)),
-      m_formLayout(new QGridLayout(m_formContainer)) {
+      m_formLayout(new QGridLayout(m_formContainer)),
+      resistanceData(resistanceData), movingData(movingData) {
   mainLayout->setContentsMargins(16, 16, 16, 16);
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setHorizontalSpacing(80);
@@ -26,6 +28,7 @@ void TrackParameterPage::createInputs() {
     m_inputWidgets[labels[i]] = inputWidget;
     m_formLayout->addWidget(inputWidget, i / 2, i % 2);
   }
+  setParameterValue();
   connectInputSignals();
 }
 
@@ -37,9 +40,13 @@ double TrackParameterPage::getParameterValue(const QString &paramName) const {
 }
 
 void TrackParameterPage::setParameterValue() {
-  movingData.v_limit = getParameterValue("Speed Limit");
-  resistanceData.r_radius = getParameterValue("Radius per Section");
-  resistanceData.r_slope = getParameterValue("Sloper per Section");
+  movingData->v_limit = getParameterValue("Speed Limit");
+  resistanceData->r_radius = getParameterValue("Radius per Section");
+  resistanceData->r_slope = getParameterValue("Sloper per Section");
+  qDebug() << "Current data values : ";
+  qDebug() << "Speed Limit : " << movingData->v_limit;
+  qDebug() << "Radius per Section : " << resistanceData->r_radius;
+  qDebug() << "Slope per Section : " << resistanceData->r_slope;
 }
 
 void TrackParameterPage::connectInputSignals() {
@@ -54,9 +61,9 @@ void TrackParameterPage::connectInputSignals() {
 
       // Additional debug information
       qDebug() << "Current data values : ";
-      qDebug() << "Speed Limit : " << movingData.v_limit;
-      qDebug() << "Radius per Section : " << resistanceData.r_radius;
-      qDebug() << "Slope per Section : " << resistanceData.r_slope;
+      qDebug() << "Speed Limit : " << movingData->v_limit;
+      qDebug() << "Radius per Section : " << resistanceData->r_radius;
+      qDebug() << "Slope per Section : " << resistanceData->r_slope;
     });
   }
 }
