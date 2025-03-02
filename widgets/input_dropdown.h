@@ -3,8 +3,10 @@
 
 #include "../styles/colors.h"
 #include "../styles/text_style.h"
+#include <QAbstractItemView>
 #include <QComboBox>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QStringList>
 
 class InputDropdown : public QWidget {
