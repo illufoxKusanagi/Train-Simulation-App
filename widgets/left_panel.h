@@ -17,8 +17,7 @@ class LeftPanel : public QWidget {
 
 public:
   explicit LeftPanel(QWidget *parent = nullptr,
-                     TrainSimulation &trainSimulation = defaultTrainSimulation);
-  static TrainSimulation defaultTrainSimulation;
+                     TrainSimulation *trainSimulation = nullptr);
 public slots:
   void emitNavigateSignal(int pageIndex);
 

@@ -31,7 +31,7 @@ public:
   ;
 
 private:
-  ConstantData *constantData;
+  ConstantData constantData;
   TrainData *trainData;
   MassData *massData;
   LoadData *loadData;
