@@ -45,6 +45,7 @@ struct LoadData {
   double n_T2;
   double n_T3;
   double m_P;
+  double m_P_final;
   double n_PM1;
   double n_PM2;
   double n_PTc;

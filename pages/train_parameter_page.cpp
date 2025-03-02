@@ -51,7 +51,7 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
                         "Load per Car (ton)"};
 
   QStringList unitLabels = {"", "", "", "", "mm", "kg", "", "ton"};
-  QList<double> values = {1.2, 4, 1.2, 24, 500, 70, 3.0, 0.0};
+  QList<double> values = {1.2, 4, 1.2, 24, 500, 70.0, 3.0, 0.0};
 
   QGridLayout *formLayout = new QGridLayout(firstPageWidget);
   formLayout->setAlignment(Qt::AlignCenter);
@@ -72,8 +72,8 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
 void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
   const QStringList labels = {"Tc", "M1", "M2", "T1", "T2", "T3"};
   QList<double> trainValues = {2, 3, 3, 2, 1, 1};
-  QList<double> passengerValues = {10, 20, 20, 10, 10, 10};
-  QList<double> massValues = {100, 200, 200, 200, 200, 200};
+  QList<double> massValues = {10, 20, 20, 10, 10, 10};
+  QList<double> passengerValues = {100, 200, 200, 200, 200, 200};
   QWidget *numberCarContainer = new QWidget(this);
   QHBoxLayout *numberCarLayout = new QHBoxLayout(numberCarContainer);
   numberCarLayout->setSpacing(32);
@@ -239,15 +239,15 @@ void TrainParameterPage::setParameterValue() {
   loadData->m_P = getParameterValue("Passenger Weight (kg)");
   massData->i_M = getParameterValue("Inertial Coefficient Motor");
   massData->i_T = getParameterValue("Inertial Coefficient Trailer");
-  qDebug() << "Current data values:";
-  qDebug() << "  Number of Traction Motor:" << trainData->n_tm;
-  qDebug() << "  Number of Axle:" << trainData->n_axle;
-  qDebug() << "  Wheel Diameter:" << trainData->wheel;
-  qDebug() << "  Gear Ratio:" << trainData->gearRatio;
-  qDebug() << "  Load per Car:" << loadData->load;
-  qDebug() << "  Passenger Weight:" << loadData->m_P;
-  qDebug() << "  Inertial Coefficient Motor:" << massData->i_M;
-  qDebug() << "  Inertial Coefficient Trailer:" << massData->i_T;
+  // qDebug() << "Current data values:";
+  // qDebug() << "  Number of Traction Motor:" << trainData->n_tm;
+  // qDebug() << "  Number of Axle:" << trainData->n_axle;
+  // qDebug() << "  Wheel Diameter:" << trainData->wheel;
+  // qDebug() << "  Gear Ratio:" << trainData->gearRatio;
+  // qDebug() << "  Load per Car:" << loadData->load;
+  // qDebug() << "  Passenger Weight:" << loadData->m_P;
+  // qDebug() << "  Inertial Coefficient Motor:" << massData->i_M;
+  // qDebug() << "  Inertial Coefficient Trailer:" << massData->i_T;
 }
 
 void TrainParameterPage::setTypeValue() {
@@ -257,13 +257,13 @@ void TrainParameterPage::setTypeValue() {
   loadData->n_T1 = getTypeParameterValue("T1");
   loadData->n_T2 = getTypeParameterValue("T2");
   loadData->n_T3 = getTypeParameterValue("T3");
-  qDebug() << "Current data values:";
-  qDebug() << "  Tc:" << loadData->n_Tc;
-  qDebug() << "  M1:" << loadData->n_M1;
-  qDebug() << "  M2:" << loadData->n_M2;
-  qDebug() << "  T1:" << loadData->n_T1;
-  qDebug() << "  T2:" << loadData->n_T2;
-  qDebug() << "  T3:" << loadData->n_T3;
+  // qDebug() << "Current data values:";
+  // qDebug() << "  Tc:" << loadData->n_Tc;
+  // qDebug() << "  M1:" << loadData->n_M1;
+  // qDebug() << "  M2:" << loadData->n_M2;
+  // qDebug() << "  T1:" << loadData->n_T1;
+  // qDebug() << "  T2:" << loadData->n_T2;
+  // qDebug() << "  T3:" << loadData->n_T3;
 }
 
 void TrainParameterPage::setMassValue() {
@@ -273,13 +273,13 @@ void TrainParameterPage::setMassValue() {
   massData->m_T1 = getMassParameterValue("T1");
   massData->m_T2 = getMassParameterValue("T2");
   massData->m_T3 = getMassParameterValue("T3");
-  qDebug() << "Current data values:";
-  qDebug() << "  M1:" << massData->m_M1;
-  qDebug() << "  M2:" << massData->m_M2;
-  qDebug() << "  Tc:" << massData->m_TC;
-  qDebug() << "  T1:" << massData->m_T1;
-  qDebug() << "  T2:" << massData->m_T2;
-  qDebug() << "  T3:" << massData->m_T3;
+  // qDebug() << "Current data values:";
+  // qDebug() << "  M1:" << massData->m_M1;
+  // qDebug() << "  M2:" << massData->m_M2;
+  // qDebug() << "  Tc:" << massData->m_TC;
+  // qDebug() << "  T1:" << massData->m_T1;
+  // qDebug() << "  T2:" << massData->m_T2;
+  // qDebug() << "  T3:" << massData->m_T3;
 }
 
 void TrainParameterPage::setPassengerValue() {
@@ -289,13 +289,13 @@ void TrainParameterPage::setPassengerValue() {
   loadData->n_PT1 = getPassengerParameterValue("T1");
   loadData->n_PT2 = getPassengerParameterValue("T2");
   loadData->n_PT3 = getPassengerParameterValue("T3");
-  qDebug() << "Current data values:";
-  qDebug() << "  M1:" << loadData->n_PM1;
-  qDebug() << "  M2:" << loadData->n_PM2;
-  qDebug() << "  Tc:" << loadData->n_PTc;
-  qDebug() << "  T1:" << loadData->n_PT1;
-  qDebug() << "  T2:" << loadData->n_PT2;
-  qDebug() << "  T3:" << loadData->n_PT3;
+  // qDebug() << "Current data values:";
+  // qDebug() << "  M1:" << loadData->n_PM1;
+  // qDebug() << "  M2:" << loadData->n_PM2;
+  // qDebug() << "  Tc:" << loadData->n_PTc;
+  // qDebug() << "  T1:" << loadData->n_PT1;
+  // qDebug() << "  T2:" << loadData->n_PT2;
+  // qDebug() << "  T3:" << loadData->n_PT3;
 }
 
 void TrainParameterPage::connectInputSignals() {

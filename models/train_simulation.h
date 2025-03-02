@@ -16,6 +16,7 @@ signals:
 public slots:
   void simulateStaticTrainMovement();
   void simulateDynamicTrainMovement();
+  void resetSimulation();
 
 public:
   explicit TrainSimulation(QObject *parent = nullptr,
@@ -31,7 +32,7 @@ public:
   ;
 
 private:
-  ConstantData *constantData;
+  ConstantData constantData;
   TrainData *trainData;
   MassData *massData;
   LoadData *loadData;
