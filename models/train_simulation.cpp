@@ -1,6 +1,9 @@
 #include "train_simulation.h"
-#include <chrono>
+#include <fstream>
+#include <iostream>
 #include <qdebug.h>
+
+using namespace std;
 
 TrainSimulation::TrainSimulation(QObject *parent, TrainData *trainData,
                                  MassData *massData, LoadData *loadData,
@@ -83,15 +86,15 @@ double TrainSimulation::countMassEmptyCar() {
 }
 
 double TrainSimulation::countMassWithLoad() {
-  loadData->m_P = loadData->m_P / 1000;
+  loadData->m_P_final = loadData->m_P / 1000;
   massData->m_M = massData->m_Me +
-                  loadData->n_M1 * (loadData->m_P * loadData->n_PM1) +
-                  loadData->n_M2 * (loadData->m_P * loadData->n_PM2);
+                  loadData->n_M1 * (loadData->m_P_final * loadData->n_PM1) +
+                  loadData->n_M2 * (loadData->m_P_final * loadData->n_PM2);
   massData->m_T = massData->m_Te +
-                  loadData->n_Tc * (loadData->m_P * loadData->n_PTc) +
-                  loadData->n_T1 * (loadData->m_P * loadData->n_PT1) +
-                  loadData->n_T2 * (loadData->m_P * loadData->n_PT2) +
-                  loadData->n_T3 * (loadData->m_P * loadData->n_PT3);
+                  loadData->n_Tc * (loadData->m_P_final * loadData->n_PTc) +
+                  loadData->n_T1 * (loadData->m_P_final * loadData->n_PT1) +
+                  loadData->n_T2 * (loadData->m_P_final * loadData->n_PT2) +
+                  loadData->n_T3 * (loadData->m_P_final * loadData->n_PT3);
   return massData->m_M + massData->m_T;
 }
 
@@ -103,13 +106,13 @@ double TrainSimulation::countMassLoadInput() {
 
 double TrainSimulation::countInertialMass() {
   massData->m_Mi = (massData->m_Me * massData->i_M) +
-                   (loadData->n_M1 * (loadData->m_P * loadData->n_PM1) +
-                    loadData->n_M2 * (loadData->m_P * loadData->n_PM2));
+                   (loadData->n_M1 * (loadData->m_P_final * loadData->n_PM1) +
+                    loadData->n_M2 * (loadData->m_P_final * loadData->n_PM2));
   massData->m_Ti = (massData->m_Te * massData->i_M) +
-                   (loadData->n_Tc * (loadData->m_P * loadData->n_PTc) +
-                    loadData->n_T1 * (loadData->m_P * loadData->n_PT1) +
-                    loadData->n_T2 * (loadData->m_P * loadData->n_PT2) +
-                    loadData->n_T3 * (loadData->m_P * loadData->n_PT3));
+                   (loadData->n_Tc * (loadData->m_P_final * loadData->n_PTc) +
+                    loadData->n_T1 * (loadData->m_P_final * loadData->n_PT1) +
+                    loadData->n_T2 * (loadData->m_P_final * loadData->n_PT2) +
+                    loadData->n_T3 * (loadData->m_P_final * loadData->n_PT3));
   return massData->m_Mi + massData->m_Ti;
 }
 
@@ -273,7 +276,11 @@ void TrainSimulation::calculateBrakingForce() {
 }
 
 void TrainSimulation::simulateDynamicTrainMovement() {
-  auto startTime = std::chrono::high_resolution_clock::now();
+  ofstream outFile("F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
+                   "fixed_moving_simulation.csv",
+                   ios::out);
+  outFile << "Phase,Iteration,Time,Speed,Acceleration,F Motor,F Res,F Total,F "
+             "Motor/TM,F Res/TM,Torque,RPM\n";
   initData();
   int i = 0;
   bool isAccelerating = true;
@@ -339,46 +346,63 @@ void TrainSimulation::simulateDynamicTrainMovement() {
 
     if (i == 0) {
       trainMotorData->tm_adh = calculateAdhesion();
-      qDebug() << "Phase: Starting " << "\nIteration: " << i
-               << "\nTime: " << time << "\nVelocity: " << 0
-               << "\nAcceleration: " << movingData->acc
-               << "\nMotor Force: " << resistanceData->f_motor
-               << "\nSpeed: " << movingData->v << "\nResistance: "
-               << (movingData->v > 0 ? resistanceData->f_resRunning
-                                     : resistanceData->f_resStart)
-               << "\nTotal Force: " << resistanceData->f_total
-               << "\nTraction Force: " << trainMotorData->tm_f
-               << "\nResistance Force: " << trainMotorData->tm_f_res
-               << "\nPower Wheel: " << powerData->p_wheel
-               << "\nPower Motor Out: " << powerData->p_motorOut
-               << "\nPower Motor In: " << powerData->p_motorIn
-               << "\nPower Vvvf In: " << powerData->p_vvvfIn
-               << "\nPower Catenary: " << powerData->p_catenary;
+      outFile << "Starting" << "," << i << "," << time << "," << 0 << ","
+              << movingData->acc << "," << resistanceData->f_motor << ","
+              << (movingData->v > 0 ? resistanceData->f_resRunning
+                                    : resistanceData->f_resStart)
+              << "," << resistanceData->f_total << "," << trainMotorData->tm_f
+              << "," << trainMotorData->tm_f_res << "," << powerData->p_wheel
+              << "," << powerData->p_motorOut << "," << powerData->p_motorIn
+              << "," << powerData->p_vvvfIn << "," << powerData->p_catenary
+              << "\n";
+      // qDebug() << "Phase: Starting " << "\nIteration: " << i
+      //          << "\nTime: " << time << "\nVelocity: " << 0
+      //          << "\nAcceleration: " << movingData->acc
+      //          << "\nMotor Force: " << resistanceData->f_motor
+      //          << "\nSpeed: " << movingData->v << "\nResistance: "
+      //          << (movingData->v > 0 ? resistanceData->f_resRunning
+      //                                : resistanceData->f_resStart)
+      //          << "\nTotal Force: " << resistanceData->f_total
+      //          << "\nTraction Motor Force: " << trainMotorData->tm_f
+      //          << "\nResistance Force: " << trainMotorData->tm_f_res
+      //          << "\nPower Wheel: " << powerData->p_wheel
+      //          << "\nPower Motor Out: " << powerData->p_motorOut
+      //          << "\nPower Motor In: " << powerData->p_motorIn
+      //          << "\nPower Vvvf In: " << powerData->p_vvvfIn
+      //          << "\nPower Catenary: " << powerData->p_catenary;
     }
     time += constantData.dt;
-    qDebug() << "Phase: " << phase << "\nIteration: " << i + 1
-             << "\nTime: " << time << "\nVelocity: " << movingData->v
-             << "\nAcceleration: "
-             << (phase == "Braking" ? movingData->decc : movingData->acc)
-             << "\nMotor Force: " << resistanceData->f_motor
-             << "\nSpeed: " << movingData->v << "\nResistance: "
-             << (movingData->v > 0 ? resistanceData->f_resRunning
-                                   : resistanceData->f_resStart)
-             << "\nTotal Force: " << resistanceData->f_total
-             << "\nTraction Force: " << trainMotorData->tm_f
-             << "\nResistance Force: " << trainMotorData->tm_f_res
-             << "\nPower Wheel: " << powerData->p_wheel
-             << "\nPower Motor Out: " << powerData->p_motorOut
-             << "\nPower Motor In: " << powerData->p_motorIn
-             << "\nPower Vvvf In: " << powerData->p_vvvfIn
-             << "\nPower Catenary: " << powerData->p_catenary;
+    outFile << phase.toStdString() << "," << i + 1 << "," << time << ","
+            << movingData->v << ","
+            << (isAccelerating || isCoasting ? movingData->acc
+                                             : movingData->decc)
+            << "," << resistanceData->f_motor << ","
+            << (movingData->v > 0 ? resistanceData->f_resRunning
+                                  : resistanceData->f_resStart)
+            << "," << resistanceData->f_total << "," << trainMotorData->tm_f
+            << "," << trainMotorData->tm_f_res << "," << powerData->p_wheel
+            << "," << powerData->p_motorOut << "," << powerData->p_motorIn
+            << "," << powerData->p_vvvfIn << "," << powerData->p_catenary
+            << "\n";
+    // qDebug() << "Phase: " << phase << "\nIteration: " << i + 1
+    //          << "\nTime: " << time << "\nVelocity: " << movingData->v
+    //          << "\nAcceleration: "
+    //          << (phase == "Braking" ? movingData->decc : movingData->acc)
+    //          << "\nMotor Force: " << resistanceData->f_motor
+    //          << "\nSpeed: " << movingData->v << "\nResistance: "
+    //          << (movingData->v > 0 ? resistanceData->f_resRunning
+    //                                : resistanceData->f_resStart)
+    //          << "\nTotal Force: " << resistanceData->f_total
+    //          << "\nTraction Motor Force: " << trainMotorData->tm_f
+    //          << "\nResistance Motoe Force: " << trainMotorData->tm_f_res
+    //          << "\nPower Wheel: " << powerData->p_wheel
+    //          << "\nPower Motor Out: " << powerData->p_motorOut
+    //          << "\nPower Motor In: " << powerData->p_motorIn
+    //          << "\nPower Vvvf In: " << powerData->p_vvvfIn
+    //          << "\nPower Catenary: " << powerData->p_catenary;
     i++;
   }
-  auto endTime = std::chrono::high_resolution_clock::now();
-  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-      endTime - startTime);
-  qDebug() << "Simulation completed in " << (duration.count() / 1000.0)
-           << " seconds";
+  outFile.close();
   emit simulationCompleted();
 }
 
@@ -457,7 +481,8 @@ void TrainSimulation::simulateDynamicTrainMovement() {
 //   qDebug() << "f_motor : " << resistanceData->f_motor;
 //   resistanceData->f_total = calculateTotalForce(0.0);
 //   movingData->acc =
-//       constantData.cV * resistanceData->f_total / massData->m_totalInertial;
+//       constantData.cV * resistanceData->f_total /
+//       massData->m_totalInertial;
 //   movingData->v += movingData->acc * constantData.dt;
 //   qDebug() << "Total Force : " << resistanceData->f_total;
 //   qDebug() << "Acceleration : " << movingData->acc;
@@ -501,7 +526,7 @@ void TrainSimulation::simulateStaticTrainMovement() {
              << (movingData->v > 0 ? resistanceData->f_resRunning
                                    : resistanceData->f_resStart)
              << "\nTotal Force: " << resistanceData->f_total
-             << "\nTraction Force: " << trainMotorData->tm_f
+             << "\nTraction Motor Force: " << trainMotorData->tm_f
              << "\nResistance Force: " << trainMotorData->tm_f_res;
     time += constantData.dt;
     qDebug() << "Phase: " << phase << "\nIteration: " << i + 1
@@ -522,4 +547,26 @@ void TrainSimulation::simulateStaticTrainMovement() {
     i++;
   }
   emit simulationCompleted();
+}
+
+void TrainSimulation::resetSimulation() {
+  resistanceData->f_resStart = 0;
+  resistanceData->f_resRunning = 0;
+  resistanceData->f_res = 0;
+  resistanceData->f_motor = 0;
+  resistanceData->f_start = 0;
+  resistanceData->f_brake = 0;
+  resistanceData->f_total = 0;
+  resistanceData->f_total = 0;
+  trainMotorData->tm_f_res = 0;
+  trainMotorData->tm_f = 0;
+  trainMotorData->tm_t = 0;
+  movingData->acc = movingData->acc_start;
+  movingData->v = 0;
+  powerData->p_wheel = 0;
+  powerData->p_motorOut = 0;
+  powerData->p_motorIn = 0;
+  powerData->p_vvvfIn = 0;
+  powerData->p_catenary = 0;
+  trainMotorData->tm_rpm = 0;
 }
