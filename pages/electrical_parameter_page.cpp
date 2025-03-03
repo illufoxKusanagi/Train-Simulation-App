@@ -17,7 +17,7 @@ ElectricalParameterPage::ElectricalParameterPage(QWidget *parent,
 }
 
 void ElectricalParameterPage::createInputs() {
-  QStringList labels = {"VVVF Voltage",
+  QStringList labels = {"Line Voltage",
                         "Power Factor of Traction Motor",
                         "Motor Voltage",
                         "Efficiency of Gearbox",
@@ -25,7 +25,7 @@ void ElectricalParameterPage::createInputs() {
                         "Auxiliary Power",
                         "Efficiency of Traction Motor"};
   QStringList units = {"V", "%", "V", "%", "%", "kW", "%"};
-  QList<double> values = {0, 0, 0, 0.98, 0.96, 30, 0.89};
+  QList<double> values = {1500, 0, 0, 0.98, 0.96, 30, 0.89};
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
         new InputWidget(InputType("field", labels[i], ""), this);

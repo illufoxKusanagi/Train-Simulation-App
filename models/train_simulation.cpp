@@ -291,7 +291,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       movingData->decc =
           constantData.cV * resistanceData->f_total / massData->m_totalInertial;
       movingData->v += movingData->decc * constantData.dt;
-      if (movingData->v <= 0)
+      if (movingData->v <= 0 || resistanceData->f_total == 0)
         break;
     }
     trainMotorData->tm_f_res = calculateResistanceForcePerMotor(
