@@ -60,13 +60,6 @@ void ElectricalParameterPage::connectInputSignals() {
     connect(it.value(), &InputWidget::valueChanged, this, [this, paramName]() {
       setParameterValue();
       double value = getParameterValue(paramName);
-      qDebug() << "Parameter" << paramName << "changed to:" << value;
-
-      // Additional debug information
-      qDebug() << "Efficiency of Gearbox:" << efficiencyData->eff_gear;
-      qDebug() << "Efficiency of Traction Motor:" << efficiencyData->eff_motor;
-      qDebug() << "Efficiency of VVVF:" << efficiencyData->eff_vvvf;
-      qDebug() << "Auxiliary Power:" << powerData->p_aps;
     });
   }
 }

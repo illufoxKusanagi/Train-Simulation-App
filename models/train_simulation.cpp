@@ -244,10 +244,6 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   outFile << "Phase,Iteration,Time,Speed,Acceleration,F Motor,F Res,F Total,F "
              "Motor/TM,F Res/TM,Torque,RPM\n";
   initData();
-  qDebug() << "Masses : ";
-  qDebug() << "  Empty load:" << massData->m_totalEmpty;
-  qDebug() << "  Loaded mass:" << massData->m_totalLoad;
-  qDebug() << "  Inertial mass:" << massData->m_totalInertial;
   int i = 0;
   bool isAccelerating = true;
   bool isCoasting = false;
@@ -338,89 +334,6 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   outFile.close();
   emit simulationCompleted();
 }
-
-// void TrainSimulation::simulateDynamicTrainMovement() {
-//   int i = 0;
-//   bool isAccelerating = true;
-//   bool isCoasting = false;
-//   float time = 0;
-//   QString phase = "Starting";
-//   int coastingCount = 0;
-//   qDebug() << "=== SIMULATION PARAMETERS ===";
-//   qDebug() << "Gravitation : " << constantData.g;
-//   qDebug() << "Time step : " << constantData.dt;
-//   qDebug() << "Conversion to km/h : " << constantData.cV;
-//   qDebug() << "conversion to kgf : " << constantData.cF;
-//   qDebug() << "Starting Resistance:" << resistanceData->startRes;
-//   qDebug() << "Radius:" << resistanceData->radius;
-//   qDebug() << "Slope:" << resistanceData->slope;
-//   qDebug() << "Acceleration:" << movingData->acc_start;
-//   qDebug() << "Deceleration:" << movingData->decc_start;
-//   qDebug() << "Speed Limit:" << movingData->v_limit;
-//   qDebug() << "Coasting Speed Diff:" << movingData->v_diffCoast;
-//   qDebug() << "v_p1:" << movingData->v_p1;
-//   qDebug() << "v_p2:" << movingData->v_p2;
-//   qDebug() << "v_b1:" << movingData->v_b1;
-//   qDebug() << "v_b2:" << movingData->v_b2;
-//   qDebug() << "Gear Ratio:" << trainData->gearRatio;
-//   qDebug() << "Wheel Diameter:" << trainData->wheel;
-//   qDebug() << "Masses : ";
-//   qDebug() << "  Empty M1:" << massData->m_M1;
-//   qDebug() << "  Empty M2:" << massData->m_M2;
-//   qDebug() << "  Empty TC:" << massData->m_TC;
-//   qDebug() << "  Empty T1:" << massData->m_T1;
-//   qDebug() << "  Empty T2:" << massData->m_T2;
-//   qDebug() << "  Empty T3:" << massData->m_T3;
-//   qDebug() << "Number of car : ";
-//   qDebug() << "  M1:" << loadData->n_M1;
-//   qDebug() << "  M2:" << loadData->n_M2;
-//   qDebug() << "  TC:" << loadData->n_Tc;
-//   qDebug() << "  T1:" << loadData->n_T1;
-//   qDebug() << "  T2:" << loadData->n_T2;
-//   qDebug() << "  T3:" << loadData->n_T3;
-//   qDebug() << "Number of Passenger : ";
-//   qDebug() << "  M1:" << loadData->n_PM1;
-//   qDebug() << "  M2:" << loadData->n_PM2;
-//   qDebug() << "  TC:" << loadData->n_PTc;
-//   qDebug() << "  T1:" << loadData->n_PT1;
-//   qDebug() << "  T2:" << loadData->n_PT2;
-//   qDebug() << "  T3:" << loadData->n_PT3;
-//   qDebug() << "Passenger Weight:" << loadData->m_P;
-//   qDebug() << "Inertial Coefficient Motor:" << massData->i_M;
-//   qDebug() << "Inertial Coefficient Trailer:" << massData->i_T;
-//   qDebug() << "Efficiency (gear):" << efficiencyData->eff_gear;
-//   qDebug() << "Efficiency (motor):" << efficiencyData->eff_motor;
-//   qDebug() << "Efficiency (VVVF):" << efficiencyData->eff_vvvf;
-//   qDebug() << "Number of cars:" << trainData->n_car;
-//   qDebug() << "Number of axles:" << trainData->n_axle;
-//   qDebug() << "Number of traction motors:" << trainData->n_tm;
-//   massData->m_totalEmpty = countMassEmptyCar();
-//   qDebug() << "Total empty motor mass:" << massData->m_Me;
-//   qDebug() << "Total empty trailer mass:" << massData->m_Te;
-//   massData->m_totalLoad = countMassWithLoad();
-//   massData->m_totalInertial = countInertialMass();
-//   qDebug() << "Total empty mass:" << massData->m_totalEmpty;
-//   qDebug() << "Total loaded mass:" << massData->m_totalLoad;
-//   qDebug() << "Total inertial mass:" << massData->m_totalInertial;
-//   qDebug() << "=== SIMULATION STARTING ===";
-//   resistanceData->f_resStart = calculateStartRes();
-//   resistanceData->f_resRunning = calculateRunningRes(2.0);
-//   qDebug() << "Resistance Train : " << resistanceData->r_train;
-//   qDebug() << "Resistance Slope : " << resistanceData->r_slope;
-//   qDebug() << "Resistance Radius : " << resistanceData->r_radius;
-//   qDebug() << "Resistance Start : " << resistanceData->f_resStart;
-//   qDebug() << "Resistance Running : " << resistanceData->f_resRunning;
-//   calculatePoweringForce(1.0, 0.0);
-//   qDebug() << "f_motor : " << resistanceData->f_motor;
-//   resistanceData->f_total = calculateTotalForce(0.0);
-//   movingData->acc =
-//       constantData.cV * resistanceData->f_total /
-//       massData->m_totalInertial;
-//   movingData->v += movingData->acc * constantData.dt;
-//   qDebug() << "Total Force : " << resistanceData->f_total;
-//   qDebug() << "Acceleration : " << movingData->acc;
-//   qDebug() << "Speed : " << movingData->v;
-// }
 
 void TrainSimulation::simulateStaticTrainMovement() {
   ofstream outFile("F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"

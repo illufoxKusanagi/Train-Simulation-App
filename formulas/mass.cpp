@@ -104,7 +104,6 @@ void inputDatas() {
 }
 
 void countMassEmptyCar() {
-  // storeMass();
   m_Me = (n_M1 * m_M1) + (n_M2 * m_M2);
   m_Te = (n_Tc * m_TC) + (n_T1 * m_T1) + (n_T2 * m_T2) + (n_T3 * m_T3);
   m_totalEmpty = m_Me + m_Te;

@@ -43,10 +43,6 @@ void TrackParameterPage::setParameterValue() {
   movingData->v_limit = getParameterValue("Speed Limit");
   resistanceData->radius = getParameterValue("Radius per Section");
   resistanceData->slope = getParameterValue("Slope per Section");
-  // qDebug() << "Current data values : ";
-  // qDebug() << "Speed Limit : " << movingData->v_limit;
-  // qDebug() << "Radius per Section : " << resistanceData->r_radius;
-  // qDebug() << "Slope per Section : " << resistanceData->r_slope;
 }
 
 void TrackParameterPage::connectInputSignals() {
@@ -57,13 +53,6 @@ void TrackParameterPage::connectInputSignals() {
     connect(it.value(), &InputWidget::valueChanged, this, [this, paramName]() {
       setParameterValue();
       double value = getParameterValue(paramName);
-      qDebug() << "Parameter" << paramName << "changed to:" << value;
-
-      // Additional debug information
-      qDebug() << "Current data values : ";
-      qDebug() << "Speed Limit : " << movingData->v_limit;
-      qDebug() << "Radius per Section : " << resistanceData->radius;
-      qDebug() << "Slope per Section : " << resistanceData->slope;
     });
   }
 }

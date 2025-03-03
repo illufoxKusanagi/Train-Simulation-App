@@ -99,10 +99,6 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
     updateTrainImage(m_trainLabelImage, value);
     updateMassCalculation();
   });
-  // QWidget *placeholderWidget = new QWidget(this);
-  // placeholderWidget->setFixedSize(400, 80);
-  // placeholderWidget->setStyleSheet("border: 2px dashed gray; "
-  //                                  "background-color: #f0f0f0;");
   numberCarLayout->addWidget(m_trainLabelImage);
 
   layout->addWidget(numberCarContainer);
@@ -393,16 +389,6 @@ void TrainParameterPage::connectPassengerInputSignals() {
     connect(it.value(), &InputWidget::valueChanged, this, [this, paramName]() {
       setPassengerValue();
       updateMassCalculation();
-      // qDebug() << "Parameter" << paramName << "changed to:" << value;
-
-      // Additional debug information
-      // qDebug() << "Current data values:";
-      // qDebug() << "  M1:" << loadData->n_PM1;
-      // qDebug() << "  M2:" << loadData->n_PM2;
-      // qDebug() << "  Tc:" << loadData->n_PTc;
-      // qDebug() << "  T1:" << loadData->n_PT1;
-      // qDebug() << "  T2:" << loadData->n_PT2;
-      // qDebug() << "  T3:" << loadData->n_PT3;
     });
   }
 }

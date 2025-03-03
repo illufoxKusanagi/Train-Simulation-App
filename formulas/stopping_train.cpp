@@ -115,12 +115,6 @@ void calculateValues() {
     i++;
 
     cout << "Iteration " << i << endl;
-    // cout << "Resistance Train : " << r_train << " kN" << endl;
-    // cout << "Resistance Slope : " << r_slope << " kN" << endl;
-    // cout << "Resistance Radius : " << r_radius << " kN" << endl;
-    // cout << "Resistance Running : " << r_run << " kN" << endl;
-    // cout << "Resistance Force Start : " << f_resStart << " kN" << endl;
-    // cout << "Resistance Force Running : " << f_resRunning << " kN" << endl;
     cout << "Braking force : " << f_brake << " kN" << endl;
     cout << "Motor force : " << f_motor << " kN" << endl;
     cout << "Total force : " << f_total << " kN" << endl;
