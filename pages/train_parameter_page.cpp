@@ -81,10 +81,18 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
   numberCarLayout->setSpacing(32);
   numberCarLayout->setAlignment(Qt::AlignLeft);
   numberCarLayout->setContentsMargins(16, 0, 0, 0);
-  InputWidget *numberOfCar =
-      new InputWidget(InputType("dropdown", "Number of Car", ""), this);
-  numberCarLayout->addWidget(numberOfCar);
   layout->setSpacing(0);
+
+  m_numberOfCar =
+      new InputWidget(InputType("dropdown", "Number of Car", ""), this);
+  m_numberOfCar->setValue(12); // Set initial dropdown value
+  trainData->n_car = 12;
+  connect(m_numberOfCar, &InputWidget::valueChanged, this, [this] {
+    double value = m_numberOfCar->getValue();
+    trainData->n_car = value;
+    updateMassCalculation();
+  });
+  numberCarLayout->addWidget(m_numberOfCar);
 
   QWidget *placeholderWidget = new QWidget(this);
   placeholderWidget->setFixedSize(400, 80);
@@ -394,10 +402,8 @@ void TrainParameterPage::connectPassengerInputSignals() {
 }
 
 void TrainParameterPage::updateMassCalculation() {
-  trainData->n_car = 12;
   double emptyMass = calculateEmptyMass();
   massPerTrainsetEmpty->setValue(emptyMass);
-
   double loadedMass = calculateLoadedMass();
   massPerTrainsetLoaded->setValue(loadedMass);
 }

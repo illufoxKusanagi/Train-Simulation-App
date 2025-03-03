@@ -25,7 +25,7 @@ TrainSimulation::TrainSimulation(QObject *parent, TrainData *trainData,
 void TrainSimulation::initTrainMassData() {}
 
 void TrainSimulation::initData() {
-  trainData->n_car = 12.0;
+  // trainData->n_car = 12.0;
   massData->m_totalEmpty = countMassEmptyCar();
   if (loadData->load > 0) {
     massData->m_totalLoad = countMassLoadInput();
@@ -315,13 +315,11 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       trainMotorData->tm_adh = calculateAdhesion();
       outFile << "Starting" << "," << i << "," << time << "," << 0 << ","
               << movingData->acc << "," << resistanceData->f_motor << ","
-              << (movingData->v > 0 ? resistanceData->f_resRunning
-                                    : resistanceData->f_resStart)
-              << "," << resistanceData->f_total << "," << trainMotorData->tm_f
-              << "," << trainMotorData->tm_f_res << "," << powerData->p_wheel
-              << "," << powerData->p_motorOut << "," << powerData->p_motorIn
-              << "," << powerData->p_vvvfIn << "," << powerData->p_catenary
-              << "\n";
+              << resistanceData->f_resStart << "," << resistanceData->f_total
+              << "," << trainMotorData->tm_f << "," << trainMotorData->tm_f_res
+              << "," << powerData->p_wheel << "," << powerData->p_motorOut
+              << "," << powerData->p_motorIn << "," << powerData->p_vvvfIn
+              << "," << powerData->p_catenary << "\n";
     }
     time += constantData.dt;
     outFile << phase.toStdString() << "," << i + 1 << "," << time << ","
