@@ -87,18 +87,23 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
       new InputWidget(InputType("dropdown", "Number of Car", ""), this);
   m_numberOfCar->setValue(12);
   trainData->n_car = 12;
+
+  numberCarLayout->addWidget(m_numberOfCar);
+
+  m_trainLabelImage = new QLabel(this);
+  m_trainLabelImage->setFixedSize(512, 80);
+  updateTrainImage(m_trainLabelImage, 12);
   connect(m_numberOfCar, &InputWidget::valueChanged, this, [this] {
     double value = m_numberOfCar->getValue();
     trainData->n_car = value;
+    updateTrainImage(m_trainLabelImage, value);
     updateMassCalculation();
   });
-  numberCarLayout->addWidget(m_numberOfCar);
-
-  QWidget *placeholderWidget = new QWidget(this);
-  placeholderWidget->setFixedSize(400, 80);
-  placeholderWidget->setStyleSheet("border: 2px dashed gray; "
-                                   "background-color: #f0f0f0;");
-  numberCarLayout->addWidget(placeholderWidget);
+  // QWidget *placeholderWidget = new QWidget(this);
+  // placeholderWidget->setFixedSize(400, 80);
+  // placeholderWidget->setStyleSheet("border: 2px dashed gray; "
+  //                                  "background-color: #f0f0f0;");
+  numberCarLayout->addWidget(m_trainLabelImage);
 
   layout->addWidget(numberCarContainer);
 
@@ -419,4 +424,11 @@ double TrainParameterPage::calculateLoadedMass() {
                               ? m_trainSimulation->countMassLoadInput()
                               : m_trainSimulation->countMassWithLoad();
   return massData->m_totalLoad;
+}
+
+void TrainParameterPage::updateTrainImage(QLabel *trainImageLabel, int nCar) {
+  QString filename = QString(":/icons/icons/%1-train.png").arg(nCar);
+  QPixmap pixmap(filename);
+  trainImageLabel->setPixmap(pixmap.scaled(
+      trainImageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 }
