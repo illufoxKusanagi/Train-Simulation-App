@@ -85,7 +85,7 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
 
   m_numberOfCar =
       new InputWidget(InputType("dropdown", "Number of Car", ""), this);
-  m_numberOfCar->setValue(12); // Set initial dropdown value
+  m_numberOfCar->setValue(12);
   trainData->n_car = 12;
   connect(m_numberOfCar, &InputWidget::valueChanged, this, [this] {
     double value = m_numberOfCar->getValue();
@@ -99,6 +99,7 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
   placeholderWidget->setStyleSheet("border: 2px dashed gray; "
                                    "background-color: #f0f0f0;");
   numberCarLayout->addWidget(placeholderWidget);
+
   layout->addWidget(numberCarContainer);
 
   QWidget *secondPageContainer = new QWidget(this);

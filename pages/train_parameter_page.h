@@ -42,6 +42,7 @@ private:
   MassData *massData;
   LoadData *loadData;
   TrainSimulation *m_trainSimulation;
+  QLabel *m_trainLabelImage;
   InputWidget *massPerTrainsetEmpty;
   InputWidget *massPerTrainsetLoaded;
 
