@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
       new TrainSimulation(this, &m_trainData, &m_massData, &m_loadData,
                           &m_resistanceData, &m_movingData, &m_trainMotorData,
                           &m_efficiencyData, &m_powerData, &m_energyData);
-  leftPanel = new LeftPanel(this, *m_trainSimulation);
+  leftPanel = new LeftPanel(this, m_trainSimulation);
   stackedWidget = new QStackedWidget(this);
   connect(leftPanel, &LeftPanel::navigateToPage, this,
           &MainWindow::navigateToPage);
@@ -32,8 +32,8 @@ void MainWindow::setupPages() {
   ConstantValuesPage *constantValuesPage = new ConstantValuesPage(this);
   setupFixedSizePage(constantValuesPage);
 
-  TrainParameterPage *trainParameterPage =
-      new TrainParameterPage(this, &m_trainData, &m_massData, &m_loadData);
+  TrainParameterPage *trainParameterPage = new TrainParameterPage(
+      this, &m_trainData, &m_massData, &m_loadData, m_trainSimulation);
   setupFixedSizePage(trainParameterPage);
 
   RunningParameterPage *runningParameterPage =

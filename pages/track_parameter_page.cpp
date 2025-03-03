@@ -20,13 +20,13 @@ void TrackParameterPage::createInputs() {
                         "Station Distance",  "Slope per Section",
                         "Section Distance",  "Speed Limit"};
   QStringList units = {"m/s2", "m", "m", "m", "‰", "km/h"};
-  QList<double> values = {0, 2000, 0, 0, 0, 70};
+  QList<double> values = {0.0, 2000, 0.0, 0.0, 0.0, 70};
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
         new InputWidget(InputType("field", labels[i], ""), this);
     inputWidget->setValue(values[i]);
-    m_inputWidgets[labels[i]] = inputWidget;
     m_formLayout->addWidget(inputWidget, i / 2, i % 2);
+    m_inputWidgets[labels[i]] = inputWidget;
   }
   setParameterValue();
   connectInputSignals();
@@ -41,12 +41,8 @@ double TrackParameterPage::getParameterValue(const QString &paramName) const {
 
 void TrackParameterPage::setParameterValue() {
   movingData->v_limit = getParameterValue("Speed Limit");
-  resistanceData->r_radius = getParameterValue("Radius per Section");
-  resistanceData->r_slope = getParameterValue("Sloper per Section");
-  qDebug() << "Current data values : ";
-  qDebug() << "Speed Limit : " << movingData->v_limit;
-  qDebug() << "Radius per Section : " << resistanceData->r_radius;
-  qDebug() << "Slope per Section : " << resistanceData->r_slope;
+  resistanceData->radius = getParameterValue("Radius per Section");
+  resistanceData->slope = getParameterValue("Slope per Section");
 }
 
 void TrackParameterPage::connectInputSignals() {
@@ -57,13 +53,6 @@ void TrackParameterPage::connectInputSignals() {
     connect(it.value(), &InputWidget::valueChanged, this, [this, paramName]() {
       setParameterValue();
       double value = getParameterValue(paramName);
-      qDebug() << "Parameter" << paramName << "changed to:" << value;
-
-      // Additional debug information
-      qDebug() << "Current data values : ";
-      qDebug() << "Speed Limit : " << movingData->v_limit;
-      qDebug() << "Radius per Section : " << resistanceData->r_radius;
-      qDebug() << "Slope per Section : " << resistanceData->r_slope;
     });
   }
 }

@@ -102,7 +102,6 @@ float eff_vvvf;
 float acc;
 float decc;
 
-// float n;
 float load;
 float numberOfCar;
 int i = 0;
@@ -266,7 +265,6 @@ void countTrainMass() {
     countMassLoadInput();
     countInertialMassInput();
   }
-  // saveTrainMassCsv();
 }
 
 void initData() {
@@ -487,7 +485,6 @@ void simulateDynamicTrainMovement(float acc, float decc, ofstream &outFile) {
 
     time += dt;
 
-    // Simpan data ke file CSV
     outFile << phase << "," << i + 1 << "," << time << "," << v << ","
             << (isAccelerating || isCoasting ? acc : decc) << "," << f_motor
             << "," << (v > 0 ? f_resRunning : f_resStart) << "," << f_total

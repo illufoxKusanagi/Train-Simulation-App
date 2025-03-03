@@ -16,6 +16,7 @@ signals:
 public slots:
   void simulateStaticTrainMovement();
   void simulateDynamicTrainMovement();
+  void resetSimulation();
 
 public:
   explicit TrainSimulation(QObject *parent = nullptr,
@@ -28,10 +29,14 @@ public:
                            EfficiencyData *efficiencyData = nullptr,
                            PowerData *powerData = nullptr,
                            EnergyData *energyData = nullptr);
-  ;
+  double countMassEmptyCar();
+  double countMassWithLoad();
+  double countMassLoadInput();
+  double countInertialMass();
+  double countInertialMassInput();
 
 private:
-  ConstantData *constantData;
+  ConstantData constantData;
   TrainData *trainData;
   MassData *massData;
   LoadData *loadData;
@@ -43,11 +48,6 @@ private:
   EnergyData *energyData;
   void initTrainMassData();
   void initData();
-  double countMassEmptyCar();
-  double countMassWithLoad();
-  double countMassLoadInput();
-  double countInertialMass();
-  double countInertialMassInput();
   double calculateResTrain(float m, float startRes);
   double calculateResSlope(float m, float slope);
   double calculateResRadius(float m, float radius);

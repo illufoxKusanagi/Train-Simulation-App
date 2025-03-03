@@ -147,7 +147,6 @@ void calculatePoweringForce(float acc) {
 
 void calculateStoppingForce(float decc) {
   f_brake = m_totalInertial * (decc_start / c);
-  // f_brake = m_totalInertial * (abs(decc) / c);
   if (v < v_b1) {
     f_motor = -f_brake;
   } else if (v > v_b1 && v <= v_b2) {
@@ -169,7 +168,6 @@ void calculateBrakingValue() {
   while (v > 0) {
     f_resStart = calculateStartRes();
     f_resRunning = calculateRunningRes(v);
-    // calculateStoppingForce();
     calculateTotalBrakeForce();
     decc = c * f_total / m_totalInertial;
     v += decc * dt;
@@ -186,14 +184,14 @@ void calculateBrakingValue() {
 
 void simulateTrainMovement(float acc, float decc) {
   i = 0;
-  bool isAccelerating = true; // Flag untuk tracking fase accelerating
-  bool isCoasting = false;    // Flag untuk tracking fase coasting
+  bool isAccelerating = true;
+  bool isCoasting = false;
   float time = 0;
   string phase;
   int coastingCount = 0;
 
   std::ofstream outFile("train_simulation.csv", std::ios::app);
-  if (i == 0) { // Add header
+  if (i == 0) {
     outFile
         << "Phase,Iteration,Time,Speed,Acceleration,F_motor,F_res,F_total\n";
   }
@@ -246,7 +244,6 @@ void simulateTrainMovement(float acc, float decc) {
     time += dt;
     i++;
 
-    // Simpan data ke file CSV
     outFile << phase << "," << i + 1 << "," << time << "," << v << ","
             << (isAccelerating || isCoasting ? acc : decc) << "," << f_motor
             << "," << (v < 1 ? f_resStart : f_resRunning) << "," << f_total
