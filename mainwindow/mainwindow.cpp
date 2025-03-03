@@ -32,8 +32,8 @@ void MainWindow::setupPages() {
   ConstantValuesPage *constantValuesPage = new ConstantValuesPage(this);
   setupFixedSizePage(constantValuesPage);
 
-  TrainParameterPage *trainParameterPage =
-      new TrainParameterPage(this, &m_trainData, &m_massData, &m_loadData);
+  TrainParameterPage *trainParameterPage = new TrainParameterPage(
+      this, &m_trainData, &m_massData, &m_loadData, m_trainSimulation);
   setupFixedSizePage(trainParameterPage);
 
   RunningParameterPage *runningParameterPage =

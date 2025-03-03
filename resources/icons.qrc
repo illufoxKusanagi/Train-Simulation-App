@@ -31,5 +31,7 @@
         <file>icons/category-collapse.svg</file>
         <file>icons/category-disabled.svg</file>
         <file>icons/category-active.svg</file>
+        <file>icons/arrow-down.ico</file>
+        <file>icons/arrow-down-black.svg</file>
     </qresource>
 </RCC>
