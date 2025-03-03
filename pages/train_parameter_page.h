@@ -37,6 +37,7 @@ private:
   QString groupBoxStyle;
   ButtonAction *m_prevButton;
   ButtonAction *m_nextButton;
+  InputWidget *m_numberOfCar;
   TrainData *trainData;
   MassData *massData;
   LoadData *loadData;

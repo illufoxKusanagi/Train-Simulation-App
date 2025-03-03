@@ -2,6 +2,8 @@
 
 InputDropdown::InputDropdown(QWidget *parent)
     : QWidget(parent), m_dropdown(new QComboBox(this)) {
+  connect(m_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+          [this](int) { emit valueChanged(); });
   QHBoxLayout *layout = new QHBoxLayout(this);
   QStringList options = {"12", "10", "8", "6"};
   layout->setContentsMargins(0, 0, 0, 0);
@@ -36,8 +38,10 @@ InputDropdown::InputDropdown(QWidget *parent)
   layout->addWidget(m_dropdown);
 }
 
-QString InputDropdown::currentText() const { return m_dropdown->currentText(); }
-
 void InputDropdown::setCurrentText(const QString &text) {
   m_dropdown->setCurrentText(text);
+}
+
+double InputDropdown::getValue() {
+  return m_dropdown->currentText().toDouble();
 }

@@ -17,6 +17,10 @@ InputWidget::InputWidget(const InputType &inputType, QWidget *parent)
   } else if (inputType.type == "dropdown") {
     m_inputDropdown = new InputDropdown(this);
     m_inputDropdown->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    connect(m_inputDropdown, &InputDropdown::valueChanged, this, [this]() {
+      m_inputValue = m_inputDropdown->getValue();
+      emit valueChanged();
+    });
     layout->addWidget(m_inputDropdown);
     layout->setAlignment(m_inputDropdown, Qt::AlignLeft);
   } else if (inputType.type == "upload") {
@@ -50,8 +54,12 @@ void InputWidget::buildInputField(InputType inputType) {
 }
 
 void InputWidget::setValue(double value) {
-  m_inputValue = value;
-  m_inputField->setValue(value);
+  if (m_inputField) {
+    m_inputValue = value;
+    m_inputField->setValue(value);
+  } else if (m_inputDropdown) {
+    m_inputValue = m_inputDropdown->getValue();
+  }
 }
 
 double InputWidget::getValue() { return m_inputValue; }
