@@ -42,6 +42,7 @@ private:
   MassData *massData;
   LoadData *loadData;
   TrainSimulation *m_trainSimulation;
+  QLabel *m_trainLabelImage;
   InputWidget *massPerTrainsetEmpty;
   InputWidget *massPerTrainsetLoaded;
 
@@ -66,6 +67,7 @@ private:
   void updateMassCalculation();
   double calculateEmptyMass();
   double calculateLoadedMass();
+  void updateTrainImage(QLabel *trainImageLabel, int nCar);
 
   QGroupBox *createTypeLayout(const QStringList &labels, QList<double> values);
   QGroupBox *createMassLayout(const QStringList &labels, QList<double> values);

@@ -33,5 +33,9 @@
         <file>icons/category-active.svg</file>
         <file>icons/arrow-down.ico</file>
         <file>icons/arrow-down-black.svg</file>
+        <file>icons/12-train.png</file>
+        <file>icons/6-train.png</file>
+        <file>icons/8-train.png</file>
+        <file>icons/10-train.png</file>
     </qresource>
 </RCC>

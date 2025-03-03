@@ -25,7 +25,6 @@ TrainSimulation::TrainSimulation(QObject *parent, TrainData *trainData,
 void TrainSimulation::initTrainMassData() {}
 
 void TrainSimulation::initData() {
-  // trainData->n_car = 12.0;
   massData->m_totalEmpty = countMassEmptyCar();
   if (loadData->load > 0) {
     massData->m_totalLoad = countMassLoadInput();
