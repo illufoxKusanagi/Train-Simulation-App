@@ -6,10 +6,6 @@ InputDropdown::InputDropdown(QWidget *parent)
   QStringList options = {"12", "10", "8", "6"};
   layout->setContentsMargins(0, 0, 0, 0);
   m_dropdown->addItems(options);
-  // m_dropdown->insertItem(0, QIcon(":/icons/icons/arrow-down.svg"), "");
-  // m_dropdown->setIconSize(QSize(12, 12));
-  // m_dropdown->view()->window()->setWindowFlags(Qt::Popup |
-  //                                              Qt::FramelessWindowHint);
   m_dropdown->setStyleSheet(
       "QComboBox {"
       "    padding: 4px 8px;"
@@ -23,8 +19,6 @@ InputDropdown::InputDropdown(QWidget *parent)
       ";"
       "}"
       "QComboBox::drop-down {"
-      // "    subcontrol-origin: padding;"
-      // "    subcontrol-position: center right;"
       "    width: 16px;"
       "    border: none;"
       "    margin-right: 8px;"

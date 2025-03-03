@@ -27,8 +27,13 @@ void TrainSimulation::initTrainMassData() {}
 void TrainSimulation::initData() {
   trainData->n_car = 12.0;
   massData->m_totalEmpty = countMassEmptyCar();
-  massData->m_totalLoad = countMassWithLoad();
-  massData->m_totalInertial = countInertialMass();
+  if (loadData->load > 0) {
+    massData->m_totalLoad = countMassLoadInput();
+    massData->m_totalInertial = countInertialMassInput();
+  } else {
+    massData->m_totalLoad = countMassWithLoad();
+    massData->m_totalInertial = countInertialMass();
+  }
   movingData->v = 0.0;
   movingData->acc = movingData->acc_start;
   movingData->decc = movingData->decc_start;
@@ -240,6 +245,10 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   outFile << "Phase,Iteration,Time,Speed,Acceleration,F Motor,F Res,F Total,F "
              "Motor/TM,F Res/TM,Torque,RPM\n";
   initData();
+  qDebug() << "Masses : ";
+  qDebug() << "  Empty load:" << massData->m_totalEmpty;
+  qDebug() << "  Loaded mass:" << massData->m_totalLoad;
+  qDebug() << "  Inertial mass:" << massData->m_totalInertial;
   int i = 0;
   bool isAccelerating = true;
   bool isCoasting = false;

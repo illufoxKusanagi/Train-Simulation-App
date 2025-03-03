@@ -2,6 +2,7 @@
 #define TRAINPARAMETERPAGE_H
 
 #include "../models/train_data.h"
+#include "../models/train_simulation.h"
 #include "../styles/colors.h"
 #include "../styles/text_style.h"
 #include "../widgets/button_action.h"
@@ -17,9 +18,10 @@ class TrainParameterPage : public QWidget {
 
 public:
   explicit TrainParameterPage(QWidget *parent = nullptr,
-                              TrainData *ptrainData = nullptr,
-                              MassData *pmassData = nullptr,
-                              LoadData *ploadData = nullptr);
+                              TrainData *trainData = nullptr,
+                              MassData *massData = nullptr,
+                              LoadData *loadData = nullptr,
+                              TrainSimulation *trainSimulation = nullptr);
 
 private:
   QVBoxLayout *mainLayout;
@@ -38,6 +40,9 @@ private:
   TrainData *trainData;
   MassData *massData;
   LoadData *loadData;
+  TrainSimulation *m_trainSimulation;
+  InputWidget *massPerTrainsetEmpty;
+  InputWidget *massPerTrainsetLoaded;
 
   void setupFirstPage(QWidget *firstPageWidget);
   void setupSecondPage(QVBoxLayout *layout);
@@ -57,6 +62,9 @@ private:
   void connectTypeInputSignals();
   void connectMassInputSignals();
   void connectPassengerInputSignals();
+  void updateMassCalculation();
+  double calculateEmptyMass();
+  double calculateLoadedMass();
 
   QGroupBox *createTypeLayout(const QStringList &labels, QList<double> values);
   QGroupBox *createMassLayout(const QStringList &labels, QList<double> values);

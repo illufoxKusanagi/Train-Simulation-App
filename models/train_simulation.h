@@ -29,7 +29,11 @@ public:
                            EfficiencyData *efficiencyData = nullptr,
                            PowerData *powerData = nullptr,
                            EnergyData *energyData = nullptr);
-  ;
+  double countMassEmptyCar();
+  double countMassWithLoad();
+  double countMassLoadInput();
+  double countInertialMass();
+  double countInertialMassInput();
 
 private:
   ConstantData constantData;
@@ -44,11 +48,6 @@ private:
   EnergyData *energyData;
   void initTrainMassData();
   void initData();
-  double countMassEmptyCar();
-  double countMassWithLoad();
-  double countMassLoadInput();
-  double countInertialMass();
-  double countInertialMassInput();
   double calculateResTrain(float m, float startRes);
   double calculateResSlope(float m, float slope);
   double calculateResRadius(float m, float radius);
