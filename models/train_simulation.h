@@ -3,9 +3,15 @@
 
 #define _USE_MATH_DEFINES
 #include "train_data.h"
+#include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
 #include <QObject>
 #include <QString>
 #include <cmath>
+#include <fstream>
+#include <iostream>
+#include <qdebug.h>
 
 class TrainSimulation : public QObject {
   Q_OBJECT
