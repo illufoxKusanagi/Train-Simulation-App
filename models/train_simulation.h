@@ -75,6 +75,7 @@ private:
   double calculateRunningRes(float v);
   void calculatePoweringForce(float acc, float v);
   void calculateBrakingForce();
+  void deleteCsvFile(QString csvPath);
 
   double calculateEnergyConsumption();
   double calculateEnergyOfPowering();
