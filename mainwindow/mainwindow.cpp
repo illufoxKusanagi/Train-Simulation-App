@@ -45,7 +45,8 @@ void MainWindow::setupPages() {
   setupFixedSizePage(trackParameterPage);
 
   ElectricalParameterPage *electricalParameterPage =
-      new ElectricalParameterPage(this, &m_efficiencyData, &m_powerData);
+      new ElectricalParameterPage(this, &m_efficiencyData, &m_powerData,
+                                  &m_energyData);
   setupFixedSizePage(electricalParameterPage);
 
   TrainSpeedPage *trainSpeedPage = new TrainSpeedPage(this);

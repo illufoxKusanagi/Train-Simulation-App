@@ -113,6 +113,9 @@ struct EnergyData {
   double e_pow;
   double e_reg;
   double e_aps;
+  double vol_line;
+  double curr_catenary;
+  double curr_vvvf;
 };
 
 #endif // TRAIN_DATA_H
