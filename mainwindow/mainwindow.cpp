@@ -52,11 +52,11 @@ void MainWindow::setupPages() {
   TrainSpeedPage *trainSpeedPage = new TrainSpeedPage(this);
   setupFixedSizePage(trainSpeedPage);
 
-  TrainPowerPage *trainPowerPage = new TrainPowerPage(this);
-  setupFixedSizePage(trainPowerPage);
-
   TractionEffortPage *tractionEffortPage = new TractionEffortPage(this);
   setupFixedSizePage(tractionEffortPage);
+
+  TrainPowerPage *trainPowerPage = new TrainPowerPage(this);
+  setupFixedSizePage(trainPowerPage);
 }
 
 void MainWindow::navigateToPage(int pageIndex) {
