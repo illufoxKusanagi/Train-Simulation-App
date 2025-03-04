@@ -237,6 +237,7 @@ void TrainSimulation::calculateBrakingForce() {
 void TrainSimulation::simulateDynamicTrainMovement() {
   QString filePath = QDir(QCoreApplication::applicationDirPath())
                          .filePath("fixed_dynamic_simulation.csv");
+  deleteCsvFile(filePath);
   ofstream outFile(filePath.toStdString(), ios::out);
   outFile
       << "Phase,Iteration,Time,Speed,Acceleration,F Motor,F Res,F Total,F "
@@ -338,6 +339,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
 void TrainSimulation::simulateStaticTrainMovement() {
   QString filePath = QDir(QCoreApplication::applicationDirPath())
                          .filePath("fixed_static_simulation.csv");
+  deleteCsvFile(filePath);
   ofstream outFile(filePath.toStdString(), ios::out);
   outFile << "Phase,Iteration,Time,Speed,Acceleration,F Motor,F Res,F Total,F "
              "Motor/TM,F Res/TM,Torque,RPM,P_motor Out,P_motor In,P_vvvf, "
@@ -421,4 +423,11 @@ void TrainSimulation::resetSimulation() {
   powerData->p_vvvfIn = 0;
   powerData->p_catenary = 0;
   trainMotorData->tm_rpm = 0;
+}
+
+void TrainSimulation::deleteCsvFile(QString csvPath) {
+  QFile file(csvPath);
+  if (file.exists()) {
+    file.remove();
+  }
 }
