@@ -45,6 +45,7 @@ private:
   QLabel *m_trainLabelImage;
   InputWidget *massPerTrainsetEmpty;
   InputWidget *massPerTrainsetLoaded;
+  QList<QList<QList<double>>> m_carData;
 
   void setupFirstPage(QWidget *firstPageWidget);
   void setupSecondPage(QVBoxLayout *layout);
@@ -68,6 +69,9 @@ private:
   double calculateEmptyMass();
   double calculateLoadedMass();
   void updateTrainImage(QLabel *trainImageLabel, int nCar);
+  void setupTrainsetSection(QHBoxLayout *numberCarLayout,
+                            QList<QList<QList<double>>> carData);
+  void setDefaultCarValues();
 
   QGroupBox *createTypeLayout(const QStringList &labels, QList<double> values);
   QGroupBox *createMassLayout(const QStringList &labels, QList<double> values);
