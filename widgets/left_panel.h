@@ -8,9 +8,11 @@
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QtConcurrent/QtConcurrent>
+
 
 class LeftPanel : public QWidget {
   Q_OBJECT

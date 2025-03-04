@@ -6,13 +6,12 @@ LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->setContentsMargins(0, 0, 0, 0);
   m_buttonToggle = new ButtonToggle(m_isCollapsed, this);
-
   QWidget *buttonContainer = new QWidget(this);
   m_buttonLayout = new QVBoxLayout(buttonContainer);
   m_buttonLayout->setContentsMargins(8, 8, 8, 8);
   m_buttonLayout->setSpacing(8);
-  m_buttonLayout->setAlignment(Qt::AlignCenter);
-  m_buttonLayout->addWidget(m_buttonToggle);
+  m_buttonLayout->setAlignment(Qt::AlignTop);
+  // m_buttonLayout->addWidget(m_buttonToggle);
 
   connect(m_buttonToggle, &QPushButton::clicked, this, [this]() {
     m_isCollapsed = !m_isCollapsed;
@@ -21,14 +20,27 @@ LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
     m_buttonToggle->toggleCollapse();
     setFixedWidth(m_isCollapsed ? 160 : 320);
   });
-
+  m_buttonLayout->addWidget(m_buttonToggle);
+  m_buttonToggle->setStyleSheet(
+      "position: absolute; top: 0; left: 0; margin: auto;");
   setupInputPageButtons();
   createRunButton();
   setupOutputPageButtons();
-  mainLayout->addWidget(buttonContainer);
+  QScrollArea *scrollArea = new QScrollArea(this);
+  scrollArea->setWidget(buttonContainer);
+  scrollArea->setWidgetResizable(true);
+  scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  scrollArea->setFrameShape(QFrame::NoFrame);
+  mainLayout->addWidget(scrollArea);
   setFixedWidth(320);
   setLayout(mainLayout);
   setStyleSheet("QWidget {"
+                "    background-color: " +
+                Colors::Secondary500.name() +
+                ";"
+                "}"
+                "QScrollArea {"
                 "    background-color: " +
                 Colors::Secondary500.name() +
                 ";"
