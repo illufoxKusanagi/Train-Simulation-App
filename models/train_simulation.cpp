@@ -177,6 +177,17 @@ double TrainSimulation::calculatePowerOfCatenary() {
   return powerData->p_catenary;
 }
 
+double TrainSimulation::calculateVvvfCurrent() {
+  energyData->curr_vvvf = 1000 * (powerData->p_vvvfIn / energyData->vol_line);
+  return energyData->curr_vvvf;
+}
+
+double TrainSimulation::calculateCatenaryCurrent() {
+  energyData->curr_catenary =
+      1000 * (powerData->p_catenary / energyData->vol_line);
+  return energyData->curr_catenary;
+}
+
 double TrainSimulation::calculateStartRes() {
   resistanceData->r_train =
       calculateResTrain(massData->m_totalLoad, resistanceData->startRes);
@@ -237,12 +248,15 @@ void TrainSimulation::calculateBrakingForce() {
 void TrainSimulation::simulateDynamicTrainMovement() {
   QString filePath = QDir(QCoreApplication::applicationDirPath())
                          .filePath("fixed_dynamic_simulation.csv");
+  // QString filePath =
+  // "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
+  //                    "fixed_dynamic_simulation.csv";
   deleteCsvFile(filePath);
   ofstream outFile(filePath.toStdString(), ios::out);
   outFile
       << "Phase,Iteration,Time,Speed,Acceleration,F Motor,F Res,F Total,F "
          "Motor/TM,F Res/TM,Torque,RPM,P_wheel,P_motor Out,P_motor In,P_vvvf, "
-         "P_catenary\n";
+         "P_catenary,Catenary current,VVVF current\n";
   initData();
   int i = 0;
   bool isAccelerating = true;
@@ -305,6 +319,8 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     powerData->p_motorIn = calculateInputTractionMotor();
     powerData->p_vvvfIn = calculatePowerInputOfVvvf();
     powerData->p_catenary = calculatePowerOfCatenary();
+    energyData->curr_catenary = calculateCatenaryCurrent();
+    energyData->curr_vvvf = calculateVvvfCurrent();
 
     if (i == 0) {
       trainMotorData->tm_adh = calculateAdhesion();
@@ -315,7 +331,9 @@ void TrainSimulation::simulateDynamicTrainMovement() {
               << "," << trainMotorData->tm_t << "," << trainMotorData->tm_rpm
               << "," << powerData->p_wheel << "," << powerData->p_motorOut
               << "," << powerData->p_motorIn << "," << powerData->p_vvvfIn
-              << "," << powerData->p_catenary << "\n";
+              << "," << powerData->p_catenary << ","
+              << energyData->curr_catenary << "," << energyData->curr_vvvf
+              << "\n";
     }
     time += constantData.dt;
     outFile << phase.toStdString() << "," << i + 1 << "," << time << ","
@@ -329,7 +347,9 @@ void TrainSimulation::simulateDynamicTrainMovement() {
             << "," << trainMotorData->tm_f_res << "," << trainMotorData->tm_t
             << "," << trainMotorData->tm_rpm << "," << powerData->p_wheel << ","
             << powerData->p_motorOut << "," << powerData->p_motorIn << ","
-            << powerData->p_vvvfIn << "," << powerData->p_catenary << "\n";
+            << powerData->p_vvvfIn << "," << powerData->p_catenary << ","
+            << energyData->curr_catenary << "," << energyData->curr_vvvf
+            << "\n";
     i++;
   }
   outFile.close();
@@ -339,11 +359,14 @@ void TrainSimulation::simulateDynamicTrainMovement() {
 void TrainSimulation::simulateStaticTrainMovement() {
   QString filePath = QDir(QCoreApplication::applicationDirPath())
                          .filePath("fixed_static_simulation.csv");
+  // QString filePath =
+  // "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
+  //                    "fixed_static_simulation.csv";
   deleteCsvFile(filePath);
   ofstream outFile(filePath.toStdString(), ios::out);
   outFile << "Phase,Iteration,Time,Speed,Acceleration,F Motor,F Res,F Total,F "
              "Motor/TM,F Res/TM,Torque,RPM,P_motor Out,P_motor In,P_vvvf, "
-             "P_catenary\n";
+             "P_catenary,Catenary current,VVVF current\n";
   initData();
   double v_limit = 130;
   int i = 0;
@@ -371,6 +394,8 @@ void TrainSimulation::simulateStaticTrainMovement() {
     powerData->p_vvvfIn = calculatePowerInputOfVvvf();
     powerData->p_catenary = calculatePowerOfCatenary();
     trainMotorData->tm_rpm = calculateRpm();
+    energyData->curr_catenary = calculateCatenaryCurrent();
+    energyData->curr_vvvf = calculateVvvfCurrent();
 
     if (i == 0) {
       trainMotorData->tm_adh = calculateAdhesion();
@@ -382,8 +407,9 @@ void TrainSimulation::simulateStaticTrainMovement() {
               << "," << trainMotorData->tm_f_res << "," << trainMotorData->tm_t
               << "," << trainMotorData->tm_rpm << "," << powerData->p_wheel
               << "," << powerData->p_motorOut << "," << powerData->p_motorIn
-              << "," << powerData->p_vvvfIn << "," << powerData->p_catenary
-              << "\n";
+              << "," << powerData->p_vvvfIn << "," << ","
+              << energyData->curr_catenary << "," << energyData->curr_vvvf
+              << powerData->p_catenary << "\n";
     }
     time += constantData.dt;
     outFile << phase.toStdString() << "," << i + 1 << "," << time << ","
@@ -397,7 +423,9 @@ void TrainSimulation::simulateStaticTrainMovement() {
             << "," << trainMotorData->tm_f_res << "," << trainMotorData->tm_t
             << "," << trainMotorData->tm_rpm << "," << powerData->p_wheel << ","
             << powerData->p_motorOut << "," << powerData->p_motorIn << ","
-            << powerData->p_vvvfIn << "," << powerData->p_catenary << "\n";
+            << powerData->p_vvvfIn << "," << powerData->p_catenary << ","
+            << energyData->curr_catenary << "," << energyData->curr_vvvf
+            << "\n";
     i++;
   }
   emit simulationCompleted();
