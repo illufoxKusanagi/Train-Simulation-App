@@ -410,9 +410,8 @@ void TrainSimulation::simulateStaticTrainMovement() {
               << "," << trainMotorData->tm_f_res << "," << trainMotorData->tm_t
               << "," << trainMotorData->tm_rpm << "," << powerData->p_wheel
               << "," << powerData->p_motorOut << "," << powerData->p_motorIn
-              << "," << powerData->p_vvvfIn << "," << ","
-              << energyData->curr_catenary << "," << energyData->curr_vvvf
-              << powerData->p_catenary << "\n";
+              << "," << powerData->p_vvvfIn << "," << energyData->curr_catenary
+              << "," << energyData->curr_vvvf << powerData->p_catenary << "\n";
     }
     time += constantData.dt;
     outFile << phase.toStdString() << "," << i + 1 << "," << time << ","
@@ -463,29 +462,78 @@ void TrainSimulation::deleteCsvFile(QString csvPath) {
   }
 }
 
-void TrainSimulation::readCsvFile(const QString &path, QFile &file) {
+void TrainSimulation::readCsvFile(const QString path, QStringList &values) {
+  QFile file(path);
+  bool isHeader = true;
+  trainSpeeds.clear();
+  tractionEfforts.clear();
+  vvvfPowers.clear();
+  catenaryPowers.clear();
+  vvvfCurrents.clear();
+  catenaryCurrents.clear();
+
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    qDebug() << "Could not open file for reading:" << path;
+    return;
+  }
 
   QTextStream in(&file);
   while (!in.atEnd()) {
     QString line = in.readLine();
-    QStringList values = line.split(",");
-    for (const QString &val : values) {
-      qDebug() << val;
+    if (isHeader) {
+      isHeader = false;
+      continue;
     }
+    values = line.split(",");
+    if (values.size() >= 19) {
+      double speed = values[3].toDouble();
+      double tractionEffort = values[6].toDouble();
+      double vvvfPower = values[15].toDouble();
+      double catenaryPower = values[16].toDouble();
+      double vvvfCurrent = values[17].toDouble();
+      double catenaryCurrent = values[18].toDouble();
+      trainSpeeds.append(speed);
+      tractionEfforts.append(tractionEffort);
+      vvvfPowers.append(vvvfPower);
+      catenaryPowers.append(catenaryPower);
+      vvvfCurrents.append(vvvfCurrent);
+      catenaryCurrents.append(catenaryCurrent);
+    }
+    // int length = values.size();
+    // qDebug() << "Variables on csv : " << length;
   }
+  file.close();
 }
 
 void TrainSimulation::saveTrainSpeedData() {}
 
 void TrainSimulation::saveTractionEffortData() {
-  QString filePath = QDir(QCoreApplication::applicationDirPath())
-                         .filePath("fixed_static_simulation.csv");
-  QFile file(filePath);
-  readCsvFile(filePath, file);
-  file.close();
+  // QString filePath = QDir(QCoreApplication::applicationDirPath())
+  //                        .filePath("fixed_static_simulation.csv");
+  QString filePath = "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
+                     "fixed_dynamic_simulation.csv";
+  QStringList values;
+  readCsvFile(filePath, values);
+  QString tractionEffortFile =
+      "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
+      "train_effort_simulation.csv";
+  deleteCsvFile(tractionEffortFile);
+  ofstream outFile(tractionEffortFile.toStdString(), ios::out);
+  outFile << "Speed,F Motor,P_vvvf,P_catenary,Catenary current,VVVFcurrent\n ";
+  for (int i = 0; i < trainSpeeds.size(); i++) {
+    outFile << trainSpeeds[i] << "," << tractionEfforts[i] << ","
+            << vvvfPowers[i] << "," << catenaryPowers[i] << ","
+            << vvvfCurrents[i] << "," << catenaryCurrents[i] << "\n";
+  }
+  qDebug() << "values size" << values.size();
+  outFile.close();
+  qDebug() << "Successfully saved" << trainSpeeds.size() << "data points to "
+           << tractionEffortFile;
 }
 
-void TrainSimulation::saveTrainPowerData() {}
+void TrainSimulation::saveTrainPowerData() {
+  qDebug() << "Saving train power data";
+}
 
 void TrainSimulation::findMaxSpeed() {}
 
