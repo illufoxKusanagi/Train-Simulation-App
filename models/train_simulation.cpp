@@ -326,6 +326,8 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     energyData->curr_catenary = calculateCatenaryCurrent();
     energyData->curr_vvvf = calculateVvvfCurrent();
 
+    emit powerValuesChanged(powerData->p_vvvfIn, powerData->p_catenary,
+                            energyData->curr_vvvf, energyData->curr_catenary);
     if (i == 0) {
       trainMotorData->tm_adh = calculateAdhesion();
       outFile << "Starting" << "," << i << "," << time << "," << 0 << ","
@@ -399,6 +401,13 @@ void TrainSimulation::simulateStaticTrainMovement() {
     trainMotorData->tm_rpm = calculateRpm();
     energyData->curr_catenary = calculateCatenaryCurrent();
     energyData->curr_vvvf = calculateVvvfCurrent();
+
+    trainSpeeds.append(movingData->v);
+    tractionEfforts.append(resistanceData->f_motor);
+    vvvfPowers.append(powerData->p_vvvfIn);
+    catenaryPowers.append(powerData->p_catenary);
+    vvvfCurrents.append(energyData->curr_vvvf);
+    catenaryCurrents.append(energyData->curr_catenary);
 
     if (i == 0) {
       trainMotorData->tm_adh = calculateAdhesion();
@@ -535,14 +544,38 @@ void TrainSimulation::saveTrainPowerData() {
   qDebug() << "Saving train power data";
 }
 
-void TrainSimulation::findMaxSpeed() {}
+double TrainSimulation::findMaxSpeed() {
+  if (trainSpeeds.isEmpty())
+    return 0.0;
+  return *std::max_element(trainSpeeds.begin(), trainSpeeds.end());
+}
 
-void TrainSimulation::findMaxVvvfPower() {}
+double TrainSimulation::findMaxVvvfPower() {
+  if (vvvfPowers.isEmpty())
+    return 0.0;
+  return *std::max_element(vvvfPowers.begin(), vvvfPowers.end());
+}
 
-void TrainSimulation::findMaxCatenaryPower() {}
+double TrainSimulation::findMaxCatenaryPower() {
+  if (catenaryPowers.isEmpty())
+    return 0.0;
+  return *std::max_element(catenaryPowers.begin(), catenaryPowers.end());
+}
 
-void TrainSimulation::findMaxVvvfCurrent() {}
+double TrainSimulation::findMaxVvvfCurrent() {
+  if (vvvfCurrents.isEmpty())
+    return 0.0;
+  return *std::max_element(vvvfCurrents.begin(), vvvfCurrents.end());
+}
 
-void TrainSimulation::findMaxCatenaryCurrent() {}
+double TrainSimulation::findMaxCatenaryCurrent() {
+  if (catenaryCurrents.isEmpty())
+    return 0.0;
+  return *std::max_element(catenaryCurrents.begin(), catenaryCurrents.end());
+}
 
-void TrainSimulation::findMaxTractionEffort() {}
+double TrainSimulation::findMaxTractionEffort() {
+  if (tractionEfforts.isEmpty())
+    return 0.0;
+  return *std::max_element(tractionEfforts.begin(), tractionEfforts.end());
+}
