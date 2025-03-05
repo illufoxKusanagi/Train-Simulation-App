@@ -18,6 +18,8 @@ class TrainSimulation : public QObject {
 
 signals:
   void simulationCompleted();
+  void powerValuesChanged(double vvvfPower, double catenaryPower,
+                          double vvvfCurrent, double catenaryCurrent);
 
 public slots:
   void simulateStaticTrainMovement();
@@ -43,6 +45,12 @@ public:
   void saveTrainSpeedData();
   void saveTractionEffortData();
   void saveTrainPowerData();
+  double findMaxSpeed();
+  double findMaxVvvfPower();
+  double findMaxCatenaryPower();
+  double findMaxVvvfCurrent();
+  double findMaxCatenaryCurrent();
+  double findMaxTractionEffort();
 
 private:
   ConstantData constantData;
@@ -90,13 +98,6 @@ private:
 
   void deleteCsvFile(QString csvPath);
   void readCsvFile(const QString path, QStringList &values);
-
-  void findMaxSpeed();
-  void findMaxVvvfPower();
-  void findMaxCatenaryPower();
-  void findMaxVvvfCurrent();
-  void findMaxCatenaryCurrent();
-  void findMaxTractionEffort();
 
   double calculateEnergyConsumption();
   double calculateEnergyOfPowering();
