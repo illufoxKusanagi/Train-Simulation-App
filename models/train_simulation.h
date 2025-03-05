@@ -52,6 +52,7 @@ private:
   EfficiencyData *efficiencyData;
   PowerData *powerData;
   EnergyData *energyData;
+
   void initTrainMassData();
   void initData();
   double calculateResTrain(float m, float startRes);
@@ -75,9 +76,22 @@ private:
   double calculateRunningRes(float v);
   void calculatePoweringForce(float acc, float v);
   void calculateBrakingForce();
-  void deleteCsvFile(QString csvPath);
   double calculateVvvfCurrent();
   double calculateCatenaryCurrent();
+
+  void deleteCsvFile(QString csvPath);
+  void readCsvFile(const QString &path, QFile &file);
+
+  void saveTrainSpeedData();
+  void saveTractionEffortData();
+  void saveTrainPowerData();
+
+  void findMaxSpeed();
+  void findMaxVvvfPower();
+  void findMaxCatenaryPower();
+  void findMaxVvvfCurrent();
+  void findMaxCatenaryCurrent();
+  void findMaxTractionEffort();
 
   double calculateEnergyConsumption();
   double calculateEnergyOfPowering();
