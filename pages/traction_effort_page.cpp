@@ -1,14 +1,11 @@
 #include "traction_effort_page.h"
 
 TractionEffortPage::TractionEffortPage(QWidget *parent)
-    : QWidget(parent), mainLayout(new QVBoxLayout(this)),
-      m_stackedWidget(new QStackedWidget(this)) {
+    : QWidget(parent), mainLayout(new QVBoxLayout(this)) {
   mainLayout->setAlignment(Qt::AlignCenter);
-  mainLayout->setSpacing(16);
-  setupChart();
+  mainLayout->setSpacing(40);
   setupExactValue();
   ChartWidget *chartWidget = new ChartWidget("Traction Effort", "speed", this);
-  mainLayout->addWidget(m_stackedWidget);
   mainLayout->addWidget(chartWidget);
   setLayout(mainLayout);
 }
@@ -18,7 +15,7 @@ void TractionEffortPage::setupChart() {
 }
 
 void TractionEffortPage::setupExactValue() {
-  QHBoxLayout *layout = new QHBoxLayout(this);
+  QHBoxLayout *layout = new QHBoxLayout;
   layout->setAlignment(Qt::AlignCenter);
   InputType inputType = InputType("field", "Max Traction Effort", "kN");
   InputWidget *inputWidget = new InputWidget(inputType, this);
