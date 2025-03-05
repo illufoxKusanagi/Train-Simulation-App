@@ -237,7 +237,7 @@ void TrainParameterPage::setParameterValue() {
   trainData->wheel = getParameterValue("Wheel Diameter (mm)");
   trainData->gearRatio = getParameterValue("Gear Ratio");
   loadData->load = getParameterValue("Load per Car (ton)");
-  loadData->m_P = getParameterValue("Passenger Weight (kg)");
+  loadData->mass_P = getParameterValue("Passenger Weight (kg)");
   massData->i_M = getParameterValue("Inertial Coefficient Motor");
   massData->i_T = getParameterValue("Inertial Coefficient Trailer");
 }
@@ -252,12 +252,12 @@ void TrainParameterPage::setTypeValue() {
 }
 
 void TrainParameterPage::setMassValue() {
-  massData->m_M1 = getMassParameterValue("M1");
-  massData->m_M2 = getMassParameterValue("M2");
-  massData->m_TC = getMassParameterValue("Tc");
-  massData->m_T1 = getMassParameterValue("T1");
-  massData->m_T2 = getMassParameterValue("T2");
-  massData->m_T3 = getMassParameterValue("T3");
+  massData->mass_M1 = getMassParameterValue("M1");
+  massData->mass_M2 = getMassParameterValue("M2");
+  massData->mass_TC = getMassParameterValue("Tc");
+  massData->mass_T1 = getMassParameterValue("T1");
+  massData->mass_T2 = getMassParameterValue("T2");
+  massData->mass_T3 = getMassParameterValue("T3");
 }
 
 void TrainParameterPage::setPassengerValue() {
@@ -325,15 +325,15 @@ void TrainParameterPage::updateMassCalculation() {
 }
 
 double TrainParameterPage::calculateEmptyMass() {
-  massData->m_totalEmpty = m_trainSimulation->countMassEmptyCar();
-  return massData->m_totalEmpty;
+  massData->mass_totalEmpty = m_trainSimulation->countMassEmptyCar();
+  return massData->mass_totalEmpty;
 }
 
 double TrainParameterPage::calculateLoadedMass() {
-  massData->m_totalLoad = (loadData->load > 0)
-                              ? m_trainSimulation->countMassLoadInput()
-                              : m_trainSimulation->countMassWithLoad();
-  return massData->m_totalLoad;
+  massData->mass_totalLoad = (loadData->load > 0)
+                                 ? m_trainSimulation->countMassLoadInput()
+                                 : m_trainSimulation->countMassWithLoad();
+  return massData->mass_totalLoad;
 }
 
 void TrainParameterPage::updateTrainImage(QLabel *trainImageLabel, int nCar) {
