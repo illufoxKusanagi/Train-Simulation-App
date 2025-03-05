@@ -7,7 +7,7 @@ TrainPowerPage::TrainPowerPage(QWidget *parent,
   mainLayout->setAlignment(Qt::AlignCenter);
   mainLayout->setSpacing(40);
   connect(m_trainSimulation, &TrainSimulation::powerValuesChanged, this,
-          &TrainPowerPage::onPowerValuesChanged);
+          &TrainPowerPage::setParameterValue);
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &TrainPowerPage::setParameterValue);
   setupInputs();
