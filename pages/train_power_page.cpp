@@ -1,11 +1,14 @@
 #include "train_power_page.h"
 
-TrainPowerPage::TrainPowerPage(QWidget *parent)
-    : QWidget(parent), mainLayout(new QVBoxLayout(this)) {
+TrainPowerPage::TrainPowerPage(QWidget *parent,
+                               TrainSimulation *trainSimulation)
+    : QWidget(parent), mainLayout(new QVBoxLayout(this)),
+      m_trainSimulation(trainSimulation) {
   mainLayout->setAlignment(Qt::AlignCenter);
   mainLayout->setSpacing(40);
   setupInputs();
-  ChartWidget *chartWidget = new ChartWidget("Train Power", "speed", this);
+  ChartWidget *chartWidget =
+      new ChartWidget("Train Power", "speed", this, m_trainSimulation);
   mainLayout->addWidget(chartWidget);
   setLayout(mainLayout);
 }

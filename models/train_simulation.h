@@ -40,6 +40,9 @@ public:
   double countMassLoadInput();
   double countInertialMass();
   double countInertialMassInput();
+  void saveTrainSpeedData();
+  void saveTractionEffortData();
+  void saveTrainPowerData();
 
 private:
   ConstantData constantData;
@@ -52,6 +55,12 @@ private:
   EfficiencyData *efficiencyData;
   PowerData *powerData;
   EnergyData *energyData;
+  QList<double> trainSpeeds;
+  QList<double> tractionEfforts;
+  QList<double> vvvfPowers;
+  QList<double> catenaryPowers;
+  QList<double> vvvfCurrents;
+  QList<double> catenaryCurrents;
 
   void initTrainMassData();
   void initData();
@@ -80,11 +89,7 @@ private:
   double calculateCatenaryCurrent();
 
   void deleteCsvFile(QString csvPath);
-  void readCsvFile(const QString &path, QFile &file);
-
-  void saveTrainSpeedData();
-  void saveTractionEffortData();
-  void saveTrainPowerData();
+  void readCsvFile(const QString path, QStringList &values);
 
   void findMaxSpeed();
   void findMaxVvvfPower();

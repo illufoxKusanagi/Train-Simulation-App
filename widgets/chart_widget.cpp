@@ -1,9 +1,10 @@
 #include "chart_widget.h"
 
 ChartWidget::ChartWidget(QString chartTitle, QString seriesName,
-                         QWidget *parent)
+                         QWidget *parent, TrainSimulation *trainSimulation)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
-      m_chartLayout(nullptr), m_chartWidget(nullptr) {
+      m_chartLayout(nullptr), m_chartWidget(nullptr),
+      m_trainSimulation(trainSimulation) {
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(16);
   buildDummyLine(chartTitle, seriesName);
@@ -73,6 +74,20 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
       }
     }
   });
+  // connect(saveCurrentData, &QPushButton::clicked, this,
+  //         [this]() { m_trainSimulation->saveTractionEffortData(); });
+  connect(saveCurrentData, &QPushButton::clicked, this, [this]() {
+    m_trainSimulation->saveTractionEffortData();
+    // try {
+    //   m_trainSimulation->saveTractionEffortData();
+    //   QMessageBox::information(this, "Success", "Data saved successfully!");
+    // } catch (const std::exception &e) {
+    //   QMessageBox::critical(this, "Error",
+    //                         QString("Failed to save data:
+    //                         %1").arg(e.what()));
+    // }
+  });
+
   saveButton->setEnabled(true);
   saveCurrentData->setEnabled(true);
   saveAllData->setEnabled(true);

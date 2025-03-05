@@ -55,7 +55,7 @@ void MainWindow::setupPages() {
   TractionEffortPage *tractionEffortPage = new TractionEffortPage(this);
   setupFixedSizePage(tractionEffortPage);
 
-  TrainPowerPage *trainPowerPage = new TrainPowerPage(this);
+  TrainPowerPage *trainPowerPage = new TrainPowerPage(this, m_trainSimulation);
   setupFixedSizePage(trainPowerPage);
 }
 
