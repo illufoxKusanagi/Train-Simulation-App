@@ -76,31 +76,17 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
   QList<double> trainValues = {2, 3, 3, 2, 1, 1};
   QList<double> massValues = {10, 20, 20, 10, 10, 10};
   QList<double> passengerValues = {100, 200, 200, 200, 200, 200};
+
+  setDefaultCarValues();
   QWidget *numberCarContainer = new QWidget(this);
   QHBoxLayout *numberCarLayout = new QHBoxLayout(numberCarContainer);
   numberCarLayout->setSpacing(32);
   numberCarLayout->setAlignment(Qt::AlignLeft);
   numberCarLayout->setContentsMargins(16, 0, 0, 0);
+
+  setupTrainsetSection(numberCarLayout, m_carData);
+
   layout->setSpacing(0);
-
-  m_numberOfCar =
-      new InputWidget(InputType("dropdown", "Number of Car", ""), this);
-  m_numberOfCar->setValue(12);
-  trainData->n_car = 12;
-
-  numberCarLayout->addWidget(m_numberOfCar);
-
-  m_trainLabelImage = new QLabel(this);
-  m_trainLabelImage->setFixedSize(512, 80);
-  updateTrainImage(m_trainLabelImage, 12);
-  connect(m_numberOfCar, &InputWidget::valueChanged, this, [this] {
-    double value = m_numberOfCar->getValue();
-    trainData->n_car = value;
-    updateTrainImage(m_trainLabelImage, value);
-    updateMassCalculation();
-  });
-  numberCarLayout->addWidget(m_trainLabelImage);
-
   layout->addWidget(numberCarContainer);
 
   QWidget *secondPageContainer = new QWidget(this);
@@ -251,7 +237,7 @@ void TrainParameterPage::setParameterValue() {
   trainData->wheel = getParameterValue("Wheel Diameter (mm)");
   trainData->gearRatio = getParameterValue("Gear Ratio");
   loadData->load = getParameterValue("Load per Car (ton)");
-  loadData->m_P = getParameterValue("Passenger Weight (kg)");
+  loadData->mass_P = getParameterValue("Passenger Weight (kg)");
   massData->i_M = getParameterValue("Inertial Coefficient Motor");
   massData->i_T = getParameterValue("Inertial Coefficient Trailer");
 }
@@ -266,12 +252,12 @@ void TrainParameterPage::setTypeValue() {
 }
 
 void TrainParameterPage::setMassValue() {
-  massData->m_M1 = getMassParameterValue("M1");
-  massData->m_M2 = getMassParameterValue("M2");
-  massData->m_TC = getMassParameterValue("Tc");
-  massData->m_T1 = getMassParameterValue("T1");
-  massData->m_T2 = getMassParameterValue("T2");
-  massData->m_T3 = getMassParameterValue("T3");
+  massData->mass_M1 = getMassParameterValue("M1");
+  massData->mass_M2 = getMassParameterValue("M2");
+  massData->mass_TC = getMassParameterValue("Tc");
+  massData->mass_T1 = getMassParameterValue("T1");
+  massData->mass_T2 = getMassParameterValue("T2");
+  massData->mass_T3 = getMassParameterValue("T3");
 }
 
 void TrainParameterPage::setPassengerValue() {
@@ -339,15 +325,15 @@ void TrainParameterPage::updateMassCalculation() {
 }
 
 double TrainParameterPage::calculateEmptyMass() {
-  massData->m_totalEmpty = m_trainSimulation->countMassEmptyCar();
-  return massData->m_totalEmpty;
+  massData->mass_totalEmpty = m_trainSimulation->countMassEmptyCar();
+  return massData->mass_totalEmpty;
 }
 
 double TrainParameterPage::calculateLoadedMass() {
-  massData->m_totalLoad = (loadData->load > 0)
-                              ? m_trainSimulation->countMassLoadInput()
-                              : m_trainSimulation->countMassWithLoad();
-  return massData->m_totalLoad;
+  massData->mass_totalLoad = (loadData->load > 0)
+                                 ? m_trainSimulation->countMassLoadInput()
+                                 : m_trainSimulation->countMassWithLoad();
+  return massData->mass_totalLoad;
 }
 
 void TrainParameterPage::updateTrainImage(QLabel *trainImageLabel, int nCar) {
@@ -355,4 +341,71 @@ void TrainParameterPage::updateTrainImage(QLabel *trainImageLabel, int nCar) {
   QPixmap pixmap(filename);
   trainImageLabel->setPixmap(pixmap.scaled(
       trainImageLabel->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+}
+
+void TrainParameterPage::setupTrainsetSection(
+    QHBoxLayout *numberCarLayout, QList<QList<QList<double>>> carData) {
+  m_numberOfCar =
+      new InputWidget(InputType("dropdown", "Number of Car", ""), this);
+  m_trainLabelImage = new QLabel(this);
+
+  m_numberOfCar->setValue(12);
+  trainData->n_car = 12;
+  m_trainLabelImage->setFixedSize(512, 80);
+  updateTrainImage(m_trainLabelImage, 12);
+  connect(m_numberOfCar, &InputWidget::valueChanged, this, [this, carData] {
+    double value = m_numberOfCar->getValue();
+    trainData->n_car = value;
+    updateTrainImage(m_trainLabelImage, value);
+    int index = -1;
+    const QStringList labels = {"Tc", "M1", "M2", "T1", "T2", "T3"};
+    if (value == 12)
+      index = 0;
+    else if (value == 10)
+      index = 1;
+    else if (value == 8)
+      index = 2;
+    else if (value == 6)
+      index = 3;
+    if (index >= 0 && index < carData[0].size()) {
+      for (int i = 0; i < labels.size(); i++) {
+        if (m_typeInputWidgets.contains(labels[i])) {
+          m_typeInputWidgets[labels[i]]->setValue(carData[0][index][i]);
+          m_massInputWidgets[labels[i]]->setValue(carData[1][index][i]);
+          m_passengerInputWidgets[labels[i]]->setValue(carData[2][index][i]);
+        }
+      }
+    }
+    updateMassCalculation();
+  });
+  numberCarLayout->addWidget(m_numberOfCar);
+  numberCarLayout->addWidget(m_trainLabelImage);
+}
+
+void TrainParameterPage::setDefaultCarValues() {
+  QList<double> twlv_typeTrainValues = {2, 3, 3, 2, 1, 1};
+  QList<double> ten_typeTrainValues = {2, 3, 3, 2, 0, 0};
+  QList<double> eght_typeTrainValues = {2, 2, 2, 2, 0, 0};
+  QList<double> six_typeTrainValues = {2, 1, 1, 2, 0, 0};
+
+  QList<double> twlv_massTrainValues = {10, 20, 20, 10, 10, 10};
+  QList<double> ten_massTrainValues = {10, 20, 20, 10, 0, 0};
+  QList<double> eght_massTrainValues = {10, 20, 20, 10, 0, 0};
+  QList<double> six_massTrainValues = {10, 20, 20, 10, 0, 0};
+
+  QList<double> twlv_passTrainValues = {100, 200, 200, 200, 200, 200};
+  QList<double> ten_passTrainValues = {100, 200, 200, 200, 0, 0};
+  QList<double> eght_passTrainValues = {100, 200, 200, 200, 0, 0};
+  QList<double> six_passTrainValues = {100, 200, 200, 200, 0, 0};
+
+  QList<QList<double>> m_trainValues = {
+      twlv_typeTrainValues, ten_typeTrainValues, eght_typeTrainValues,
+      six_typeTrainValues};
+  QList<QList<double>> m_trainMasses = {
+      twlv_massTrainValues, ten_massTrainValues, eght_massTrainValues,
+      six_massTrainValues};
+  QList<QList<double>> m_trainPassengers = {
+      twlv_passTrainValues, ten_passTrainValues, eght_passTrainValues,
+      six_passTrainValues};
+  m_carData = {m_trainValues, m_trainMasses, m_trainPassengers};
 }

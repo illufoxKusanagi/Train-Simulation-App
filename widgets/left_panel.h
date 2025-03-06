@@ -8,6 +8,7 @@
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QtConcurrent/QtConcurrent>
@@ -32,6 +33,7 @@ private:
   LeftPanelInputs *m_inputPanel;
   LeftPanelInputs *m_outputPanel;
   TrainSimulation *m_trainSimulation;
+  QVBoxLayout *m_runButtonLayout;
 
   int getCurrentIndex() const { return m_currentIndex; }
   void setCurrentIndex(int index) { m_currentIndex = index; }

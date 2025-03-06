@@ -22,6 +22,8 @@ InputField::InputField(const QString &unitText, QWidget *parent)
 void InputField::setValue(double value) {
   if (value != 0)
     m_input->setText(QString::number(value));
+  else
+    m_input->clear();
   m_input->setModified(false);
 }
 

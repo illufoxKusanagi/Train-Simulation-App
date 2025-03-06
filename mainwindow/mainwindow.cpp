@@ -45,17 +45,19 @@ void MainWindow::setupPages() {
   setupFixedSizePage(trackParameterPage);
 
   ElectricalParameterPage *electricalParameterPage =
-      new ElectricalParameterPage(this, &m_efficiencyData, &m_powerData);
+      new ElectricalParameterPage(this, &m_efficiencyData, &m_powerData,
+                                  &m_energyData);
   setupFixedSizePage(electricalParameterPage);
 
-  TrainSpeedPage *trainSpeedPage = new TrainSpeedPage(this);
+  TrainSpeedPage *trainSpeedPage = new TrainSpeedPage(this, m_trainSimulation);
   setupFixedSizePage(trainSpeedPage);
 
-  TrainPowerPage *trainPowerPage = new TrainPowerPage(this);
-  setupFixedSizePage(trainPowerPage);
-
-  TractionEffortPage *tractionEffortPage = new TractionEffortPage(this);
+  TractionEffortPage *tractionEffortPage =
+      new TractionEffortPage(this, m_trainSimulation);
   setupFixedSizePage(tractionEffortPage);
+
+  TrainPowerPage *trainPowerPage = new TrainPowerPage(this, m_trainSimulation);
+  setupFixedSizePage(trainPowerPage);
 }
 
 void MainWindow::navigateToPage(int pageIndex) {

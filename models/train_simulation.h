@@ -18,6 +18,8 @@ class TrainSimulation : public QObject {
 
 signals:
   void simulationCompleted();
+  void powerValuesChanged(double vvvfPower, double catenaryPower,
+                          double vvvfCurrent, double catenaryCurrent);
 
 public slots:
   void simulateStaticTrainMovement();
@@ -35,11 +37,27 @@ public:
                            EfficiencyData *efficiencyData = nullptr,
                            PowerData *powerData = nullptr,
                            EnergyData *energyData = nullptr);
+  QList<double> trainSpeeds;
+  QList<double> tractionEfforts;
+  QList<double> vvvfPowers;
+  QList<double> catenaryPowers;
+  QList<double> vvvfCurrents;
+  QList<double> catenaryCurrents;
+
   double countMassEmptyCar();
   double countMassWithLoad();
   double countMassLoadInput();
   double countInertialMass();
   double countInertialMassInput();
+  void saveTrainSpeedData();
+  void saveTractionEffortData();
+  void saveTrainPowerData();
+  double findMaxSpeed();
+  double findMaxVvvfPower();
+  double findMaxCatenaryPower();
+  double findMaxVvvfCurrent();
+  double findMaxCatenaryCurrent();
+  double findMaxTractionEffort();
 
 private:
   ConstantData constantData;
@@ -52,6 +70,7 @@ private:
   EfficiencyData *efficiencyData;
   PowerData *powerData;
   EnergyData *energyData;
+
   void initTrainMassData();
   void initData();
   double calculateResTrain(float m, float startRes);
@@ -75,7 +94,16 @@ private:
   double calculateRunningRes(float v);
   void calculatePoweringForce(float acc, float v);
   void calculateBrakingForce();
+  double calculateVvvfCurrent();
+  double calculateCatenaryCurrent();
+
+  void clearOutputDatas();
+  void addOutputDatas(double speed, double tractionEffort, double vvvfPower,
+                      double catenaryPower, double vvvfCurrent,
+                      double catenaryCurrent);
+
   void deleteCsvFile(QString csvPath);
+  void readCsvFile(const QString path, QStringList &values);
 
   double calculateEnergyConsumption();
   double calculateEnergyOfPowering();

@@ -6,12 +6,11 @@ LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->setContentsMargins(0, 0, 0, 0);
   m_buttonToggle = new ButtonToggle(m_isCollapsed, this);
-
   QWidget *buttonContainer = new QWidget(this);
   m_buttonLayout = new QVBoxLayout(buttonContainer);
   m_buttonLayout->setContentsMargins(8, 8, 8, 8);
   m_buttonLayout->setSpacing(8);
-  m_buttonLayout->setAlignment(Qt::AlignCenter);
+  m_buttonLayout->setAlignment(Qt::AlignTop);
   m_buttonLayout->addWidget(m_buttonToggle);
 
   connect(m_buttonToggle, &QPushButton::clicked, this, [this]() {
@@ -19,16 +18,27 @@ LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
     m_inputPanel->toggleCollapse(m_isCollapsed);
     m_outputPanel->toggleCollapse(m_isCollapsed);
     m_buttonToggle->toggleCollapse();
+    m_runButtonLayout->setContentsMargins(0, 0, 0, 0);
     setFixedWidth(m_isCollapsed ? 160 : 320);
   });
-
   setupInputPageButtons();
   createRunButton();
   setupOutputPageButtons();
-  mainLayout->addWidget(buttonContainer);
+  QScrollArea *scrollArea = new QScrollArea(this);
+  scrollArea->setWidget(buttonContainer);
+  scrollArea->setWidgetResizable(true);
+  scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  scrollArea->setFrameShape(QFrame::NoFrame);
+  mainLayout->addWidget(scrollArea);
   setFixedWidth(320);
   setLayout(mainLayout);
   setStyleSheet("QWidget {"
+                "    background-color: " +
+                Colors::Secondary500.name() +
+                ";"
+                "}"
+                "QScrollArea {"
                 "    background-color: " +
                 Colors::Secondary500.name() +
                 ";"
@@ -41,18 +51,18 @@ void LeftPanel::emitNavigateSignal(int pageIndex) {
 
 void LeftPanel::createRunButton() {
   QWidget *runButtonWidget = new QWidget();
-  QVBoxLayout *runButtonLayout = new QVBoxLayout(runButtonWidget);
-  runButtonLayout->setSpacing(8);
+  m_runButtonLayout = new QVBoxLayout(runButtonWidget);
+  m_runButtonLayout->setSpacing(8);
   ButtonAction *runButton = new ButtonAction("Run", "yes", this);
   runButton->setEnabled(true);
-  runButton->setSize(120, 40);
+  runButton->setSize(132, 40);
   ButtonAction *runStaticButton = new ButtonAction("Static Run", "yes", this);
   runStaticButton->setEnabled(true);
-  runStaticButton->setSize(120, 40);
-  runButtonLayout->setContentsMargins(16, 0, 0, 0);
-  runButtonLayout->setAlignment(Qt::AlignCenter);
-  runButtonLayout->addWidget(runButton);
-  runButtonLayout->addWidget(runStaticButton);
+  runStaticButton->setSize(132, 40);
+  m_runButtonLayout->setContentsMargins(16, 0, 0, 0);
+  m_runButtonLayout->setAlignment(Qt::AlignCenter);
+  m_runButtonLayout->addWidget(runButton);
+  m_runButtonLayout->addWidget(runStaticButton);
   connect(runButton, &ButtonAction::clicked, this,
           [this, runButton, runStaticButton]() {
             QFuture<void> future = QtConcurrent::run([this]() {
