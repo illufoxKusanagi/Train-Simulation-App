@@ -74,8 +74,6 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
       }
     }
   });
-  // connect(saveCurrentData, &QPushButton::clicked, this,
-  //         [this]() { m_trainSimulation->saveTractionEffortData(); });
   connect(saveCurrentData, &QPushButton::clicked, this, [this]() {
     try {
       if (m_trainSimulation->trainSpeeds.isEmpty()) {
@@ -84,7 +82,6 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
             "No simulation data to save. Please run a simulation first.");
         return;
       }
-      // Choose which save method to call based on the current chart
       if (m_chartTitle == "Train Power") {
         m_trainSimulation->saveTrainPowerData();
       } else if (m_chartTitle == "Traction Effort") {
