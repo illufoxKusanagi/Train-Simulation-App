@@ -96,6 +96,11 @@ private:
   double calculateVvvfCurrent();
   double calculateCatenaryCurrent();
 
+  void clearPowerData();
+  void addMaximumPowerData(double speed, double tractionEffort,
+                           double vvvfPower, double catenaryPower,
+                           double vvvfCurrent, double catenaryCurrent);
+
   void deleteCsvFile(QString csvPath);
   void readCsvFile(const QString path, QStringList &values);
 
