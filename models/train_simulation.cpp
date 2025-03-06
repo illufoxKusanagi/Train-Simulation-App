@@ -251,10 +251,11 @@ void TrainSimulation::calculateBrakingForce() {
 }
 
 void TrainSimulation::simulateDynamicTrainMovement() {
-  // QString filePath = QDir(QCoreApplication::applicationDirPath())
-  //                        .filePath("fixed_dynamic_simulation.csv");
-  QString filePath = "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-                     "fixed_dynamic_simulation.csv";
+  QString filePath = QDir(QCoreApplication::applicationDirPath())
+                         .filePath("fixed_dynamic_simulation.csv");
+  // QString filePath =
+  // "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
+  //                    "fixed_dynamic_simulation.csv";
   deleteCsvFile(filePath);
   clearOutputDatas();
   ofstream outFile(filePath.toStdString(), ios::out);
@@ -366,10 +367,11 @@ void TrainSimulation::simulateDynamicTrainMovement() {
 }
 
 void TrainSimulation::simulateStaticTrainMovement() {
-  // QString filePath = QDir(QCoreApplication::applicationDirPath())
-  //                        .filePath("fixed_static_simulation.csv");
-  QString filePath = "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-                     "fixed_static_simulation.csv";
+  QString filePath = QDir(QCoreApplication::applicationDirPath())
+                         .filePath("fixed_static_simulation.csv");
+  // QString filePath =
+  // "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
+  //                    "fixed_static_simulation.csv";
   deleteCsvFile(filePath);
   clearOutputDatas();
   ofstream outFile(filePath.toStdString(), ios::out);
@@ -501,23 +503,16 @@ void TrainSimulation::readCsvFile(const QString path, QStringList &values) {
       addOutputDatas(speed, tractionEffort, vvvfPower, catenaryPower,
                      vvvfCurrent, catenaryCurrent);
     }
-    // int length = values.size();
-    // qDebug() << "Variables on csv : " << length;
   }
   file.close();
 }
 
 void TrainSimulation::saveTrainSpeedData() {
-  // QString filePath = QDir(QCoreApplication::applicationDirPath())
-  //                        .filePath("fixed_static_simulation.csv");
-  // QString filePath =
-  // "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-  //                    "fixed_dynamic_simulation.csv";
-  // QStringList values;
-  // readCsvFile(filePath, values);
-  QString tractionEffortFile =
-      "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-      "train_speed_simulation.csv";
+  QString tractionEffortFile = QDir(QCoreApplication::applicationDirPath())
+                                   .filePath("train_speed_simulation.csv");
+  // QString tractionEffortFile =
+  //     "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
+  //     "train_speed_simulation.csv";
   deleteCsvFile(tractionEffortFile);
   ofstream outFile(tractionEffortFile.toStdString(), ios::out);
   outFile << "velocity (km/h)\n ";
@@ -531,16 +526,11 @@ void TrainSimulation::saveTrainSpeedData() {
 }
 
 void TrainSimulation::saveTractionEffortData() {
-  // QString filePath = QDir(QCoreApplication::applicationDirPath())
-  //                        .filePath("fixed_static_simulation.csv");
-  // QString filePath =
-  // "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-  //                    "fixed_dynamic_simulation.csv";
-  // QStringList values;
-  // readCsvFile(filePath, values);
-  QString tractionEffortFile =
-      "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-      "tractive_effort_simulation.csv";
+  QString tractionEffortFile = QDir(QCoreApplication::applicationDirPath())
+                                   .filePath("tractive_effort_simulation.csv");
+  // QString tractionEffortFile =
+  //     "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
+  //     "tractive_effort_simulation.csv";
   deleteCsvFile(tractionEffortFile);
   ofstream outFile(tractionEffortFile.toStdString(), ios::out);
   outFile << "F motor (kN)\n ";
@@ -554,16 +544,11 @@ void TrainSimulation::saveTractionEffortData() {
 }
 
 void TrainSimulation::saveTrainPowerData() {
-  // QString filePath = QDir(QCoreApplication::applicationDirPath())
-  //                        .filePath("fixed_static_simulation.csv");
-  // QString filePath =
-  // "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-  //                    "fixed_dynamic_simulation.csv";
-  // QStringList values;
-  // readCsvFile(filePath, values);
-  QString trainPowerFile =
-      "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-      "train_power_simulation.csv";
+  QString trainPowerFile = QDir(QCoreApplication::applicationDirPath())
+                               .filePath("train_power_simulation.csv");
+  // QString trainPowerFile =
+  //     "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
+  //     "train_power_simulation.csv";
   deleteCsvFile(trainPowerFile);
   ofstream outFile(trainPowerFile.toStdString(), ios::out);
   outFile << "P_vvvf(kW),P_catenary(kW),Catenary current(A),VVVFcurrent(A)\n ";
