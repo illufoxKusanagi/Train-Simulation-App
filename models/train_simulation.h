@@ -37,6 +37,13 @@ public:
                            EfficiencyData *efficiencyData = nullptr,
                            PowerData *powerData = nullptr,
                            EnergyData *energyData = nullptr);
+  QList<double> trainSpeeds;
+  QList<double> tractionEfforts;
+  QList<double> vvvfPowers;
+  QList<double> catenaryPowers;
+  QList<double> vvvfCurrents;
+  QList<double> catenaryCurrents;
+
   double countMassEmptyCar();
   double countMassWithLoad();
   double countMassLoadInput();
@@ -63,12 +70,6 @@ private:
   EfficiencyData *efficiencyData;
   PowerData *powerData;
   EnergyData *energyData;
-  QList<double> trainSpeeds;
-  QList<double> tractionEfforts;
-  QList<double> vvvfPowers;
-  QList<double> catenaryPowers;
-  QList<double> vvvfCurrents;
-  QList<double> catenaryCurrents;
 
   void initTrainMassData();
   void initData();
@@ -96,10 +97,10 @@ private:
   double calculateVvvfCurrent();
   double calculateCatenaryCurrent();
 
-  void clearPowerData();
-  void addMaximumPowerData(double speed, double tractionEffort,
-                           double vvvfPower, double catenaryPower,
-                           double vvvfCurrent, double catenaryCurrent);
+  void clearOutputDatas();
+  void addOutputDatas(double speed, double tractionEffort, double vvvfPower,
+                      double catenaryPower, double vvvfCurrent,
+                      double catenaryCurrent);
 
   void deleteCsvFile(QString csvPath);
   void readCsvFile(const QString path, QStringList &values);
