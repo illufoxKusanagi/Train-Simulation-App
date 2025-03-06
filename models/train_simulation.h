@@ -5,6 +5,7 @@
 #include "train_data.h"
 #include <QCoreApplication>
 #include <QDir>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QObject>
 #include <QString>
@@ -49,9 +50,11 @@ public:
   double countMassLoadInput();
   double countInertialMass();
   double countInertialMassInput();
-  void saveTrainSpeedData();
-  void saveTractionEffortData();
-  void saveTrainPowerData();
+
+  bool saveTrainSpeedData();
+  bool saveTractionEffortData();
+  bool saveTrainPowerData();
+
   double findMaxSpeed();
   double findMaxVvvfPower();
   double findMaxCatenaryPower();

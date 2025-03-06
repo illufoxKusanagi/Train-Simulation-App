@@ -507,14 +507,16 @@ void TrainSimulation::readCsvFile(const QString path, QStringList &values) {
   file.close();
 }
 
-void TrainSimulation::saveTrainSpeedData() {
-  QString tractionEffortFile = QDir(QCoreApplication::applicationDirPath())
-                                   .filePath("train_speed_simulation.csv");
+bool TrainSimulation::saveTrainSpeedData() {
+  // QString tractionEffortFile = QDir(QCoreApplication::applicationDirPath())
+  //                                  .filePath("train_speed_simulation.csv");
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   // QString tractionEffortFile =
   //     "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
   //     "train_speed_simulation.csv";
-  deleteCsvFile(tractionEffortFile);
-  ofstream outFile(tractionEffortFile.toStdString(), ios::out);
+  // deleteCsvFile(tractionEffortFile);
+  ofstream outFile(filepath.toStdString(), ios::out);
   outFile << "velocity (km/h)\n ";
   int maxSize =
       std::min({trainSpeeds.size(), vvvfPowers.size(), catenaryPowers.size(),
@@ -523,16 +525,19 @@ void TrainSimulation::saveTrainSpeedData() {
     outFile << trainSpeeds[i] << "\n";
   }
   outFile.close();
+  return true;
 }
 
-void TrainSimulation::saveTractionEffortData() {
-  QString tractionEffortFile = QDir(QCoreApplication::applicationDirPath())
-                                   .filePath("tractive_effort_simulation.csv");
+bool TrainSimulation::saveTractionEffortData() {
+  // QString tractionEffortFile = QDir(QCoreApplication::applicationDirPath())
+  //                                  .filePath("tractive_effort_simulation.csv");
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   // QString tractionEffortFile =
   //     "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
   //     "tractive_effort_simulation.csv";
-  deleteCsvFile(tractionEffortFile);
-  ofstream outFile(tractionEffortFile.toStdString(), ios::out);
+  // deleteCsvFile(tractionEffortFile);
+  ofstream outFile(filepath.toStdString(), ios::out);
   outFile << "F motor (kN)\n ";
   int maxSize =
       std::min({trainSpeeds.size(), vvvfPowers.size(), catenaryPowers.size(),
@@ -541,16 +546,19 @@ void TrainSimulation::saveTractionEffortData() {
     outFile << tractionEfforts[i] << "\n";
   }
   outFile.close();
+  return true;
 }
 
-void TrainSimulation::saveTrainPowerData() {
-  QString trainPowerFile = QDir(QCoreApplication::applicationDirPath())
-                               .filePath("train_power_simulation.csv");
+bool TrainSimulation::saveTrainPowerData() {
+  //   QString trainPowerFile = QDir(QCoreApplication::applicationDirPath())
+  //                                .filePath("train_power_simulation.csv");
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   // QString trainPowerFile =
   //     "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
   //     "train_power_simulation.csv";
-  deleteCsvFile(trainPowerFile);
-  ofstream outFile(trainPowerFile.toStdString(), ios::out);
+  // deleteCsvFile(trainPowerFile);
+  ofstream outFile(filepath.toStdString(), ios::out);
   outFile << "P_vvvf(kW),P_catenary(kW),Catenary current(A),VVVFcurrent(A)\n ";
   int maxSize =
       std::min({trainSpeeds.size(), vvvfPowers.size(), catenaryPowers.size(),
@@ -560,6 +568,7 @@ void TrainSimulation::saveTrainPowerData() {
             << vvvfCurrents[i] << "," << catenaryCurrents[i] << "\n";
   }
   outFile.close();
+  return true;
 }
 
 void TrainSimulation::addOutputDatas(double speed, double tractionEffort,
