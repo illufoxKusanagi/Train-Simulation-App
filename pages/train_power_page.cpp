@@ -6,8 +6,6 @@ TrainPowerPage::TrainPowerPage(QWidget *parent,
       m_trainSimulation(trainSimulation) {
   mainLayout->setAlignment(Qt::AlignCenter);
   mainLayout->setSpacing(40);
-  // connect(m_trainSimulation, &TrainSimulation::powerValuesChanged, this,
-  //         &TrainPowerPage::onPowerValuesChanged);
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &TrainPowerPage::setParameterValue);
   setupInputs();
@@ -34,8 +32,6 @@ void TrainPowerPage::setupInputs() {
   }
   exactValueLayout->setAlignment(Qt::AlignCenter);
   exactValueLayout->setSpacing(40);
-  // connect(m_inputWidgets, &InputWidget::valueChanged, this,
-  //         [this] { setParameterValue(); });
   // exactValueLayout->setHorizontalSpacing(120);
   // exactValueLayout->setVerticalSpacing(32);
   mainLayout->addLayout(exactValueLayout);
@@ -56,31 +52,3 @@ void TrainPowerPage::setParameterValue() {
   m_inputWidgets["Max VVVF Current"]->setValue(
       m_trainSimulation->findMaxVvvfCurrent());
 }
-
-// void TrainPowerPage::onPowerValuesChanged(double vvvfPower,
-//                                           double catenaryPower,
-//                                           double vvvfCurrent,
-//                                           double catenaryCurrent) {
-//   // Only update if greater than current value
-//   double currentVvvfPower = m_inputWidgets["Max VVVF Power"]->getValue();
-//   if (vvvfPower > currentVvvfPower) {
-//     m_inputWidgets["Max VVVF Power"]->setValue(vvvfPower);
-//   }
-
-//   double currentCatenaryPower =
-//       m_inputWidgets["Max Catenary Power"]->getValue();
-//   if (catenaryPower > currentCatenaryPower) {
-//     m_inputWidgets["Max Catenary Power"]->setValue(catenaryPower);
-//   }
-
-//   double currentVvvfCurrent = m_inputWidgets["Max VVVF Current"]->getValue();
-//   if (vvvfCurrent > currentVvvfCurrent) {
-//     m_inputWidgets["Max VVVF Current"]->setValue(vvvfCurrent);
-//   }
-
-//   double currentCatenaryCurrent =
-//       m_inputWidgets["Max Catenary Current"]->getValue();
-//   if (catenaryCurrent > currentCatenaryCurrent) {
-//     m_inputWidgets["Max Catenary Current"]->setValue(catenaryCurrent);
-//   }
-// }

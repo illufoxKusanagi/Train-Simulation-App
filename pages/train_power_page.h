@@ -16,10 +16,6 @@ public:
   explicit TrainPowerPage(QWidget *parentWidget = nullptr,
                           TrainSimulation *trainSimulation = nullptr);
 
-  // private slots:
-  // void onPowerValuesChanged(double vvvfPower, double catenaryPower,
-  //                           double vvvfCurrent, double catenaryCurrent);
-
 private:
   QVBoxLayout *mainLayout;
   TrainSimulation *m_trainSimulation;
