@@ -27,8 +27,9 @@ private:
   QWidget *m_chartWidget;
   QVBoxLayout *m_chartLayout;
   TrainSimulation *m_trainSimulation;
+  QString m_chartTitle;
 
-  void buildDummyLine(QString chartTitle, QString seriesName);
+  void buildDummyLine(QString seriesName);
   void setupChart(QLineSeries *series, QString title);
   void createChartButtons(QChartView *chartView);
 };
