@@ -1,15 +1,16 @@
 #include "chart_widget.h"
 
 ChartWidget::ChartWidget(QString chartTitle, QString seriesName,
-                         QWidget *parent)
+                         QWidget *parent, TrainSimulation *trainSimulation)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
-      m_chartLayout(nullptr), m_chartWidget(nullptr) {
+      m_chartLayout(nullptr), m_chartWidget(nullptr),
+      m_trainSimulation(trainSimulation), m_chartTitle(chartTitle) {
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(16);
-  buildDummyLine(chartTitle, seriesName);
+  buildDummyLine(seriesName);
 }
 
-void ChartWidget::buildDummyLine(QString chartTitle, QString seriesName) {
+void ChartWidget::buildDummyLine(QString seriesName) {
   QLineSeries *series = new QLineSeries();
   series->setName(seriesName);
 
@@ -20,7 +21,7 @@ void ChartWidget::buildDummyLine(QString chartTitle, QString seriesName) {
   series->append(2.9, 4.9);
   series->append(3.4, 3.0);
   series->append(4.1, 3.3);
-  setupChart(series, chartTitle);
+  setupChart(series, m_chartTitle);
 }
 
 void ChartWidget::setupChart(QLineSeries *series, QString title) {
@@ -73,6 +74,29 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
       }
     }
   });
+  connect(saveCurrentData, &QPushButton::clicked, this, [this]() {
+    try {
+      if (m_trainSimulation->trainSpeeds.isEmpty()) {
+        QMessageBox::warning(
+            this, "No Data",
+            "No simulation data to save. Please run a simulation first.");
+        return;
+      }
+      if (m_chartTitle == "Train Power") {
+        m_trainSimulation->saveTrainPowerData();
+      } else if (m_chartTitle == "Traction Effort") {
+        m_trainSimulation->saveTractionEffortData();
+      } else {
+        m_trainSimulation->saveTrainSpeedData();
+      }
+
+      QMessageBox::information(this, "Success", "Data saved successfully!");
+    } catch (const std::exception &e) {
+      QMessageBox::critical(this, "Error",
+                            QString("Failed to save data: %1").arg(e.what()));
+    }
+  });
+
   saveButton->setEnabled(true);
   saveCurrentData->setEnabled(true);
   saveAllData->setEnabled(true);

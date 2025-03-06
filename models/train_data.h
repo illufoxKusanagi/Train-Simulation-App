@@ -17,23 +17,23 @@ struct TrainData {
 };
 
 struct MassData {
-  double m_Me;
-  double m_Te;
-  double m_M;
-  double m_T;
-  double m_M1;
-  double m_M2;
-  double m_TC;
-  double m_T1;
-  double m_T2;
-  double m_T3;
+  double mass_Me;
+  double mass_Te;
+  double mass_M;
+  double mass_T;
+  double mass_M1;
+  double mass_M2;
+  double mass_TC;
+  double mass_T1;
+  double mass_T2;
+  double mass_T3;
   double i_M;
   double i_T;
-  double m_Mi;
-  double m_Ti;
-  double m_totalEmpty;
-  double m_totalLoad;
-  double m_totalInertial;
+  double mass_Mi;
+  double mass_Ti;
+  double mass_totalEmpty;
+  double mass_totalLoad;
+  double mass_totalInertial;
 };
 
 struct LoadData {
@@ -44,8 +44,8 @@ struct LoadData {
   double n_T1;
   double n_T2;
   double n_T3;
-  double m_P;
-  double m_P_final;
+  double mass_P;
+  double mass_P_final;
   double n_PM1;
   double n_PM2;
   double n_PTc;
@@ -113,6 +113,9 @@ struct EnergyData {
   double e_pow;
   double e_reg;
   double e_aps;
+  double vol_line;
+  double curr_catenary;
+  double curr_vvvf;
 };
 
 #endif // TRAIN_DATA_H

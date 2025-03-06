@@ -12,7 +12,8 @@ class ElectricalParameterPage : public QWidget {
 public:
   explicit ElectricalParameterPage(QWidget *parent = nullptr,
                                    EfficiencyData *efficiencyData = nullptr,
-                                   PowerData *powerData = nullptr);
+                                   PowerData *powerData = nullptr,
+                                   EnergyData *energyData = nullptr);
 
 private:
   QVBoxLayout *mainLayout;
@@ -21,6 +22,7 @@ private:
   QMap<QString, InputWidget *> m_inputWidgets;
   EfficiencyData *efficiencyData;
   PowerData *powerData;
+  EnergyData *energyData;
 
   void createInputs();
   double getParameterValue(const QString &paramName) const;
