@@ -45,6 +45,24 @@ public:
   QList<double> vvvfCurrents;
   QList<double> catenaryCurrents;
 
+  struct SimulationDatas {
+    QList<double> trainSpeeds;
+    QList<double> tractionEfforts;
+    QList<double> vvvfPowers;
+    QList<double> catenaryPowers;
+    QList<double> vvvfCurrents;
+    QList<double> catenaryCurrents;
+    QList<double> time;
+    QList<QString> phase;
+    QList<double> motorForce;
+    QList<double> motorResistance;
+    QList<double> totalResistance;
+    QList<double> tractionForcePerMotor;
+    QList<double> torque;
+    QList<double> rpm;
+    QList<double> powerWheel;
+  };
+
   double countMassEmptyCar();
   double countMassWithLoad();
   double countMassLoadInput();
