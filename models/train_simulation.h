@@ -5,6 +5,7 @@
 #include "train_data.h"
 #include <QCoreApplication>
 #include <QDir>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QObject>
 #include <QString>
@@ -44,14 +45,34 @@ public:
   QList<double> vvvfCurrents;
   QList<double> catenaryCurrents;
 
+  struct SimulationDatas {
+    QList<double> trainSpeeds;
+    QList<double> tractionEfforts;
+    QList<double> vvvfPowers;
+    QList<double> catenaryPowers;
+    QList<double> vvvfCurrents;
+    QList<double> catenaryCurrents;
+    QList<double> time;
+    QList<QString> phase;
+    QList<double> motorForce;
+    QList<double> motorResistance;
+    QList<double> totalResistance;
+    QList<double> tractionForcePerMotor;
+    QList<double> torque;
+    QList<double> rpm;
+    QList<double> powerWheel;
+  };
+
   double countMassEmptyCar();
   double countMassWithLoad();
   double countMassLoadInput();
   double countInertialMass();
   double countInertialMassInput();
-  void saveTrainSpeedData();
-  void saveTractionEffortData();
-  void saveTrainPowerData();
+
+  bool saveTrainSpeedData();
+  bool saveTractionEffortData();
+  bool saveTrainPowerData();
+
   double findMaxSpeed();
   double findMaxVvvfPower();
   double findMaxCatenaryPower();
