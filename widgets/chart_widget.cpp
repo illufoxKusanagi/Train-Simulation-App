@@ -82,15 +82,16 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
             "No simulation data to save. Please run a simulation first.");
         return;
       }
-      if (m_chartTitle == "Train Power") {
-        m_trainSimulation->saveTrainPowerData();
-      } else if (m_chartTitle == "Traction Effort") {
-        m_trainSimulation->saveTractionEffortData();
-      } else {
-        m_trainSimulation->saveTrainSpeedData();
-      }
+      bool saveSuccessful = false;
+      if (m_chartTitle == "Train Power")
+        saveSuccessful = m_trainSimulation->saveTrainPowerData();
+      else if (m_chartTitle == "Traction Effort")
+        saveSuccessful = m_trainSimulation->saveTractionEffortData();
+      else
+        saveSuccessful = m_trainSimulation->saveTrainSpeedData();
+      if (saveSuccessful)
+        QMessageBox::information(this, "Success", "Data saved successfully!");
 
-      QMessageBox::information(this, "Success", "Data saved successfully!");
     } catch (const std::exception &e) {
       QMessageBox::critical(this, "Error",
                             QString("Failed to save data: %1").arg(e.what()));

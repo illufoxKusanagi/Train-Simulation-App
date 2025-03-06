@@ -385,17 +385,17 @@ void TrainParameterPage::setupTrainsetSection(
 void TrainParameterPage::setDefaultCarValues() {
   QList<double> twlv_typeTrainValues = {2, 3, 3, 2, 1, 1};
   QList<double> ten_typeTrainValues = {2, 3, 3, 2, 0, 0};
-  QList<double> eght_typeTrainValues = {2, 2, 2, 2, 0, 0};
+  QList<double> eght_typeTrainValues = {2, 2, 2, 1, 1, 0};
   QList<double> six_typeTrainValues = {2, 1, 1, 2, 0, 0};
 
   QList<double> twlv_massTrainValues = {10, 20, 20, 10, 10, 10};
   QList<double> ten_massTrainValues = {10, 20, 20, 10, 0, 0};
-  QList<double> eght_massTrainValues = {10, 20, 20, 10, 0, 0};
+  QList<double> eght_massTrainValues = {10, 20, 20, 10, 10, 0};
   QList<double> six_massTrainValues = {10, 20, 20, 10, 0, 0};
 
   QList<double> twlv_passTrainValues = {100, 200, 200, 200, 200, 200};
   QList<double> ten_passTrainValues = {100, 200, 200, 200, 0, 0};
-  QList<double> eght_passTrainValues = {100, 200, 200, 200, 0, 0};
+  QList<double> eght_passTrainValues = {100, 200, 200, 200, 200, 0};
   QList<double> six_passTrainValues = {100, 200, 200, 200, 0, 0};
 
   QList<QList<double>> m_trainValues = {
