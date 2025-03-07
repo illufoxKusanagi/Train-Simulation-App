@@ -7,6 +7,7 @@
 #include "../widgets/chart_widget.h"
 #include "../widgets/input_widget.h"
 #include <QLabel>
+#include <QMap>
 #include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -24,6 +25,7 @@ private:
   TrainSimulation *m_trainSimulation;
   ButtonAction *m_prevButton;
   ButtonAction *m_nextButton;
+  QMap<QString, InputWidget *> m_inputWidgets;
   void setupFirstPage();
   void setupSecondPage();
   void setupChart(QVBoxLayout *pageLayouts);

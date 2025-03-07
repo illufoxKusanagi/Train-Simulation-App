@@ -24,6 +24,7 @@ private:
   ButtonAction *m_prevButton;
   ButtonAction *m_nextButton;
   QStackedWidget *stackedWidget;
+  QMap<QString, InputWidget *> m_inputWidgets;
 
   void setupFirstPage();
   void setupSecondPage();
