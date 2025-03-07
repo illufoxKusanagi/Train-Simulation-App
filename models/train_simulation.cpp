@@ -444,6 +444,7 @@ void TrainSimulation::simulateStaticTrainMovement() {
     i++;
   }
   emit simulationCompleted();
+  // emit staticSimulationCompleted();
 }
 
 void TrainSimulation::resetSimulation() {
