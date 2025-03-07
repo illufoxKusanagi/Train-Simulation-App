@@ -19,6 +19,7 @@ class TrainSimulation : public QObject {
 
 signals:
   void simulationCompleted();
+  void staticSimulationCompleted();
   void powerValuesChanged(double vvvfPower, double catenaryPower,
                           double vvvfCurrent, double catenaryCurrent);
 
