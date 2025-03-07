@@ -85,19 +85,49 @@ void TrainPowerPage::setupInputs(QVBoxLayout *pageLayout,
 }
 
 void TrainPowerPage::setParameterValue() {
-  m_inputWidgets["Max Catenary Power"]->setValue(0);
-  m_inputWidgets["Max VVVF Power"]->setValue(0);
-  m_inputWidgets["Max Catenary Current"]->setValue(0);
-  m_inputWidgets["Max VVVF Current"]->setValue(0);
+  // First check if each key exists before accessing
+  QList<QString> keys = m_inputWidgets.keys();
 
-  m_inputWidgets["Max Catenary Power"]->setValue(
-      m_trainSimulation->findMaxCatenaryPower());
-  m_inputWidgets["Max VVVF Power"]->setValue(
-      m_trainSimulation->findMaxVvvfPower());
-  m_inputWidgets["Max Catenary Current"]->setValue(
-      m_trainSimulation->findMaxCatenaryCurrent());
-  m_inputWidgets["Max VVVF Current"]->setValue(
-      m_trainSimulation->findMaxVvvfCurrent());
+  // Reset all values first
+  for (const QString &key : keys) {
+    if (m_inputWidgets[key]) {
+      m_inputWidgets[key]->setValue(0);
+    }
+  }
+
+  // Set new values only for widgets that exist
+  if (m_inputWidgets.contains("Dynamic Catenary Power"))
+    m_inputWidgets["Dynamic Catenary Power"]->setValue(
+        m_trainSimulation->findMaxCatenaryPower());
+
+  if (m_inputWidgets.contains("Dynamic Max VVVF Power"))
+    m_inputWidgets["Dynamic Max VVVF Power"]->setValue(
+        m_trainSimulation->findMaxVvvfPower());
+
+  if (m_inputWidgets.contains("Dynamic Catenary Current"))
+    m_inputWidgets["Dynamic Catenary Current"]->setValue(
+        m_trainSimulation->findMaxCatenaryCurrent());
+
+  if (m_inputWidgets.contains("Dynamic VVVF Current"))
+    m_inputWidgets["Dynamic VVVF Current"]->setValue(
+        m_trainSimulation->findMaxVvvfCurrent());
+
+  // Static values
+  if (m_inputWidgets.contains("Static Catenary Power"))
+    m_inputWidgets["Static Catenary Power"]->setValue(
+        m_trainSimulation->findMaxCatenaryPower());
+
+  if (m_inputWidgets.contains("Static VVVF Power"))
+    m_inputWidgets["Static VVVF Power"]->setValue(
+        m_trainSimulation->findMaxVvvfPower());
+
+  if (m_inputWidgets.contains("Static Catenary Current"))
+    m_inputWidgets["Static Catenary Current"]->setValue(
+        m_trainSimulation->findMaxCatenaryCurrent());
+
+  if (m_inputWidgets.contains("Static VVVF Current"))
+    m_inputWidgets["Static VVVF Current"]->setValue(
+        m_trainSimulation->findMaxVvvfCurrent());
 }
 
 void TrainPowerPage::setupPagination() {

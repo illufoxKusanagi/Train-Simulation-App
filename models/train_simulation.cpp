@@ -449,7 +449,6 @@ void TrainSimulation::simulateStaticTrainMovement() {
 void TrainSimulation::resetSimulation() {
   resistanceData->f_resStart = 0;
   resistanceData->f_resRunning = 0;
-  resistanceData->f_res = 0;
   resistanceData->f_motor = 0;
   resistanceData->f_start = 0;
   resistanceData->f_brake = 0;
@@ -588,6 +587,68 @@ void TrainSimulation::clearOutputDatas() {
   catenaryPowers.clear();
   vvvfCurrents.clear();
   catenaryCurrents.clear();
+}
+
+void TrainSimulation::printSimulationDatas() {
+  // QString filePath = QDir(QCoreApplication::applicationDirPath())
+  //                        .filePath("fixed_static_simulation.csv");
+  QString filePath = "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
+                     "fixed_static_simulation.csv";
+  ofstream outFile(filePath.toStdString(), ios::out);
+  outFile << "Phase,Iteration,Time,Speed,Acceleration,F Motor,F Res,F Total,F "
+             "Motor/TM,F Res/TM,Torque,RPM,P_motor Out,P_motor In,P_vvvf, "
+             "P_catenary,Catenary current,VVVF current\n";
+  for (int i = 0; i < trainSpeeds.size(); i++) {
+    if (i == 0) {
+      trainMotorData->tm_adh = calculateAdhesion();
+      outFile << "Starting" << "," << i << "," << time << "," << 0 << ","
+              << movingData->acc << "," << resistanceData->f_motor << ","
+              << (movingData->v > 0 ? resistanceData->f_resRunning
+                                    : resistanceData->f_resStart)
+              << "," << resistanceData->f_total << "," << trainMotorData->tm_f
+              << "," << trainMotorData->tm_f_res << "," << trainMotorData->tm_t
+              << "," << trainMotorData->tm_rpm << "," << powerData->p_wheel
+              << "," << powerData->p_motorOut << "," << powerData->p_motorIn
+              << "," << powerData->p_vvvfIn << "," << powerData->p_catenary
+              << "," << energyData->curr_catenary << ","
+              << energyData->curr_vvvf << "\n";
+    }
+    outFile << simulationDatas.phase[i].toStdString() << "," << i + 1 << ","
+            << time << "," << movingData->v << ","
+            << (simulationDatas.phase[i] == "Accelerating" ||
+                        simulationDatas.phase[i] == "Coasting"
+                    ? movingData->acc
+                    : movingData->decc)
+            << "," << simulationDatas.motorForce[i] << ","
+            << simulationDatas.motorForce[i] << "," << resistanceData->f_total
+            << "," << trainMotorData->tm_f << "," << trainMotorData->tm_f_res
+            << "," << trainMotorData->tm_t << "," << trainMotorData->tm_rpm
+            << "," << powerData->p_wheel << "," << powerData->p_motorOut << ","
+            << powerData->p_motorIn << "," << powerData->p_vvvfIn << ","
+            << powerData->p_catenary << "," << energyData->curr_catenary << ","
+            << energyData->curr_vvvf << "\n";
+  }
+}
+
+void TrainSimulation::addSimulationDatas(int i, double time, QString phase) {
+  simulationDatas.trainSpeeds.append(movingData->v);
+  simulationDatas.tractionEfforts.append(resistanceData->f_motor);
+  simulationDatas.vvvfPowers.append(powerData->p_vvvfIn);
+  simulationDatas.catenaryPowers.append(powerData->p_catenary);
+  simulationDatas.vvvfCurrents.append(energyData->curr_vvvf);
+  simulationDatas.catenaryCurrents.append(energyData->curr_catenary);
+  simulationDatas.time.append(time);
+  simulationDatas.phase.append(phase);
+  simulationDatas.motorForce.append(resistanceData->f_motor);
+  simulationDatas.motorResistance.append(movingData->v == 0
+                                             ? resistanceData->f_resStart
+                                             : resistanceData->f_resRunning);
+  simulationDatas.totalResistance.append(resistanceData->f_total);
+  simulationDatas.tractionForcePerMotor.append(trainMotorData->tm_f);
+  simulationDatas.torque.append(trainMotorData->tm_t);
+  simulationDatas.rpm.append(trainMotorData->tm_rpm);
+  simulationDatas.powerWheel.append(powerData->p_wheel);
+  simulationDatas.powerMotorOut.append(powerData->p_motorOut);
 }
 
 double TrainSimulation::findMaxSpeed() {
