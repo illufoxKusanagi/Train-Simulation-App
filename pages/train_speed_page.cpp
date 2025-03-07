@@ -44,13 +44,24 @@ void TrainSpeedPage::setupExactValues(QVBoxLayout *pageLayout,
   layout->setAlignment(Qt::AlignCenter);
   InputType inputType = InputType("field", inputTitle, "km/h");
   m_inputWidget = new InputWidget(inputType, this);
+  m_inputWidgets[inputTitle] = m_inputWidget;
   layout->addWidget(m_inputWidget);
   pageLayout->addLayout(layout);
 }
 
 void TrainSpeedPage::setParameterValue() {
-  m_inputWidget->setValue(0);
-  m_inputWidget->setValue(m_trainSimulation->findMaxSpeed());
+  QList<QString> keys = m_inputWidgets.keys();
+
+  for (const QString &key : keys) {
+    if (m_inputWidgets[key]) {
+      m_inputWidgets[key]->setValue(0);
+    }
+  }
+  if (m_inputWidgets.contains("Max Speed"))
+    m_inputWidgets["Max Speed"]->setValue(m_trainSimulation->findMaxSpeed());
+  if (m_inputWidgets.contains("Static Max Speed"))
+    m_inputWidgets["Static Max Speed"]->setValue(
+        m_trainSimulation->findMaxSpeed());
 }
 
 void TrainSpeedPage::setupPagination() {
@@ -58,8 +69,8 @@ void TrainSpeedPage::setupPagination() {
   QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
   paginationLayout->setAlignment(Qt::AlignLeft);
   paginationLayout->setSpacing(16);
-  m_prevButton = new ButtonAction("Dynamic Simulation", "false", this);
-  m_nextButton = new ButtonAction("Static Simulation", "false", this);
+  m_prevButton = new ButtonAction("Dynamic Speed", "false", this);
+  m_nextButton = new ButtonAction("Static Speed", "false", this);
   m_prevButton->setFixedSize(144, 48);
   m_nextButton->setFixedSize(144, 48);
   connect(m_prevButton, &QPushButton::clicked, this,

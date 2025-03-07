@@ -58,8 +58,8 @@ void TrainTrackPage::setupPagination() {
   QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
   paginationLayout->setAlignment(Qt::AlignLeft);
   paginationLayout->setSpacing(16);
-  m_prevButton = new ButtonAction("Dynamic Simulation", "false", this);
-  m_nextButton = new ButtonAction("Static Simulation", "false", this);
+  m_prevButton = new ButtonAction("Dynamic Track", "false", this);
+  m_nextButton = new ButtonAction("Static Track", "false", this);
   m_prevButton->setFixedSize(144, 48);
   m_nextButton->setFixedSize(144, 48);
   connect(m_prevButton, &QPushButton::clicked, this,
