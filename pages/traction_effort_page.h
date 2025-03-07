@@ -19,12 +19,20 @@ public:
 
 private:
   QVBoxLayout *mainLayout;
-  QStackedWidget *m_stackedWidget;
+  QStackedWidget *stackedWidget;
   InputWidget *m_inputWidget;
   TrainSimulation *m_trainSimulation;
-  void setupChart();
-  void setupExactValue();
+  ButtonAction *m_prevButton;
+  ButtonAction *m_nextButton;
+  void setupFirstPage();
+  void setupSecondPage();
+  void setupChart(QVBoxLayout *pageLayouts);
+  void setupExactValue(QVBoxLayout *pageLayout, QString inputTitle);
   void setParameterValue();
+  void setupPagination();
+  void showNextPage();
+  void showPreviousPage();
+  void updatePaginationButtons();
 };
 
 #endif // TRACTION_EFFORT_PAGE_H

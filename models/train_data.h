@@ -83,6 +83,9 @@ struct MovingData {
   double v_b1;
   double v_b2;
   double v_diffCoast;
+  double time;
+  double time_simulate;
+  double x;
 };
 
 struct TrainMotorData {

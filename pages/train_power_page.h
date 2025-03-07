@@ -7,6 +7,7 @@
 #include "../widgets/chart_widget.h"
 #include "../widgets/input_widget.h"
 #include <QLabel>
+#include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -16,14 +17,34 @@ public:
   explicit TrainPowerPage(QWidget *parentWidget = nullptr,
                           TrainSimulation *trainSimulation = nullptr);
 
+private slots:
+  void pageChanged(int pageIndex);
+  void updatePageButtons();
+
 private:
   QVBoxLayout *mainLayout;
   TrainSimulation *m_trainSimulation;
+  ButtonAction *m_prevButton;
+  ButtonAction *m_nextButton;
+  ButtonAction *m_firstPageButton;
+  ButtonAction *m_secondPageButton;
+  ButtonAction *m_thirdPageButton;
+  ButtonAction *m_fourthPageButton;
+  QStackedWidget *stackedWidget;
   QMap<QString, InputWidget *> m_inputWidgets;
-  void setupChart();
-  void setupInputs();
+
+  void setupFirstPage();
+  void setupSecondPage();
+  void setupThirdPage();
+  void setupFourthPage();
+  void setupChart(QVBoxLayout *pageLayout);
+  void setupInputs(QVBoxLayout *pageLayout, QStringList inputTitle);
   double getParameterValue(const QString &paramName) const;
   void setParameterValue();
+  void setupPagination();
+  void showNextPage();
+  void showPreviousPage();
+  void updatePaginationButtons();
 };
 
 #endif // TRAIN_POWER_PAGE_H
