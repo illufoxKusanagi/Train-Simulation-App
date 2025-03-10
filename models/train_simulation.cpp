@@ -779,4 +779,5 @@ double TrainSimulation::findMaxCatenaryCurrent() {
 double TrainSimulation::findMaxTractionEffort() {
   if (tractionEfforts.isEmpty())
     return 0.0;
- 
+  return *std::max_element(tractionEfforts.begin(), tractionEfforts.end());
+}
