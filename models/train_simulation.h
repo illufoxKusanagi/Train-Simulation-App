@@ -54,11 +54,15 @@ public:
     QList<double> vvvfCurrents;
     QList<double> catenaryCurrents;
     QList<double> time;
+    QList<double> timeTotal;
+    QList<double> distance;
+    QList<double> distanceTotal;
     QList<QString> phase;
     QList<double> motorForce;
     QList<double> motorResistance;
     QList<double> totalResistance;
     QList<double> tractionForcePerMotor;
+    QList<double> resistancePerMotor;
     QList<double> torque;
     QList<double> rpm;
     QList<double> powerWheel;
@@ -68,6 +72,7 @@ public:
     QList<double> powerCatenary;
     QList<double> currentCatenary;
     QList<double> currentVvvf;
+    QList<double> accelerations;
   } simulationDatas;
 
   double countMassEmptyCar();
@@ -124,6 +129,8 @@ private:
   void calculateBrakingForce();
   double calculateVvvfCurrent();
   double calculateCatenaryCurrent();
+  double calculateTotalTime(int i);
+  double calculateTotalDistance(int i);
 
   void clearOutputDatas();
   void addOutputDatas(double speed, double tractionEffort, double vvvfPower,
@@ -131,6 +138,7 @@ private:
                       double catenaryCurrent);
   void addSimulationDatas(int i, double time, QString phase);
   void printSimulationDatas();
+  void clearSimulationDatas();
 
   void deleteCsvFile(QString csvPath);
   void readCsvFile(const QString path, QStringList &values);
