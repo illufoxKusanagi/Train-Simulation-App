@@ -568,7 +568,7 @@ bool TrainSimulation::saveTrainSpeedData() {
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   if (filepath.isEmpty()) {
     QMessageBox::information(nullptr, "Alert", "The process canceled by user");
-    return;
+    return false;
   }
   ofstream outFile(filepath.toStdString(), ios::out);
   outFile << "velocity (km/h)\n ";
@@ -587,7 +587,7 @@ bool TrainSimulation::saveTractionEffortData() {
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   if (filepath.isEmpty()) {
     QMessageBox::information(nullptr, "Alert", "The process canceled by user");
-    return;
+    return false;
   }
   ofstream outFile(filepath.toStdString(), ios::out);
   outFile << "F motor (kN)\n ";
@@ -606,7 +606,7 @@ bool TrainSimulation::saveTrainPowerData() {
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   if (filepath.isEmpty()) {
     QMessageBox::information(nullptr, "Alert", "The process canceled by user");
-    return;
+    return false;
   }
   ofstream outFile(filepath.toStdString(), ios::out);
   outFile << "P_vvvf(kW),P_catenary(kW),Catenary current(A),VVVFcurrent(A)\n ";
