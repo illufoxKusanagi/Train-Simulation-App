@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QObject>
 #include <QString>
 #include <cmath>
@@ -19,6 +20,7 @@ class TrainSimulation : public QObject {
 
 signals:
   void simulationCompleted();
+  void staticSimulationCompleted();
   void powerValuesChanged(double vvvfPower, double catenaryPower,
                           double vvvfCurrent, double catenaryCurrent);
 
@@ -53,15 +55,26 @@ public:
     QList<double> vvvfCurrents;
     QList<double> catenaryCurrents;
     QList<double> time;
+    QList<double> timeTotal;
+    QList<double> distance;
+    QList<double> distanceTotal;
     QList<QString> phase;
     QList<double> motorForce;
     QList<double> motorResistance;
     QList<double> totalResistance;
     QList<double> tractionForcePerMotor;
+    QList<double> resistancePerMotor;
     QList<double> torque;
     QList<double> rpm;
     QList<double> powerWheel;
-  };
+    QList<double> powerMotorOut;
+    QList<double> powerMotorIn;
+    QList<double> powerVvvfIn;
+    QList<double> powerCatenary;
+    QList<double> currentCatenary;
+    QList<double> currentVvvf;
+    QList<double> accelerations;
+  } simulationDatas;
 
   double countMassEmptyCar();
   double countMassWithLoad();
@@ -72,6 +85,7 @@ public:
   bool saveTrainSpeedData();
   bool saveTractionEffortData();
   bool saveTrainPowerData();
+  void printSimulationDatas();
 
   double findMaxSpeed();
   double findMaxVvvfPower();
@@ -117,11 +131,15 @@ private:
   void calculateBrakingForce();
   double calculateVvvfCurrent();
   double calculateCatenaryCurrent();
+  double calculateTotalTime(int i);
+  double calculateTotalDistance(int i);
 
   void clearOutputDatas();
   void addOutputDatas(double speed, double tractionEffort, double vvvfPower,
                       double catenaryPower, double vvvfCurrent,
                       double catenaryCurrent);
+  void addSimulationDatas(int i, double time, QString phase);
+  void clearSimulationDatas();
 
   void deleteCsvFile(QString csvPath);
   void readCsvFile(const QString path, QStringList &values);

@@ -58,39 +58,43 @@ struct ResistanceData {
   double startRes;
   double slope;
   double radius;
-  double r_train;
-  double r_slope;
-  double r_radius;
-  double r_run;
-  double f_res;
-  double f_resStart;
-  double f_resRunning;
-  double f_total;
-  double f_start;
-  double f_motor;
-  double f_brake;
+  double r_train = 0;
+  double r_slope = 0;
+  double r_radius = 0;
+  double r_run = 0;
+  double f_res = 0;
+  double f_resStart = 0;
+  double f_resRunning = 0;
+  double f_total = 0;
+  double f_start = 0;
+  double f_motor = 0;
+  double f_brake = 0;
 };
 
 struct MovingData {
-  double acc;
-  double decc;
+  double acc = 0;
+  double decc = 0;
   double acc_start;
   double decc_start;
-  double v;
+  double v = 0;
   double v_limit;
   double v_p1;
   double v_p2;
   double v_b1;
   double v_b2;
   double v_diffCoast;
+  double time = 0;
+  double x = 0;
+  double time_total = 0;
+  double x_total = 0;
 };
 
 struct TrainMotorData {
-  double tm_f;
-  double tm_t;
-  double tm_rpm;
-  double tm_adh;
-  double tm_f_res;
+  double tm_f = 0;
+  double tm_t = 0;
+  double tm_rpm = 0;
+  double tm_adh = 0;
+  double tm_f_res = 0;
 };
 
 struct EfficiencyData {
@@ -100,22 +104,22 @@ struct EfficiencyData {
 };
 
 struct PowerData {
-  double p_wheel;
-  double p_motorOut;
-  double p_motorIn;
-  double p_vvvfIn;
-  double p_catenary;
+  double p_wheel = 0;
+  double p_motorOut = 0;
+  double p_motorIn = 0;
+  double p_vvvfIn = 0;
+  double p_catenary = 0;
   double p_aps;
 };
 
 struct EnergyData {
-  double e_motor;
-  double e_pow;
-  double e_reg;
-  double e_aps;
-  double vol_line;
-  double curr_catenary;
-  double curr_vvvf;
+  double e_motor = 0;
+  double e_pow = 0;
+  double e_reg = 0;
+  double e_aps = 0;
+  double vol_line = 0;
+  double curr_catenary = 0;
+  double curr_vvvf = 0;
 };
 
 #endif // TRAIN_DATA_H

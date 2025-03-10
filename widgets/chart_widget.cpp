@@ -97,6 +97,20 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
                             QString("Failed to save data: %1").arg(e.what()));
     }
   });
+  connect(saveAllData, &QPushButton::clicked, this, [this]() {
+    try {
+      if (m_trainSimulation->trainSpeeds.isEmpty()) {
+        QMessageBox::warning(
+            this, "No Data",
+            "No simulation data to save. Please run a simulation first.");
+        return;
+      }
+      m_trainSimulation->printSimulationDatas();
+    } catch (const std::exception &e) {
+      QMessageBox::critical(this, "Error",
+                            QString("Failed to save data: %1").arg(e.what()));
+    }
+  });
 
   saveButton->setEnabled(true);
   saveCurrentData->setEnabled(true);

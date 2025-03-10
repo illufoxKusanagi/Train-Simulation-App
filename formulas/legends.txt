@@ -33,6 +33,7 @@ _p        : Related to powering (m/s)
 _b        : Related to braking (m/s)
 _res      : Related to resistance
 _..i      : Related to Inertial
+_iter     : Related to iterative variable
 
 COMPOSITE EXAMPLES:
 mass_totalEmpty    : Total empty mass of train

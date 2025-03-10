@@ -85,7 +85,7 @@ const QStringList LeftPanelInputs::INPUT_BUTTON_TYPES = {
     "constant", "train", "running", "track", "electrical"};
 
 const QStringList LeftPanelInputs::OUTPUT_BUTTON_NAMES = {
-    "Train Speed", "Traction Effort", "Train Power"};
+    "Train Speed", "Traction Effort", "Train Power", "Train Track"};
 
 const QStringList LeftPanelInputs::OUTPUT_BUTTON_TYPES = {"speed", "traction",
-                                                          "power"};
+                                                          "power", "track"};

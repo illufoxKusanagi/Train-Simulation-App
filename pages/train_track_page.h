@@ -1,20 +1,18 @@
-#ifndef TRAIN_SPEED_PAGE_H
-#define TRAIN_SPEED_PAGE_H
+#ifndef TRAIN_TRACK_PAGE_H
+#define TRAIN_TRACK_PAGE_H
 
-#include "../models/train_simulation.h"
 #include "../resources/input_type.h"
 #include "../widgets/button_action.h"
 #include "../widgets/chart_widget.h"
 #include "../widgets/input_widget.h"
-#include <QLabel>
 #include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QWidget>
 
-class TrainSpeedPage : public QWidget {
+class TrainTrackPage : public QWidget {
   Q_OBJECT
 public:
-  explicit TrainSpeedPage(QWidget *parent = nullptr,
+  explicit TrainTrackPage(QWidget *parent = nullptr,
                           TrainSimulation *trainSimulation = nullptr);
 
 private:
@@ -24,7 +22,6 @@ private:
   ButtonAction *m_prevButton;
   ButtonAction *m_nextButton;
   QStackedWidget *stackedWidget;
-  QMap<QString, InputWidget *> m_inputWidgets;
 
   void setupFirstPage();
   void setupSecondPage();
@@ -37,4 +34,4 @@ private:
   void showNextPage();
 };
 
-#endif // TRAIN_SPEED_PAGE_H
+#endif // TRAIN_TRACK_PAGE_H
