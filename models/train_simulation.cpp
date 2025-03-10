@@ -302,10 +302,11 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   bool isAccelerating = true;
   bool isCoasting = false;
   float time = 0;
-  QString phase;
+  QString phase = "Starting";
   int coastingCount = 0;
   while (movingData->v >= 0) {
     resistanceData->f_resStart = calculateStartRes();
+    addSimulationDatas(i, time, phase);
     resistanceData->f_resRunning = calculateRunningRes(movingData->v);
     if (isAccelerating) {
       if (movingData->v >= movingData->v_limit) {
@@ -364,6 +365,10 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     addOutputDatas(movingData->v, trainMotorData->tm_f, powerData->p_vvvfIn,
                    powerData->p_catenary, energyData->curr_vvvf,
                    energyData->curr_catenary);
+    movingData->x = abs(calculateTotalDistance(i));
+    movingData->time = abs(calculateTotalTime(i));
+    movingData->x_total += movingData->x;
+    movingData->time_total += movingData->time;
     emit powerValuesChanged(powerData->p_vvvfIn, powerData->p_catenary,
                             energyData->curr_vvvf, energyData->curr_catenary);
     if (i == 0) {
@@ -398,12 +403,11 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     i++;
   }
   outFile.close();
+  // printSimulationDatas();
   emit simulationCompleted();
 }
 
 void TrainSimulation::simulateStaticTrainMovement() {
-  // QString filePath = QDir(QCoreApplication::applicationDirPath())
-  //                        .filePath("fixed_static_simulation.csv");
   QString filePath = "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
                      "fixed_static_simulation.csv";
   deleteCsvFile(filePath);
@@ -492,9 +496,9 @@ void TrainSimulation::simulateStaticTrainMovement() {
     qDebug() << "Distance traveled : " << totalDistance;
     i++;
   }
-  printSimulationDatas();
-  clearOutputDatas();
-  clearSimulationDatas();
+  // printSimulationDatas();
+  // clearOutputDatas();
+  // clearSimulationDatas();
   emit simulationCompleted();
   // emit staticSimulationCompleted();
 }
@@ -519,7 +523,7 @@ void TrainSimulation::resetSimulation() {
   powerData->p_catenary = 0;
   trainMotorData->tm_rpm = 0;
   clearSimulationDatas();
-  clearOutputDatas();
+  // clearOutputDatas();
 }
 
 void TrainSimulation::deleteCsvFile(QString csvPath) {
@@ -560,14 +564,12 @@ void TrainSimulation::readCsvFile(const QString path, QStringList &values) {
 }
 
 bool TrainSimulation::saveTrainSpeedData() {
-  // QString tractionEffortFile = QDir(QCoreApplication::applicationDirPath())
-  //                                  .filePath("train_speed_simulation.csv");
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
-  // QString tractionEffortFile =
-  //     "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-  //     "train_speed_simulation.csv";
-  // deleteCsvFile(tractionEffortFile);
+  if (filepath.isEmpty()) {
+    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    return;
+  }
   ofstream outFile(filepath.toStdString(), ios::out);
   outFile << "velocity (km/h)\n ";
   int maxSize =
@@ -581,14 +583,12 @@ bool TrainSimulation::saveTrainSpeedData() {
 }
 
 bool TrainSimulation::saveTractionEffortData() {
-  // QString tractionEffortFile = QDir(QCoreApplication::applicationDirPath())
-  //                                  .filePath("tractive_effort_simulation.csv");
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
-  // QString tractionEffortFile =
-  //     "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-  //     "tractive_effort_simulation.csv";
-  // deleteCsvFile(tractionEffortFile);
+  if (filepath.isEmpty()) {
+    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    return;
+  }
   ofstream outFile(filepath.toStdString(), ios::out);
   outFile << "F motor (kN)\n ";
   int maxSize =
@@ -602,14 +602,12 @@ bool TrainSimulation::saveTractionEffortData() {
 }
 
 bool TrainSimulation::saveTrainPowerData() {
-  //   QString trainPowerFile = QDir(QCoreApplication::applicationDirPath())
-  //                                .filePath("train_power_simulation.csv");
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
-  // QString trainPowerFile =
-  //     "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-  //     "train_power_simulation.csv";
-  // deleteCsvFile(trainPowerFile);
+  if (filepath.isEmpty()) {
+    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    return;
+  }
   ofstream outFile(filepath.toStdString(), ios::out);
   outFile << "P_vvvf(kW),P_catenary(kW),Catenary current(A),VVVFcurrent(A)\n ";
   int maxSize =
@@ -645,12 +643,22 @@ void TrainSimulation::clearOutputDatas() {
 }
 
 void TrainSimulation::printSimulationDatas() {
-  // QString filePath = QDir(QCoreApplication::applicationDirPath())
-  //                        .filePath("fixed_static_simulation.csv");
-  QString filepath = "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-                     "new_static_simulation.csv";
-  // QString filepath = QFileDialog::getSaveFileName(
-  //     nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  // QString filepath =
+  // "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
+  //                    "new_static_simulation.csv";
+  // QString filepath =
+  // "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
+  //                    "new_dynamic_simulation.csv";
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+
+  if (filepath.isEmpty()) {
+    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    return;
+  }
+  if (!filepath.endsWith(".csv", Qt::CaseInsensitive)) {
+    filepath += ".csv";
+  }
   ofstream outFile(filepath.toStdString(), ios::out);
   outFile
       << "Phase,Iteration,Time,Total "
@@ -685,8 +693,9 @@ void TrainSimulation::printSimulationDatas() {
             << simulationDatas.totalResistance[i] << ","
             << simulationDatas.tractionForcePerMotor[i] << ","
             << simulationDatas.resistancePerMotor[i] << ","
-            << simulationDatas.torque[i] << "," << simulationDatas.rpm[i] << ","
-            << simulationDatas.powerWheel[i] << ","
+            << simulationDatas.torque[i] << "," << simulationDatas.rpm[i]
+            << ","
+            // << simulationDatas.powerWheel[i] << ","
             << simulationDatas.powerMotorOut[i] << ","
             << simulationDatas.powerMotorIn[i] << ","
             << simulationDatas.vvvfPowers[i] << ","
@@ -695,6 +704,7 @@ void TrainSimulation::printSimulationDatas() {
             << simulationDatas.vvvfCurrents[i] << "\n";
   }
   outFile.close();
+  QMessageBox::information(nullptr, "Success", "Data saved successfully!");
 }
 
 void TrainSimulation::addSimulationDatas(int i, double time, QString phase) {
@@ -749,35 +759,41 @@ void TrainSimulation::clearSimulationDatas() {
 double TrainSimulation::findMaxSpeed() {
   if (trainSpeeds.isEmpty())
     return 0.0;
-  return *std::max_element(trainSpeeds.begin(), trainSpeeds.end());
+  return *std::max_element(simulationDatas.trainSpeeds.begin(),
+                           simulationDatas.trainSpeeds.end());
 }
 
 double TrainSimulation::findMaxVvvfPower() {
-  if (vvvfPowers.isEmpty())
+  if (simulationDatas.vvvfPowers.isEmpty())
     return 0.0;
-  return *std::max_element(vvvfPowers.begin(), vvvfPowers.end());
+  return *std::max_element(simulationDatas.vvvfPowers.begin(),
+                           simulationDatas.vvvfPowers.end());
 }
 
 double TrainSimulation::findMaxCatenaryPower() {
-  if (catenaryPowers.isEmpty())
+  if (simulationDatas.catenaryPowers.isEmpty())
     return 0.0;
-  return *std::max_element(catenaryPowers.begin(), catenaryPowers.end());
+  return *std::max_element(simulationDatas.catenaryPowers.begin(),
+                           simulationDatas.catenaryPowers.end());
 }
 
 double TrainSimulation::findMaxVvvfCurrent() {
-  if (vvvfCurrents.isEmpty())
+  if (simulationDatas.vvvfCurrents.isEmpty())
     return 0.0;
-  return *std::max_element(vvvfCurrents.begin(), vvvfCurrents.end());
+  return *std::max_element(simulationDatas.vvvfCurrents.begin(),
+                           simulationDatas.vvvfCurrents.end());
 }
 
 double TrainSimulation::findMaxCatenaryCurrent() {
-  if (catenaryCurrents.isEmpty())
+  if (simulationDatas.catenaryCurrents.isEmpty())
     return 0.0;
-  return *std::max_element(catenaryCurrents.begin(), catenaryCurrents.end());
+  return *std::max_element(simulationDatas.catenaryCurrents.begin(),
+                           simulationDatas.catenaryCurrents.end());
 }
 
 double TrainSimulation::findMaxTractionEffort() {
-  if (tractionEfforts.isEmpty())
+  if (simulationDatas.tractionEfforts.isEmpty())
     return 0.0;
-  return *std::max_element(tractionEfforts.begin(), tractionEfforts.end());
+  return *std::max_element(simulationDatas.tractionEfforts.begin(),
+                           simulationDatas.tractionEfforts.end());
 }

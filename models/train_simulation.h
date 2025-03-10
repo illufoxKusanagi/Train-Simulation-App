@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QObject>
 #include <QString>
 #include <cmath>
@@ -84,6 +85,7 @@ public:
   bool saveTrainSpeedData();
   bool saveTractionEffortData();
   bool saveTrainPowerData();
+  void printSimulationDatas();
 
   double findMaxSpeed();
   double findMaxVvvfPower();
@@ -137,7 +139,6 @@ private:
                       double catenaryPower, double vvvfCurrent,
                       double catenaryCurrent);
   void addSimulationDatas(int i, double time, QString phase);
-  void printSimulationDatas();
   void clearSimulationDatas();
 
   void deleteCsvFile(QString csvPath);
