@@ -26,19 +26,25 @@ void ChartWidget::updateChart() {
   if (m_chart) {
     m_chart->removeAllSeries();
     if (m_chartTitle == "Dynamic Power") {
-      // if (m_seriesToDisplay.contains("Dynamic Catenary Power")) {
       setupDynamicPowerChart();
-      // }
     } else if (m_chartTitle == "Dynamic Current") {
       setupDynamicCurrentChart();
-    }
-    // Static Power chart
-    else if (m_chartTitle == "Static Power") {
+    } else if (m_chartTitle == "Static Power") {
       setupStaticPowerChart();
-    }
-    // Static Current chart
-    else if (m_chartTitle == "Static Current") {
+    } else if (m_chartTitle == "Static Current") {
       setupStaticCurrentChart();
+    } else if (m_chartTitle == "Max Speed") {
+      setupDynamicSpeedChart();
+    } else if (m_chartTitle == "Static Max Speed") {
+      setupStaticSpeedChart();
+    } else if (m_chartTitle == "Max Static Traction Effort") {
+      setupStaticTractionChart();
+    } else if (m_chartTitle == "Max Traction Effort") {
+      setupDynamicTractionChart();
+    } else if (m_chartTitle == "Dynamic Track") {
+      setupDynamicTrackChart();
+    } else if (m_chartTitle == "Static Track") {
+      setupStaticTrackChart();
     }
     if (m_chart->series().size() > 0) {
       m_chart->createDefaultAxes();
@@ -50,16 +56,25 @@ void ChartWidget::updateChart() {
           qobject_cast<QValueAxis *>(m_chart->axes(Qt::Vertical).first());
 
       if (axisX && axisY) {
+        // For X axis
         if (m_chartTitle.contains("Static"))
           axisX->setTitleText("Speed (km/h)");
+        else if (m_chartTitle.contains("Static Max Speed"))
+          axisX->setTitleText("Distance (m)");
         else
           axisX->setTitleText("Time (s)");
 
-        if (m_chartTitle.contains("Power")) {
+        // For Y axis
+        if (m_chartTitle.contains("Power"))
           axisY->setTitleText("Power (kW)");
-        } else if (m_chartTitle.contains("Current")) {
+        else if (m_chartTitle.contains("Current"))
           axisY->setTitleText("Current (A)");
-        }
+        else if (m_chartTitle.contains("Speed"))
+          axisY->setTitleText("Speed (km/h)");
+        else if (m_chartTitle.contains("Traction Effort"))
+          axisY->setTitleText("Traction Effort (kN)");
+        else if (m_chartTitle.contains("Distance"))
+          axisY->setTitleText("Distance (m)");
       }
     }
   }
@@ -196,8 +211,29 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
   m_chartLayout->addLayout(buttonLayout);
 }
 
-void ChartWidget::setupDynamicSpeedChart() {}
-void ChartWidget::setupDynamicTractionChart() {}
+void ChartWidget::setupDynamicSpeedChart() {
+  QLineSeries *speedSeries = new QLineSeries();
+  speedSeries->setName("Speed");
+  speedSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
+  const auto &time = m_trainSimulation->simulationDatas.timeTotal;
+  for (int i = 0; i < time.size() && i < speeds.size(); ++i) {
+    speedSeries->append(time[i], speeds[i]);
+  }
+  m_chart->addSeries(speedSeries);
+}
+
+void ChartWidget::setupDynamicTractionChart() {
+  QLineSeries *speedSeries = new QLineSeries();
+  speedSeries->setName("F motor");
+  speedSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  const auto &time = m_trainSimulation->simulationDatas.timeTotal;
+  const auto &resistance = m_trainSimulation->simulationDatas.tractionEfforts;
+  for (int i = 0; i < resistance.size() && i < time.size(); ++i) {
+    speedSeries->append(time[i], resistance[i]);
+  }
+  m_chart->addSeries(speedSeries);
+}
 void ChartWidget::setupDynamicTrackChart() {}
 
 void ChartWidget::setupDynamicPowerChart() {
@@ -219,6 +255,7 @@ void ChartWidget::setupDynamicPowerChart() {
   m_chart->addSeries(catenaryPowerSeries);
   m_chart->addSeries(vvvfPowerSeries);
 }
+
 void ChartWidget::setupDynamicCurrentChart() {
   QLineSeries *catenaryCurrentSeries = new QLineSeries();
   QLineSeries *vvvfCurrentSeries = new QLineSeries();
@@ -242,6 +279,7 @@ void ChartWidget::setupDynamicCurrentChart() {
   m_chart->addSeries(catenaryCurrentSeries);
   m_chart->addSeries(vvvfCurrentSeries);
 }
+
 void ChartWidget::setupStaticPowerChart() {
   QLineSeries *catenaryPowerSeries = new QLineSeries();
   QLineSeries *vvvfPowerSeries = new QLineSeries();
@@ -265,6 +303,7 @@ void ChartWidget::setupStaticPowerChart() {
   m_chart->addSeries(catenaryPowerSeries);
   m_chart->addSeries(vvvfPowerSeries);
 }
+
 void ChartWidget::setupStaticCurrentChart() {
   QLineSeries *catenaryCurrentSeries = new QLineSeries();
   QLineSeries *vvvfCurrentSeries = new QLineSeries();
@@ -289,7 +328,27 @@ void ChartWidget::setupStaticCurrentChart() {
   m_chart->addSeries(vvvfCurrentSeries);
 }
 
-void ChartWidget::setupStaticSpeedChart() {}
-void ChartWidget::setupStaticTractionChart() {}
-void ChartWidget::setupStaticTrackChart() {}
+void ChartWidget::setupStaticSpeedChart() {
+  QLineSeries *speedSeries = new QLineSeries();
+  speedSeries->setName("Speed");
+  speedSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
+  const auto &distance = m_trainSimulation->simulationDatas.distanceTotal;
+  for (int i = 0; i < distance.size() && i < speeds.size(); ++i) {
+    speedSeries->append(distance[i], speeds[i]);
+  }
+  m_chart->addSeries(speedSeries);
+}
 
+void ChartWidget::setupStaticTractionChart() {
+  QLineSeries *speedSeries = new QLineSeries();
+  speedSeries->setName("F motor");
+  speedSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  const auto &speed = m_trainSimulation->simulationDatas.trainSpeeds;
+  const auto &resistance = m_trainSimulation->simulationDatas.tractionEfforts;
+  for (int i = 0; i < speed.size() && i < resistance.size(); ++i) {
+    speedSeries->append(speed[i], resistance[i]);
+  }
+  m_chart->addSeries(speedSeries);
+}
+void ChartWidget::setupStaticTrackChart() {}

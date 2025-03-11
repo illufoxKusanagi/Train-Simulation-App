@@ -25,16 +25,18 @@ private:
   ButtonAction *m_nextButton;
   QStackedWidget *stackedWidget;
   QMap<QString, InputWidget *> m_inputWidgets;
+  QMap<QString, ChartWidget *> m_chartWidget;
 
   void setupFirstPage();
   void setupSecondPage();
-  void setupChart(QVBoxLayout *pageLayout);
+  void setupChart(QVBoxLayout *pageLayout, QString chartTitle = "");
   void setupExactValues(QVBoxLayout *pageLayout, QString inputTitle);
   void setParameterValue();
   void setupPagination();
   void updatePaginationButtons();
   void showPreviousPage();
   void showNextPage();
+  void updateCharts();
 };
 
 #endif // TRAIN_SPEED_PAGE_H
