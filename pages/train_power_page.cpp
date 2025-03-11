@@ -6,7 +6,10 @@ TrainPowerPage::TrainPowerPage(QWidget *parent,
       m_trainSimulation(trainSimulation) {
   mainLayout->setAlignment(Qt::AlignCenter);
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
-          &TrainPowerPage::setParameterValue);
+          [this]() {
+            setParameterValue();
+            updateCharts();
+          });
   stackedWidget = new QStackedWidget(this);
   mainLayout->addWidget(stackedWidget);
   setupFirstPage();
@@ -66,6 +69,7 @@ void TrainPowerPage::setupFourthPage() {
 void TrainPowerPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle) {
   ChartWidget *chartWidget =
       new ChartWidget(chartTitle, "speed", this, m_trainSimulation);
+  m_chartWidgets[chartTitle] = chartWidget;
   pageLayout->addWidget(chartWidget);
 }
 
@@ -156,6 +160,13 @@ void TrainPowerPage::pageChanged(int pageIndex) {
   pageIndex = qBound(0, pageIndex, maxIndex);
   stackedWidget->setCurrentIndex(pageIndex);
   updatePageButtons();
+}
+
+void TrainPowerPage::updateCharts() {
+  m_chartWidgets["Dynamic Power"]->updateChart();
+  m_chartWidgets["Dynamic Current"]->updateChart();
+  m_chartWidgets["Static Power"]->updateChart();
+  m_chartWidgets["Static Current"]->updateChart();
 }
 
 void TrainPowerPage::updatePageButtons() {

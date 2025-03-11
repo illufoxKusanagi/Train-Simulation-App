@@ -26,9 +26,11 @@ private:
   ButtonAction *m_prevButton;
   ButtonAction *m_nextButton;
   QMap<QString, InputWidget *> m_inputWidgets;
+  QMap<QString, ChartWidget *> m_chartWidget;
+
   void setupFirstPage();
   void setupSecondPage();
-  void setupChart(QVBoxLayout *pageLayouts);
+  void setupChart(QVBoxLayout *pageLayouts, QString chartTitle);
   void setupExactValue(QVBoxLayout *pageLayout, QString inputTitle);
   void setParameterValue();
   void setupPagination();

@@ -826,7 +826,6 @@ double TrainSimulation::findMaxTractionEffort() {
 }
 
 double TrainSimulation::findDistanceTravelled() {
-  qDebug() << "Distance travelled : " << simulationDatas.distanceTotal.last();
   if (simulationDatas.distanceTotal.isEmpty())
     return 0.0;
   return simulationDatas.distanceTotal.last();
