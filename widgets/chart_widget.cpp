@@ -161,7 +161,6 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
         saveSuccessful = m_trainSimulation->saveTrainTrackData();
       if (saveSuccessful)
         QMessageBox::information(this, "Success", "Data saved successfully!");
-
     } catch (const std::exception &e) {
       QMessageBox::critical(this, "Error",
                             QString("Failed to save data: %1").arg(e.what()));
@@ -293,3 +292,4 @@ void ChartWidget::setupStaticCurrentChart() {
 void ChartWidget::setupStaticSpeedChart() {}
 void ChartWidget::setupStaticTractionChart() {}
 void ChartWidget::setupStaticTrackChart() {}
+
