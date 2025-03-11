@@ -20,7 +20,7 @@ void TractionEffortPage::setupFirstPage() {
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
   firstPageLayout->setSpacing(40);
   setupExactValue(firstPageLayout, "Max Traction Effort");
-  setupChart(firstPageLayout);
+  setupChart(firstPageLayout, "Max Traction Effort");
   stackedWidget->addWidget(firstPage);
 }
 
@@ -29,13 +29,15 @@ void TractionEffortPage::setupSecondPage() {
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   secondPageLayout->setSpacing(40);
   setupExactValue(secondPageLayout, "Max Static Traction Effort");
-  setupChart(secondPageLayout);
+  setupChart(secondPageLayout, "Max Static Traction Effort");
   stackedWidget->addWidget(secondPage);
 }
 
-void TractionEffortPage::setupChart(QVBoxLayout *pageLayout) {
+void TractionEffortPage::setupChart(QVBoxLayout *pageLayout,
+                                    QString chartTitle) {
   ChartWidget *chartWidget =
-      new ChartWidget("Traction Effort", "speed", this, m_trainSimulation);
+      new ChartWidget(chartTitle, "speed", this, m_trainSimulation);
+  m_chartWidget[chartTitle] = chartWidget;
   pageLayout->addWidget(chartWidget);
 }
 

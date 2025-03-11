@@ -163,7 +163,6 @@ void TrainPowerPage::pageChanged(int pageIndex) {
 }
 
 void TrainPowerPage::updateCharts() {
-  qDebug() << "Updating charts after simulation completion";
   m_chartWidgets["Dynamic Power"]->updateChart();
   m_chartWidgets["Dynamic Current"]->updateChart();
   m_chartWidgets["Static Power"]->updateChart();

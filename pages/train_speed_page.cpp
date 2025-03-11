@@ -19,7 +19,7 @@ void TrainSpeedPage::setupFirstPage() {
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
   firstPageLayout->setSpacing(40);
   setupExactValues(firstPageLayout, "Max Speed");
-  setupChart(firstPageLayout);
+  setupChart(firstPageLayout, "Max Speed");
   stackedWidget->addWidget(firstPage);
 }
 
@@ -28,13 +28,14 @@ void TrainSpeedPage::setupSecondPage() {
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   secondPageLayout->setSpacing(40);
   setupExactValues(secondPageLayout, "Static Max Speed");
-  setupChart(secondPageLayout);
+  setupChart(secondPageLayout, "Static Max Speed");
   stackedWidget->addWidget(secondPage);
 }
 
-void TrainSpeedPage::setupChart(QVBoxLayout *pageLayout) {
+void TrainSpeedPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle) {
   ChartWidget *chartWidget =
-      new ChartWidget("Train Speed", "speed", this, m_trainSimulation);
+      new ChartWidget(chartTitle, "speed", this, m_trainSimulation);
+  m_chartWidget[chartTitle] = chartWidget;
   pageLayout->addWidget(chartWidget);
 }
 
@@ -102,4 +103,9 @@ void TrainSpeedPage::updatePaginationButtons() {
   int lastIndex = stackedWidget->count() - 1;
   m_prevButton->setEnabled(currentIndex > 0);
   m_nextButton->setEnabled(currentIndex < lastIndex);
+}
+
+void TrainSpeedPage::updateCharts() {
+  m_chartWidget["Max Speed"]->updateChart();
+  m_chartWidget["Static Max Speed"]->updateChart();
 }
