@@ -134,12 +134,21 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
         return;
       }
       bool saveSuccessful = false;
-      if (m_chartTitle == "Train Power")
+      if (m_chartTitle == "Dynamic Power" || m_chartTitle == "Static Power" ||
+          m_chartTitle == "Dynamic Current" || m_chartTitle == "Static Current")
         saveSuccessful = m_trainSimulation->saveTrainPowerData();
+      // else if (m_chartTitle == "Static Traction" ||
+      //          m_chartTitle == "Dynamic Traction")
       else if (m_chartTitle == "Traction Effort")
         saveSuccessful = m_trainSimulation->saveTractionEffortData();
-      else
+      // else if (m_chartTitle == "Dynamic Speed" ||
+      //          m_chartTitle == "Static Speed")
+      else if (m_chartTitle == "Train Speed")
         saveSuccessful = m_trainSimulation->saveTrainSpeedData();
+      // else if (m_chartTitle == "Dynamic Track" ||
+      //          m_chartTitle == "Static Track")
+      else if (m_chartTitle == "Distance")
+        saveSuccessful = m_trainSimulation->saveTrainTrackData();
       if (saveSuccessful)
         QMessageBox::information(this, "Success", "Data saved successfully!");
 

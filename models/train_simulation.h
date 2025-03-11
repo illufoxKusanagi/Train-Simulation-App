@@ -79,6 +79,7 @@ public:
   bool saveTrainSpeedData();
   bool saveTractionEffortData();
   bool saveTrainPowerData();
+  bool saveTrainTrackData();
   void printSimulationDatas();
 
   double findMaxSpeed();
