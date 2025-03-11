@@ -27,7 +27,7 @@ void TrainTrackPage::setupSecondPage() {
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   secondPageLayout->setSpacing(40);
-  setupExactValues(secondPageLayout, "Max Distance Travelled");
+  // setupExactValues(secondPageLayout, "Max Distance Travelled");
   setupChart(secondPageLayout);
   stackedWidget->addWidget(secondPage);
 }
@@ -42,15 +42,10 @@ void TrainTrackPage::setupExactValues(QVBoxLayout *pageLayout,
                                       QString inputTitle) {
   QHBoxLayout *layout = new QHBoxLayout;
   layout->setAlignment(Qt::AlignCenter);
-  InputType inputType = InputType("field", inputTitle, "km");
+  InputType inputType = InputType("field", inputTitle, "m");
   m_inputWidget = new InputWidget(inputType, this);
   layout->addWidget(m_inputWidget);
   pageLayout->addLayout(layout);
-}
-
-void TrainTrackPage::setParameterValue() {
-  m_inputWidget->setValue(0);
-  m_inputWidget->setValue(m_trainSimulation->findMaxSpeed());
 }
 
 void TrainTrackPage::setupPagination() {
@@ -91,4 +86,9 @@ void TrainTrackPage::updatePaginationButtons() {
   int lastIndex = stackedWidget->count() - 1;
   m_prevButton->setEnabled(currentIndex > 0);
   m_nextButton->setEnabled(currentIndex < lastIndex);
+}
+
+void TrainTrackPage::setParameterValue() {
+  m_inputWidget->setValue(0);
+  m_inputWidget->setValue(m_trainSimulation->findDistanceTravelled());
 }
