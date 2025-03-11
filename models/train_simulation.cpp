@@ -17,6 +17,8 @@ TrainSimulation::TrainSimulation(QObject *parent, TrainData *trainData,
 
 {
   initData();
+  connect(this, &TrainSimulation::simulationCompleted, this,
+          &TrainSimulation::resetSimulation);
 }
 
 void TrainSimulation::initTrainMassData() {}
@@ -288,7 +290,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   //     << "Phase,Iteration,Time,Speed,Acceleration,F Motor,F Res,F Total,F "
   //        "Motor/TM,F Res/TM,Torque,RPM,P_wheel,P_motor Out,P_motor In,P_vvvf,
   //        " "P_catenary,Catenary current,VVVF current\n";
-  resetSimulation();
+  clearSimulationDatas();
   initData();
   int i = 0;
   bool isAccelerating = true;
@@ -361,8 +363,6 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     movingData->time = abs(calculateTotalTime(i));
     movingData->x_total += movingData->x;
     movingData->time_total += movingData->time;
-    qDebug() << "Time consumed : " << movingData->time;
-    qDebug() << "Distance traveled : " << movingData->x;
     if (i == 0) {
       trainMotorData->tm_adh = calculateAdhesion();
       // outFile << "Starting" << "," << i << "," << time << "," << 0 << ","
@@ -398,7 +398,6 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   }
   // outFile.close();
   // printSimulationDatas();
-  qDebug() << "Train speeds count : " << simulationDatas.trainSpeeds.size();
   emit simulationCompleted();
 }
 
@@ -413,7 +412,7 @@ void TrainSimulation::simulateStaticTrainMovement() {
   // "
   //            "Motor/TM,F Res/TM,Torque,RPM,P_motor Out,P_motor In,P_vvvf, "
   //            "P_catenary,Catenary current,VVVF current\n";
-  resetSimulation();
+  clearSimulationDatas();
   initData();
   double v_limit = 130;
   int i = 0;
@@ -456,8 +455,9 @@ void TrainSimulation::simulateStaticTrainMovement() {
     // addOutputDatas(movingData->v, trainMotorData->tm_f, powerData->p_vvvfIn,
     //                powerData->p_catenary, energyData->curr_vvvf,
     //                energyData->curr_catenary);
-    emit powerValuesChanged(powerData->p_vvvfIn, powerData->p_catenary,
-                            energyData->curr_vvvf, energyData->curr_catenary);
+    // emit powerValuesChanged(powerData->p_vvvfIn, powerData->p_catenary,
+    //                         energyData->curr_vvvf,
+    //                         energyData->curr_catenary);
 
     if (i == 0) {
       trainMotorData->tm_adh = calculateAdhesion();
@@ -527,7 +527,6 @@ void TrainSimulation::resetSimulation() {
   movingData->time = 0;
   movingData->x_total = 0;
   movingData->time_total = 0;
-  clearSimulationDatas();
 }
 
 void TrainSimulation::deleteCsvFile(QString csvPath) {
@@ -572,14 +571,15 @@ bool TrainSimulation::saveTrainSpeedData() {
     return false;
   }
   ofstream outFile(filepath.toStdString(), ios::out);
-  outFile << "velocity (km/h)\n ";
+  outFile << "Speed (km/h),Time (s)\n ";
   int maxSize = std::min({simulationDatas.trainSpeeds.size(),
                           simulationDatas.vvvfPowers.size(),
                           simulationDatas.catenaryPowers.size(),
                           simulationDatas.vvvfCurrents.size(),
                           simulationDatas.catenaryCurrents.size()});
   for (int i = 0; i < maxSize; i++) {
-    outFile << simulationDatas.trainSpeeds[i] << "\n";
+    outFile << simulationDatas.trainSpeeds[i] << ","
+            << simulationDatas.timeTotal[i] << "\n";
   }
   outFile.close();
   return true;
@@ -593,14 +593,16 @@ bool TrainSimulation::saveTractionEffortData() {
     return false;
   }
   ofstream outFile(filepath.toStdString(), ios::out);
-  outFile << "F motor (kN)\n ";
+  outFile << "F motor (kN),Speed(km/h),Time(s)\n ";
   int maxSize = std::min({simulationDatas.trainSpeeds.size(),
                           simulationDatas.vvvfPowers.size(),
                           simulationDatas.catenaryPowers.size(),
                           simulationDatas.vvvfCurrents.size(),
                           simulationDatas.catenaryCurrents.size()});
   for (int i = 0; i < maxSize; i++) {
-    outFile << simulationDatas.tractionEfforts[i] << "\n";
+    outFile << simulationDatas.tractionEfforts[i] << ","
+            << simulationDatas.trainSpeeds[i] << ","
+            << simulationDatas.timeTotal[i] << "\n";
   }
   outFile.close();
   return true;
@@ -614,7 +616,8 @@ bool TrainSimulation::saveTrainPowerData() {
     return false;
   }
   ofstream outFile(filepath.toStdString(), ios::out);
-  outFile << "P_vvvf(kW),P_catenary(kW),Catenary current(A),VVVFcurrent(A)\n ";
+  outFile << "P_vvvf(kW),P_catenary(kW),Catenary "
+             "current(A),VVVFcurrent(A),Speed(km/h),time(s)\n ";
   int maxSize = std::min({simulationDatas.trainSpeeds.size(),
                           simulationDatas.vvvfPowers.size(),
                           simulationDatas.catenaryPowers.size(),
@@ -624,7 +627,35 @@ bool TrainSimulation::saveTrainPowerData() {
     outFile << simulationDatas.vvvfPowers[i] << ","
             << simulationDatas.catenaryPowers[i] << ","
             << simulationDatas.vvvfCurrents[i] << ","
-            << simulationDatas.catenaryCurrents[i] << "\n";
+            << simulationDatas.catenaryCurrents[i] << ","
+            << simulationDatas.trainSpeeds[i] << ","
+            << simulationDatas.timeTotal[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
+bool TrainSimulation::saveTrainTrackData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "Simulation Time(s),Total "
+             "Time(s),Distance(m),TotalDistance(m),Speed(km/h)\n ";
+  int maxSize = std::min({
+      simulationDatas.time.size(),
+      simulationDatas.timeTotal.size(),
+      simulationDatas.distance.size(),
+      simulationDatas.distanceTotal.size(),
+  });
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.time[i] << "," << simulationDatas.timeTotal[i]
+            << "," << simulationDatas.distance[i] << ","
+            << simulationDatas.distanceTotal[i] << ","
+            << simulationDatas.trainSpeeds[i] << "\n";
   }
   outFile.close();
   return true;
