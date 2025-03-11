@@ -40,12 +40,6 @@ public:
                            EfficiencyData *efficiencyData = nullptr,
                            PowerData *powerData = nullptr,
                            EnergyData *energyData = nullptr);
-  QList<double> trainSpeeds;
-  QList<double> tractionEfforts;
-  QList<double> vvvfPowers;
-  QList<double> catenaryPowers;
-  QList<double> vvvfCurrents;
-  QList<double> catenaryCurrents;
 
   struct SimulationDatas {
     QList<double> trainSpeeds;
@@ -135,7 +129,6 @@ private:
   double calculateTotalTime(int i);
   double calculateTotalDistance(int i);
 
-  void clearOutputDatas();
   void addOutputDatas(double speed, double tractionEffort, double vvvfPower,
                       double catenaryPower, double vvvfCurrent,
                       double catenaryCurrent);
