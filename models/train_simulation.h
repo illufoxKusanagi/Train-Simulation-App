@@ -93,6 +93,7 @@ public:
   double findMaxVvvfCurrent();
   double findMaxCatenaryCurrent();
   double findMaxTractionEffort();
+  double findDistanceTravelled();
 
 private:
   ConstantData constantData;
