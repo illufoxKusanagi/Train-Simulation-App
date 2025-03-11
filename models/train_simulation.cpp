@@ -288,6 +288,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   //     << "Phase,Iteration,Time,Speed,Acceleration,F Motor,F Res,F Total,F "
   //        "Motor/TM,F Res/TM,Torque,RPM,P_wheel,P_motor Out,P_motor In,P_vvvf,
   //        " "P_catenary,Catenary current,VVVF current\n";
+  resetSimulation();
   initData();
   int i = 0;
   bool isAccelerating = true;
@@ -411,6 +412,7 @@ void TrainSimulation::simulateStaticTrainMovement() {
   // "
   //            "Motor/TM,F Res/TM,Torque,RPM,P_motor Out,P_motor In,P_vvvf, "
   //            "P_catenary,Catenary current,VVVF current\n";
+  resetSimulation();
   initData();
   double v_limit = 130;
   int i = 0;
@@ -519,6 +521,10 @@ void TrainSimulation::resetSimulation() {
   powerData->p_vvvfIn = 0;
   powerData->p_catenary = 0;
   trainMotorData->tm_rpm = 0;
+  movingData->x = 0;
+  movingData->time = 0;
+  movingData->x_total = 0;
+  movingData->time_total = 0;
   clearSimulationDatas();
   // clearOutputDatas();
 }
@@ -759,7 +765,7 @@ void TrainSimulation::clearSimulationDatas() {
 }
 
 double TrainSimulation::findMaxSpeed() {
-  if (trainSpeeds.isEmpty())
+  if (simulationDatas.trainSpeeds.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas.trainSpeeds.begin(),
                            simulationDatas.trainSpeeds.end());
