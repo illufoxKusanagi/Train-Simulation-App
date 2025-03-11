@@ -23,7 +23,7 @@ void TrainPowerPage::setupFirstPage() {
   firstPageLayout->setSpacing(40);
   QStringList labels = {"Dynamic Catenary Power", "Dynamic Max VVVF Power"};
   setupInputs(firstPageLayout, labels);
-  setupChart(firstPageLayout);
+  setupChart(firstPageLayout, "Dynamic Power");
   stackedWidget->addWidget(firstPage);
 }
 
@@ -33,7 +33,7 @@ void TrainPowerPage::setupSecondPage() {
   secondPageLayout->setSpacing(40);
   QStringList labels = {"Dynamic Catenary Current", "Dynamic VVVF Current"};
   setupInputs(secondPageLayout, labels);
-  setupChart(secondPageLayout);
+  setupChart(secondPageLayout, "Dynamic Current");
   stackedWidget->addWidget(secondPage);
 }
 
@@ -46,7 +46,7 @@ void TrainPowerPage::setupThirdPage() {
       "Static VVVF Power",
   };
   setupInputs(thirdPageLayout, labels);
-  setupChart(thirdPageLayout);
+  setupChart(thirdPageLayout, "Static Power");
   stackedWidget->addWidget(thirdPage);
 }
 
@@ -59,13 +59,13 @@ void TrainPowerPage::setupFourthPage() {
       "Static VVVF Current",
   };
   setupInputs(fourthPageLayout, labels);
-  setupChart(fourthPageLayout);
+  setupChart(fourthPageLayout, "Static Current");
   stackedWidget->addWidget(fourthPage);
 }
 
-void TrainPowerPage::setupChart(QVBoxLayout *pageLayout) {
+void TrainPowerPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle) {
   ChartWidget *chartWidget =
-      new ChartWidget("Train Power", "speed", this, m_trainSimulation);
+      new ChartWidget(chartTitle, "speed", this, m_trainSimulation);
   pageLayout->addWidget(chartWidget);
 }
 

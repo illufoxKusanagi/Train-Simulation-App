@@ -7,13 +7,57 @@ ChartWidget::ChartWidget(QString chartTitle, QString seriesName,
       m_trainSimulation(trainSimulation), m_chartTitle(chartTitle) {
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(16);
+  addSeries(seriesName, QColor(0, 114, 206));
+  connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
+          &ChartWidget::onSimulationCompleted);
   buildDummyLine(seriesName);
+}
+
+void ChartWidget::addSeries(const QString &name, const QColor &color) {
+  if (!m_seriesToDisplay.contains(name)) {
+    m_seriesToDisplay.append(name);
+    m_seriesColors[name] = color;
+  }
+}
+
+void ChartWidget::onSimulationCompleted() { updateChart(); }
+
+void ChartWidget::updateChart() {
+  if (m_chart) {
+    m_chart->removeAllSeries();
+    if (m_chartTitle == "Dynamic Power") {
+      if (m_seriesToDisplay.contains("Dynamic Catenary Power")) {
+        QLineSeries *catenaryPowerSeries = new QLineSeries();
+        QLineSeries *vvvfPowerSeries = new QLineSeries();
+        catenaryPowerSeries->setName("Dynamic Catenary Power");
+        vvvfPowerSeries->setName("Dynamic Max VVVF Power");
+        catenaryPowerSeries->setPen(
+            QPen(m_seriesColors.value("Dynamic Catenary Power", Qt::blue), 2));
+        catenaryPowerSeries->setPen(
+            QPen(m_seriesColors.value("Dynamic Catenary Power", Qt::red), 2));
+        const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
+        const auto &catenaryPowers =
+            m_trainSimulation->simulationDatas.catenaryPowers;
+        const auto &vvvfPowers = m_trainSimulation->simulationDatas.vvvfPowers;
+
+        for (int i = 0; i < speeds.size() && i < catenaryPowers.size(); ++i) {
+          catenaryPowerSeries->append(speeds[i], catenaryPowers[i]);
+          vvvfPowerSeries->append(speeds[i], vvvfPowers[i]);
+        }
+        m_chart->addSeries(catenaryPowerSeries);
+        m_chart->addSeries(vvvfPowerSeries);
+      }
+    }
+    if (m_chartTitle == "")
+      return;
+
+    m_chart->createDefaultAxes();
+  }
 }
 
 void ChartWidget::buildDummyLine(QString seriesName) {
   QLineSeries *series = new QLineSeries();
   series->setName(seriesName);
-
   series->append(0.0, 0.0);
   series->append(1.1, 2.1);
   series->append(1.9, 3.3);
@@ -26,21 +70,20 @@ void ChartWidget::buildDummyLine(QString seriesName) {
 
 void ChartWidget::setupChart(QLineSeries *series, QString title) {
   m_chartWidget = new QWidget();
-  QChart *chart = new QChart();
-  chart->addSeries(series);
-  chart->setTitle(title);
-  chart->createDefaultAxes();
+  m_chart = new QChart();
+  m_chart->addSeries(series);
+  m_chart->setTitle(title);
+  m_chart->createDefaultAxes();
 
   QFont titleFont;
   titleFont.setPixelSize(20);
   titleFont.setWeight(QFont::DemiBold);
-  chart->setTitleFont(titleFont);
-  chart->setTitleBrush(QBrush(Colors::StandardBlack));
+  m_chart->setTitleFont(titleFont);
+  m_chart->setTitleBrush(QBrush(Colors::StandardBlack));
 
-  QChartView *chartView = new QChartView(chart);
+  QChartView *chartView = new QChartView(m_chart);
   chartView->setRenderHint(QPainter::Antialiasing);
   chartView->setFixedSize(800, 450);
-
   m_chartLayout = new QVBoxLayout(m_chartWidget);
   m_chartLayout->setContentsMargins(0, 0, 0, 0);
   m_chartLayout->setSpacing(16);
@@ -48,6 +91,14 @@ void ChartWidget::setupChart(QLineSeries *series, QString title) {
   chartView->setStyleSheet("border: 1px solid " + Colors::Grey100.name() +
                            ";"
                            "border-radius: 12px;");
+  // Add to setupChart method in chart_widget.cpp
+  m_chart->legend()->setVisible(true);
+  m_chart->legend()->setAlignment(Qt::AlignBottom);
+  m_chart->legend()->setFont(QFont("Roboto", 10));
+
+  // Make the chart's plot area fill the view
+  m_chart->setPlotAreaBackgroundVisible(true);
+  m_chart->setPlotAreaBackgroundBrush(QBrush(Colors::Secondary100));
   createChartButtons(chartView);
   mainLayout->addWidget(m_chartWidget);
 }

@@ -37,7 +37,7 @@ private:
   void setupSecondPage();
   void setupThirdPage();
   void setupFourthPage();
-  void setupChart(QVBoxLayout *pageLayout);
+  void setupChart(QVBoxLayout *pageLayout, QString chartTitle = "");
   void setupInputs(QVBoxLayout *pageLayout, QStringList inputTitle);
   double getParameterValue(const QString &paramName) const;
   void setParameterValue();
