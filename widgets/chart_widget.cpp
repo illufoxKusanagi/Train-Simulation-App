@@ -76,7 +76,7 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
   });
   connect(saveCurrentData, &QPushButton::clicked, this, [this]() {
     try {
-      if (m_trainSimulation->trainSpeeds.isEmpty()) {
+      if (m_trainSimulation->simulationDatas.trainSpeeds.isEmpty()) {
         QMessageBox::warning(
             this, "No Data",
             "No simulation data to save. Please run a simulation first.");
@@ -98,7 +98,7 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
   });
   connect(saveAllData, &QPushButton::clicked, this, [this]() {
     try {
-      if (m_trainSimulation->trainSpeeds.isEmpty()) {
+      if (m_trainSimulation->simulationDatas.trainSpeeds.isEmpty()) {
         QMessageBox::warning(
             this, "No Data",
             "No simulation data to save. Please run a simulation first.");
