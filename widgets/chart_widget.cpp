@@ -26,32 +26,42 @@ void ChartWidget::updateChart() {
   if (m_chart) {
     m_chart->removeAllSeries();
     if (m_chartTitle == "Dynamic Power") {
-      if (m_seriesToDisplay.contains("Dynamic Catenary Power")) {
-        QLineSeries *catenaryPowerSeries = new QLineSeries();
-        QLineSeries *vvvfPowerSeries = new QLineSeries();
-        catenaryPowerSeries->setName("Dynamic Catenary Power");
-        vvvfPowerSeries->setName("Dynamic Max VVVF Power");
-        catenaryPowerSeries->setPen(
-            QPen(m_seriesColors.value("Dynamic Catenary Power", Qt::blue), 2));
-        catenaryPowerSeries->setPen(
-            QPen(m_seriesColors.value("Dynamic Catenary Power", Qt::red), 2));
-        const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
-        const auto &catenaryPowers =
-            m_trainSimulation->simulationDatas.catenaryPowers;
-        const auto &vvvfPowers = m_trainSimulation->simulationDatas.vvvfPowers;
+      // if (m_seriesToDisplay.contains("Dynamic Catenary Power")) {
+      setupDynamicPowerChart();
+      // }
+    } else if (m_chartTitle == "Dynamic Current") {
+      setupDynamicCurrentChart();
+    }
+    // Static Power chart
+    else if (m_chartTitle == "Static Power") {
+      setupStaticPowerChart();
+    }
+    // Static Current chart
+    else if (m_chartTitle == "Static Current") {
+      setupStaticCurrentChart();
+    }
+    if (m_chart->series().size() > 0) {
+      m_chart->createDefaultAxes();
 
-        for (int i = 0; i < speeds.size() && i < catenaryPowers.size(); ++i) {
-          catenaryPowerSeries->append(speeds[i], catenaryPowers[i]);
-          vvvfPowerSeries->append(speeds[i], vvvfPowers[i]);
+      // Set proper axis labels
+      QValueAxis *axisX =
+          qobject_cast<QValueAxis *>(m_chart->axes(Qt::Horizontal).first());
+      QValueAxis *axisY =
+          qobject_cast<QValueAxis *>(m_chart->axes(Qt::Vertical).first());
+
+      if (axisX && axisY) {
+        if (m_chartTitle.contains("Static"))
+          axisX->setTitleText("Speed (km/h)");
+        else
+          axisX->setTitleText("Time (s)");
+
+        if (m_chartTitle.contains("Power")) {
+          axisY->setTitleText("Power (kW)");
+        } else if (m_chartTitle.contains("Current")) {
+          axisY->setTitleText("Current (A)");
         }
-        m_chart->addSeries(catenaryPowerSeries);
-        m_chart->addSeries(vvvfPowerSeries);
       }
     }
-    if (m_chartTitle == "")
-      return;
-
-    m_chart->createDefaultAxes();
   }
 }
 
@@ -186,3 +196,100 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
 
   m_chartLayout->addLayout(buttonLayout);
 }
+
+void ChartWidget::setupDynamicSpeedChart() {}
+void ChartWidget::setupDynamicTractionChart() {}
+void ChartWidget::setupDynamicTrackChart() {}
+
+void ChartWidget::setupDynamicPowerChart() {
+  QLineSeries *catenaryPowerSeries = new QLineSeries();
+  QLineSeries *vvvfPowerSeries = new QLineSeries();
+  catenaryPowerSeries->setName("Dynamic Catenary Power");
+  vvvfPowerSeries->setName("Dynamic Max VVVF Power");
+  catenaryPowerSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  vvvfPowerSeries->setPen(QPen(QColor(255, 76, 76), 2));
+  const auto &times = m_trainSimulation->simulationDatas.timeTotal;
+  const auto &catenaryPowers =
+      m_trainSimulation->simulationDatas.catenaryPowers;
+  const auto &vvvfPowers = m_trainSimulation->simulationDatas.vvvfPowers;
+
+  for (int i = 0; i < times.size() && i < catenaryPowers.size(); ++i) {
+    catenaryPowerSeries->append(times[i], catenaryPowers[i]);
+    vvvfPowerSeries->append(times[i], vvvfPowers[i]);
+  }
+  m_chart->addSeries(catenaryPowerSeries);
+  m_chart->addSeries(vvvfPowerSeries);
+}
+void ChartWidget::setupDynamicCurrentChart() {
+  QLineSeries *catenaryCurrentSeries = new QLineSeries();
+  QLineSeries *vvvfCurrentSeries = new QLineSeries();
+
+  catenaryCurrentSeries->setName("Dynamic Catenary Current");
+  vvvfCurrentSeries->setName("Dynamic VVVF Current");
+
+  catenaryCurrentSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  vvvfCurrentSeries->setPen(QPen(QColor(255, 76, 76), 2));
+
+  const auto &time = m_trainSimulation->simulationDatas.timeTotal;
+  const auto &catenaryCurrents =
+      m_trainSimulation->simulationDatas.catenaryCurrents;
+  const auto &vvvfCurrents = m_trainSimulation->simulationDatas.vvvfCurrents;
+
+  for (int i = 0; i < time.size() && i < catenaryCurrents.size(); ++i) {
+    catenaryCurrentSeries->append(time[i], catenaryCurrents[i]);
+    vvvfCurrentSeries->append(time[i], vvvfCurrents[i]);
+  }
+
+  m_chart->addSeries(catenaryCurrentSeries);
+  m_chart->addSeries(vvvfCurrentSeries);
+}
+void ChartWidget::setupStaticPowerChart() {
+  QLineSeries *catenaryPowerSeries = new QLineSeries();
+  QLineSeries *vvvfPowerSeries = new QLineSeries();
+
+  catenaryPowerSeries->setName("Static Catenary Power");
+  vvvfPowerSeries->setName("Static VVVF Power");
+
+  catenaryPowerSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  vvvfPowerSeries->setPen(QPen(QColor(255, 76, 76), 2));
+
+  const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
+  const auto &catenaryPowers =
+      m_trainSimulation->simulationDatas.catenaryPowers;
+  const auto &vvvfPowers = m_trainSimulation->simulationDatas.vvvfPowers;
+
+  for (int i = 0; i < speeds.size() && i < catenaryPowers.size(); ++i) {
+    catenaryPowerSeries->append(speeds[i], catenaryPowers[i]);
+    vvvfPowerSeries->append(speeds[i], vvvfPowers[i]);
+  }
+
+  m_chart->addSeries(catenaryPowerSeries);
+  m_chart->addSeries(vvvfPowerSeries);
+}
+void ChartWidget::setupStaticCurrentChart() {
+  QLineSeries *catenaryCurrentSeries = new QLineSeries();
+  QLineSeries *vvvfCurrentSeries = new QLineSeries();
+
+  catenaryCurrentSeries->setName("Static Catenary Current");
+  vvvfCurrentSeries->setName("Static VVVF Current");
+
+  catenaryCurrentSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  vvvfCurrentSeries->setPen(QPen(QColor(255, 76, 76), 2));
+
+  const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
+  const auto &catenaryCurrents =
+      m_trainSimulation->simulationDatas.catenaryCurrents;
+  const auto &vvvfCurrents = m_trainSimulation->simulationDatas.vvvfCurrents;
+
+  for (int i = 0; i < speeds.size() && i < catenaryCurrents.size(); ++i) {
+    catenaryCurrentSeries->append(speeds[i], catenaryCurrents[i]);
+    vvvfCurrentSeries->append(speeds[i], vvvfCurrents[i]);
+  }
+
+  m_chart->addSeries(catenaryCurrentSeries);
+  m_chart->addSeries(vvvfCurrentSeries);
+}
+
+void ChartWidget::setupStaticSpeedChart() {}
+void ChartWidget::setupStaticTractionChart() {}
+void ChartWidget::setupStaticTrackChart() {}

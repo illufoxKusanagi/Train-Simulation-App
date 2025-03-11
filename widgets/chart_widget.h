@@ -12,10 +12,10 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QValueAxis>
 #include <QWidget>
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
-
 
 class ChartWidget : public QWidget {
   Q_OBJECT
@@ -42,6 +42,16 @@ private:
   void buildDummyLine(QString seriesName);
   void setupChart(QLineSeries *series, QString title);
   void createChartButtons(QChartView *chartView);
+  void setupDynamicSpeedChart();
+  void setupStaticSpeedChart();
+  void setupDynamicTractionChart();
+  void setupStaticTractionChart();
+  void setupDynamicTrackChart();
+  void setupStaticTrackChart();
+  void setupStaticPowerChart();
+  void setupStaticCurrentChart();
+  void setupDynamicPowerChart();
+  void setupDynamicCurrentChart();
 };
 
 #endif // CHART_WIDGET_H

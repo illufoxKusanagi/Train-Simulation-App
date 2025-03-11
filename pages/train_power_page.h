@@ -16,7 +16,7 @@ class TrainPowerPage : public QWidget {
 public:
   explicit TrainPowerPage(QWidget *parentWidget = nullptr,
                           TrainSimulation *trainSimulation = nullptr);
-
+  void updateCharts();
 private slots:
   void pageChanged(int pageIndex);
   void updatePageButtons();
@@ -32,6 +32,7 @@ private:
   ButtonAction *m_fourthPageButton;
   QStackedWidget *stackedWidget;
   QMap<QString, InputWidget *> m_inputWidgets;
+  QMap<QString, ChartWidget *> m_chartWidgets;
 
   void setupFirstPage();
   void setupSecondPage();
