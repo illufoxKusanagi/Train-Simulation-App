@@ -751,6 +751,11 @@ void TrainSimulation::clearSimulationDatas() {
   simulationDatas.powerWheel.clear();
   simulationDatas.powerMotorOut.clear();
   simulationDatas.powerMotorIn.clear();
+  simulationDatas.distance.clear();
+  simulationDatas.time.clear();
+  simulationDatas.distanceTotal.clear();
+  simulationDatas.timeTotal.clear();
+  simulationDatas.accelerations.clear();
 }
 
 double TrainSimulation::findMaxSpeed() {
