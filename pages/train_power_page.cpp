@@ -24,9 +24,9 @@ void TrainPowerPage::setupFirstPage() {
   QWidget *firstPage = new QWidget(this);
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
   firstPageLayout->setSpacing(40);
-  QStringList labels = {"Dynamic Catenary Power", "Dynamic Max VVVF Power"};
+  QStringList labels = {"Dynamic Catenary Power", "Dynamic VVVF Power"};
   setupInputs(firstPageLayout, labels);
-  setupChart(firstPageLayout, "Dynamic Power");
+  setupChart(firstPageLayout, "Dynamic Power", "Dynamic Power");
   stackedWidget->addWidget(firstPage);
 }
 
@@ -36,7 +36,7 @@ void TrainPowerPage::setupSecondPage() {
   secondPageLayout->setSpacing(40);
   QStringList labels = {"Dynamic Catenary Current", "Dynamic VVVF Current"};
   setupInputs(secondPageLayout, labels);
-  setupChart(secondPageLayout, "Dynamic Current");
+  setupChart(secondPageLayout, "Dynamic Current", "Dynamic Current");
   stackedWidget->addWidget(secondPage);
 }
 
@@ -49,7 +49,7 @@ void TrainPowerPage::setupThirdPage() {
       "Static VVVF Power",
   };
   setupInputs(thirdPageLayout, labels);
-  setupChart(thirdPageLayout, "Static Power");
+  setupChart(thirdPageLayout, "Static Power", "Static Power");
   stackedWidget->addWidget(thirdPage);
 }
 
@@ -62,13 +62,14 @@ void TrainPowerPage::setupFourthPage() {
       "Static VVVF Current",
   };
   setupInputs(fourthPageLayout, labels);
-  setupChart(fourthPageLayout, "Static Current");
+  setupChart(fourthPageLayout, "Static Current", "Static Current");
   stackedWidget->addWidget(fourthPage);
 }
 
-void TrainPowerPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle) {
+void TrainPowerPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle,
+                                QString chartSeries) {
   ChartWidget *chartWidget =
-      new ChartWidget(chartTitle, "speed", this, m_trainSimulation);
+      new ChartWidget(chartTitle, chartSeries, this, m_trainSimulation);
   m_chartWidgets[chartTitle] = chartWidget;
   pageLayout->addWidget(chartWidget);
 }
@@ -99,8 +100,8 @@ void TrainPowerPage::setParameterValue() {
   if (m_inputWidgets.contains("Dynamic Catenary Power"))
     m_inputWidgets["Dynamic Catenary Power"]->setValue(
         m_trainSimulation->findMaxCatenaryPower());
-  if (m_inputWidgets.contains("Dynamic Max VVVF Power"))
-    m_inputWidgets["Dynamic Max VVVF Power"]->setValue(
+  if (m_inputWidgets.contains("Dynamic VVVF Power"))
+    m_inputWidgets["Dynamic VVVF Power"]->setValue(
         m_trainSimulation->findMaxVvvfPower());
   if (m_inputWidgets.contains("Dynamic Catenary Current"))
     m_inputWidgets["Dynamic Catenary Current"]->setValue(

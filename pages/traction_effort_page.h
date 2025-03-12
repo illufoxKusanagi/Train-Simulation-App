@@ -30,7 +30,8 @@ private:
 
   void setupFirstPage();
   void setupSecondPage();
-  void setupChart(QVBoxLayout *pageLayouts, QString chartTitle);
+  void setupChart(QVBoxLayout *pageLayouts, QString chartTitle,
+                  QString chartSeries);
   void setupExactValue(QVBoxLayout *pageLayout, QString inputTitle);
   void setParameterValue();
   void setupPagination();

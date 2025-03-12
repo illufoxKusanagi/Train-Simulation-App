@@ -20,7 +20,7 @@ void TractionEffortPage::setupFirstPage() {
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
   firstPageLayout->setSpacing(40);
   setupExactValue(firstPageLayout, "Max Traction Effort");
-  setupChart(firstPageLayout, "Traction Effort");
+  setupChart(firstPageLayout, "Dynamic Traction Effort", "Dynamic F Motor");
   stackedWidget->addWidget(firstPage);
 }
 
@@ -29,14 +29,14 @@ void TractionEffortPage::setupSecondPage() {
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   secondPageLayout->setSpacing(40);
   setupExactValue(secondPageLayout, "Max Static Traction Effort");
-  setupChart(secondPageLayout, "Static Traction Effort");
+  setupChart(secondPageLayout, "Static Traction Effort", "Static F Motor");
   stackedWidget->addWidget(secondPage);
 }
 
-void TractionEffortPage::setupChart(QVBoxLayout *pageLayout,
-                                    QString chartTitle) {
+void TractionEffortPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle,
+                                    QString chartSeries) {
   ChartWidget *chartWidget =
-      new ChartWidget(chartTitle, "speed", this, m_trainSimulation);
+      new ChartWidget(chartTitle, chartSeries, this, m_trainSimulation);
   m_chartWidget[chartTitle] = chartWidget;
   pageLayout->addWidget(chartWidget);
 }
@@ -60,7 +60,7 @@ void TractionEffortPage::setParameterValue() {
       m_inputWidgets[key]->setValue(0);
     }
   }
-  if (m_inputWidgets.contains("Traction Effort"))
+  if (m_inputWidgets.contains("Dynamic Traction Effort"))
     m_inputWidgets["Max Traction Effort"]->setValue(
         m_trainSimulation->findMaxTractionEffort());
   if (m_inputWidgets.contains("Static Traction Effort"))

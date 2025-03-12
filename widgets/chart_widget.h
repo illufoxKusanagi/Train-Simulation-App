@@ -6,6 +6,7 @@
 #include "../styles/colors.h"
 #include "../widgets/button_action.h"
 #include "../widgets/button_pagination.h"
+#include <QAbstractSeries>
 #include <QFileDialog>
 #include <QFont>
 #include <QHBoxLayout>
@@ -16,6 +17,7 @@
 #include <QWidget>
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
+
 
 class ChartWidget : public QWidget {
   Q_OBJECT
