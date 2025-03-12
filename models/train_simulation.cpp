@@ -19,6 +19,8 @@ TrainSimulation::TrainSimulation(QObject *parent, TrainData *trainData,
   initData();
   connect(this, &TrainSimulation::simulationCompleted, this,
           &TrainSimulation::resetSimulation);
+  connect(this, &TrainSimulation::staticSimulationCompleted, this,
+          &TrainSimulation::resetSimulation);
 }
 
 void TrainSimulation::initTrainMassData() {}
@@ -403,8 +405,8 @@ void TrainSimulation::simulateStaticTrainMovement() {
     // time += constantData.dt;
     i++;
   }
-  emit simulationCompleted();
-  // emit staticSimulationCompleted();
+  // emit simulationCompleted();
+  emit staticSimulationCompleted();
 }
 
 void TrainSimulation::resetSimulation() {
