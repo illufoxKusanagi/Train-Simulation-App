@@ -95,7 +95,7 @@ double TrainSimulation::calculateResTrain(float m, float startRes) {
 }
 
 double TrainSimulation::calculateResSlope(float m, float slope) {
-  resistanceData->r_slope = (m * constantData.g * slope / 1000);
+  resistanceData->r_slope = (m * constantData.g * slope) / 1000;
   return resistanceData->r_slope;
 }
 
@@ -259,8 +259,8 @@ double TrainSimulation::calculateTotalTime(int i) {
   double acc = simulationDatas.accelerations[i - 1] / constantData.cV;
 
   // Protect against division by very small numbers
-  if (fabs(acc) < 0.0001)
-    return constantData.dt; // Use time step instead
+  // if (fabs(acc) < 0.0001)
+  //   return constantData.dt; // Use time step instead
 
   return ((simulationDatas.trainSpeeds[i] / constantData.cV) -
           (simulationDatas.trainSpeeds[i - 1]) / constantData.cV) /
@@ -300,8 +300,8 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       phase = "Accelerating";
       calculatePoweringForce(movingData->acc, movingData->v);
       calculateTotalForce(movingData->v);
-      movingData->acc = constantData.cV * resistanceData->f_total /
-                        massData->mass_totalInertial;
+      movingData->acc = constantData.cV * (resistanceData->f_total /
+                                           massData->mass_totalInertial);
       movingData->v += movingData->acc * constantData.dt;
     } else if (isCoasting) {
       if (movingData->v <= (movingData->v_limit - movingData->v_diffCoast)) {
@@ -317,16 +317,16 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       phase = "Coasting";
       resistanceData->f_motor = 0;
       resistanceData->f_total = -resistanceData->f_resRunning;
-      movingData->acc = constantData.cV * resistanceData->f_total /
-                        massData->mass_totalInertial;
+      movingData->acc = constantData.cV * (resistanceData->f_total /
+                                           massData->mass_totalInertial);
       movingData->v += movingData->acc * constantData.dt;
     } else {
       phase = "Braking";
       calculateBrakingForce();
       resistanceData->f_brake = calculateTotalBrakeForce();
 
-      movingData->decc = constantData.cV * resistanceData->f_total /
-                         massData->mass_totalInertial;
+      movingData->decc = constantData.cV * (resistanceData->f_total /
+                                            massData->mass_totalInertial);
       movingData->v += movingData->decc * constantData.dt;
       if (movingData->v <= 0 || resistanceData->f_total == 0)
         break;
@@ -381,8 +381,8 @@ void TrainSimulation::simulateStaticTrainMovement() {
                           : resistanceData->f_resStart);
     trainMotorData->tm_f = calculateTractionForce();
     trainMotorData->tm_t = calculateTorque();
-    movingData->acc = constantData.cV * resistanceData->f_total /
-                      massData->mass_totalInertial;
+    movingData->acc = constantData.cV *
+                      (resistanceData->f_total / massData->mass_totalInertial);
     movingData->v += 0.5;
     powerData->p_wheel = calculatePowerWheel();
     powerData->p_motorOut = calculateOutputTractionMotor();
@@ -400,7 +400,7 @@ void TrainSimulation::simulateStaticTrainMovement() {
     if (i == 0) {
       trainMotorData->tm_adh = calculateAdhesion();
     }
-    time += constantData.dt;
+    // time += constantData.dt;
     i++;
   }
   emit simulationCompleted();
