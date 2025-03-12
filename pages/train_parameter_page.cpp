@@ -53,7 +53,7 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
                         "Load per Car (ton)"};
 
   QStringList unitLabels = {"", "", "", "", "mm", "kg", "", "ton"};
-  QList<double> values = {1.5, 4, 1.1, 24, 860, 70.0, 3.0, 0.0};
+  QList<double> values = {1.05, 4, 1.1, 24, 860, 70.0, 3.0, 0.0};
 
   QGridLayout *formLayout = new QGridLayout(firstPageWidget);
   formLayout->setAlignment(Qt::AlignCenter);
@@ -116,8 +116,12 @@ QGroupBox *TrainParameterPage::createTypeLayout(const QStringList &labels,
     typeFormLayout->addWidget(typeInputWidget);
     m_typeInputWidgets[label] = typeInputWidget;
   }
+  massPerTrainsetInertial = new InputWidget(
+      InputType("field", "Inertial Mass per One Trainset", "ton", 0, true),
+      this);
   setTypeValue();
   typeLayout->setStyleSheet(groupBoxStyle);
+  typeFormLayout->addWidget(massPerTrainsetInertial);
   return typeLayout;
 }
 
@@ -136,7 +140,7 @@ QGroupBox *TrainParameterPage::createMassLayout(const QStringList &labels,
   massPerTrainsetEmpty = new InputWidget(
       InputType("field", "Mass per One Trainset (empty)", "ton", 0, true),
       this);
-  massPerTrainsetEmpty->setValue(90.0);
+  massPerTrainsetEmpty->setValue(calculateEmptyMass());
   massFormLayout->addWidget(massPerTrainsetEmpty);
   massLayout->setStyleSheet(groupBoxStyle);
   return massLayout;
@@ -158,6 +162,7 @@ QGroupBox *TrainParameterPage::createPassengerLayout(const QStringList &labels,
       InputType("field", "Mass per One Trainset(loaded)", "ton", 0, true),
       this);
   passengerFormLayout->addWidget(massPerTrainsetLoaded);
+
   passengerLayout->setStyleSheet(groupBoxStyle);
   return passengerLayout;
 }
@@ -322,6 +327,8 @@ void TrainParameterPage::updateMassCalculation() {
   massPerTrainsetEmpty->setValue(emptyMass);
   double loadedMass = calculateLoadedMass();
   massPerTrainsetLoaded->setValue(loadedMass);
+  double inertialMass = calculateInertialMass();
+  massPerTrainsetInertial->setValue(inertialMass);
 }
 
 double TrainParameterPage::calculateEmptyMass() {
@@ -334,6 +341,13 @@ double TrainParameterPage::calculateLoadedMass() {
                                  ? m_trainSimulation->countMassLoadInput()
                                  : m_trainSimulation->countMassWithLoad();
   return massData->mass_totalLoad;
+}
+
+double TrainParameterPage::calculateInertialMass() {
+  massData->mass_totalInertial =
+      (loadData->load > 0) ? m_trainSimulation->countInertialMass()
+                           : m_trainSimulation->countInertialMassInput();
+  return massData->mass_totalInertial;
 }
 
 void TrainParameterPage::updateTrainImage(QLabel *trainImageLabel, int nCar) {
