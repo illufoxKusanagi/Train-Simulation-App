@@ -343,11 +343,25 @@ double TrainParameterPage::calculateLoadedMass() {
   return massData->mass_totalLoad;
 }
 
+// double TrainParameterPage::calculateInertialMass() {
+//   massData->mass_totalInertial =
+//       (loadData->load > 0) ? m_trainSimulation->countInertialMass()
+//                            : m_trainSimulation->countInertialMassInput();
+//   return massData->mass_totalInertial;
+// }
+
 double TrainParameterPage::calculateInertialMass() {
-  massData->mass_totalInertial =
-      (loadData->load > 0) ? m_trainSimulation->countInertialMass()
-                           : m_trainSimulation->countInertialMassInput();
-  return massData->mass_totalInertial;
+  double result;
+  if (loadData->load > 0) {
+    qDebug() << "Using countInertialMass()";
+    result = m_trainSimulation->countInertialMassInput();
+  } else {
+    qDebug() << "Using countInertialMassInput()";
+    result = m_trainSimulation->countInertialMass();
+  }
+  massData->mass_totalInertial = result;
+  qDebug() << "Inertial mass calculated:" << result;
+  return result;
 }
 
 void TrainParameterPage::updateTrainImage(QLabel *trainImageLabel, int nCar) {

@@ -33,8 +33,8 @@ void TrainSimulation::initData() {
     massData->mass_totalInertial = countInertialMass();
   }
   movingData->v = 0.0;
-  movingData->acc = movingData->acc_start * constantData.cV;
-  movingData->decc = movingData->decc_start * constantData.cV;
+  movingData->acc = movingData->acc_start;
+  movingData->decc = movingData->decc_start;
 }
 
 double TrainSimulation::countMassEmptyCar() {
@@ -74,7 +74,7 @@ double TrainSimulation::countInertialMass() {
       (loadData->n_M1 * (loadData->mass_P_final * loadData->n_PM1) +
        loadData->n_M2 * (loadData->mass_P_final * loadData->n_PM2));
   massData->mass_Ti =
-      (massData->mass_Te * massData->i_M) +
+      (massData->mass_Te * massData->i_T) +
       (loadData->n_Tc * (loadData->mass_P_final * loadData->n_PTc) +
        loadData->n_T1 * (loadData->mass_P_final * loadData->n_PT1) +
        loadData->n_T2 * (loadData->mass_P_final * loadData->n_PT2) +

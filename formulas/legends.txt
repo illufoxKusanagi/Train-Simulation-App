@@ -17,6 +17,7 @@ GENERIC VARIABLES:
 notch     : Notch position (-1 to 1)
 load      : Load per car (ton)
 acc       : Acceleration (km/h/s)
+acc_start : Acceleration at start (m/s2)
 dec       : Deceleration (km/h/s)
 v         : Current speed (km/h)
 startRes  : Start resistance (N/ton)
