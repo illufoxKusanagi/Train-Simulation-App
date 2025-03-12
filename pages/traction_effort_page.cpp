@@ -20,7 +20,7 @@ void TractionEffortPage::setupFirstPage() {
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
   firstPageLayout->setSpacing(40);
   setupExactValue(firstPageLayout, "Max Traction Effort");
-  setupChart(firstPageLayout, "Max Traction Effort");
+  setupChart(firstPageLayout, "Traction Effort");
   stackedWidget->addWidget(firstPage);
 }
 
@@ -29,7 +29,7 @@ void TractionEffortPage::setupSecondPage() {
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   secondPageLayout->setSpacing(40);
   setupExactValue(secondPageLayout, "Max Static Traction Effort");
-  setupChart(secondPageLayout, "Max Static Traction Effort");
+  setupChart(secondPageLayout, "Static Traction Effort");
   stackedWidget->addWidget(secondPage);
 }
 
@@ -45,7 +45,7 @@ void TractionEffortPage::setupExactValue(QVBoxLayout *pageLayout,
                                          QString inputTitle) {
   QHBoxLayout *layout = new QHBoxLayout;
   layout->setAlignment(Qt::AlignCenter);
-  InputType inputType = InputType("field", inputTitle, "kN");
+  InputType inputType = InputType("field", inputTitle, "kN", 0, true);
   m_inputWidget = new InputWidget(inputType, this);
   m_inputWidgets[inputTitle] = m_inputWidget;
   layout->addWidget(m_inputWidget);
@@ -60,10 +60,10 @@ void TractionEffortPage::setParameterValue() {
       m_inputWidgets[key]->setValue(0);
     }
   }
-  if (m_inputWidgets.contains("Max Traction Effort"))
+  if (m_inputWidgets.contains("Traction Effort"))
     m_inputWidgets["Max Traction Effort"]->setValue(
         m_trainSimulation->findMaxTractionEffort());
-  if (m_inputWidgets.contains("Max Static Traction Effort"))
+  if (m_inputWidgets.contains("Static Traction Effort"))
     m_inputWidgets["Max Static Traction Effort"]->setValue(
         m_trainSimulation->findMaxTractionEffort());
 }

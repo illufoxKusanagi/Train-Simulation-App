@@ -43,7 +43,7 @@ void TrainSpeedPage::setupExactValues(QVBoxLayout *pageLayout,
                                       QString inputTitle) {
   QHBoxLayout *layout = new QHBoxLayout;
   layout->setAlignment(Qt::AlignCenter);
-  InputType inputType = InputType("field", inputTitle, "km/h");
+  InputType inputType = InputType("field", inputTitle, "km/h", 0, true);
   m_inputWidget = new InputWidget(inputType, this);
   m_inputWidgets[inputTitle] = m_inputWidget;
   layout->addWidget(m_inputWidget);

@@ -42,7 +42,7 @@ void TrainTrackPage::setupExactValues(QVBoxLayout *pageLayout,
                                       QString inputTitle) {
   QHBoxLayout *layout = new QHBoxLayout;
   layout->setAlignment(Qt::AlignCenter);
-  InputType inputType = InputType("field", inputTitle, "m");
+  InputType inputType = InputType("field", inputTitle, "m", 0, true);
   m_inputWidget = new InputWidget(inputType, this);
   layout->addWidget(m_inputWidget);
   pageLayout->addLayout(layout);

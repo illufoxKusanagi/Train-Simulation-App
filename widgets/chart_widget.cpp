@@ -37,9 +37,9 @@ void ChartWidget::updateChart() {
       setupDynamicSpeedChart();
     } else if (m_chartTitle == "Static Max Speed") {
       setupStaticSpeedChart();
-    } else if (m_chartTitle == "Max Static Traction Effort") {
+    } else if (m_chartTitle == "Static Traction Effort") {
       setupStaticTractionChart();
-    } else if (m_chartTitle == "Max Traction Effort") {
+    } else if (m_chartTitle == "Traction Effort") {
       setupDynamicTractionChart();
     } else if (m_chartTitle == "Dynamic Track") {
       setupDynamicTrackChart();
@@ -57,10 +57,10 @@ void ChartWidget::updateChart() {
 
       if (axisX && axisY) {
         // For X axis
-        if (m_chartTitle.contains("Static"))
-          axisX->setTitleText("Speed (km/h)");
-        else if (m_chartTitle.contains("Static Max Speed"))
+        if (m_chartTitle.contains("Static Max Speed"))
           axisX->setTitleText("Distance (m)");
+        else if (m_chartTitle.contains("Static"))
+          axisX->setTitleText("Speed (km/h)");
         else
           axisX->setTitleText("Time (s)");
 
@@ -162,13 +162,12 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
       if (m_chartTitle == "Dynamic Power" || m_chartTitle == "Static Power" ||
           m_chartTitle == "Dynamic Current" || m_chartTitle == "Static Current")
         saveSuccessful = m_trainSimulation->saveTrainPowerData();
-      // else if (m_chartTitle == "Static Traction" ||
-      //          m_chartTitle == "Dynamic Traction")
-      else if (m_chartTitle == "Traction Effort")
+      else if (m_chartTitle == "Traction Effort" ||
+               m_chartTitle == "Static Traction Effort")
         saveSuccessful = m_trainSimulation->saveTractionEffortData();
-      // else if (m_chartTitle == "Dynamic Speed" ||
-      //          m_chartTitle == "Static Speed")
-      else if (m_chartTitle == "Train Speed")
+      else if (m_chartTitle == "Max Speed" ||
+               m_chartTitle == "Static Max Speed")
+        // else if (m_chartTitle == "Train Speed")
         saveSuccessful = m_trainSimulation->saveTrainSpeedData();
       // else if (m_chartTitle == "Dynamic Track" ||
       //          m_chartTitle == "Static Track")
