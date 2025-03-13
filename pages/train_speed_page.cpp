@@ -8,6 +8,8 @@ TrainSpeedPage::TrainSpeedPage(QWidget *parent,
   stackedWidget = new QStackedWidget(this);
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &TrainSpeedPage::setParameterValue);
+  connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
+          &TrainSpeedPage::setParameterValue);
   mainLayout->addWidget(stackedWidget);
   setupFirstPage();
   setupSecondPage();
@@ -28,7 +30,7 @@ void TrainSpeedPage::setupSecondPage() {
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   secondPageLayout->setSpacing(40);
   setupExactValues(secondPageLayout, "Static Max Speed");
-  setupChart(secondPageLayout, "Static Max Speed", "Static Speed");
+  setupChart(secondPageLayout, "Static Speed", "Static Speed");
   stackedWidget->addWidget(secondPage);
 }
 
@@ -59,11 +61,11 @@ void TrainSpeedPage::setParameterValue() {
       m_inputWidgets[key]->setValue(0);
     }
   }
-  if (m_inputWidgets.contains("Dynamic Speed"))
-    m_inputWidgets["Dynamic Speed"]->setValue(
+  if (m_inputWidgets.contains("Max Speed"))
+    m_inputWidgets["Max Speed"]->setValue(m_trainSimulation->findMaxSpeed());
+  if (m_inputWidgets.contains("Static Max Speed"))
+    m_inputWidgets["Static Max Speed"]->setValue(
         m_trainSimulation->findMaxSpeed());
-  if (m_inputWidgets.contains("Static Speed"))
-    m_inputWidgets["Static Speed"]->setValue(m_trainSimulation->findMaxSpeed());
 }
 
 void TrainSpeedPage::setupPagination() {

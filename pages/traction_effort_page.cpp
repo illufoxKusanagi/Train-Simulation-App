@@ -7,6 +7,8 @@ TractionEffortPage::TractionEffortPage(QWidget *parent,
   mainLayout->setAlignment(Qt::AlignCenter);
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &TractionEffortPage::setParameterValue);
+  connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
+          &TractionEffortPage::setParameterValue);
   stackedWidget = new QStackedWidget(this);
   mainLayout->addWidget(stackedWidget);
   setupFirstPage();
@@ -19,7 +21,7 @@ void TractionEffortPage::setupFirstPage() {
   QWidget *firstPage = new QWidget(this);
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
   firstPageLayout->setSpacing(40);
-  setupExactValue(firstPageLayout, "Max Traction Effort");
+  setupExactValue(firstPageLayout, "Max Dynamic Traction Effort");
   setupChart(firstPageLayout, "Dynamic Traction Effort", "Dynamic F Motor");
   stackedWidget->addWidget(firstPage);
 }
@@ -60,10 +62,10 @@ void TractionEffortPage::setParameterValue() {
       m_inputWidgets[key]->setValue(0);
     }
   }
-  if (m_inputWidgets.contains("Dynamic Traction Effort"))
-    m_inputWidgets["Max Traction Effort"]->setValue(
+  if (m_inputWidgets.contains("Max Dynamic Traction Effort"))
+    m_inputWidgets["Max Dynamic Traction Effort"]->setValue(
         m_trainSimulation->findMaxTractionEffort());
-  if (m_inputWidgets.contains("Static Traction Effort"))
+  if (m_inputWidgets.contains("Max Static Traction Effort"))
     m_inputWidgets["Max Static Traction Effort"]->setValue(
         m_trainSimulation->findMaxTractionEffort());
 }

@@ -8,6 +8,8 @@ TrainTrackPage::TrainTrackPage(QWidget *parent,
   stackedWidget = new QStackedWidget(this);
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &TrainTrackPage::setParameterValue);
+  connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
+          &TrainTrackPage::setParameterValue);
   mainLayout->addWidget(stackedWidget);
   setupFirstPage();
   setupSecondPage();
@@ -27,7 +29,6 @@ void TrainTrackPage::setupSecondPage() {
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   secondPageLayout->setSpacing(40);
-  // setupExactValues(secondPageLayout, "Max Distance Travelled");
   setupChart(secondPageLayout);
   stackedWidget->addWidget(secondPage);
 }
