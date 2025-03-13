@@ -9,7 +9,7 @@ TrainTrackPage::TrainTrackPage(QWidget *parent,
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &TrainTrackPage::setParameterValue);
   connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
-          &TrainTrackPage::setParameterValue);
+          &TrainTrackPage::setStaticParameterValue);
   mainLayout->addWidget(stackedWidget);
   setupFirstPage();
   setupSecondPage();
@@ -22,6 +22,7 @@ void TrainTrackPage::setupFirstPage() {
   firstPageLayout->setSpacing(40);
   setupExactValues(firstPageLayout, "Distance Travelled");
   setupChart(firstPageLayout);
+  m_inputWidgets["Distance Travelled"] = m_inputWidget;
   stackedWidget->addWidget(firstPage);
 }
 
@@ -29,7 +30,9 @@ void TrainTrackPage::setupSecondPage() {
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   secondPageLayout->setSpacing(40);
+  setupExactValues(secondPageLayout, "Static Distance Travelled");
   setupChart(secondPageLayout);
+  m_inputWidgets["Static Distance Travelled"] = m_inputWidget;
   stackedWidget->addWidget(secondPage);
 }
 
@@ -45,6 +48,7 @@ void TrainTrackPage::setupExactValues(QVBoxLayout *pageLayout,
   layout->setAlignment(Qt::AlignCenter);
   InputType inputType = InputType("field", inputTitle, "m", 0, true);
   m_inputWidget = new InputWidget(inputType, this);
+  m_inputWidgets[inputTitle] = m_inputWidget;
   layout->addWidget(m_inputWidget);
   pageLayout->addLayout(layout);
 }
@@ -90,6 +94,13 @@ void TrainTrackPage::updatePaginationButtons() {
 }
 
 void TrainTrackPage::setParameterValue() {
-  m_inputWidget->setValue(0);
-  m_inputWidget->setValue(m_trainSimulation->findDistanceTravelled());
+  m_inputWidgets["Distance Travelled"]->setValue(0);
+  m_inputWidgets["Distance Travelled"]->setValue(
+      m_trainSimulation->findDistanceTravelled());
+}
+
+void TrainTrackPage::setStaticParameterValue() {
+  m_inputWidgets["Static Distance Travelled"]->setValue(0);
+  m_inputWidgets["Static Distance Travelled"]->setValue(
+      m_trainSimulation->findDistanceTravelled());
 }
