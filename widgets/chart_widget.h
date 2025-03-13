@@ -18,7 +18,6 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
 
-
 class ChartWidget : public QWidget {
   Q_OBJECT
 public:
@@ -56,6 +55,7 @@ private:
   void setupStaticCurrentChart();
   void setupDynamicPowerChart();
   void setupDynamicCurrentChart();
+  void setupAxis();
 };
 
 #endif // CHART_WIDGET_H
