@@ -713,3 +713,5 @@ double TrainSimulation::findDistanceTravelled() {
     return 0.0;
   return simulationDatas.distanceTotal.last();
 }
+
+double TrainSimulation::getAdhesion() { return trainMotorData->tm_adh; }

@@ -51,6 +51,12 @@ void TractionEffortPage::setupExactValue(QVBoxLayout *pageLayout,
   m_inputWidget = new InputWidget(inputType, this);
   m_inputWidgets[inputTitle] = m_inputWidget;
   layout->addWidget(m_inputWidget);
+  if (inputTitle.contains("Static")) {
+    InputType adhesionInputType = InputType("field", "Adhesion", "kN", 0, true);
+    InputWidget *adhesionInput = new InputWidget(adhesionInputType, this);
+    m_inputWidgets["Adhesion"] = adhesionInput;
+    layout->addWidget(adhesionInput);
+  }
   pageLayout->addLayout(layout);
 }
 
@@ -64,6 +70,8 @@ void TractionEffortPage::setStaticParameterValue() {
   m_inputWidgets["Max Static Traction Effort"]->setValue(0);
   m_inputWidgets["Max Static Traction Effort"]->setValue(
       m_trainSimulation->findMaxTractionEffort());
+  m_inputWidgets["Adhesion"]->setValue(0);
+  m_inputWidgets["Adhesion"]->setValue(m_trainSimulation->getAdhesion());
 }
 
 void TractionEffortPage::setupPagination() {

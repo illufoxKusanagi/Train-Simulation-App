@@ -89,6 +89,7 @@ public:
   double findMaxCatenaryCurrent();
   double findMaxTractionEffort();
   double findDistanceTravelled();
+  double getAdhesion();
 
 private:
   ConstantData constantData;
