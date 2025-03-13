@@ -43,6 +43,7 @@ private:
   void setupInputs(QVBoxLayout *pageLayout, QStringList inputTitle);
   double getParameterValue(const QString &paramName) const;
   void setParameterValue();
+  void setStaticParameterValue();
   void setupPagination();
   void showNextPage();
   void showPreviousPage();

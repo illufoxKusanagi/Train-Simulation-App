@@ -33,6 +33,7 @@ private:
                   QString chartSeries);
   void setupExactValues(QVBoxLayout *pageLayout, QString inputTitle);
   void setParameterValue();
+  void setStaticParameterValue();
   void setupPagination();
   void updatePaginationButtons();
   void showPreviousPage();

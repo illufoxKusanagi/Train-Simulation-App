@@ -8,7 +8,7 @@ TractionEffortPage::TractionEffortPage(QWidget *parent,
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &TractionEffortPage::setParameterValue);
   connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
-          &TractionEffortPage::setParameterValue);
+          &TractionEffortPage::setStaticParameterValue);
   stackedWidget = new QStackedWidget(this);
   mainLayout->addWidget(stackedWidget);
   setupFirstPage();
@@ -55,19 +55,15 @@ void TractionEffortPage::setupExactValue(QVBoxLayout *pageLayout,
 }
 
 void TractionEffortPage::setParameterValue() {
-  QList<QString> keys = m_inputWidgets.keys();
+  m_inputWidgets["Max Dynamic Traction Effort"]->setValue(0);
+  m_inputWidgets["Max Dynamic Traction Effort"]->setValue(
+      m_trainSimulation->findMaxTractionEffort());
+}
 
-  for (const QString &key : keys) {
-    if (m_inputWidgets[key]) {
-      m_inputWidgets[key]->setValue(0);
-    }
-  }
-  if (m_inputWidgets.contains("Max Dynamic Traction Effort"))
-    m_inputWidgets["Max Dynamic Traction Effort"]->setValue(
-        m_trainSimulation->findMaxTractionEffort());
-  if (m_inputWidgets.contains("Max Static Traction Effort"))
-    m_inputWidgets["Max Static Traction Effort"]->setValue(
-        m_trainSimulation->findMaxTractionEffort());
+void TractionEffortPage::setStaticParameterValue() {
+  m_inputWidgets["Max Static Traction Effort"]->setValue(0);
+  m_inputWidgets["Max Static Traction Effort"]->setValue(
+      m_trainSimulation->findMaxTractionEffort());
 }
 
 void TractionEffortPage::setupPagination() {

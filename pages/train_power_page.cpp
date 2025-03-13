@@ -9,7 +9,7 @@ TrainPowerPage::TrainPowerPage(QWidget *parent,
           &TrainPowerPage::setParameterValue);
   // updateCharts();
   connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
-          &TrainPowerPage::setParameterValue);
+          &TrainPowerPage::setStaticParameterValue);
   stackedWidget = new QStackedWidget(this);
   mainLayout->addWidget(stackedWidget);
   setupFirstPage();
@@ -93,7 +93,7 @@ void TrainPowerPage::setParameterValue() {
   QList<QString> keys = m_inputWidgets.keys();
 
   for (const QString &key : keys) {
-    if (m_inputWidgets[key]) {
+    if (m_inputWidgets[key] && key.contains("Dynamic")) {
       m_inputWidgets[key]->setValue(0);
     }
   }
@@ -109,6 +109,16 @@ void TrainPowerPage::setParameterValue() {
   if (m_inputWidgets.contains("Dynamic VVVF Current"))
     m_inputWidgets["Dynamic VVVF Current"]->setValue(
         m_trainSimulation->findMaxVvvfCurrent());
+}
+
+void TrainPowerPage::setStaticParameterValue() {
+  QList<QString> keys = m_inputWidgets.keys();
+
+  for (const QString &key : keys) {
+    if (m_inputWidgets[key] && key.contains("Static")) {
+      m_inputWidgets[key]->setValue(0);
+    }
+  }
   if (m_inputWidgets.contains("Static Catenary Power"))
     m_inputWidgets["Static Catenary Power"]->setValue(
         m_trainSimulation->findMaxCatenaryPower());
