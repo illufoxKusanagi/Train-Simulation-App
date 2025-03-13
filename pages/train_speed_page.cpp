@@ -19,7 +19,7 @@ void TrainSpeedPage::setupFirstPage() {
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
   firstPageLayout->setSpacing(40);
   setupExactValues(firstPageLayout, "Max Speed");
-  setupChart(firstPageLayout, "Max Speed");
+  setupChart(firstPageLayout, "Dynamic Speed", "Dynamic Speed");
   stackedWidget->addWidget(firstPage);
 }
 
@@ -28,13 +28,14 @@ void TrainSpeedPage::setupSecondPage() {
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   secondPageLayout->setSpacing(40);
   setupExactValues(secondPageLayout, "Static Max Speed");
-  setupChart(secondPageLayout, "Static Max Speed");
+  setupChart(secondPageLayout, "Static Max Speed", "Static Speed");
   stackedWidget->addWidget(secondPage);
 }
 
-void TrainSpeedPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle) {
+void TrainSpeedPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle,
+                                QString chartSeries) {
   ChartWidget *chartWidget =
-      new ChartWidget(chartTitle, "speed", this, m_trainSimulation);
+      new ChartWidget(chartTitle, chartSeries, this, m_trainSimulation);
   m_chartWidget[chartTitle] = chartWidget;
   pageLayout->addWidget(chartWidget);
 }
@@ -58,11 +59,11 @@ void TrainSpeedPage::setParameterValue() {
       m_inputWidgets[key]->setValue(0);
     }
   }
-  if (m_inputWidgets.contains("Max Speed"))
-    m_inputWidgets["Max Speed"]->setValue(m_trainSimulation->findMaxSpeed());
-  if (m_inputWidgets.contains("Static Max Speed"))
-    m_inputWidgets["Static Max Speed"]->setValue(
+  if (m_inputWidgets.contains("Dynamic Speed"))
+    m_inputWidgets["Dynamic Speed"]->setValue(
         m_trainSimulation->findMaxSpeed());
+  if (m_inputWidgets.contains("Static Speed"))
+    m_inputWidgets["Static Speed"]->setValue(m_trainSimulation->findMaxSpeed());
 }
 
 void TrainSpeedPage::setupPagination() {
@@ -106,6 +107,6 @@ void TrainSpeedPage::updatePaginationButtons() {
 }
 
 void TrainSpeedPage::updateCharts() {
-  m_chartWidget["Max Speed"]->updateChart();
-  m_chartWidget["Static Max Speed"]->updateChart();
+  m_chartWidget["Dynamic Speed"]->updateChart();
+  m_chartWidget["Static Speed"]->updateChart();
 }

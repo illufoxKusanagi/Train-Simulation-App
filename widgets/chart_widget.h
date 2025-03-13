@@ -6,6 +6,7 @@
 #include "../styles/colors.h"
 #include "../widgets/button_action.h"
 #include "../widgets/button_pagination.h"
+#include <QAbstractSeries>
 #include <QFileDialog>
 #include <QFont>
 #include <QHBoxLayout>
@@ -55,6 +56,7 @@ private:
   void setupStaticCurrentChart();
   void setupDynamicPowerChart();
   void setupDynamicCurrentChart();
+  void setupAxis();
 };
 
 #endif // CHART_WIDGET_H
