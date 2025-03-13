@@ -27,7 +27,6 @@ void TrainTrackPage::setupSecondPage() {
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   secondPageLayout->setSpacing(40);
-  // setupExactValues(secondPageLayout, "Max Distance Travelled");
   setupChart(secondPageLayout);
   stackedWidget->addWidget(secondPage);
 }
