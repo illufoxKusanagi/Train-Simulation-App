@@ -7,6 +7,8 @@ TractionEffortPage::TractionEffortPage(QWidget *parent,
   mainLayout->setAlignment(Qt::AlignCenter);
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &TractionEffortPage::setParameterValue);
+  connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
+          &TractionEffortPage::setParameterValue);
   stackedWidget = new QStackedWidget(this);
   mainLayout->addWidget(stackedWidget);
   setupFirstPage();

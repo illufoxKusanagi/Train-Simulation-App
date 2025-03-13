@@ -8,6 +8,8 @@ TrainTrackPage::TrainTrackPage(QWidget *parent,
   stackedWidget = new QStackedWidget(this);
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &TrainTrackPage::setParameterValue);
+  connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
+          &TrainTrackPage::setParameterValue);
   mainLayout->addWidget(stackedWidget);
   setupFirstPage();
   setupSecondPage();
