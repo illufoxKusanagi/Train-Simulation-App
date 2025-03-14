@@ -47,6 +47,8 @@ set(PAGE_SOURCES
     pages/traction_effort_page.cpp
     pages/train_track_page.h
     pages/train_track_page.cpp
+    pages/train_consumption_page.h
+    pages/train_consumption_page.cpp
 )
 
 # Widgets

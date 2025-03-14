@@ -33,6 +33,9 @@ public:
         {"category", ":/icons/icons/category-collapse.svg"},
         {"categoryCollapsedDisabled", ":/icons/icons/category-disabled.svg"},
         {"categoryDisabled", ":/icons/icons/category-collapse-disabled.svg"},
+        {"energy", ":/icons/icons/energy.svg"},
+        {"energyDisabled", ":icons/icons/energy-disabled.svg"},
+
     };
     if (iconPaths.contains(iconName)) {
       return iconPaths.value(iconName);

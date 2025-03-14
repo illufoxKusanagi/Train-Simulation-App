@@ -224,7 +224,6 @@ double TrainSimulation::calculateRunningRes(float v) {
 void TrainSimulation::calculatePoweringForce(float acc, float v) {
   // if (v <= 0)
   resistanceData->f_start = calculateStartForce(movingData->acc_start);
-  qDebug() << "F Start : " << resistanceData->f_start;
   if (v <= movingData->v_p1) {
     resistanceData->f_motor = resistanceData->f_start;
   } else if (v > movingData->v_p1 && v <= movingData->v_p2) {
@@ -395,8 +394,6 @@ void TrainSimulation::simulateStaticTrainMovement() {
     // movingData->v += 0.5;
     // i == 0 ? movingData->v += 0 : movingData->v++;
     // can be deleted
-    // qDebug() << "Speed : " << simulationDatas.trainSpeeds[i];
-    // qDebug() << "Acceleration : " << simulationDatas.accelerations[i];
     // can be deleted
 
     powerData->p_wheel = calculatePowerWheel();

@@ -54,7 +54,8 @@ void LeftPanel::createRunButton() {
   m_runButtonLayout = new QVBoxLayout(runButtonWidget);
   m_runButtonLayout->setSpacing(8);
   ButtonAction *runButton = new ButtonAction("Run", "yes", this);
-  runButton->setEnabled(true);
+  // Enable if dynamic simulation has corrected
+  runButton->setEnabled(false);
   runButton->setSize(132, 40);
   ButtonAction *runStaticButton = new ButtonAction("Static Run", "yes", this);
   runStaticButton->setEnabled(true);
