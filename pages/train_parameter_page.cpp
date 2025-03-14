@@ -15,7 +15,7 @@ TrainParameterPage::TrainParameterPage(QWidget *parent, TrainData *trainData,
                   "padding: 12px 16px; border-radius: 12px; " +
                   TextStyle::BodyMediumRegular() +
                   "margin-top: 15px;"
-                  "min-width: 200px;"
+                  "min-width: 192px;"
                   "}"
                   "QGroupBox::title {"
                   "subcontrol-origin: border;"
@@ -73,6 +73,8 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
 
 void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
   const QStringList labels = {"Tc", "M1", "M2", "T1", "T2", "T3"};
+  const QStringList massLabels = {"Total Empty Mass", "Total Load Mass",
+                                  "Total Inertial Mass"};
   QList<double> trainValues = {2, 3, 3, 2, 1, 1};
   QList<double> massValues = {10, 20, 20, 10, 10, 10};
   QList<double> passengerValues = {100, 200, 200, 200, 200, 200};
@@ -91,13 +93,15 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
 
   QWidget *secondPageContainer = new QWidget(this);
   QHBoxLayout *secondPageHLayout = new QHBoxLayout(secondPageContainer);
-  secondPageHLayout->setSpacing(40);
+  secondPageHLayout->setSpacing(16);
   QGroupBox *typeLayout = createTypeLayout(labels, trainValues);
   secondPageHLayout->addWidget(typeLayout);
   QGroupBox *massLayout = createMassLayout(labels, massValues);
   secondPageHLayout->addWidget(massLayout);
   QGroupBox *passengerLayout = createPassengerLayout(labels, passengerValues);
   secondPageHLayout->addWidget(passengerLayout);
+  QGroupBox *outputMassLayout = createOutputMassLayout(massLabels);
+  secondPageHLayout->addWidget(outputMassLayout);
   connectTypeInputSignals();
   connectMassInputSignals();
   connectPassengerInputSignals();
@@ -116,12 +120,8 @@ QGroupBox *TrainParameterPage::createTypeLayout(const QStringList &labels,
     typeFormLayout->addWidget(typeInputWidget);
     m_typeInputWidgets[label] = typeInputWidget;
   }
-  massPerTrainsetInertial = new InputWidget(
-      InputType("field", "Inertial Mass per One Trainset", "ton", 0, true),
-      this);
   setTypeValue();
   typeLayout->setStyleSheet(groupBoxStyle);
-  typeFormLayout->addWidget(massPerTrainsetInertial);
   return typeLayout;
 }
 
@@ -129,6 +129,7 @@ QGroupBox *TrainParameterPage::createMassLayout(const QStringList &labels,
                                                 QList<double> values) {
   QGroupBox *massLayout = new QGroupBox("Mass");
   QVBoxLayout *massFormLayout = new QVBoxLayout(massLayout);
+  massFormLayout->setAlignment(Qt::AlignTop);
   for (const QString &label : labels) {
     InputWidget *massInputWidget =
         new InputWidget(InputType("field", label, "ton"), this);
@@ -137,11 +138,6 @@ QGroupBox *TrainParameterPage::createMassLayout(const QStringList &labels,
     massFormLayout->addWidget(massInputWidget);
   }
   setMassValue();
-  massPerTrainsetEmpty = new InputWidget(
-      InputType("field", "Mass per One Trainset (empty)", "ton", 0, true),
-      this);
-  massPerTrainsetEmpty->setValue(calculateEmptyMass());
-  massFormLayout->addWidget(massPerTrainsetEmpty);
   massLayout->setStyleSheet(groupBoxStyle);
   return massLayout;
 }
@@ -150,6 +146,7 @@ QGroupBox *TrainParameterPage::createPassengerLayout(const QStringList &labels,
                                                      QList<double> values) {
   QGroupBox *passengerLayout = new QGroupBox("Passenger");
   QVBoxLayout *passengerFormLayout = new QVBoxLayout(passengerLayout);
+  passengerFormLayout->setAlignment(Qt::AlignTop);
   for (const QString &label : labels) {
     InputWidget *passengerInputWidget =
         new InputWidget(InputType("field", label, "person"), this);
@@ -158,13 +155,31 @@ QGroupBox *TrainParameterPage::createPassengerLayout(const QStringList &labels,
     m_passengerInputWidgets[label] = passengerInputWidget;
   }
   setPassengerValue();
-  massPerTrainsetLoaded = new InputWidget(
-      InputType("field", "Mass per One Trainset(loaded)", "ton", 0, true),
-      this);
-  passengerFormLayout->addWidget(massPerTrainsetLoaded);
-
   passengerLayout->setStyleSheet(groupBoxStyle);
   return passengerLayout;
+}
+
+QGroupBox *
+TrainParameterPage::createOutputMassLayout(const QStringList &labels) {
+  QGroupBox *outputMassLayout = new QGroupBox("Output Mass");
+  QVBoxLayout *outputMassFormLayout = new QVBoxLayout(outputMassLayout);
+  outputMassLayout->setAlignment(Qt::AlignTop);
+  massPerTrainsetEmpty = new InputWidget(
+      InputType("field", "Mass per One Trainset (empty)", "ton", 0, true),
+      this);
+  massPerTrainsetEmpty->setValue(calculateEmptyMass());
+  massPerTrainsetLoaded = new InputWidget(
+      InputType("field", "Mass per One Trainset (loaded)", "ton", 0, true),
+      this);
+  massPerTrainsetLoaded->setValue(calculateLoadedMass());
+  massPerTrainsetInertial = new InputWidget(
+      InputType("field", "Inertial Mass per One Trainset", "ton", 0, true),
+      this);
+  outputMassFormLayout->addWidget(massPerTrainsetEmpty);
+  outputMassFormLayout->addWidget(massPerTrainsetLoaded);
+  outputMassFormLayout->addWidget(massPerTrainsetInertial);
+  outputMassLayout->setStyleSheet(groupBoxStyle);
+  return outputMassLayout;
 }
 
 void TrainParameterPage::setupPagination() {
@@ -274,6 +289,12 @@ void TrainParameterPage::setPassengerValue() {
   loadData->n_PT3 = getPassengerParameterValue("T3");
 }
 
+// void TrainParameterPage::setOutputMassValue() {
+//   massData->mass_totalEmpty = m_trainSimulation->countMassEmptyCar();
+//   massData->mass_totalLoad = m_trainSimulation->countMassWithLoad();
+//   massData->mass_totalInertial = m_trainSimulation->countInertialMass();
+// }
+
 void TrainParameterPage::connectInputSignals() {
   for (auto it = m_inputWidgets.constBegin(); it != m_inputWidgets.constEnd();
        ++it) {
@@ -313,6 +334,18 @@ void TrainParameterPage::connectMassInputSignals() {
 void TrainParameterPage::connectPassengerInputSignals() {
   for (auto it = m_passengerInputWidgets.constBegin();
        it != m_passengerInputWidgets.constEnd(); ++it) {
+    QString paramName = it.key();
+    InputWidget *widget = it.value();
+    connect(it.value(), &InputWidget::valueChanged, this, [this, paramName]() {
+      setPassengerValue();
+      updateMassCalculation();
+    });
+  }
+}
+
+void TrainParameterPage::connectOutputMassInputSignals() {
+  for (auto it = m_outputMassInputWidgets.constBegin();
+       it != m_outputMassInputWidgets.constEnd(); ++it) {
     QString paramName = it.key();
     InputWidget *widget = it.value();
     connect(it.value(), &InputWidget::valueChanged, this, [this, paramName]() {

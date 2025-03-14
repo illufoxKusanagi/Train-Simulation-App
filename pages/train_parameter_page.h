@@ -30,6 +30,7 @@ private:
   QMap<QString, InputWidget *> m_typeInputWidgets;
   QMap<QString, InputWidget *> m_massInputWidgets;
   QMap<QString, InputWidget *> m_passengerInputWidgets;
+  QMap<QString, InputWidget *> m_outputMassInputWidgets;
   QList<InputWidget *> inputWidgets;
   QList<InputWidget *> typeInputWidgets;
   QList<InputWidget *> massInputWidgets;
@@ -66,6 +67,7 @@ private:
   void connectTypeInputSignals();
   void connectMassInputSignals();
   void connectPassengerInputSignals();
+  void connectOutputMassInputSignals();
   void updateMassCalculation();
   double calculateEmptyMass();
   double calculateLoadedMass();
@@ -79,6 +81,7 @@ private:
   QGroupBox *createMassLayout(const QStringList &labels, QList<double> values);
   QGroupBox *createPassengerLayout(const QStringList &labels,
                                    QList<double> values);
+  QGroupBox *createOutputMassLayout(const QStringList &labels);
 };
 
 #endif // TRAINPARAMETERPAGE_H
