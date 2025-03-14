@@ -11,7 +11,7 @@ ElectricalParameterPage::ElectricalParameterPage(QWidget *parent,
       energyData(energyData) {
   mainLayout->setContentsMargins(16, 16, 16, 16);
   mainLayout->setAlignment(Qt::AlignCenter);
-  m_formLayout->setHorizontalSpacing(80);
+  m_formLayout->setHorizontalSpacing(128);
   m_formLayout->setVerticalSpacing(32);
   createInputs();
   mainLayout->addWidget(m_formContainer);
@@ -32,6 +32,7 @@ void ElectricalParameterPage::createInputs() {
     InputWidget *inputWidget =
         new InputWidget(InputType("field", labels[i], ""), this);
     inputWidget->setValue(values[i]);
+    inputWidget->setFixedHeight(80);
     m_inputWidgets[labels[i]] = inputWidget;
     m_formLayout->addWidget(inputWidget, i / 2, i % 2);
   }

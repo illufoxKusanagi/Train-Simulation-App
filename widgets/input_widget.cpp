@@ -10,13 +10,17 @@ InputWidget::InputWidget(const InputType &inputType, QWidget *parent)
   layout->setSpacing(8);
   layout->addWidget(m_label);
   m_label->setStyleSheet(TextStyle::BodyMediumRegular() +
-                         "color: " + Colors::Secondary700.name() + ";");
-
+                         "color: " + Colors::Secondary700.name() +
+                         ";"
+                         "white-space: normal;");
+  m_label->setWordWrap(true);
+  m_label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
   if (inputType.type == "field") {
     buildInputField(inputType);
   } else if (inputType.type == "dropdown") {
     m_inputDropdown = new InputDropdown(this);
-    m_inputDropdown->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    // m_inputDropdown->setSizePolicy(QSizePolicy::Expanding,
+    // QSizePolicy::Fixed);
     connect(m_inputDropdown, &InputDropdown::valueChanged, this, [this]() {
       m_inputValue = m_inputDropdown->getValue();
       emit valueChanged();

@@ -65,6 +65,7 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
         new InputWidget(InputType("field", labels[i], unitLabels[i]), this);
     inputWidget->setValue(values[i]);
     formLayout->addWidget(inputWidget, i / 2, i % 2);
+    inputWidget->setFixedHeight(80);
     m_inputWidgets[labels[i]] = inputWidget;
   }
   setParameterValue();
@@ -146,7 +147,7 @@ QGroupBox *TrainParameterPage::createPassengerLayout(const QStringList &labels,
                                                      QList<double> values) {
   QGroupBox *passengerLayout = new QGroupBox("Passenger");
   QVBoxLayout *passengerFormLayout = new QVBoxLayout(passengerLayout);
-  passengerFormLayout->setAlignment(Qt::AlignTop);
+  passengerFormLayout->setAlignment(Qt::AlignBottom);
   for (const QString &label : labels) {
     InputWidget *passengerInputWidget =
         new InputWidget(InputType("field", label, "person"), this);
