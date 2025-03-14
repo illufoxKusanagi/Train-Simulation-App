@@ -61,6 +61,10 @@ void MainWindow::setupPages() {
 
   TrainTrackPage *trainTrackPage = new TrainTrackPage(this, m_trainSimulation);
   setupFixedSizePage(trainTrackPage);
+
+  TrainConsumptionPage *trainConsumptionPage =
+      new TrainConsumptionPage(this, m_trainSimulation);
+  setupFixedSizePage(trainConsumptionPage);
 }
 
 void MainWindow::navigateToPage(int pageIndex) {
