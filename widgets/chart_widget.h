@@ -6,6 +6,7 @@
 #include "../styles/colors.h"
 #include "../widgets/button_action.h"
 #include "../widgets/button_pagination.h"
+#include <QAbstractSeries>
 #include <QFileDialog>
 #include <QFont>
 #include <QHBoxLayout>
@@ -26,9 +27,11 @@ public:
                        TrainSimulation *trainSimulation = nullptr);
   void addSeries(const QString &name, const QColor &color);
   void updateChart();
+  void updateStaticChart();
 
 public slots:
   void onSimulationCompleted();
+  void onStaticSimulationCompleted();
 
 private:
   QVBoxLayout *mainLayout;
@@ -53,6 +56,7 @@ private:
   void setupStaticCurrentChart();
   void setupDynamicPowerChart();
   void setupDynamicCurrentChart();
+  void setupAxis();
 };
 
 #endif // CHART_WIDGET_H

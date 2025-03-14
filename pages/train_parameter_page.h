@@ -45,6 +45,7 @@ private:
   QLabel *m_trainLabelImage;
   InputWidget *massPerTrainsetEmpty;
   InputWidget *massPerTrainsetLoaded;
+  InputWidget *massPerTrainsetInertial;
   QList<QList<QList<double>>> m_carData;
 
   void setupFirstPage(QWidget *firstPageWidget);
@@ -68,6 +69,7 @@ private:
   void updateMassCalculation();
   double calculateEmptyMass();
   double calculateLoadedMass();
+  double calculateInertialMass();
   void updateTrainImage(QLabel *trainImageLabel, int nCar);
   void setupTrainsetSection(QHBoxLayout *numberCarLayout,
                             QList<QList<QList<double>>> carData);

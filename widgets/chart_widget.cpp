@@ -10,6 +10,8 @@ ChartWidget::ChartWidget(QString chartTitle, QString seriesName,
   addSeries(seriesName, QColor(0, 114, 206));
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &ChartWidget::onSimulationCompleted);
+  connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
+          &ChartWidget::onStaticSimulationCompleted);
   buildDummyLine(seriesName);
 }
 
@@ -19,64 +21,102 @@ void ChartWidget::addSeries(const QString &name, const QColor &color) {
     m_seriesColors[name] = color;
   }
 }
+// TODO : tambahin onStaticSimulationCompleted, lalu pusah updateChart() dan
+// updateStaticChart() untuk handle masing-masing simulasi
 
 void ChartWidget::onSimulationCompleted() { updateChart(); }
 
+void ChartWidget::onStaticSimulationCompleted() { updateStaticChart(); }
+
 void ChartWidget::updateChart() {
   if (m_chart) {
-    m_chart->removeAllSeries();
+    QList<QAbstractSeries *> seriesToRemove;
+    for (QAbstractSeries *series : m_chart->series()) {
+      QString name = series->name();
+      qDebug() << "Chart name : " << name;
+      if (name.contains("Dynamic"))
+        seriesToRemove.append(series);
+      else if (name.contains("Distance"))
+        seriesToRemove.append(series);
+      else if (name.startsWith("Distance"))
+        seriesToRemove.append(series);
+    }
+
+    for (QAbstractSeries *series : seriesToRemove) {
+      m_chart->removeSeries(series);
+    }
+    // m_chart->removeAllSeries();
     if (m_chartTitle == "Dynamic Power") {
       setupDynamicPowerChart();
     } else if (m_chartTitle == "Dynamic Current") {
       setupDynamicCurrentChart();
-    } else if (m_chartTitle == "Static Power") {
+    } else if (m_chartTitle == "Dynamic Track") {
+      setupDynamicTrackChart();
+    } else if (m_chartTitle == "Dynamic Speed") {
+      setupDynamicSpeedChart();
+    } else if (m_chartTitle == "Dynamic Traction Effort") {
+      setupDynamicTractionChart();
+    }
+    setupAxis();
+    // if (m_chart->series().size() > 0) {
+    //   m_chart->createDefaultAxes();
+
+    //   // Set proper axis labels
+    //   QValueAxis *axisX =
+    //       qobject_cast<QValueAxis *>(m_chart->axes(Qt::Horizontal).first());
+    //   QValueAxis *axisY =
+    //       qobject_cast<QValueAxis *>(m_chart->axes(Qt::Vertical).first());
+
+    //   if (axisX && axisY) {
+    //     // For X axis
+    //     if (m_chartTitle.contains("Dynamic"))
+    //       axisX->setTitleText("Time (s)");
+    //     else if (m_chartTitle.contains("Static"))
+    //       axisX->setTitleText("Speed (km/h)");
+
+    //     // For Y axis
+    //     if (m_chartTitle.contains("Power"))
+    //       axisY->setTitleText("Power (kW)");
+    //     else if (m_chartTitle.contains("Current"))
+    //       axisY->setTitleText("Current (A)");
+    //     else if (m_chartTitle.contains("Speed"))
+    //       axisY->setTitleText("Speed (km/h)");
+    //     else if (m_chartTitle.contains("Traction Effort"))
+    //       axisY->setTitleText("Traction Effort (kN)");
+    //     else if (m_chartTitle.contains("Distance"))
+    //       axisY->setTitleText("Distance (m)");
+    //   }
+    // }
+  }
+}
+
+void ChartWidget::updateStaticChart() {
+  if (m_chart) {
+    QList<QAbstractSeries *> seriesToRemove;
+    for (QAbstractSeries *series : m_chart->series()) {
+      QString name = series->name();
+      if (name.contains("Static"))
+        seriesToRemove.append(series);
+      else if (name.contains("Distance"))
+        seriesToRemove.append(series);
+      else if (name.startsWith("speed"))
+        seriesToRemove.append(series);
+    }
+    for (QAbstractSeries *series : seriesToRemove) {
+      m_chart->removeSeries(series);
+    }
+    // m_chart->removeAllSeries();
+    if (m_chartTitle == "Static Power") {
       setupStaticPowerChart();
     } else if (m_chartTitle == "Static Current") {
       setupStaticCurrentChart();
-    } else if (m_chartTitle == "Max Speed") {
-      setupDynamicSpeedChart();
-    } else if (m_chartTitle == "Static Max Speed") {
+    } else if (m_chartTitle == "Static Speed") {
       setupStaticSpeedChart();
-    } else if (m_chartTitle == "Max Static Traction Effort") {
+    } else if (m_chartTitle == "Static Traction Effort") {
       setupStaticTractionChart();
-    } else if (m_chartTitle == "Max Traction Effort") {
-      setupDynamicTractionChart();
-    } else if (m_chartTitle == "Dynamic Track") {
-      setupDynamicTrackChart();
-    } else if (m_chartTitle == "Static Track") {
-      setupStaticTrackChart();
     }
-    if (m_chart->series().size() > 0) {
-      m_chart->createDefaultAxes();
 
-      // Set proper axis labels
-      QValueAxis *axisX =
-          qobject_cast<QValueAxis *>(m_chart->axes(Qt::Horizontal).first());
-      QValueAxis *axisY =
-          qobject_cast<QValueAxis *>(m_chart->axes(Qt::Vertical).first());
-
-      if (axisX && axisY) {
-        // For X axis
-        if (m_chartTitle.contains("Static"))
-          axisX->setTitleText("Speed (km/h)");
-        else if (m_chartTitle.contains("Static Max Speed"))
-          axisX->setTitleText("Distance (m)");
-        else
-          axisX->setTitleText("Time (s)");
-
-        // For Y axis
-        if (m_chartTitle.contains("Power"))
-          axisY->setTitleText("Power (kW)");
-        else if (m_chartTitle.contains("Current"))
-          axisY->setTitleText("Current (A)");
-        else if (m_chartTitle.contains("Speed"))
-          axisY->setTitleText("Speed (km/h)");
-        else if (m_chartTitle.contains("Traction Effort"))
-          axisY->setTitleText("Traction Effort (kN)");
-        else if (m_chartTitle.contains("Distance"))
-          axisY->setTitleText("Distance (m)");
-      }
-    }
+    setupAxis();
   }
 }
 
@@ -116,14 +156,11 @@ void ChartWidget::setupChart(QLineSeries *series, QString title) {
   chartView->setStyleSheet("border: 1px solid " + Colors::Grey100.name() +
                            ";"
                            "border-radius: 12px;");
-  // Add to setupChart method in chart_widget.cpp
   m_chart->legend()->setVisible(true);
   m_chart->legend()->setAlignment(Qt::AlignBottom);
   m_chart->legend()->setFont(QFont("Roboto", 10));
-
-  // Make the chart's plot area fill the view
   m_chart->setPlotAreaBackgroundVisible(true);
-  m_chart->setPlotAreaBackgroundBrush(QBrush(Colors::Secondary100));
+  m_chart->setPlotAreaBackgroundBrush(QBrush(Colors::Secondary50));
   createChartButtons(chartView);
   mainLayout->addWidget(m_chartWidget);
 }
@@ -162,13 +199,12 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
       if (m_chartTitle == "Dynamic Power" || m_chartTitle == "Static Power" ||
           m_chartTitle == "Dynamic Current" || m_chartTitle == "Static Current")
         saveSuccessful = m_trainSimulation->saveTrainPowerData();
-      // else if (m_chartTitle == "Static Traction" ||
-      //          m_chartTitle == "Dynamic Traction")
-      else if (m_chartTitle == "Traction Effort")
+      else if (m_chartTitle == "Traction Effort" ||
+               m_chartTitle == "Static Traction Effort")
         saveSuccessful = m_trainSimulation->saveTractionEffortData();
-      // else if (m_chartTitle == "Dynamic Speed" ||
-      //          m_chartTitle == "Static Speed")
-      else if (m_chartTitle == "Train Speed")
+      else if (m_chartTitle == "Dynamic Speed" ||
+               m_chartTitle == "Static Speed")
+        // else if (m_chartTitle == "Train Speed")
         saveSuccessful = m_trainSimulation->saveTrainSpeedData();
       // else if (m_chartTitle == "Dynamic Track" ||
       //          m_chartTitle == "Static Track")
@@ -213,7 +249,7 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
 
 void ChartWidget::setupDynamicSpeedChart() {
   QLineSeries *speedSeries = new QLineSeries();
-  speedSeries->setName("Speed");
+  speedSeries->setName("Dynamic Speed");
   speedSeries->setPen(QPen(QColor(0, 114, 206), 2));
   const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &time = m_trainSimulation->simulationDatas.timeTotal;
@@ -225,7 +261,7 @@ void ChartWidget::setupDynamicSpeedChart() {
 
 void ChartWidget::setupDynamicTractionChart() {
   QLineSeries *speedSeries = new QLineSeries();
-  speedSeries->setName("F motor");
+  speedSeries->setName("Dynamic F motor");
   speedSeries->setPen(QPen(QColor(0, 114, 206), 2));
   const auto &time = m_trainSimulation->simulationDatas.timeTotal;
   const auto &resistance = m_trainSimulation->simulationDatas.tractionEfforts;
@@ -330,7 +366,7 @@ void ChartWidget::setupStaticCurrentChart() {
 
 void ChartWidget::setupStaticSpeedChart() {
   QLineSeries *speedSeries = new QLineSeries();
-  speedSeries->setName("Speed");
+  speedSeries->setName("Static Speed");
   speedSeries->setPen(QPen(QColor(0, 114, 206), 2));
   const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &distance = m_trainSimulation->simulationDatas.distanceTotal;
@@ -342,7 +378,7 @@ void ChartWidget::setupStaticSpeedChart() {
 
 void ChartWidget::setupStaticTractionChart() {
   QLineSeries *speedSeries = new QLineSeries();
-  speedSeries->setName("F motor");
+  speedSeries->setName("Static F motor");
   speedSeries->setPen(QPen(QColor(0, 114, 206), 2));
   const auto &speed = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &resistance = m_trainSimulation->simulationDatas.tractionEfforts;
@@ -352,3 +388,45 @@ void ChartWidget::setupStaticTractionChart() {
   m_chart->addSeries(speedSeries);
 }
 void ChartWidget::setupStaticTrackChart() {}
+
+void ChartWidget::setupAxis() {
+  if (m_chart->series().size() > 0) {
+    m_chart->createDefaultAxes();
+    // Set proper axis labels
+    QValueAxis *axisX =
+        qobject_cast<QValueAxis *>(m_chart->axes(Qt::Horizontal).first());
+    QValueAxis *axisY =
+        qobject_cast<QValueAxis *>(m_chart->axes(Qt::Vertical).first());
+    if (axisX && axisY) {
+      // For X axis
+      if (m_chartTitle.contains("Static Speed"))
+        axisX->setTitleText("Distance (m)");
+      else if (m_chartTitle.contains("Static"))
+        axisX->setTitleText("Speed (km/h)");
+      if (m_chartTitle.contains("Dynamic"))
+        axisX->setTitleText("Time (s)");
+
+      // For Y axis
+      if (m_chartTitle.contains("Power"))
+        axisY->setTitleText("Power (kW)");
+      else if (m_chartTitle.contains("Current"))
+        axisY->setTitleText("Current (A)");
+      else if (m_chartTitle.contains("Speed"))
+        axisY->setTitleText("Speed (km/h)");
+      else if (m_chartTitle.contains("Traction Effort"))
+        axisY->setTitleText("Traction Effort (kN)");
+
+      if (m_chartTitle.contains("Power"))
+        axisY->setTitleText("Power (kW)");
+      else if (m_chartTitle.contains("Current"))
+        axisY->setTitleText("Current (A)");
+      else if (m_chartTitle.contains("Speed"))
+        axisY->setTitleText("Speed (km/h)");
+      else if (m_chartTitle.contains("Traction Effort"))
+        axisY->setTitleText("Traction Effort (kN)");
+      else if (m_chartTitle.contains("Distance"))
+        axisY->setTitleText("Distance (m)");
+    }
+  }
+}
+
