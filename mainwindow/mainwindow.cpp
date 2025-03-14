@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 }
 
 void MainWindow::setupPages() {
-  const int PAGE_WIDTH = 960;
+  const int PAGE_WIDTH = 1080;
   const int PAGE_HEIGHT = 732;
   auto setupFixedSizePage = [this, PAGE_WIDTH, PAGE_HEIGHT](QWidget *page) {
     page->setFixedSize(PAGE_WIDTH, PAGE_HEIGHT);

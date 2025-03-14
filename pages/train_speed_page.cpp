@@ -19,7 +19,7 @@ TrainSpeedPage::TrainSpeedPage(QWidget *parent,
 void TrainSpeedPage::setupFirstPage() {
   QWidget *firstPage = new QWidget(this);
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
-  firstPageLayout->setSpacing(40);
+  firstPageLayout->setSpacing(16);
   setupExactValues(firstPageLayout, "Max Speed");
   setupChart(firstPageLayout, "Dynamic Speed", "Dynamic Speed");
   stackedWidget->addWidget(firstPage);
@@ -28,7 +28,7 @@ void TrainSpeedPage::setupFirstPage() {
 void TrainSpeedPage::setupSecondPage() {
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
-  secondPageLayout->setSpacing(40);
+  secondPageLayout->setSpacing(16);
   setupExactValues(secondPageLayout, "Static Max Speed");
   setupChart(secondPageLayout, "Static Speed", "Static Speed");
   stackedWidget->addWidget(secondPage);

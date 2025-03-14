@@ -20,7 +20,7 @@ TractionEffortPage::TractionEffortPage(QWidget *parent,
 void TractionEffortPage::setupFirstPage() {
   QWidget *firstPage = new QWidget(this);
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
-  firstPageLayout->setSpacing(40);
+  firstPageLayout->setSpacing(16);
   setupExactValue(firstPageLayout, "Max Dynamic Traction Effort");
   setupChart(firstPageLayout, "Dynamic Traction Effort", "Dynamic F Motor");
   stackedWidget->addWidget(firstPage);
@@ -29,7 +29,7 @@ void TractionEffortPage::setupFirstPage() {
 void TractionEffortPage::setupSecondPage() {
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
-  secondPageLayout->setSpacing(40);
+  secondPageLayout->setSpacing(16);
   setupExactValue(secondPageLayout, "Max Static Traction Effort");
   setupChart(secondPageLayout, "Static Traction Effort", "Static F Motor");
   stackedWidget->addWidget(secondPage);

@@ -19,7 +19,7 @@ TrainConsumptionPage::TrainConsumptionPage(QWidget *parent,
 void TrainConsumptionPage::setupFirstPage() {
   QWidget *firstPage = new QWidget(this);
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
-  firstPageLayout->setSpacing(40);
+  firstPageLayout->setSpacing(16);
   setupExactValues(firstPageLayout, "Max Energy");
   setupChart(firstPageLayout, "Dynamic Energy", "Dynamic Energy");
   stackedWidget->addWidget(firstPage);
@@ -28,7 +28,7 @@ void TrainConsumptionPage::setupFirstPage() {
 void TrainConsumptionPage::setupSecondPage() {
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
-  secondPageLayout->setSpacing(40);
+  secondPageLayout->setSpacing(16);
   setupExactValues(secondPageLayout, "Static Max Energy");
   setupChart(secondPageLayout, "Static Energy", "Static Energy");
   stackedWidget->addWidget(secondPage);

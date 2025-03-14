@@ -19,7 +19,7 @@ TrainTrackPage::TrainTrackPage(QWidget *parent,
 void TrainTrackPage::setupFirstPage() {
   QWidget *firstPage = new QWidget(this);
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
-  firstPageLayout->setSpacing(40);
+  firstPageLayout->setSpacing(16);
   setupExactValues(firstPageLayout, "Distance Travelled");
   setupChart(firstPageLayout);
   m_inputWidgets["Distance Travelled"] = m_inputWidget;
@@ -29,7 +29,7 @@ void TrainTrackPage::setupFirstPage() {
 void TrainTrackPage::setupSecondPage() {
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
-  secondPageLayout->setSpacing(40);
+  secondPageLayout->setSpacing(16);
   setupExactValues(secondPageLayout, "Static Distance Travelled");
   setupChart(secondPageLayout);
   m_inputWidgets["Static Distance Travelled"] = m_inputWidget;

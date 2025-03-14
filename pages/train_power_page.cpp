@@ -23,7 +23,7 @@ TrainPowerPage::TrainPowerPage(QWidget *parent,
 void TrainPowerPage::setupFirstPage() {
   QWidget *firstPage = new QWidget(this);
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
-  firstPageLayout->setSpacing(40);
+  firstPageLayout->setSpacing(16);
   QStringList labels = {"Dynamic Catenary Power", "Dynamic VVVF Power"};
   setupInputs(firstPageLayout, labels);
   setupChart(firstPageLayout, "Dynamic Power", "Dynamic Power");
@@ -33,7 +33,7 @@ void TrainPowerPage::setupFirstPage() {
 void TrainPowerPage::setupSecondPage() {
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
-  secondPageLayout->setSpacing(40);
+  secondPageLayout->setSpacing(16);
   QStringList labels = {"Dynamic Catenary Current", "Dynamic VVVF Current"};
   setupInputs(secondPageLayout, labels);
   setupChart(secondPageLayout, "Dynamic Current", "Dynamic Current");
@@ -43,7 +43,7 @@ void TrainPowerPage::setupSecondPage() {
 void TrainPowerPage::setupThirdPage() {
   QWidget *thirdPage = new QWidget(this);
   QVBoxLayout *thirdPageLayout = new QVBoxLayout(thirdPage);
-  thirdPageLayout->setSpacing(40);
+  thirdPageLayout->setSpacing(16);
   QStringList labels = {
       "Static Catenary Power",
       "Static VVVF Power",
@@ -56,7 +56,7 @@ void TrainPowerPage::setupThirdPage() {
 void TrainPowerPage::setupFourthPage() {
   QWidget *fourthPage = new QWidget(this);
   QVBoxLayout *fourthPageLayout = new QVBoxLayout(fourthPage);
-  fourthPageLayout->setSpacing(40);
+  fourthPageLayout->setSpacing(16);
   QStringList labels = {
       "Static Catenary Current",
       "Static VVVF Current",

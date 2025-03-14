@@ -9,7 +9,7 @@ RunningParameterPage::RunningParameterPage(QWidget *parent,
       resistanceData(resistanceData), movingData(movingData) {
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setContentsMargins(16, 16, 16, 16);
-  m_inputsLayout->setHorizontalSpacing(80);
+  m_inputsLayout->setHorizontalSpacing(128);
   m_inputsLayout->setVerticalSpacing(24);
 
   createInputs();
@@ -37,6 +37,7 @@ void RunningParameterPage::createInputs() {
     InputWidget *inputWidget =
         new InputWidget(InputType("field", labels[i], unitLabels[i]), this);
     inputWidget->setValue(values[i]);
+    inputWidget->setFixedHeight(80);
     m_inputsLayout->addWidget(inputWidget, i / 2, i % 2);
     m_inputWidgets[labels[i]] = inputWidget;
   }
