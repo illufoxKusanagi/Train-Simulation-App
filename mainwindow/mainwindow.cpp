@@ -65,6 +65,12 @@ void MainWindow::setupPages() {
   TrainConsumptionPage *trainConsumptionPage =
       new TrainConsumptionPage(this, m_trainSimulation);
   setupFixedSizePage(trainConsumptionPage);
+
+  connect(trainParameterPage, &TrainParameterPage::awDataChanged, this,
+          [this, trainParameterPage, runningParameterPage]() {
+            double awIndex = trainParameterPage->getAwData();
+            runningParameterPage->onAwChanged(awIndex);
+          });
 }
 
 void MainWindow::navigateToPage(int pageIndex) {

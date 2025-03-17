@@ -73,6 +73,7 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
   }
   setParameterValue();
   connectInputSignals();
+  connectAwDataInput();
 }
 
 void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
@@ -264,8 +265,6 @@ void TrainParameterPage::setParameterValue() {
   loadData->mass_P = getParameterValue("Passenger Weight (kg)");
   massData->i_M = getParameterValue("Inertial Coefficient Motor");
   massData->i_T = getParameterValue("Inertial Coefficient Trailer");
-  double tes = getParameterValue("Load Train (AW)");
-  qDebug() << "tes: " << tes;
 }
 
 void TrainParameterPage::setTypeValue() {
@@ -413,7 +412,6 @@ void TrainParameterPage::setupTrainsetSection(
   m_numberOfCar = new InputWidget(InputType("dropdown", "Number of Car"), this,
                                   nCarOptions);
   m_trainLabelImage = new QLabel(this);
-
   m_numberOfCar->setValue(12);
   trainData->n_car = 12;
   m_trainLabelImage->setFixedSize(512, 80);
@@ -445,6 +443,11 @@ void TrainParameterPage::setupTrainsetSection(
   });
   numberCarLayout->addWidget(m_numberOfCar);
   numberCarLayout->addWidget(m_trainLabelImage);
+}
+
+void TrainParameterPage::connectAwDataInput() {
+  connect(m_inputWidgets["Load Train (AW)"], &InputWidget::valueChanged, this,
+          &TrainParameterPage::awDataChanged);
 }
 
 void TrainParameterPage::setDefaultCarValues() {
@@ -479,4 +482,9 @@ void TrainParameterPage::setDefaultCarValues() {
       twlv_passTrainValues, ten_passTrainValues, eght_passTrainValues,
       six_passTrainValues};
   m_carData = {m_trainValues, m_trainMasses, m_trainPassengers};
+}
+
+double TrainParameterPage::getAwData() {
+  double awIndex = getParameterValue("Load Train (AW)");
+  return awIndex;
 }
