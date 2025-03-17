@@ -10,7 +10,6 @@
 #include <QOverload>
 #include <QStringList>
 
-
 class InputDropdown : public QWidget {
   Q_OBJECT
 
@@ -18,7 +17,7 @@ signals:
   void valueChanged();
 
 public:
-  explicit InputDropdown(QWidget *parent = nullptr);
+  explicit InputDropdown(QWidget *parent = nullptr, const QStringList options = {});
 
   QString currentText() const;
   void setCurrentText(const QString &text);

@@ -50,21 +50,24 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
                         "Wheel Diameter (mm)",
                         "Passenger Weight (kg)",
                         "Gear Ratio",
-                        "Load per Car (ton)"};
+                        "Load per Car (ton)",
+                        "Load Train (AW)"};
 
-  QStringList unitLabels = {"", "", "", "", "mm", "kg", "", "ton"};
-  QList<double> values = {1.05, 4, 1.1, 24, 860, 70.0, 3.0, 0.0};
-
+  QStringList unitLabels = {"", "", "", "", "mm", "kg", "", "ton", ""};
+  QList<double> values = {1.05, 4, 1.1, 24, 860, 70.0, 3.0, 0.0, 0};
+  QStringList awOptions = {"AW0", "AW1", "AW2", "AW3", "AW4"};
   QGridLayout *formLayout = new QGridLayout(firstPageWidget);
   formLayout->setAlignment(Qt::AlignCenter);
   formLayout->setContentsMargins(16, 16, 16, 16);
-  formLayout->setHorizontalSpacing(128);
-  formLayout->setVerticalSpacing(32);
+  formLayout->setHorizontalSpacing(64);
+  formLayout->setVerticalSpacing(64);
   for (int i = 0; i < labels.size(); i++) {
-    InputWidget *inputWidget =
-        new InputWidget(InputType("field", labels[i], unitLabels[i]), this);
+    InputWidget *inputWidget = new InputWidget(
+        InputType(i == labels.count() - 1 ? "dropdown" : "field", labels[i],
+                  unitLabels[i]),
+        this, i == labels.count() - 1 ? awOptions : QStringList());
     inputWidget->setValue(values[i]);
-    formLayout->addWidget(inputWidget, i / 2, i % 2);
+    formLayout->addWidget(inputWidget, i / 3, i % 3);
     inputWidget->setFixedHeight(80);
     m_inputWidgets[labels[i]] = inputWidget;
   }
@@ -261,6 +264,7 @@ void TrainParameterPage::setParameterValue() {
   loadData->mass_P = getParameterValue("Passenger Weight (kg)");
   massData->i_M = getParameterValue("Inertial Coefficient Motor");
   massData->i_T = getParameterValue("Inertial Coefficient Trailer");
+  double tes = getParameterValue("Load Train (AW)");
 }
 
 void TrainParameterPage::setTypeValue() {
@@ -387,14 +391,11 @@ double TrainParameterPage::calculateLoadedMass() {
 double TrainParameterPage::calculateInertialMass() {
   double result;
   if (loadData->load > 0) {
-    qDebug() << "Using countInertialMass()";
     result = m_trainSimulation->countInertialMassInput();
   } else {
-    qDebug() << "Using countInertialMassInput()";
     result = m_trainSimulation->countInertialMass();
   }
   massData->mass_totalInertial = result;
-  qDebug() << "Inertial mass calculated:" << result;
   return result;
 }
 
@@ -407,8 +408,9 @@ void TrainParameterPage::updateTrainImage(QLabel *trainImageLabel, int nCar) {
 
 void TrainParameterPage::setupTrainsetSection(
     QHBoxLayout *numberCarLayout, QList<QList<QList<double>>> carData) {
-  m_numberOfCar =
-      new InputWidget(InputType("dropdown", "Number of Car", ""), this);
+  QStringList nCarOptions = {"12", "10", "8", "6"};
+  m_numberOfCar = new InputWidget(InputType("dropdown", "Number of Car"), this,
+                                  nCarOptions);
   m_trainLabelImage = new QLabel(this);
 
   m_numberOfCar->setValue(12);
