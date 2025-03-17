@@ -16,12 +16,16 @@
 class TrainParameterPage : public QWidget {
   Q_OBJECT
 
+signals:
+  void awDataChanged();
+
 public:
   explicit TrainParameterPage(QWidget *parent = nullptr,
                               TrainData *trainData = nullptr,
                               MassData *massData = nullptr,
                               LoadData *loadData = nullptr,
                               TrainSimulation *trainSimulation = nullptr);
+  double getAwData();
 
 private:
   QVBoxLayout *mainLayout;
@@ -68,6 +72,7 @@ private:
   void connectMassInputSignals();
   void connectPassengerInputSignals();
   void connectOutputMassInputSignals();
+  void connectAwDataInput();
   void updateMassCalculation();
   double calculateEmptyMass();
   double calculateLoadedMass();

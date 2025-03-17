@@ -12,6 +12,10 @@
 
 class RunningParameterPage : public QWidget {
   Q_OBJECT
+
+public slots:
+  void onAwChanged(double awIndex);
+
 public:
   explicit RunningParameterPage(QWidget *parent = nullptr,
                                 MovingData *movingData = nullptr,

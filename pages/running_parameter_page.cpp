@@ -85,3 +85,34 @@ void RunningParameterPage::setAccelerationValue() {
   movingData->acc_start = newAcceleration;
   movingData->decc_start = newDecceleration;
 }
+
+void RunningParameterPage::onAwChanged(double awIndex) {
+  double newVb1;
+  double newVp1;
+  int index = static_cast<int>(awIndex);
+  newVp1 = (index >= 0 && index < 5) ? (35 + (5 * index)) : 35;
+  // switch (static_cast<int>(awIndex)) {
+  // case 0:
+  //   newVp1 = 35;
+  //   break;
+  // case 1:
+  //   newVp1 = 40;
+  //   break;
+  // case 2:
+  //   newVp1 = 45;
+  //   break;
+  // case 3:
+  //   newVp1 = 50;
+  //   break;
+  // case 4:
+  //   newVp1 = 55;
+  //   break;
+  // default:
+  //   newVp1 = 35;
+  //   break;
+  // }
+  m_inputWidgets["Weakening Point 1 (Powering)"]->setValue(newVp1);
+  setParameterValue();
+  qDebug() << "AW Index: " << awIndex;
+  qDebug() << "Changed weakening point : " << movingData->v_p1;
+}
