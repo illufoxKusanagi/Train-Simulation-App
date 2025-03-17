@@ -265,6 +265,7 @@ void TrainParameterPage::setParameterValue() {
   massData->i_M = getParameterValue("Inertial Coefficient Motor");
   massData->i_T = getParameterValue("Inertial Coefficient Trailer");
   double tes = getParameterValue("Load Train (AW)");
+  qDebug() << "tes: " << tes;
 }
 
 void TrainParameterPage::setTypeValue() {
@@ -461,6 +462,12 @@ void TrainParameterPage::setDefaultCarValues() {
   QList<double> ten_passTrainValues = {100, 200, 200, 200, 0, 0};
   QList<double> eght_passTrainValues = {100, 200, 200, 200, 200, 0};
   QList<double> six_passTrainValues = {100, 200, 200, 200, 0, 0};
+
+  QList<double> aw0_passTrainValues = {0, 0, 0, 0, 0, 0};
+  QList<double> aw1_passTrainValues = {10, 20, 20, 20, 20, 20};
+  QList<double> aw2_passTrainValues = {20, 40, 40, 40, 40, 40};
+  QList<double> aw3_passTrainValues = {50, 100, 100, 100, 100, 100};
+  QList<double> aw4_passTrainValues = {100, 200, 200, 200, 200, 200};
 
   QList<QList<double>> m_trainValues = {
       twlv_typeTrainValues, ten_typeTrainValues, eght_typeTrainValues,

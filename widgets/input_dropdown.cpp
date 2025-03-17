@@ -1,7 +1,7 @@
 #include "input_dropdown.h"
 
 InputDropdown::InputDropdown(QWidget *parent, const QStringList options)
-    : QWidget(parent), m_dropdown(new QComboBox(this)) {
+    : QWidget(parent), m_dropdown(new QComboBox(this)), m_options(options) {
   connect(m_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           [this](int) { emit valueChanged(); });
   QHBoxLayout *layout = new QHBoxLayout(this);
@@ -42,6 +42,17 @@ void InputDropdown::setCurrentText(const QString &text) {
   m_dropdown->setCurrentText(text);
 }
 
+void InputDropdown::setValue() { m_dropdown->currentIndex(); }
+
 double InputDropdown::getValue() {
-  return m_dropdown->currentText().toDouble();
+  QRegularExpression regex("[A-Za-z]");
+  bool hasLetter = false;
+  for (const QString &option : m_options) {
+    if (regex.match(option).hasMatch()) {
+      hasLetter = true;
+      break;
+    }
+  }
+  return hasLetter ? m_dropdown->currentIndex()
+                   : m_dropdown->currentText().toDouble();
 }
