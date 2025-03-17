@@ -435,7 +435,7 @@ void TrainParameterPage::setupTrainsetSection(
         if (m_typeInputWidgets.contains(labels[i])) {
           m_typeInputWidgets[labels[i]]->setValue(carData[0][index][i]);
           m_massInputWidgets[labels[i]]->setValue(carData[1][index][i]);
-          m_passengerInputWidgets[labels[i]]->setValue(carData[2][index][i]);
+          // m_passengerInputWidgets[labels[i]]->setValue(carData[2][index][i]);
         }
       }
     }
@@ -447,7 +447,18 @@ void TrainParameterPage::setupTrainsetSection(
 
 void TrainParameterPage::connectAwDataInput() {
   connect(m_inputWidgets["Load Train (AW)"], &InputWidget::valueChanged, this,
-          &TrainParameterPage::awDataChanged);
+          [this]() {
+            int index =
+                static_cast<int>(m_inputWidgets["Load Train (AW)"]->getValue());
+            const QStringList labels = {"Tc", "M1", "M2", "T1", "T2", "T3"};
+            for (int i = 0; i < labels.size(); i++) {
+              if (m_passengerInputWidgets.contains(labels[i])) {
+                m_passengerInputWidgets[labels[i]]->setValue(
+                    m_carData[2][index][i]);
+              }
+            }
+            awDataChanged();
+          });
 }
 
 void TrainParameterPage::setDefaultCarValues() {
@@ -478,9 +489,12 @@ void TrainParameterPage::setDefaultCarValues() {
   QList<QList<double>> m_trainMasses = {
       twlv_massTrainValues, ten_massTrainValues, eght_massTrainValues,
       six_massTrainValues};
+  // QList<QList<double>> m_trainPassengers = {
+  //     twlv_passTrainValues, ten_passTrainValues, eght_passTrainValues,
+  //     six_passTrainValues};
   QList<QList<double>> m_trainPassengers = {
-      twlv_passTrainValues, ten_passTrainValues, eght_passTrainValues,
-      six_passTrainValues};
+      aw0_passTrainValues, aw1_passTrainValues, aw2_passTrainValues,
+      aw3_passTrainValues, aw4_passTrainValues};
   m_carData = {m_trainValues, m_trainMasses, m_trainPassengers};
 }
 
