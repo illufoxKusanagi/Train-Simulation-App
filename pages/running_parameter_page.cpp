@@ -9,8 +9,8 @@ RunningParameterPage::RunningParameterPage(QWidget *parent,
       resistanceData(resistanceData), movingData(movingData) {
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setContentsMargins(16, 16, 16, 16);
-  m_inputsLayout->setHorizontalSpacing(128);
-  m_inputsLayout->setVerticalSpacing(24);
+  m_inputsLayout->setHorizontalSpacing(64);
+  m_inputsLayout->setVerticalSpacing(64);
 
   createInputs();
   connectInputSignals();
@@ -19,26 +19,28 @@ RunningParameterPage::RunningParameterPage(QWidget *parent,
 }
 
 void RunningParameterPage::createInputs() {
-  QStringList labels = {
-      "Starting Resistance",
-      "Weakening Point 1 (Powering)",
-      "Acceleration",
-      "Weakening Point 2 (Powering)",
-      "Deceleration",
-      "Weakening Point 3 (Braking)",
-      "Difference Coasting Speed",
-      "Weakening Point 4 (Braking)",
-  };
-  QStringList unitLabels = {"",      "km/h", "m/s^2", "km/h",
-                            "m/s^2", "km/h", "km/h",  "km/h"};
-  QList<double> values = {39.2, 35, 1, 65, 1, 55, 5, 70};
+  QStringList labels = {"Starting Resistance",
+                        "Weakening Point 1 (Powering)",
+                        "Acceleration",
+                        "Weakening Point 2 (Powering)",
+                        "Deceleration",
+                        "Weakening Point 3 (Braking)",
+                        "Difference Coasting Speed",
+                        "Weakening Point 4 (Braking)",
+                        "Powering Gear"};
+  QStringList poweringOptions = {"P1", "P2", "P3", "P4", "P5", "P6", "P7"};
+  QStringList unitLabels = {"",     "km/h", "m/s^2", "km/h", "m/s^2",
+                            "km/h", "km/h", "km/h",  ""};
+  QList<double> values = {39.2, 35, 1, 65, 1, 55, 5, 70, 0};
 
   for (int i = 0; i < labels.size(); i++) {
-    InputWidget *inputWidget =
-        new InputWidget(InputType("field", labels[i], unitLabels[i]), this);
+    InputWidget *inputWidget = new InputWidget(
+        InputType(i == labels.size() - 1 ? "dropdown" : "field", labels[i],
+                  unitLabels[i]),
+        this, i == labels.size() - 1 ? poweringOptions : QStringList());
     inputWidget->setValue(values[i]);
     inputWidget->setFixedHeight(80);
-    m_inputsLayout->addWidget(inputWidget, i / 2, i % 2);
+    m_inputsLayout->addWidget(inputWidget, i / 3, i % 3);
     m_inputWidgets[labels[i]] = inputWidget;
   }
   setParameterValue();
@@ -54,12 +56,11 @@ double RunningParameterPage::getParameterValue(const QString &paramName) const {
 void RunningParameterPage::setParameterValue() {
   resistanceData->startRes = getParameterValue("Starting Resistance");
   movingData->v_p1 = getParameterValue("Weakening Point 1 (Powering)");
-  movingData->acc_start = getParameterValue("Acceleration");
   movingData->v_p2 = getParameterValue("Weakening Point 2 (Powering)");
-  movingData->decc_start = getParameterValue("Deceleration");
   movingData->v_b1 = getParameterValue("Weakening Point 3 (Braking)");
   movingData->v_diffCoast = getParameterValue("Difference Coasting Speed");
   movingData->v_b2 = getParameterValue("Weakening Point 4 (Braking)");
+  setAccelerationValue();
 }
 
 void RunningParameterPage::connectInputSignals() {
@@ -72,4 +73,15 @@ void RunningParameterPage::connectInputSignals() {
       double value = getParameterValue(paramName);
     });
   }
+}
+
+void RunningParameterPage::setAccelerationValue() {
+  double accelerationIndex = getParameterValue("Powering Gear");
+  double originalAcceleration = getParameterValue("Acceleration");
+  double originalDecceleration = getParameterValue("Deceleration");
+  double newAcceleration = originalAcceleration * ((accelerationIndex + 1) / 7);
+  double newDecceleration =
+      originalDecceleration * ((accelerationIndex + 1) / 7);
+  movingData->acc_start = newAcceleration;
+  movingData->decc_start = newDecceleration;
 }

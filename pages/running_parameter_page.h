@@ -29,6 +29,8 @@ private:
   double getParameterValue(const QString &paramName) const;
   void setParameterValue();
   void connectInputSignals();
+  void setAccelerationValue();
+  void setDecelerationValue();
 };
 
 #endif // RUNNINGPARAMETERWIDGET_H
