@@ -28,7 +28,7 @@ void RunningParameterPage::createInputs() {
                         "Difference Coasting Speed",
                         "Weakening Point 4 (Braking)",
                         "Powering Gear"};
-  QStringList poweringOptions = {"P7", "P6", "P5", "P4", "P3", "P2", "P1"};
+  QStringList poweringOptions = {"P1", "P2", "P3", "P4", "P5", "P6", "P7"};
   QStringList unitLabels = {"",     "km/h", "m/s^2", "km/h", "m/s^2",
                             "km/h", "km/h", "km/h",  ""};
   QList<double> values = {39.2, 35, 1, 65, 1, 55, 5, 70, 0};
@@ -76,9 +76,9 @@ void RunningParameterPage::connectInputSignals() {
 }
 
 void RunningParameterPage::setAccelerationValue() {
-  int accelerationIndex = getParameterValue("Powering Gear");
+  double accelerationIndex = getParameterValue("Powering Gear");
   double originalAcceleration = getParameterValue("Acceleration");
-  double originalDecceleration = getParameterValue("Decceleration");
+  double originalDecceleration = getParameterValue("Deceleration");
   double newAcceleration = originalAcceleration * ((accelerationIndex + 1) / 7);
   double newDecceleration =
       originalDecceleration * ((accelerationIndex + 1) / 7);
