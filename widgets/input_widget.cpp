@@ -1,6 +1,7 @@
 #include "input_widget.h"
 
-InputWidget::InputWidget(const InputType &inputType, QWidget *parent)
+InputWidget::InputWidget(const InputType &inputType, QWidget *parent,
+                         QStringList options)
     : QWidget(parent), m_inputField(nullptr), m_inputUpload(nullptr),
       m_inputDropdown(nullptr), m_inputInvalid(nullptr) {
   layout = new QVBoxLayout(this);
@@ -18,7 +19,7 @@ InputWidget::InputWidget(const InputType &inputType, QWidget *parent)
   if (inputType.type == "field") {
     buildInputField(inputType);
   } else if (inputType.type == "dropdown") {
-    m_inputDropdown = new InputDropdown(this);
+    m_inputDropdown = new InputDropdown(this, options);
     // m_inputDropdown->setSizePolicy(QSizePolicy::Expanding,
     // QSizePolicy::Fixed);
     connect(m_inputDropdown, &InputDropdown::valueChanged, this, [this]() {
