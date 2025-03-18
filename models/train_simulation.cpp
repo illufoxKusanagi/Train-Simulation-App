@@ -430,7 +430,7 @@ void TrainSimulation::simulateStaticTrainMovement() {
     energyData->curr_vvvf = calculateVvvfCurrent();
     energyData->e_motor += calculateEnergyConsumption(i);
     energyData->e_pow += calculateEnergyOfPowering(i);
-    energyData->e_reg += calculateEnergyRegeneration(i);
+    // energyData->e_reg += calculateEnergyRegeneration(i);
     energyData->e_aps += calculateEnergyOfAps(i);
     // move it after calculate start res
     addSimulationDatas(i, time, phase);

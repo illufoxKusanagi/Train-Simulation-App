@@ -52,6 +52,8 @@ void ChartWidget::updateChart() {
       setupDynamicSpeedChart();
     } else if (m_chartTitle == "Dynamic Traction Effort") {
       setupDynamicTractionChart();
+    } else if (m_chartTitle == "Dynamic Energy") {
+      setupDynamicEnergyChart();
     }
     setupAxis();
   }
@@ -80,6 +82,8 @@ void ChartWidget::updateStaticChart() {
       setupStaticSpeedChart();
     } else if (m_chartTitle == "Static Traction Effort") {
       setupStaticTractionChart();
+    } else if (m_chartTitle == "Static Energy") {
+      setupStaticEnergyChart();
     }
 
     setupAxis();
@@ -356,21 +360,65 @@ void ChartWidget::setupStaticTractionChart() {
 void ChartWidget::setupStaticTrackChart() {}
 
 void ChartWidget::setupDynamicEnergyChart() {
-  QLineSeries *energyMotor = new QLineSeries();
-  QLineSeries *energyPowering = new QLineSeries();
-  QLineSeries *energyRegen = new QLineSeries();
-  QLineSeries *energyAps = new QLineSeries();
-  energyMotor->setName("Dynamic Energy Motor");
-  energyPowering->setName("Dynamic Energy Powering");
-  energyRegen->setName("Dynamic Energy Regen");
-  energyAps->setName("Dynamic Energy APS");
-  energyMotor->setPen(QPen(QColor(0, 114, 206), 2));
-  energyPowering->setPen(QPen(QColor(255, 76, 76), 2));
-  energyRegen->setPen(QPen(QColor(0, 114, 206), 2));
-  energyAps->setPen(QPen(QColor(255, 76, 76), 2));
+  QLineSeries *energyMotorSeries = new QLineSeries();
+  QLineSeries *energyPoweringSeries = new QLineSeries();
+  QLineSeries *energyRegenSeries = new QLineSeries();
+  QLineSeries *energyApsSeries = new QLineSeries();
+  energyMotorSeries->setName("Dynamic Energy Motor");
+  energyPoweringSeries->setName("Dynamic Energy Powering");
+  energyRegenSeries->setName("Dynamic Energy Regen");
+  energyApsSeries->setName("Dynamic Energy APS");
+  energyMotorSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  energyPoweringSeries->setPen(QPen(QColor(255, 76, 76), 2));
+  energyApsSeries->setPen(QPen(QColor(255, 76, 76), 2));
+  energyRegenSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  const auto &energyMotorData =
+      m_trainSimulation->simulationDatas.energyConsumptions;
+  const auto &energyPoweringData =
+      m_trainSimulation->simulationDatas.energyPowerings;
+  const auto &energyRegenData =
+      m_trainSimulation->simulationDatas.energyRegenerations;
+  const auto &energyApsData = m_trainSimulation->simulationDatas.energyAps;
+  const auto &times = m_trainSimulation->simulationDatas.timeTotal;
+  for (int i = 0; i < energyMotorData.size() && i < energyPoweringData.size();
+       i++) {
+    energyMotorSeries->append(times[i], energyMotorData[i]);
+    energyPoweringSeries->append(times[i], energyPoweringData[i]);
+    energyRegenSeries->append(times[i], energyRegenData[i]);
+    energyApsSeries->append(times[i], energyApsData[i]);
+  }
+  m_chart->addSeries(energyMotorSeries);
+  m_chart->addSeries(energyPoweringSeries);
+  m_chart->addSeries(energyRegenSeries);
+  m_chart->addSeries(energyApsSeries);
 }
 
-void ChartWidget::setupStaticEnergyChart() {}
+void ChartWidget::setupStaticEnergyChart() {
+  QLineSeries *energyMotorSeries = new QLineSeries();
+  QLineSeries *energyPoweringSeries = new QLineSeries();
+  QLineSeries *energyApsSeries = new QLineSeries();
+  energyMotorSeries->setName("Static Energy Motor");
+  energyPoweringSeries->setName("Static Energy Powering");
+  energyApsSeries->setName("Static Energy APS");
+  energyMotorSeries->setPen(QPen(Colors::Primary500, 2));
+  energyPoweringSeries->setPen(QPen(Colors::Secondary500, 2));
+  energyApsSeries->setPen(QPen(Colors::Warning500, 2));
+  const auto &energyMotorData =
+      m_trainSimulation->simulationDatas.energyConsumptions;
+  const auto &energyPoweringData =
+      m_trainSimulation->simulationDatas.energyPowerings;
+  const auto &energyApsData = m_trainSimulation->simulationDatas.energyAps;
+  const auto &times = m_trainSimulation->simulationDatas.timeTotal;
+  for (int i = 0; i < energyMotorData.size() && i < energyPoweringData.size();
+       i++) {
+    energyMotorSeries->append(times[i], energyMotorData[i]);
+    energyPoweringSeries->append(times[i], energyPoweringData[i]);
+    energyApsSeries->append(times[i], energyApsData[i]);
+  }
+  m_chart->addSeries(energyMotorSeries);
+  m_chart->addSeries(energyPoweringSeries);
+  m_chart->addSeries(energyApsSeries);
+}
 
 void ChartWidget::setupAxis() {
   if (m_chart->series().size() > 0) {
