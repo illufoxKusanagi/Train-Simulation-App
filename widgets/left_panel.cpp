@@ -75,7 +75,7 @@ void LeftPanel::createRunButton() {
           [this, runButton, runStaticButton]() {
             QFuture<void> future = QtConcurrent::run(
                 [this]() { m_trainSimulation->simulateStaticTrainMovement(); });
-            updateButtonState(future, runButton, runStaticButton);
+            // updateButtonState(future, runButton, runStaticButton);
           });
   m_buttonLayout->addWidget(runButtonWidget);
 }

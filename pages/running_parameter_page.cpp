@@ -19,30 +19,49 @@ RunningParameterPage::RunningParameterPage(QWidget *parent,
 }
 
 void RunningParameterPage::createInputs() {
+  // QStringList labels = {"1", "2", "3", "4",  "5",  "6",
+  //                       "7", "8", "9", "10", "11", "12"};
   QStringList labels = {"Starting Resistance",
                         "Weakening Point 1 (Powering)",
-                        "Acceleration",
                         "Weakening Point 2 (Powering)",
-                        "Deceleration",
-                        "Weakening Point 3 (Braking)",
                         "Difference Coasting Speed",
+                        "Weakening Point 3 (Braking)",
                         "Weakening Point 4 (Braking)",
-                        "Powering Gear"};
+                        "Acceleration",
+                        "Powering Gear",
+                        "Final Acceleration",
+                        "Deceleration",
+                        "Decelerating Gear",
+                        "Final Deceleration"};
+  QStringList unitLabels = {"",      "km/h", "km/h",  "km/h",  "km/h", "km/h",
+                            "m/s^2", "",     "m/s^2", "m/s^2", "",     "m/s^2"};
   QStringList poweringOptions = {"P1", "P2", "P3", "P4", "P5", "P6", "P7"};
-  QStringList unitLabels = {"",     "km/h", "m/s^2", "km/h", "m/s^2",
-                            "km/h", "km/h", "km/h",  ""};
-  QList<double> values = {39.2, 35, 1, 65, 1, 55, 5, 70, 0};
+  QStringList deceleratingOptions = {"B1", "B2", "B3", "B4", "B5", "B6", "B7"};
+  QList<double> values = {39.2, 35, 65, 5, 55, 70, 1, 0, 0, 1, 0, 0};
 
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget = new InputWidget(
-        InputType(i == labels.size() - 1 ? "dropdown" : "field", labels[i],
-                  unitLabels[i]),
-        this, i == labels.size() - 1 ? poweringOptions : QStringList());
+        InputType(i == labels.size() - 2 || i == 7 ? "dropdown" : "field",
+                  labels[i], unitLabels[i]),
+        this,
+        (i == labels.size() - 2 || i == 7)
+            ? (i == 7 ? poweringOptions : deceleratingOptions)
+            : QStringList());
     inputWidget->setValue(values[i]);
     inputWidget->setFixedHeight(80);
     m_inputsLayout->addWidget(inputWidget, i / 3, i % 3);
     m_inputWidgets[labels[i]] = inputWidget;
   }
+  // InputWidget *finalAcceleration =
+  //     new InputWidget(InputType("field", "Final Acceleration", "m/s^2"),
+  //     this);
+  // InputWidget *finalDeceleration =
+  //     new InputWidget(InputType("field", "Final Deceleration", "m/s^2"),
+  //     this);
+  // m_inputWidgets["Final Acceleration"] = finalAcceleration;
+  // m_inputWidgets["Final Deceleration"] = finalDeceleration;
+  // m_inputsLayout->addWidget(finalAcceleration, 3, 1);
+  // m_inputsLayout->addWidget(finalDeceleration, 3, 2);
   setParameterValue();
 }
 
@@ -82,6 +101,8 @@ void RunningParameterPage::setAccelerationValue() {
   double newAcceleration = originalAcceleration * ((accelerationIndex + 1) / 7);
   double newDecceleration =
       originalDecceleration * ((accelerationIndex + 1) / 7);
+  m_inputWidgets["Final Acceleration"]->setValue(newAcceleration);
+  m_inputWidgets["Final Deceleration"]->setValue(newDecceleration);
   movingData->acc_start = newAcceleration;
   movingData->decc_start = newDecceleration;
 }
@@ -91,26 +112,6 @@ void RunningParameterPage::onAwChanged(double awIndex) {
   double newVp1;
   int index = static_cast<int>(awIndex);
   newVp1 = (index >= 0 && index < 5) ? (35 + (5 * index)) : 35;
-  // switch (static_cast<int>(awIndex)) {
-  // case 0:
-  //   newVp1 = 35;
-  //   break;
-  // case 1:
-  //   newVp1 = 40;
-  //   break;
-  // case 2:
-  //   newVp1 = 45;
-  //   break;
-  // case 3:
-  //   newVp1 = 50;
-  //   break;
-  // case 4:
-  //   newVp1 = 55;
-  //   break;
-  // default:
-  //   newVp1 = 35;
-  //   break;
-  // }
   m_inputWidgets["Weakening Point 1 (Powering)"]->setValue(newVp1);
   setParameterValue();
   qDebug() << "AW Index: " << awIndex;
