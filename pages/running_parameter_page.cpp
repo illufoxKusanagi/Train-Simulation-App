@@ -100,7 +100,6 @@ void RunningParameterPage::setDecelerationValue() {
       originalDecceleration * ((7 - decelerationIndex) / 7);
   m_inputWidgets["Final Deceleration"]->setValue(newDecceleration);
   movingData->decc_start = newDecceleration;
-  qDebug() << "deceleration index : " << decelerationIndex;
 }
 
 void RunningParameterPage::onAwChanged(double awIndex) {
@@ -110,6 +109,4 @@ void RunningParameterPage::onAwChanged(double awIndex) {
   newVp1 = (index >= 0 && index < 5) ? (35 + (5 * index)) : 35;
   m_inputWidgets["Weakening Point 1 (Powering)"]->setValue(newVp1);
   setParameterValue();
-  qDebug() << "AW Index: " << awIndex;
-  qDebug() << "Changed weakening point : " << movingData->v_p1;
 }
