@@ -12,6 +12,10 @@
 
 class RunningParameterPage : public QWidget {
   Q_OBJECT
+
+public slots:
+  void onAwChanged(double awIndex);
+
 public:
   explicit RunningParameterPage(QWidget *parent = nullptr,
                                 MovingData *movingData = nullptr,
@@ -29,6 +33,8 @@ private:
   double getParameterValue(const QString &paramName) const;
   void setParameterValue();
   void connectInputSignals();
+  void setAccelerationValue();
+  void setDecelerationValue();
 };
 
 #endif // RUNNINGPARAMETERWIDGET_H

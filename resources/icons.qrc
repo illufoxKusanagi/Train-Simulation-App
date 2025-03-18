@@ -37,5 +37,7 @@
         <file>icons/6-train.png</file>
         <file>icons/8-train.png</file>
         <file>icons/10-train.png</file>
+        <file>icons/energy.svg</file>
+        <file>icons/energy-disabled.svg</file>
     </qresource>
 </RCC>

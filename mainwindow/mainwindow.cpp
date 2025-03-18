@@ -22,11 +22,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 }
 
 void MainWindow::setupPages() {
-  const int PAGE_WIDTH = 960;
-  const int PAGE_HEIGHT = 732;
-  auto setupFixedSizePage = [this, PAGE_WIDTH, PAGE_HEIGHT](QWidget *page) {
-    page->setFixedSize(PAGE_WIDTH, PAGE_HEIGHT);
-    page->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  const int PAGE_HEIGHT = 720;
+  auto setupFixedSizePage = [this, PAGE_HEIGHT](QWidget *page) {
+    page->setFixedHeight(PAGE_HEIGHT);
+    page->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     stackedWidget->addWidget(page);
   };
   ConstantValuesPage *constantValuesPage = new ConstantValuesPage(this);
@@ -61,6 +60,16 @@ void MainWindow::setupPages() {
 
   TrainTrackPage *trainTrackPage = new TrainTrackPage(this, m_trainSimulation);
   setupFixedSizePage(trainTrackPage);
+
+  TrainConsumptionPage *trainConsumptionPage =
+      new TrainConsumptionPage(this, m_trainSimulation);
+  setupFixedSizePage(trainConsumptionPage);
+
+  connect(trainParameterPage, &TrainParameterPage::awDataChanged, this,
+          [this, trainParameterPage, runningParameterPage]() {
+            double awIndex = trainParameterPage->getAwData();
+            runningParameterPage->onAwChanged(awIndex);
+          });
 }
 
 void MainWindow::navigateToPage(int pageIndex) {

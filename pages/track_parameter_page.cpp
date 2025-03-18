@@ -8,7 +8,7 @@ TrackParameterPage::TrackParameterPage(QWidget *parent, MovingData *movingData,
       resistanceData(resistanceData), movingData(movingData) {
   mainLayout->setContentsMargins(16, 16, 16, 16);
   mainLayout->setAlignment(Qt::AlignCenter);
-  m_formLayout->setHorizontalSpacing(80);
+  m_formLayout->setHorizontalSpacing(128);
   m_formLayout->setVerticalSpacing(32);
   createInputs();
   mainLayout->addWidget(m_formContainer);
@@ -25,6 +25,7 @@ void TrackParameterPage::createInputs() {
     InputWidget *inputWidget =
         new InputWidget(InputType("field", labels[i], ""), this);
     inputWidget->setValue(values[i]);
+    inputWidget->setFixedHeight(80);
     m_formLayout->addWidget(inputWidget, i / 2, i % 2);
     m_inputWidgets[labels[i]] = inputWidget;
   }
