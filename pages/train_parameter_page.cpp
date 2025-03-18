@@ -55,7 +55,7 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
 
   QStringList unitLabels = {"", "", "", "", "mm", "kg", "", "ton", ""};
   QList<double> values = {1.05, 4, 1.1, 24, 860, 70.0, 3.0, 0.0, 0};
-  QStringList awOptions = {"AW0", "AW1", "AW2", "AW3", "AW4"};
+  QStringList awOptions = {"AW4", "AW3", "AW2", "AW1", "AW0"};
   QGridLayout *formLayout = new QGridLayout(firstPageWidget);
   formLayout->setAlignment(Qt::AlignCenter);
   formLayout->setContentsMargins(16, 16, 16, 16);
@@ -294,12 +294,6 @@ void TrainParameterPage::setPassengerValue() {
   loadData->n_PT3 = getPassengerParameterValue("T3");
 }
 
-// void TrainParameterPage::setOutputMassValue() {
-//   massData->mass_totalEmpty = m_trainSimulation->countMassEmptyCar();
-//   massData->mass_totalLoad = m_trainSimulation->countMassWithLoad();
-//   massData->mass_totalInertial = m_trainSimulation->countInertialMass();
-// }
-
 void TrainParameterPage::connectInputSignals() {
   for (auto it = m_inputWidgets.constBegin(); it != m_inputWidgets.constEnd();
        ++it) {
@@ -381,13 +375,6 @@ double TrainParameterPage::calculateLoadedMass() {
   return massData->mass_totalLoad;
 }
 
-// double TrainParameterPage::calculateInertialMass() {
-//   massData->mass_totalInertial =
-//       (loadData->load > 0) ? m_trainSimulation->countInertialMass()
-//                            : m_trainSimulation->countInertialMassInput();
-//   return massData->mass_totalInertial;
-// }
-
 double TrainParameterPage::calculateInertialMass() {
   double result;
   if (loadData->load > 0) {
@@ -435,7 +422,6 @@ void TrainParameterPage::setupTrainsetSection(
         if (m_typeInputWidgets.contains(labels[i])) {
           m_typeInputWidgets[labels[i]]->setValue(carData[0][index][i]);
           m_massInputWidgets[labels[i]]->setValue(carData[1][index][i]);
-          // m_passengerInputWidgets[labels[i]]->setValue(carData[2][index][i]);
         }
       }
     }
@@ -489,12 +475,9 @@ void TrainParameterPage::setDefaultCarValues() {
   QList<QList<double>> m_trainMasses = {
       twlv_massTrainValues, ten_massTrainValues, eght_massTrainValues,
       six_massTrainValues};
-  // QList<QList<double>> m_trainPassengers = {
-  //     twlv_passTrainValues, ten_passTrainValues, eght_passTrainValues,
-  //     six_passTrainValues};
   QList<QList<double>> m_trainPassengers = {
-      aw0_passTrainValues, aw1_passTrainValues, aw2_passTrainValues,
-      aw3_passTrainValues, aw4_passTrainValues};
+      aw4_passTrainValues, aw3_passTrainValues, aw2_passTrainValues,
+      aw1_passTrainValues, aw0_passTrainValues};
   m_carData = {m_trainValues, m_trainMasses, m_trainPassengers};
 }
 
