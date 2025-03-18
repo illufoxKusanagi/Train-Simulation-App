@@ -250,8 +250,8 @@ void ChartWidget::setupDynamicPowerChart() {
   QLineSeries *vvvfPowerSeries = new QLineSeries();
   catenaryPowerSeries->setName("Dynamic Catenary Power");
   vvvfPowerSeries->setName("Dynamic Max VVVF Power");
-  catenaryPowerSeries->setPen(QPen(QColor(0, 114, 206), 2));
-  vvvfPowerSeries->setPen(QPen(QColor(255, 76, 76), 2));
+  catenaryPowerSeries->setPen(QPen(Colors::Primary500, 2));
+  vvvfPowerSeries->setPen(QPen(Colors::Danger500, 2));
   const auto &times = m_trainSimulation->simulationDatas.timeTotal;
   const auto &catenaryPowers =
       m_trainSimulation->simulationDatas.catenaryPowers;
@@ -272,8 +272,8 @@ void ChartWidget::setupDynamicCurrentChart() {
   catenaryCurrentSeries->setName("Dynamic Catenary Current");
   vvvfCurrentSeries->setName("Dynamic VVVF Current");
 
-  catenaryCurrentSeries->setPen(QPen(QColor(0, 114, 206), 2));
-  vvvfCurrentSeries->setPen(QPen(QColor(255, 76, 76), 2));
+  catenaryCurrentSeries->setPen(QPen(Colors::Primary500, 2));
+  vvvfCurrentSeries->setPen(QPen(Colors::Danger500, 2));
 
   const auto &time = m_trainSimulation->simulationDatas.timeTotal;
   const auto &catenaryCurrents =
@@ -296,8 +296,8 @@ void ChartWidget::setupStaticPowerChart() {
   catenaryPowerSeries->setName("Static Catenary Power");
   vvvfPowerSeries->setName("Static VVVF Power");
 
-  catenaryPowerSeries->setPen(QPen(QColor(0, 114, 206), 2));
-  vvvfPowerSeries->setPen(QPen(QColor(255, 76, 76), 2));
+  catenaryPowerSeries->setPen(QPen(Colors::Primary500, 2));
+  vvvfPowerSeries->setPen(QPen(Colors::Danger500, 2));
 
   const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &catenaryPowers =
@@ -320,8 +320,8 @@ void ChartWidget::setupStaticCurrentChart() {
   catenaryCurrentSeries->setName("Static Catenary Current");
   vvvfCurrentSeries->setName("Static VVVF Current");
 
-  catenaryCurrentSeries->setPen(QPen(QColor(0, 114, 206), 2));
-  vvvfCurrentSeries->setPen(QPen(QColor(255, 76, 76), 2));
+  catenaryCurrentSeries->setPen(QPen(Colors::Primary500, 2));
+  vvvfCurrentSeries->setPen(QPen(Colors::Danger500, 2));
 
   const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &catenaryCurrents =
@@ -340,7 +340,7 @@ void ChartWidget::setupStaticCurrentChart() {
 void ChartWidget::setupStaticSpeedChart() {
   QLineSeries *speedSeries = new QLineSeries();
   speedSeries->setName("Static Speed");
-  speedSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  speedSeries->setPen(QPen(Colors::Primary500, 2));
   const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &distance = m_trainSimulation->simulationDatas.distanceTotal;
   for (int i = 0; i < distance.size() && i < speeds.size(); ++i) {
@@ -352,7 +352,7 @@ void ChartWidget::setupStaticSpeedChart() {
 void ChartWidget::setupStaticTractionChart() {
   QLineSeries *speedSeries = new QLineSeries();
   speedSeries->setName("Static F motor");
-  speedSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  speedSeries->setPen(QPen(Colors::Primary500, 2));
   const auto &speed = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &resistance = m_trainSimulation->simulationDatas.tractionEfforts;
   for (int i = 0; i < speed.size() && i < resistance.size(); ++i) {
@@ -371,10 +371,10 @@ void ChartWidget::setupDynamicEnergyChart() {
   energyPoweringSeries->setName("Dynamic Energy Powering");
   energyRegenSeries->setName("Dynamic Energy Regen");
   energyApsSeries->setName("Dynamic Energy APS");
-  energyMotorSeries->setPen(QPen(QColor(0, 114, 206), 2));
-  energyPoweringSeries->setPen(QPen(QColor(255, 76, 76), 2));
-  energyApsSeries->setPen(QPen(QColor(255, 76, 76), 2));
-  energyRegenSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  energyMotorSeries->setPen(QPen(Colors::Primary500, 2));
+  energyPoweringSeries->setPen(QPen(Colors::Danger500, 2));
+  energyApsSeries->setPen(QPen(Colors::Warning600, 2));
+  energyRegenSeries->setPen(QPen(Colors::Secondary400, 2));
   const auto &energyMotorData =
       m_trainSimulation->simulationDatas.energyConsumptions;
   const auto &energyPoweringData =
@@ -404,8 +404,8 @@ void ChartWidget::setupStaticEnergyChart() {
   energyPoweringSeries->setName("Static Energy Powering");
   energyApsSeries->setName("Static Energy APS");
   energyMotorSeries->setPen(QPen(Colors::Primary500, 2));
-  energyPoweringSeries->setPen(QPen(Colors::Secondary500, 2));
-  energyApsSeries->setPen(QPen(Colors::Warning500, 2));
+  energyPoweringSeries->setPen(QPen(Colors::Danger500, 2));
+  energyApsSeries->setPen(QPen(Colors::Warning600, 2));
   const auto &energyMotorData =
       m_trainSimulation->simulationDatas.energyConsumptions;
   const auto &energyPoweringData =
