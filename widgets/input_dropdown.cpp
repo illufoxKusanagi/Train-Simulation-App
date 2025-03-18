@@ -5,7 +5,6 @@ InputDropdown::InputDropdown(QWidget *parent, const QStringList options)
   connect(m_dropdown, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
           [this](int) { emit valueChanged(); });
   QHBoxLayout *layout = new QHBoxLayout(this);
-  // QStringList options = {"12", "10", "8", "6"};
   layout->setContentsMargins(0, 0, 0, 0);
   m_dropdown->addItems(options);
   m_dropdown->setFixedSize(128, 32);

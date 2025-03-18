@@ -13,9 +13,7 @@ TrainSimulation::TrainSimulation(QObject *parent, TrainData *trainData,
       loadData(loadData), resistanceData(resistanceData),
       movingData(movingData), trainMotorData(trainMotorData),
       efficiencyData(efficiencyData), powerData(powerData),
-      energyData(energyData)
-
-{
+      energyData(energyData) {
   initData();
   connect(this, &TrainSimulation::simulationCompleted, this,
           &TrainSimulation::resetSimulation);
@@ -275,6 +273,22 @@ double TrainSimulation::calculateTotalDistance(int i) {
             pow(simulationDatas.time[i], 2));
 }
 
+double TrainSimulation::calculateEnergyConsumption(int i) {
+  return powerData->p_motorOut / 3600 * simulationDatas.time[i];
+}
+
+double TrainSimulation::calculateEnergyOfPowering(int i) {
+  return powerData->p_catenary / 3600 * simulationDatas.time[i];
+}
+
+double TrainSimulation::calculateEnergyRegeneration(int i) {
+  return powerData->p_catenary / 3600 * simulationDatas.time[i];
+}
+
+double TrainSimulation::calculateEnergyOfAps(int i) {
+  return powerData->p_aps / 3600 * simulationDatas.time[i];
+}
+
 void TrainSimulation::simulateDynamicTrainMovement() {
   clearSimulationDatas();
   initData();
@@ -396,14 +410,6 @@ void TrainSimulation::simulateStaticTrainMovement() {
     // can be deleted
     // can be deleted
 
-    powerData->p_wheel = calculatePowerWheel();
-    powerData->p_motorOut = calculateOutputTractionMotor();
-    powerData->p_motorIn = calculateInputTractionMotor();
-    powerData->p_vvvfIn = calculatePowerInputOfVvvf();
-    powerData->p_catenary = calculatePowerOfCatenary();
-    trainMotorData->tm_rpm = calculateRpm();
-    energyData->curr_catenary = calculateCatenaryCurrent();
-    energyData->curr_vvvf = calculateVvvfCurrent();
     movingData->time = abs(calculateTotalTime(i));
     movingData->time_total += movingData->time;
 
@@ -414,6 +420,18 @@ void TrainSimulation::simulateStaticTrainMovement() {
     movingData->x = abs(calculateTotalDistance(i));
     movingData->x_total += movingData->x;
 
+    powerData->p_wheel = calculatePowerWheel();
+    powerData->p_motorOut = calculateOutputTractionMotor();
+    powerData->p_motorIn = calculateInputTractionMotor();
+    powerData->p_vvvfIn = calculatePowerInputOfVvvf();
+    powerData->p_catenary = calculatePowerOfCatenary();
+    trainMotorData->tm_rpm = calculateRpm();
+    energyData->curr_catenary = calculateCatenaryCurrent();
+    energyData->curr_vvvf = calculateVvvfCurrent();
+    energyData->e_motor += calculateEnergyConsumption(i);
+    energyData->e_pow += calculateEnergyOfPowering(i);
+    // energyData->e_reg += calculateEnergyRegeneration(i);
+    energyData->e_aps += calculateEnergyOfAps(i);
     // move it after calculate start res
     addSimulationDatas(i, time, phase);
     // move it after calculate start res
@@ -585,6 +603,114 @@ bool TrainSimulation::saveTrainTrackData() {
   return true;
 }
 
+bool TrainSimulation::saveEnergyConsumptionData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "Energy Consumption (kW),Energy Powering(kW),Energy Regen "
+             "(kW),Energy of APS (kW)\n ";
+  int maxSize = std::min({
+      simulationDatas.energyConsumptions.size(),
+      simulationDatas.energyPowerings.size(),
+      simulationDatas.energyAps.size(),
+  });
+  if (simulationDatas.energyRegenerations.size() < maxSize) {
+    simulationDatas.energyRegenerations.resize(maxSize);
+  }
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.energyConsumptions[i] << ","
+            << simulationDatas.energyPowerings[i] << ","
+            << (simulationDatas.energyRegenerations.isEmpty()
+                    ? 0
+                    : simulationDatas.energyRegenerations[i])
+            << "," << simulationDatas.energyAps[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
+bool TrainSimulation::saveEnergyPoweringData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "Simulation Time(s),Total "
+             "Time(s),Distance(m),TotalDistance(m),Speed(km/h)\n ";
+  int maxSize = std::min({
+      simulationDatas.time.size(),
+      simulationDatas.timeTotal.size(),
+      simulationDatas.distance.size(),
+      simulationDatas.distanceTotal.size(),
+  });
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.time[i] << "," << simulationDatas.timeTotal[i]
+            << "," << simulationDatas.distance[i] << ","
+            << simulationDatas.distanceTotal[i] << ","
+            << simulationDatas.trainSpeeds[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
+bool TrainSimulation::saveEnergyRegenData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "Simulation Time(s),Total "
+             "Time(s),Distance(m),TotalDistance(m),Speed(km/h)\n ";
+  int maxSize = std::min({
+      simulationDatas.time.size(),
+      simulationDatas.timeTotal.size(),
+      simulationDatas.distance.size(),
+      simulationDatas.distanceTotal.size(),
+  });
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.time[i] << "," << simulationDatas.timeTotal[i]
+            << "," << simulationDatas.distance[i] << ","
+            << simulationDatas.distanceTotal[i] << ","
+            << simulationDatas.trainSpeeds[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
+bool TrainSimulation::saveEnergyApsData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "Simulation Time(s),Total "
+             "Time(s),Distance(m),TotalDistance(m),Speed(km/h)\n ";
+  int maxSize = std::min({
+      simulationDatas.time.size(),
+      simulationDatas.timeTotal.size(),
+      simulationDatas.distance.size(),
+      simulationDatas.distanceTotal.size(),
+  });
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.time[i] << "," << simulationDatas.timeTotal[i]
+            << "," << simulationDatas.distance[i] << ","
+            << simulationDatas.distanceTotal[i] << ","
+            << simulationDatas.trainSpeeds[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
 void TrainSimulation::printSimulationDatas() {
   int maxSize = std::min({simulationDatas.trainSpeeds.size(),
                           simulationDatas.vvvfPowers.size(),
@@ -606,7 +732,8 @@ void TrainSimulation::printSimulationDatas() {
       << "Phase,Iteration,Time,Total "
          "time,Distance,TotalDistance,Speed,Acceleration,F Motor,F Res,F "
          "Total,F Motor/TM,F Res/TM,Torque,RPM,P_motor Out,P_motor In,P_vvvf, "
-         "P_catenary,Catenary current,VVVF current\n";
+         "P_catenary,Catenary current,VVVF current,Energy Consumption,Energy "
+         "of Powering,Energy Regen,Energy of APS\n";
   for (int i = 0; i < maxSize; i++) {
     outFile << simulationDatas.phase[i].toStdString() << "," << i + 1 << ","
             << simulationDatas.time[i] << "," << simulationDatas.timeTotal[i]
@@ -627,7 +754,11 @@ void TrainSimulation::printSimulationDatas() {
             << simulationDatas.vvvfPowers[i] << ","
             << simulationDatas.catenaryPowers[i] << ","
             << simulationDatas.catenaryCurrents[i] << ","
-            << simulationDatas.vvvfCurrents[i] << "\n";
+            << simulationDatas.vvvfCurrents[i] << ","
+            << simulationDatas.energyConsumptions[i] << ","
+            << simulationDatas.energyPowerings[i] << ","
+            << simulationDatas.energyRegenerations[i] << ","
+            << simulationDatas.energyAps[i] << "\n";
   }
   outFile.close();
   QMessageBox::information(nullptr, "Success", "Data saved successfully!");
@@ -658,6 +789,10 @@ void TrainSimulation::addSimulationDatas(int i, double time, QString phase) {
   simulationDatas.powerMotorOut.append(powerData->p_motorOut);
   simulationDatas.powerMotorIn.append(powerData->p_motorIn);
   // simulationDatas.accelerations.append(movingData->acc);
+  simulationDatas.energyConsumptions.append(energyData->e_motor);
+  simulationDatas.energyPowerings.append(energyData->e_pow);
+  simulationDatas.energyRegenerations.append(energyData->e_reg);
+  simulationDatas.energyAps.append(energyData->e_aps);
 }
 
 void TrainSimulation::clearSimulationDatas() {

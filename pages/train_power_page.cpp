@@ -7,7 +7,6 @@ TrainPowerPage::TrainPowerPage(QWidget *parent,
   mainLayout->setAlignment(Qt::AlignCenter);
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &TrainPowerPage::setParameterValue);
-  // updateCharts();
   connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
           &TrainPowerPage::setStaticParameterValue);
   stackedWidget = new QStackedWidget(this);

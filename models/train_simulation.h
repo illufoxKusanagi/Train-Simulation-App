@@ -68,6 +68,10 @@ public:
     QList<double> currentCatenary;
     QList<double> currentVvvf;
     QList<double> accelerations;
+    QList<double> energyConsumptions;
+    QList<double> energyPowerings;
+    QList<double> energyRegenerations;
+    QList<double> energyAps;
   } simulationDatas;
 
   double countMassEmptyCar();
@@ -80,6 +84,10 @@ public:
   bool saveTractionEffortData();
   bool saveTrainPowerData();
   bool saveTrainTrackData();
+  bool saveEnergyConsumptionData();
+  bool saveEnergyPoweringData();
+  bool saveEnergyRegenData();
+  bool saveEnergyApsData();
   void printSimulationDatas();
 
   double findMaxSpeed();
@@ -140,9 +148,9 @@ private:
   void deleteCsvFile(QString csvPath);
   void readCsvFile(const QString path, QStringList &values);
 
-  double calculateEnergyConsumption();
-  double calculateEnergyOfPowering();
-  double calculateEnergyRegeneration();
-  double calculateEnergyOfAps();
+  double calculateEnergyConsumption(int i);
+  double calculateEnergyOfPowering(int i);
+  double calculateEnergyRegeneration(int i);
+  double calculateEnergyOfAps(int i);
 };
 #endif // TRAIN_SIMULATION_H
