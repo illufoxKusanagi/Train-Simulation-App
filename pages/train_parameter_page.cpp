@@ -422,7 +422,6 @@ void TrainParameterPage::setupTrainsetSection(
         if (m_typeInputWidgets.contains(labels[i])) {
           m_typeInputWidgets[labels[i]]->setValue(carData[0][index][i]);
           m_massInputWidgets[labels[i]]->setValue(carData[1][index][i]);
-          // m_passengerInputWidgets[labels[i]]->setValue(carData[2][index][i]);
         }
       }
     }
