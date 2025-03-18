@@ -28,7 +28,7 @@ TrainParameterPage::TrainParameterPage(QWidget *parent, TrainData *trainData,
                   "}";
   setStyleSheet("position: relative;");
   mainLayout->setAlignment(Qt::AlignVCenter);
-  mainLayout->setContentsMargins(32, 16, 32, 16);
+  mainLayout->setContentsMargins(8, 8, 8, 8);
   mainLayout->setSpacing(0);
   setLayout(mainLayout);
   QWidget *firstPageWidget = new QWidget(this);
@@ -98,7 +98,7 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
 
   QWidget *secondPageContainer = new QWidget(this);
   QHBoxLayout *secondPageHLayout = new QHBoxLayout(secondPageContainer);
-  secondPageHLayout->setSpacing(16);
+  secondPageHLayout->setSpacing(8);
   QGroupBox *typeLayout = createTypeLayout(labels, trainValues);
   secondPageHLayout->addWidget(typeLayout);
   QGroupBox *massLayout = createMassLayout(labels, massValues);

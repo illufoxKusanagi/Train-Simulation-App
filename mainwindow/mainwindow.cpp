@@ -22,11 +22,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 }
 
 void MainWindow::setupPages() {
-  const int PAGE_WIDTH = 1024;
-  const int PAGE_HEIGHT = 732;
-  auto setupFixedSizePage = [this, PAGE_WIDTH, PAGE_HEIGHT](QWidget *page) {
-    page->setFixedSize(PAGE_WIDTH, PAGE_HEIGHT);
-    page->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  const int PAGE_HEIGHT = 720;
+  auto setupFixedSizePage = [this, PAGE_HEIGHT](QWidget *page) {
+    page->setFixedHeight(PAGE_HEIGHT);
+    page->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     stackedWidget->addWidget(page);
   };
   ConstantValuesPage *constantValuesPage = new ConstantValuesPage(this);
