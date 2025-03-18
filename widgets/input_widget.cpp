@@ -20,8 +20,6 @@ InputWidget::InputWidget(const InputType &inputType, QWidget *parent,
     buildInputField(inputType);
   } else if (inputType.type == "dropdown") {
     m_inputDropdown = new InputDropdown(this, options);
-    // m_inputDropdown->setSizePolicy(QSizePolicy::Expanding,
-    // QSizePolicy::Fixed);
     connect(m_inputDropdown, &InputDropdown::valueChanged, this, [this]() {
       m_inputValue = m_inputDropdown->getValue();
       emit valueChanged();

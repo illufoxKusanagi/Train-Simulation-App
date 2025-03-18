@@ -21,8 +21,6 @@ void ChartWidget::addSeries(const QString &name, const QColor &color) {
     m_seriesColors[name] = color;
   }
 }
-// TODO : tambahin onStaticSimulationCompleted, lalu pusah updateChart() dan
-// updateStaticChart() untuk handle masing-masing simulasi
 
 void ChartWidget::onSimulationCompleted() { updateChart(); }
 
@@ -33,7 +31,6 @@ void ChartWidget::updateChart() {
     QList<QAbstractSeries *> seriesToRemove;
     for (QAbstractSeries *series : m_chart->series()) {
       QString name = series->name();
-      qDebug() << "Chart name : " << name;
       if (name.contains("Dynamic"))
         seriesToRemove.append(series);
       else if (name.contains("Distance"))
@@ -45,7 +42,6 @@ void ChartWidget::updateChart() {
     for (QAbstractSeries *series : seriesToRemove) {
       m_chart->removeSeries(series);
     }
-    // m_chart->removeAllSeries();
     if (m_chartTitle == "Dynamic Power") {
       setupDynamicPowerChart();
     } else if (m_chartTitle == "Dynamic Current") {
@@ -58,35 +54,6 @@ void ChartWidget::updateChart() {
       setupDynamicTractionChart();
     }
     setupAxis();
-    // if (m_chart->series().size() > 0) {
-    //   m_chart->createDefaultAxes();
-
-    //   // Set proper axis labels
-    //   QValueAxis *axisX =
-    //       qobject_cast<QValueAxis *>(m_chart->axes(Qt::Horizontal).first());
-    //   QValueAxis *axisY =
-    //       qobject_cast<QValueAxis *>(m_chart->axes(Qt::Vertical).first());
-
-    //   if (axisX && axisY) {
-    //     // For X axis
-    //     if (m_chartTitle.contains("Dynamic"))
-    //       axisX->setTitleText("Time (s)");
-    //     else if (m_chartTitle.contains("Static"))
-    //       axisX->setTitleText("Speed (km/h)");
-
-    //     // For Y axis
-    //     if (m_chartTitle.contains("Power"))
-    //       axisY->setTitleText("Power (kW)");
-    //     else if (m_chartTitle.contains("Current"))
-    //       axisY->setTitleText("Current (A)");
-    //     else if (m_chartTitle.contains("Speed"))
-    //       axisY->setTitleText("Speed (km/h)");
-    //     else if (m_chartTitle.contains("Traction Effort"))
-    //       axisY->setTitleText("Traction Effort (kN)");
-    //     else if (m_chartTitle.contains("Distance"))
-    //       axisY->setTitleText("Distance (m)");
-    //   }
-    // }
   }
 }
 
@@ -105,7 +72,6 @@ void ChartWidget::updateStaticChart() {
     for (QAbstractSeries *series : seriesToRemove) {
       m_chart->removeSeries(series);
     }
-    // m_chart->removeAllSeries();
     if (m_chartTitle == "Static Power") {
       setupStaticPowerChart();
     } else if (m_chartTitle == "Static Current") {
@@ -204,7 +170,6 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
         saveSuccessful = m_trainSimulation->saveTractionEffortData();
       else if (m_chartTitle == "Dynamic Speed" ||
                m_chartTitle == "Static Speed")
-        // else if (m_chartTitle == "Train Speed")
         saveSuccessful = m_trainSimulation->saveTrainSpeedData();
       // else if (m_chartTitle == "Dynamic Track" ||
       //          m_chartTitle == "Static Track")
