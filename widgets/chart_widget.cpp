@@ -355,6 +355,23 @@ void ChartWidget::setupStaticTractionChart() {
 }
 void ChartWidget::setupStaticTrackChart() {}
 
+void ChartWidget::setupDynamicEnergyChart() {
+  QLineSeries *energyMotor = new QLineSeries();
+  QLineSeries *energyPowering = new QLineSeries();
+  QLineSeries *energyRegen = new QLineSeries();
+  QLineSeries *energyAps = new QLineSeries();
+  energyMotor->setName("Dynamic Energy Motor");
+  energyPowering->setName("Dynamic Energy Powering");
+  energyRegen->setName("Dynamic Energy Regen");
+  energyAps->setName("Dynamic Energy APS");
+  energyMotor->setPen(QPen(QColor(0, 114, 206), 2));
+  energyPowering->setPen(QPen(QColor(255, 76, 76), 2));
+  energyRegen->setPen(QPen(QColor(0, 114, 206), 2));
+  energyAps->setPen(QPen(QColor(255, 76, 76), 2));
+}
+
+void ChartWidget::setupStaticEnergyChart() {}
+
 void ChartWidget::setupAxis() {
   if (m_chart->series().size() > 0) {
     m_chart->createDefaultAxes();
@@ -381,17 +398,10 @@ void ChartWidget::setupAxis() {
         axisY->setTitleText("Speed (km/h)");
       else if (m_chartTitle.contains("Traction Effort"))
         axisY->setTitleText("Traction Effort (kN)");
-
-      if (m_chartTitle.contains("Power"))
-        axisY->setTitleText("Power (kW)");
-      else if (m_chartTitle.contains("Current"))
-        axisY->setTitleText("Current (A)");
-      else if (m_chartTitle.contains("Speed"))
-        axisY->setTitleText("Speed (km/h)");
-      else if (m_chartTitle.contains("Traction Effort"))
-        axisY->setTitleText("Traction Effort (kN)");
       else if (m_chartTitle.contains("Distance"))
         axisY->setTitleText("Distance (m)");
+      else if (m_chartTitle.contains("Energy"))
+        axisY->setTitleText("Energy (kW)");
     }
   }
 }
