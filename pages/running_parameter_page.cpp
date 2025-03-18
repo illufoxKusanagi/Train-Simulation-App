@@ -19,8 +19,6 @@ RunningParameterPage::RunningParameterPage(QWidget *parent,
 }
 
 void RunningParameterPage::createInputs() {
-  // QStringList labels = {"1", "2", "3", "4",  "5",  "6",
-  //                       "7", "8", "9", "10", "11", "12"};
   QStringList labels = {"Starting Resistance",
                         "Weakening Point 1 (Powering)",
                         "Weakening Point 2 (Powering)",
