@@ -603,6 +603,114 @@ bool TrainSimulation::saveTrainTrackData() {
   return true;
 }
 
+bool TrainSimulation::saveEnergyConsumptionData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "Energy Consumption (kW),Energy Powering(kW),Energy Regen "
+             "(kW),Energy of APS (kW)\n ";
+  int maxSize = std::min({
+      simulationDatas.energyConsumptions.size(),
+      simulationDatas.energyPowerings.size(),
+      simulationDatas.energyAps.size(),
+  });
+  if (simulationDatas.energyRegenerations.size() < maxSize) {
+    simulationDatas.energyRegenerations.resize(maxSize);
+  }
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.energyConsumptions[i] << ","
+            << simulationDatas.energyPowerings[i] << ","
+            << (simulationDatas.energyRegenerations.isEmpty()
+                    ? 0
+                    : simulationDatas.energyRegenerations[i])
+            << "," << simulationDatas.energyAps[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
+bool TrainSimulation::saveEnergyPoweringData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "Simulation Time(s),Total "
+             "Time(s),Distance(m),TotalDistance(m),Speed(km/h)\n ";
+  int maxSize = std::min({
+      simulationDatas.time.size(),
+      simulationDatas.timeTotal.size(),
+      simulationDatas.distance.size(),
+      simulationDatas.distanceTotal.size(),
+  });
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.time[i] << "," << simulationDatas.timeTotal[i]
+            << "," << simulationDatas.distance[i] << ","
+            << simulationDatas.distanceTotal[i] << ","
+            << simulationDatas.trainSpeeds[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
+bool TrainSimulation::saveEnergyRegenData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "Simulation Time(s),Total "
+             "Time(s),Distance(m),TotalDistance(m),Speed(km/h)\n ";
+  int maxSize = std::min({
+      simulationDatas.time.size(),
+      simulationDatas.timeTotal.size(),
+      simulationDatas.distance.size(),
+      simulationDatas.distanceTotal.size(),
+  });
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.time[i] << "," << simulationDatas.timeTotal[i]
+            << "," << simulationDatas.distance[i] << ","
+            << simulationDatas.distanceTotal[i] << ","
+            << simulationDatas.trainSpeeds[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
+bool TrainSimulation::saveEnergyApsData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "Simulation Time(s),Total "
+             "Time(s),Distance(m),TotalDistance(m),Speed(km/h)\n ";
+  int maxSize = std::min({
+      simulationDatas.time.size(),
+      simulationDatas.timeTotal.size(),
+      simulationDatas.distance.size(),
+      simulationDatas.distanceTotal.size(),
+  });
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.time[i] << "," << simulationDatas.timeTotal[i]
+            << "," << simulationDatas.distance[i] << ","
+            << simulationDatas.distanceTotal[i] << ","
+            << simulationDatas.trainSpeeds[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
 void TrainSimulation::printSimulationDatas() {
   int maxSize = std::min({simulationDatas.trainSpeeds.size(),
                           simulationDatas.vvvfPowers.size(),

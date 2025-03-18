@@ -179,6 +179,9 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
       //          m_chartTitle == "Static Track")
       else if (m_chartTitle == "Distance")
         saveSuccessful = m_trainSimulation->saveTrainTrackData();
+      else if (m_chartTitle == "Dynamic Energy" ||
+               m_chartTitle == "Static Energy")
+        saveSuccessful = m_trainSimulation->saveEnergyConsumptionData();
       if (saveSuccessful)
         QMessageBox::information(this, "Success", "Data saved successfully!");
 
