@@ -612,12 +612,7 @@ void TrainSimulation::printSimulationDatas() {
             << simulationDatas.time[i] << "," << simulationDatas.timeTotal[i]
             << "," << simulationDatas.distance[i] << ","
             << simulationDatas.distanceTotal[i] << ","
-            << simulationDatas.trainSpeeds[i]
-            << ","
-            // << ((simulationDatas.trainSpeeds[i] == 0)
-            //         ? simulationDatas.accelerations[i] * constantData.cV
-            //         : simulationDatas.accelerations[i])
-            // << ","
+            << simulationDatas.trainSpeeds[i] << ","
             << simulationDatas.accelerations[i] << ","
             << simulationDatas.motorForce[i] << ","
             << simulationDatas.motorResistance[i] << ","
