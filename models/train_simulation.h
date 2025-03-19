@@ -97,6 +97,10 @@ public:
   double findMaxCatenaryCurrent();
   double findMaxTractionEffort();
   double findDistanceTravelled();
+  double findMaxEnergyConsumption();
+  double findMaxEnergyRegen();
+  double findMaxEnergyPowering();
+  double findMaxEnergyAps();
   double getAdhesion();
 
 private:

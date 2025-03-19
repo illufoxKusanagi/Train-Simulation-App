@@ -866,4 +866,32 @@ double TrainSimulation::findDistanceTravelled() {
   return simulationDatas.distanceTotal.last();
 }
 
+double TrainSimulation::findMaxEnergyConsumption() {
+  if (simulationDatas.energyConsumptions.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.energyConsumptions.begin(),
+                           simulationDatas.energyConsumptions.end());
+}
+
+double TrainSimulation::findMaxEnergyRegen() {
+  if (simulationDatas.energyRegenerations.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.energyRegenerations.begin(),
+                           simulationDatas.energyRegenerations.end());
+}
+
+double TrainSimulation::findMaxEnergyPowering() {
+  if (simulationDatas.energyPowerings.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.energyPowerings.begin(),
+                           simulationDatas.energyPowerings.end());
+}
+
+double TrainSimulation::findMaxEnergyAps() {
+  if (simulationDatas.energyAps.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.energyAps.begin(),
+                           simulationDatas.energyAps.end());
+}
+
 double TrainSimulation::getAdhesion() { return trainMotorData->tm_adh; }
