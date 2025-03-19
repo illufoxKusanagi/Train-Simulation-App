@@ -306,6 +306,10 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   float time = 0;
   QString phase = "Starting";
   int coastingCount = 0;
+  simulationDatas.accelerations.append(0);
+  simulationDatas.trainSpeeds.append(0);
+  simulationDatas.time.append(0);
+  simulationDatas.timeTotal.append(0);
   while (movingData->v >= 0) {
     resistanceData->f_resStart = calculateStartRes();
     resistanceData->f_resRunning = calculateRunningRes(movingData->v);
@@ -358,8 +362,9 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     simulationDatas.accelerations.append(movingData->acc);
     simulationDatas.trainSpeeds.append(movingData->v);
     time += constantData.dt;
+    movingData->time_total = time;
     simulationDatas.time.append(constantData.dt);
-    simulationDatas.timeTotal.append(time);
+    // simulationDatas.timeTotal.append(time);
     movingData->x = abs(calculateTotalDistance(i));
     movingData->x_total += movingData->x;
     trainMotorData->tm_f_res = calculateResistanceForcePerMotor(
