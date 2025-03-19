@@ -362,7 +362,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     simulationDatas.accelerations.append(movingData->acc);
     simulationDatas.trainSpeeds.append(movingData->v);
     time += constantData.dt;
-    movingData->time_total = time;
+    // movingData->time_total = time;
     simulationDatas.time.append(constantData.dt);
     // simulationDatas.timeTotal.append(time);
     movingData->x = abs(calculateTotalDistance(i));
@@ -400,19 +400,9 @@ void TrainSimulation::simulateStaticTrainMovement() {
   QString phase = "Starting";
   int CoastingCount = 0;
   float time = 0.0;
-  // can be deleted
-  // resistanceData->f_resStart = calculateStartRes();
-  // addSimulationDatas(i, time, phase);
-  // simulationDatas.accelerations.append(0);
-  // simulationDatas.trainSpeeds.append(0);
-  // simulationDatas.time.append(0);
-  // simulationDatas.timeTotal.append(0);
-  // // i++;
-  // can be deleted
 
   while (movingData->v < v_limit + 1) {
     resistanceData->f_resStart = calculateStartRes();
-    // addSimulationDatas(i, time, phase);
     phase = "Accelerating";
     resistanceData->f_resRunning = calculateRunningRes(movingData->v);
     calculatePoweringForce(movingData->acc, movingData->v);
@@ -801,7 +791,7 @@ void TrainSimulation::addSimulationDatas(int i, double time, QString phase) {
   simulationDatas.catenaryCurrents.append(energyData->curr_catenary);
   // simulationDatas.time.append(movingData->time);
   simulationDatas.distance.append(movingData->x);
-  simulationDatas.timeTotal.append(movingData->time_total);
+  simulationDatas.timeTotal.append(time);
   simulationDatas.distanceTotal.append(movingData->x_total);
   simulationDatas.phase.append(phase);
   simulationDatas.motorForce.append(resistanceData->f_motor);
