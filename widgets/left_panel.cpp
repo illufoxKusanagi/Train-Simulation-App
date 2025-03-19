@@ -66,21 +66,22 @@ void LeftPanel::createRunButton() {
   m_runButtonLayout->addWidget(runStaticButton);
   connect(runButton, &ButtonAction::clicked, this,
           [this, runButton, runStaticButton]() {
-            QTimer::singleShot(500, this, [this, runButton, runStaticButton]() {
-              QFuture<void> future = QtConcurrent::run([this]() {
-                m_trainSimulation->simulateDynamicTrainMovement();
-              });
-              updateButtonState(future, runButton, runStaticButton);
+            // QTimer::singleShot(1000, this, [this, runButton,
+            // runStaticButton]() {
+            QFuture<void> future = QtConcurrent::run([this]() {
+              m_trainSimulation->simulateDynamicTrainMovement();
             });
+            updateButtonState(future, runButton, runStaticButton);
           });
+  // });
   connect(runStaticButton, &ButtonAction::clicked, this,
           [this, runButton, runStaticButton]() {
-            QTimer::singleShot(500, this, [this, runButton, runStaticButton]() {
-              QFuture<void> future = QtConcurrent::run([this]() {
-                m_trainSimulation->simulateStaticTrainMovement();
-              });
-              updateButtonState(future, runButton, runStaticButton);
-            });
+            // QTimer::singleShot(1000, this, [this, runButton,
+            // runStaticButton]() {
+            QFuture<void> future = QtConcurrent::run(
+                [this]() { m_trainSimulation->simulateStaticTrainMovement(); });
+            updateButtonState(future, runButton, runStaticButton);
+            // });
           });
   m_buttonLayout->addWidget(runButtonWidget);
 }
@@ -115,13 +116,14 @@ void LeftPanel::updateButtonState(QFuture<void> future, ButtonAction *runButton,
                                   ButtonAction *runStaticButton) {
   runButton->setEnabled(false);
   runStaticButton->setEnabled(false);
-
-  QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
-  connect(watcher, &QFutureWatcher<void>::finished, this,
-          [this, watcher, runStaticButton, runButton]() {
-            runStaticButton->setEnabled(true);
-            runButton->setEnabled(true);
-            watcher->deleteLater();
-          });
-  watcher->setFuture(future);
+  QTimer::singleShot(500, this, [this, runButton, runStaticButton, future]() {
+    QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
+    connect(watcher, &QFutureWatcher<void>::finished, this,
+            [this, watcher, runStaticButton, runButton]() {
+              runStaticButton->setEnabled(true);
+              runButton->setEnabled(true);
+              watcher->deleteLater();
+            });
+    watcher->setFuture(future);
+  });
 }
