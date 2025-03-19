@@ -52,6 +52,8 @@ void ChartWidget::updateChart() {
       setupDynamicSpeedChart();
     } else if (m_chartTitle == "Dynamic Traction Effort") {
       setupDynamicTractionChart();
+    } else if (m_chartTitle == "Dynamic Energy") {
+      setupDynamicEnergyChart();
     }
     setupAxis();
   }
@@ -80,6 +82,8 @@ void ChartWidget::updateStaticChart() {
       setupStaticSpeedChart();
     } else if (m_chartTitle == "Static Traction Effort") {
       setupStaticTractionChart();
+    } else if (m_chartTitle == "Static Energy") {
+      setupStaticEnergyChart();
     }
 
     setupAxis();
@@ -171,10 +175,11 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
       else if (m_chartTitle == "Dynamic Speed" ||
                m_chartTitle == "Static Speed")
         saveSuccessful = m_trainSimulation->saveTrainSpeedData();
-      // else if (m_chartTitle == "Dynamic Track" ||
-      //          m_chartTitle == "Static Track")
       else if (m_chartTitle == "Distance")
         saveSuccessful = m_trainSimulation->saveTrainTrackData();
+      else if (m_chartTitle == "Dynamic Energy" ||
+               m_chartTitle == "Static Energy")
+        saveSuccessful = m_trainSimulation->saveEnergyConsumptionData();
       if (saveSuccessful)
         QMessageBox::information(this, "Success", "Data saved successfully!");
     } catch (const std::exception &e) {
@@ -242,8 +247,8 @@ void ChartWidget::setupDynamicPowerChart() {
   QLineSeries *vvvfPowerSeries = new QLineSeries();
   catenaryPowerSeries->setName("Dynamic Catenary Power");
   vvvfPowerSeries->setName("Dynamic Max VVVF Power");
-  catenaryPowerSeries->setPen(QPen(QColor(0, 114, 206), 2));
-  vvvfPowerSeries->setPen(QPen(QColor(255, 76, 76), 2));
+  catenaryPowerSeries->setPen(QPen(Colors::Primary500, 2));
+  vvvfPowerSeries->setPen(QPen(Colors::Danger500, 2));
   const auto &times = m_trainSimulation->simulationDatas.timeTotal;
   const auto &catenaryPowers =
       m_trainSimulation->simulationDatas.catenaryPowers;
@@ -264,8 +269,8 @@ void ChartWidget::setupDynamicCurrentChart() {
   catenaryCurrentSeries->setName("Dynamic Catenary Current");
   vvvfCurrentSeries->setName("Dynamic VVVF Current");
 
-  catenaryCurrentSeries->setPen(QPen(QColor(0, 114, 206), 2));
-  vvvfCurrentSeries->setPen(QPen(QColor(255, 76, 76), 2));
+  catenaryCurrentSeries->setPen(QPen(Colors::Primary500, 2));
+  vvvfCurrentSeries->setPen(QPen(Colors::Danger500, 2));
 
   const auto &time = m_trainSimulation->simulationDatas.timeTotal;
   const auto &catenaryCurrents =
@@ -288,8 +293,8 @@ void ChartWidget::setupStaticPowerChart() {
   catenaryPowerSeries->setName("Static Catenary Power");
   vvvfPowerSeries->setName("Static VVVF Power");
 
-  catenaryPowerSeries->setPen(QPen(QColor(0, 114, 206), 2));
-  vvvfPowerSeries->setPen(QPen(QColor(255, 76, 76), 2));
+  catenaryPowerSeries->setPen(QPen(Colors::Primary500, 2));
+  vvvfPowerSeries->setPen(QPen(Colors::Danger500, 2));
 
   const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &catenaryPowers =
@@ -312,8 +317,8 @@ void ChartWidget::setupStaticCurrentChart() {
   catenaryCurrentSeries->setName("Static Catenary Current");
   vvvfCurrentSeries->setName("Static VVVF Current");
 
-  catenaryCurrentSeries->setPen(QPen(QColor(0, 114, 206), 2));
-  vvvfCurrentSeries->setPen(QPen(QColor(255, 76, 76), 2));
+  catenaryCurrentSeries->setPen(QPen(Colors::Primary500, 2));
+  vvvfCurrentSeries->setPen(QPen(Colors::Danger500, 2));
 
   const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &catenaryCurrents =
@@ -332,7 +337,7 @@ void ChartWidget::setupStaticCurrentChart() {
 void ChartWidget::setupStaticSpeedChart() {
   QLineSeries *speedSeries = new QLineSeries();
   speedSeries->setName("Static Speed");
-  speedSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  speedSeries->setPen(QPen(Colors::Primary500, 2));
   const auto &speeds = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &distance = m_trainSimulation->simulationDatas.distanceTotal;
   for (int i = 0; i < distance.size() && i < speeds.size(); ++i) {
@@ -344,7 +349,7 @@ void ChartWidget::setupStaticSpeedChart() {
 void ChartWidget::setupStaticTractionChart() {
   QLineSeries *speedSeries = new QLineSeries();
   speedSeries->setName("Static F motor");
-  speedSeries->setPen(QPen(QColor(0, 114, 206), 2));
+  speedSeries->setPen(QPen(Colors::Primary500, 2));
   const auto &speed = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &resistance = m_trainSimulation->simulationDatas.tractionEfforts;
   for (int i = 0; i < speed.size() && i < resistance.size(); ++i) {
@@ -353,6 +358,67 @@ void ChartWidget::setupStaticTractionChart() {
   m_chart->addSeries(speedSeries);
 }
 void ChartWidget::setupStaticTrackChart() {}
+
+void ChartWidget::setupDynamicEnergyChart() {
+  QLineSeries *energyMotorSeries = new QLineSeries();
+  QLineSeries *energyPoweringSeries = new QLineSeries();
+  QLineSeries *energyRegenSeries = new QLineSeries();
+  QLineSeries *energyApsSeries = new QLineSeries();
+  energyMotorSeries->setName("Dynamic Energy Motor");
+  energyPoweringSeries->setName("Dynamic Energy Powering");
+  energyRegenSeries->setName("Dynamic Energy Regen");
+  energyApsSeries->setName("Dynamic Energy APS");
+  energyMotorSeries->setPen(QPen(Colors::Primary500, 2));
+  energyPoweringSeries->setPen(QPen(Colors::Danger500, 2));
+  energyApsSeries->setPen(QPen(Colors::Warning600, 2));
+  energyRegenSeries->setPen(QPen(Colors::Secondary400, 2));
+  const auto &energyMotorData =
+      m_trainSimulation->simulationDatas.energyConsumptions;
+  const auto &energyPoweringData =
+      m_trainSimulation->simulationDatas.energyPowerings;
+  const auto &energyRegenData =
+      m_trainSimulation->simulationDatas.energyRegenerations;
+  const auto &energyApsData = m_trainSimulation->simulationDatas.energyAps;
+  const auto &times = m_trainSimulation->simulationDatas.timeTotal;
+  for (int i = 0; i < energyMotorData.size() && i < energyPoweringData.size();
+       i++) {
+    energyMotorSeries->append(times[i], energyMotorData[i]);
+    energyPoweringSeries->append(times[i], energyPoweringData[i]);
+    energyRegenSeries->append(times[i], energyRegenData[i]);
+    energyApsSeries->append(times[i], energyApsData[i]);
+  }
+  m_chart->addSeries(energyMotorSeries);
+  m_chart->addSeries(energyPoweringSeries);
+  m_chart->addSeries(energyRegenSeries);
+  m_chart->addSeries(energyApsSeries);
+}
+
+void ChartWidget::setupStaticEnergyChart() {
+  QLineSeries *energyMotorSeries = new QLineSeries();
+  QLineSeries *energyPoweringSeries = new QLineSeries();
+  QLineSeries *energyApsSeries = new QLineSeries();
+  energyMotorSeries->setName("Static Energy Motor");
+  energyPoweringSeries->setName("Static Energy Powering");
+  energyApsSeries->setName("Static Energy APS");
+  energyMotorSeries->setPen(QPen(Colors::Primary500, 2));
+  energyPoweringSeries->setPen(QPen(Colors::Danger500, 2));
+  energyApsSeries->setPen(QPen(Colors::Warning600, 2));
+  const auto &energyMotorData =
+      m_trainSimulation->simulationDatas.energyConsumptions;
+  const auto &energyPoweringData =
+      m_trainSimulation->simulationDatas.energyPowerings;
+  const auto &energyApsData = m_trainSimulation->simulationDatas.energyAps;
+  const auto &times = m_trainSimulation->simulationDatas.timeTotal;
+  for (int i = 0; i < energyMotorData.size() && i < energyPoweringData.size();
+       i++) {
+    energyMotorSeries->append(times[i], energyMotorData[i]);
+    energyPoweringSeries->append(times[i], energyPoweringData[i]);
+    energyApsSeries->append(times[i], energyApsData[i]);
+  }
+  m_chart->addSeries(energyMotorSeries);
+  m_chart->addSeries(energyPoweringSeries);
+  m_chart->addSeries(energyApsSeries);
+}
 
 void ChartWidget::setupAxis() {
   if (m_chart->series().size() > 0) {
@@ -380,17 +446,10 @@ void ChartWidget::setupAxis() {
         axisY->setTitleText("Speed (km/h)");
       else if (m_chartTitle.contains("Traction Effort"))
         axisY->setTitleText("Traction Effort (kN)");
-
-      if (m_chartTitle.contains("Power"))
-        axisY->setTitleText("Power (kW)");
-      else if (m_chartTitle.contains("Current"))
-        axisY->setTitleText("Current (A)");
-      else if (m_chartTitle.contains("Speed"))
-        axisY->setTitleText("Speed (km/h)");
-      else if (m_chartTitle.contains("Traction Effort"))
-        axisY->setTitleText("Traction Effort (kN)");
       else if (m_chartTitle.contains("Distance"))
         axisY->setTitleText("Distance (m)");
+      else if (m_chartTitle.contains("Energy"))
+        axisY->setTitleText("Energy (kW)");
     }
   }
 }
