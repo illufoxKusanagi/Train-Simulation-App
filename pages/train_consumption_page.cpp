@@ -19,8 +19,10 @@ TrainConsumptionPage::TrainConsumptionPage(QWidget *parent,
 void TrainConsumptionPage::setupFirstPage() {
   QWidget *firstPage = new QWidget(this);
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
+  QStringList inputLabels = {"Max Energy Consumption", "Max Energy Powering",
+                             "Max Energy Regen", "Max Energy APS"};
   firstPageLayout->setSpacing(16);
-  setupExactValues(firstPageLayout, "Max Energy");
+  setupExactValues(firstPageLayout, inputLabels);
   setupChart(firstPageLayout, "Dynamic Energy", "Dynamic Energy");
   stackedWidget->addWidget(firstPage);
 }
@@ -28,8 +30,11 @@ void TrainConsumptionPage::setupFirstPage() {
 void TrainConsumptionPage::setupSecondPage() {
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
+  QStringList inputLabels = {"Max Static Energy Consumption",
+                             "Max Static Energy Powering",
+                             "Max Static Energy APS"};
   secondPageLayout->setSpacing(16);
-  setupExactValues(secondPageLayout, "Static Max Energy");
+  setupExactValues(secondPageLayout, inputLabels);
   setupChart(secondPageLayout, "Static Energy", "Static Energy");
   stackedWidget->addWidget(secondPage);
 }
@@ -43,13 +48,15 @@ void TrainConsumptionPage::setupChart(QVBoxLayout *pageLayout,
 }
 
 void TrainConsumptionPage::setupExactValues(QVBoxLayout *pageLayout,
-                                            QString inputTitle) {
+                                            QStringList inputLabels) {
   QHBoxLayout *layout = new QHBoxLayout;
   layout->setAlignment(Qt::AlignCenter);
-  InputType inputType = InputType("field", inputTitle, "km/h", 0, true);
-  m_inputWidget = new InputWidget(inputType, this);
-  m_inputWidgets[inputTitle] = m_inputWidget;
-  layout->addWidget(m_inputWidget);
+  for (const QString &inputTitles : inputLabels) {
+    InputType inputType = InputType("field", inputTitles, "km/h", 0, true);
+    InputWidget *inputWidget = new InputWidget(inputType, this);
+    m_inputWidgets[inputTitles] = inputWidget;
+    layout->addWidget(inputWidget);
+  }
   pageLayout->addLayout(layout);
 }
 
