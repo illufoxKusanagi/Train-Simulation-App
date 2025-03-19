@@ -175,8 +175,6 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
       else if (m_chartTitle == "Dynamic Speed" ||
                m_chartTitle == "Static Speed")
         saveSuccessful = m_trainSimulation->saveTrainSpeedData();
-      // else if (m_chartTitle == "Dynamic Track" ||
-      //          m_chartTitle == "Static Track")
       else if (m_chartTitle == "Distance")
         saveSuccessful = m_trainSimulation->saveTrainTrackData();
       else if (m_chartTitle == "Dynamic Energy" ||
