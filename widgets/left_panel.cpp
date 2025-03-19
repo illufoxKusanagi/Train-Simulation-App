@@ -55,7 +55,7 @@ void LeftPanel::createRunButton() {
   m_runButtonLayout->setSpacing(8);
   ButtonAction *runButton = new ButtonAction("Run", "yes", this);
   // Enable if dynamic simulation has corrected
-  runButton->setEnabled(false);
+  runButton->setEnabled(true);
   runButton->setSize(132, 40);
   ButtonAction *runStaticButton = new ButtonAction("Static Run", "yes", this);
   runStaticButton->setEnabled(true);
@@ -76,7 +76,7 @@ void LeftPanel::createRunButton() {
             QFuture<void> future = QtConcurrent::run(
                 [this]() { m_trainSimulation->simulateStaticTrainMovement(); });
             // TODO: Uncomment this if dynamic simulation has corrected
-            // updateButtonState(future, runButton, runStaticButton);
+            updateButtonState(future, runButton, runStaticButton);
           });
   m_buttonLayout->addWidget(runButtonWidget);
 }
