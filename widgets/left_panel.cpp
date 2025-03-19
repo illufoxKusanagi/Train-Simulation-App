@@ -54,8 +54,7 @@ void LeftPanel::createRunButton() {
   m_runButtonLayout = new QVBoxLayout(runButtonWidget);
   m_runButtonLayout->setSpacing(8);
   ButtonAction *runButton = new ButtonAction("Run", "yes", this);
-  // Enable if dynamic simulation has corrected
-  runButton->setEnabled(false);
+  runButton->setEnabled(true);
   runButton->setSize(132, 40);
   ButtonAction *runStaticButton = new ButtonAction("Static Run", "yes", this);
   runStaticButton->setEnabled(true);
@@ -75,8 +74,7 @@ void LeftPanel::createRunButton() {
           [this, runButton, runStaticButton]() {
             QFuture<void> future = QtConcurrent::run(
                 [this]() { m_trainSimulation->simulateStaticTrainMovement(); });
-            // TODO: Uncomment this if dynamic simulation has corrected
-            // updateButtonState(future, runButton, runStaticButton);
+            updateButtonState(future, runButton, runStaticButton);
           });
   m_buttonLayout->addWidget(runButtonWidget);
 }
@@ -111,13 +109,14 @@ void LeftPanel::updateButtonState(QFuture<void> future, ButtonAction *runButton,
                                   ButtonAction *runStaticButton) {
   runButton->setEnabled(false);
   runStaticButton->setEnabled(false);
-
-  QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
-  connect(watcher, &QFutureWatcher<void>::finished, this,
-          [this, watcher, runStaticButton, runButton]() {
-            runStaticButton->setEnabled(true);
-            runButton->setEnabled(true);
-            watcher->deleteLater();
-          });
-  watcher->setFuture(future);
+  QTimer::singleShot(200, this, [this, runButton, runStaticButton, future]() {
+    QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
+    connect(watcher, &QFutureWatcher<void>::finished, this,
+            [this, watcher, runStaticButton, runButton]() {
+              runStaticButton->setEnabled(true);
+              runButton->setEnabled(true);
+              watcher->deleteLater();
+            });
+    watcher->setFuture(future);
+  });
 }
