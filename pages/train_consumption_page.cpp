@@ -54,6 +54,7 @@ void TrainConsumptionPage::setupExactValues(QVBoxLayout *pageLayout,
     InputType inputType = InputType("field", inputTitles, "km/h", 0, true);
     InputWidget *inputWidget = new InputWidget(inputType, this);
     m_inputWidgets[inputTitles] = inputWidget;
+    inputWidget->setMinimumHeight(80);
     layout->addWidget(inputWidget);
   }
   pageLayout->addLayout(layout);
