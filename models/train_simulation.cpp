@@ -320,8 +320,10 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       phase = "Accelerating";
       calculatePoweringForce(movingData->acc, movingData->v);
       calculateTotalForce(movingData->v);
-      movingData->acc = constantData.cV * (resistanceData->f_total /
-                                           massData->mass_totalInertial);
+      movingData->acc_si =
+          (resistanceData->f_total / massData->mass_totalInertial);
+      movingData->acc = constantData.cV * movingData->acc_si;
+      movingData->v_si += movingData->acc_si * constantData.dt;
       movingData->v += movingData->acc * constantData.dt;
       energyData->e_pow += calculateEnergyOfPowering(i);
     } else if (isCoasting) {
@@ -338,8 +340,10 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       phase = "Coasting";
       resistanceData->f_motor = 0;
       resistanceData->f_total = -resistanceData->f_resRunning;
-      movingData->acc = constantData.cV * (resistanceData->f_total /
-                                           massData->mass_totalInertial);
+      movingData->acc_si =
+          (resistanceData->f_total / massData->mass_totalInertial);
+      movingData->acc = constantData.cV * movingData->acc_si;
+      movingData->v_si += movingData->acc_si * constantData.dt;
       movingData->v += movingData->acc * constantData.dt;
       energyData->e_pow += calculateEnergyOfPowering(i);
     } else {
@@ -359,7 +363,10 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     energyData->e_aps += calculateEnergyOfAps(i);
     simulationDatas.accelerations.append(phase == "Braking" ? movingData->decc
                                                             : movingData->acc);
+    simulationDatas.accelerationsSi.append(
+        phase == "Braking" ? movingData->decc_si : movingData->acc_si);
     simulationDatas.trainSpeeds.append(movingData->v);
+    simulationDatas.trainSpeedsSi.append(movingData->v_si);
     time += constantData.dt;
     simulationDatas.time.append(constantData.dt);
     movingData->x = abs(calculateTotalDistance(i));
@@ -411,10 +418,12 @@ void TrainSimulation::simulateStaticTrainMovement() {
     trainMotorData->tm_t = calculateTorque();
     movingData->acc_si = resistanceData->f_total / massData->mass_totalInertial;
     movingData->acc = constantData.cV * movingData->acc_si;
+
     simulationDatas.accelerations.append(movingData->acc);
     simulationDatas.accelerationsSi.append(movingData->acc_si);
     simulationDatas.trainSpeeds.append(movingData->v);
     simulationDatas.trainSpeedsSi.append(movingData->v_si);
+
     movingData->time = abs(calculateTotalTime(i));
     movingData->time_total += movingData->time;
     simulationDatas.time.append(movingData->time);
@@ -432,8 +441,8 @@ void TrainSimulation::simulateStaticTrainMovement() {
     energyData->e_motor += calculateEnergyConsumption(i);
     energyData->e_pow += calculateEnergyOfPowering(i);
     energyData->e_aps += calculateEnergyOfAps(i);
-    movingData->v_si = movingData->v / constantData.cV;
     movingData->v++;
+    movingData->v_si = movingData->v / constantData.cV;
     addSimulationDatas(i, movingData->time_total, phase);
     if (i == 0) {
       trainMotorData->tm_adh = calculateAdhesion();
@@ -622,20 +631,21 @@ void TrainSimulation::printSimulationDatas() {
     filepath += ".csv";
   }
   ofstream outFile(filepath.toStdString(), ios::out);
-  outFile
-      << "Phase,Iteration,Time,Total "
-         "time,Distance,TotalDistance,Speed,Acceleration,F Motor,F Res,F "
-         "Total,F Motor/TM,F Res/TM,Torque,RPM,P Wheel,P_motor Out,P_motor "
-         "In,P_vvvf, "
-         "P_catenary,Catenary current,VVVF current,Energy Consumption,Energy "
-         "of Powering,Energy Regen,Energy of APS\n";
+  outFile << "Phase,Iteration,Time,Total "
+             "time,Distance,TotalDistance,Speed (km/h),Speed "
+             "(m/s),Acceleration (km/h/s),Acceleration (m/s2),F Motor,F Res,F "
+             "Total,F Motor/TM,F Res/TM,Torque,RPM,P Wheel,P_motor Out,P_motor "
+             "In,P_vvvf, P_catenary,Catenary current,VVVF current,Energy "
+             "Consumption,Energy of Powering,Energy Regen,Energy of APS\n";
   for (int i = 0; i < maxSize; i++) {
     outFile << simulationDatas.phase[i].toStdString() << "," << i + 1 << ","
             << simulationDatas.time[i] << "," << simulationDatas.timeTotal[i]
             << "," << simulationDatas.distance[i] << ","
             << simulationDatas.distanceTotal[i] << ","
             << simulationDatas.trainSpeeds[i] << ","
+            << simulationDatas.trainSpeedsSi[i] << ","
             << simulationDatas.accelerations[i] << ","
+            << simulationDatas.accelerationsSi[i] << ","
             << simulationDatas.motorForce[i] << ","
             << simulationDatas.motorResistance[i] << ","
             << simulationDatas.totalResistance[i] << ","
