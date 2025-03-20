@@ -43,6 +43,9 @@ public:
 
   struct SimulationDatas {
     QList<double> trainSpeeds;
+    QList<double> trainSpeedsSi;
+    QList<double> accelerations;
+    QList<double> accelerationsSi;
     QList<double> tractionEfforts;
     QList<double> vvvfPowers;
     QList<double> catenaryPowers;
@@ -67,7 +70,6 @@ public:
     QList<double> powerCatenary;
     QList<double> currentCatenary;
     QList<double> currentVvvf;
-    QList<double> accelerations;
     QList<double> energyConsumptions;
     QList<double> energyPowerings;
     QList<double> energyRegenerations;

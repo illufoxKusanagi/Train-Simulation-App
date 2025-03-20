@@ -35,6 +35,7 @@ _b        : Related to braking (m/s)
 _res      : Related to resistance
 _..i      : Related to Inertial
 _iter     : Related to iterative variable
+_si       : Standard unit variables
 
 COMPOSITE EXAMPLES:
 mass_totalEmpty    : Total empty mass of train
