@@ -10,13 +10,13 @@ ConstantValuesPage::ConstantValuesPage(QWidget *parent) : QWidget(parent) {
 
   QStringList labels = {"Gravitation", "m/s to km/h"};
   QStringList unitLabels = {"m/s^2", "km/h"};
-  InputType gravitationInputType("field", "Gravitation", "m/s^2", constants.g,
-                                 true);
-  InputType speedConverterInputType("field", "m/s to km/h", "", constants.cV,
-                                    true);
-  InputType forceConverterInputType("field", "kW to kgf", "", constants.cF,
-                                    true);
-  InputType timeStepInputType("field", "Time Step", "s", constants.dt, true);
+  InputType gravitationInputType("field", "Gravitation", "m/s^2", true,
+                                 constants.g);
+  InputType speedConverterInputType("field", "m/s to km/h", "", true,
+                                    constants.cV);
+  InputType forceConverterInputType("field", "kW to kgf", "", true,
+                                    constants.cF);
+  InputType timeStepInputType("field", "Time Step", "s", true, constants.dt);
   InputWidget *gravitationInput = new InputWidget(this, gravitationInputType);
   InputWidget *speedConverterInput =
       new InputWidget(this, speedConverterInputType);

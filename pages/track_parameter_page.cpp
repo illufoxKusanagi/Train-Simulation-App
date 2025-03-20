@@ -23,7 +23,7 @@ void TrackParameterPage::createInputs() {
   QList<double> values = {0.0, 2000, 0.0, 0.0, 0.0, 70};
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
-        new InputWidget(this, InputType("field", labels[i], ""));
+        new InputWidget(this, InputType("field", labels[i], units[i]));
     inputWidget->setValue(values[i]);
     inputWidget->setFixedHeight(80);
     m_formLayout->addWidget(inputWidget, i / 2, i % 2);

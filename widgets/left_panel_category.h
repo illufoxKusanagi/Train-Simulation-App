@@ -10,7 +10,7 @@ class LeftPanelInputs : public QWidget {
   Q_OBJECT
 public:
   enum PanelType { INPUT, OUTPUT };
-  explicit LeftPanelInputs(QWidget *parent = nullptr, PanelType type);
+  explicit LeftPanelInputs(QWidget *parent = nullptr, PanelType type = INPUT);
   void toggleCollapse(bool isCollapsed);
 
 public slots:

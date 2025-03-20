@@ -65,8 +65,8 @@ void TrainConsumptionPage::setupPagination() {
   QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
   paginationLayout->setAlignment(Qt::AlignLeft);
   paginationLayout->setSpacing(16);
-  m_prevButton = new ButtonAction(this, "Dynamic Energy", "false");
-  m_nextButton = new ButtonAction(this, "Static Energy", "false");
+  m_prevButton = new ButtonAction(this, "Dynamic Energy");
+  m_nextButton = new ButtonAction(this, "Static Energy");
   m_prevButton->setFixedSize(144, 48);
   m_nextButton->setFixedSize(144, 48);
   connect(m_prevButton, &QPushButton::clicked, this,

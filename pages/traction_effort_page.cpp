@@ -47,12 +47,12 @@ void TractionEffortPage::setupExactValue(QVBoxLayout *pageLayout,
                                          QString inputTitle) {
   QHBoxLayout *layout = new QHBoxLayout;
   layout->setAlignment(Qt::AlignCenter);
-  InputType inputType = InputType("field", inputTitle, "kN", 0, true);
+  InputType inputType = InputType("field", inputTitle, "kN", true);
   m_inputWidget = new InputWidget(this, inputType);
   m_inputWidgets[inputTitle] = m_inputWidget;
   layout->addWidget(m_inputWidget);
   if (inputTitle.contains("Static")) {
-    InputType adhesionInputType = InputType("field", "Adhesion", "kN", 0, true);
+    InputType adhesionInputType = InputType("field", "Adhesion", "kN", true);
     InputWidget *adhesionInput = new InputWidget(this, adhesionInputType);
     m_inputWidgets["Adhesion"] = adhesionInput;
     layout->addWidget(adhesionInput);

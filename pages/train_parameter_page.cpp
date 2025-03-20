@@ -190,8 +190,8 @@ void TrainParameterPage::setupPagination() {
   QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
   paginationLayout->setAlignment(Qt::AlignLeft);
   paginationLayout->setSpacing(16);
-  m_prevButton = new ButtonAction(this, "Constant Input", "false");
-  m_nextButton = new ButtonAction(this, "Trainset", "false");
+  m_prevButton = new ButtonAction(this, "Constant Input");
+  m_nextButton = new ButtonAction(this, "Trainset");
   m_prevButton->setFixedSize(144, 48);
   m_nextButton->setFixedSize(144, 48);
   connect(m_prevButton, &QPushButton::clicked, this,
