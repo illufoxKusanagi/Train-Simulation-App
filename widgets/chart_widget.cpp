@@ -139,10 +139,9 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
   QHBoxLayout *buttonLayout = new QHBoxLayout();
   buttonLayout->setAlignment(Qt::AlignRight);
   buttonLayout->setSpacing(16);
-  ButtonAction *saveButton = new ButtonAction("Save Chart", "normal", this);
-  ButtonAction *saveCurrentData =
-      new ButtonAction("Save this data", "normal", this);
-  ButtonAction *saveAllData = new ButtonAction("Save all data", "normal", this);
+  ButtonAction *saveButton = new ButtonAction(this, "Save Chart");
+  ButtonAction *saveCurrentData = new ButtonAction(this, "Save this data");
+  ButtonAction *saveAllData = new ButtonAction(this, "Save all data");
   connect(saveButton, &QPushButton::clicked, this, [this, chartView]() {
     QString filePath = QFileDialog::getSaveFileName(
         this, tr("Save Chart"), QDir::homePath(),

@@ -1,7 +1,7 @@
 #include "input_widget.h"
 
-InputWidget::InputWidget(const InputType &inputType, QStringList options,
-                         QWidget *parent)
+InputWidget::InputWidget(QWidget *parent, const InputType &inputType,
+                         QStringList options)
     : QWidget(parent), m_inputField(nullptr), m_inputUpload(nullptr),
       m_inputDropdown(nullptr), m_inputInvalid(nullptr) {
   layout = new QVBoxLayout(this);

@@ -30,7 +30,7 @@ void ElectricalParameterPage::createInputs() {
   QList<double> values = {1500, 0, 0, 0.98, 0.96, 30, 0.89};
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
-        new InputWidget(InputType("field", labels[i], ""), this);
+        new InputWidget(this, InputType("field", labels[i], ""));
     inputWidget->setValue(values[i]);
     inputWidget->setFixedHeight(80);
     m_inputWidgets[labels[i]] = inputWidget;

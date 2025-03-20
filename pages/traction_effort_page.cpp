@@ -38,7 +38,7 @@ void TractionEffortPage::setupSecondPage() {
 void TractionEffortPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle,
                                     QString chartSeries) {
   ChartWidget *chartWidget =
-      new ChartWidget(chartTitle, chartSeries, this, m_trainSimulation);
+      new ChartWidget(this, chartTitle, chartSeries, m_trainSimulation);
   m_chartWidget[chartTitle] = chartWidget;
   pageLayout->addWidget(chartWidget);
 }
@@ -48,12 +48,12 @@ void TractionEffortPage::setupExactValue(QVBoxLayout *pageLayout,
   QHBoxLayout *layout = new QHBoxLayout;
   layout->setAlignment(Qt::AlignCenter);
   InputType inputType = InputType("field", inputTitle, "kN", 0, true);
-  m_inputWidget = new InputWidget(inputType, this);
+  m_inputWidget = new InputWidget(this, inputType);
   m_inputWidgets[inputTitle] = m_inputWidget;
   layout->addWidget(m_inputWidget);
   if (inputTitle.contains("Static")) {
     InputType adhesionInputType = InputType("field", "Adhesion", "kN", 0, true);
-    InputWidget *adhesionInput = new InputWidget(adhesionInputType, this);
+    InputWidget *adhesionInput = new InputWidget(this, adhesionInputType);
     m_inputWidgets["Adhesion"] = adhesionInput;
     layout->addWidget(adhesionInput);
   }
@@ -79,8 +79,8 @@ void TractionEffortPage::setupPagination() {
   QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
   paginationLayout->setAlignment(Qt::AlignLeft);
   paginationLayout->setSpacing(16);
-  m_prevButton = new ButtonAction("Dynamic Traction", "false", this);
-  m_nextButton = new ButtonAction("Static Traction", "false", this);
+  m_prevButton = new ButtonAction(this, "Dynamic Traction");
+  m_nextButton = new ButtonAction(this, "Static Traction");
   m_prevButton->setFixedSize(144, 48);
   m_nextButton->setFixedSize(144, 48);
   connect(m_prevButton, &QPushButton::clicked, this,
