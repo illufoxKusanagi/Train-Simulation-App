@@ -73,10 +73,13 @@ struct ResistanceData {
 
 struct MovingData {
   double acc = 0;
+  double acc_si = 0;
   double decc = 0;
+  double decc_si = 0;
   double acc_start;
   double decc_start;
   double v = 0;
+  double v_si = 0;
   double v_limit;
   double v_p1;
   double v_p2;
