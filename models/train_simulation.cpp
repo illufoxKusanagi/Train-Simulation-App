@@ -199,9 +199,8 @@ double TrainSimulation::calculateStartRes() {
       calculateResSlope(massData->mass_totalInertial, resistanceData->slope);
   resistanceData->r_radius =
       calculateResRadius(massData->mass_totalInertial, resistanceData->radius);
-  return resistanceData->r_train;
-  //  + resistanceData->r_slope +
-  //        resistanceData->r_radius;
+  return resistanceData->r_train + resistanceData->r_slope +
+         resistanceData->r_radius;
 }
 
 double TrainSimulation::calculateRunningRes(float v) {
@@ -214,9 +213,8 @@ double TrainSimulation::calculateRunningRes(float v) {
       (((1.65 + (0.0247 * v)) * (massData->mass_M * constantData.g)) +
        ((0.78 + (0.0028 * v)) * (massData->mass_T * constantData.g)) +
        (constantData.g * (0.028 + 0.0078 * (trainData->n_car - 1)) * (v * v)));
-  return resistanceData->r_run;
-  //  + resistanceData->r_slope +
-  //        resistanceData->r_radius;
+  return resistanceData->r_run + resistanceData->r_slope +
+         resistanceData->r_radius;
 }
 
 void TrainSimulation::calculatePoweringForce(float acc, float v) {
