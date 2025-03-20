@@ -19,8 +19,8 @@ struct InputSize {
 class InputWidget : public QWidget {
   Q_OBJECT
 public:
-  explicit InputWidget(const InputType &inputType, QWidget *parent = nullptr,
-                       QStringList options = {});
+  explicit InputWidget(const InputType &inputType, QStringList options = {},
+                       QWidget *parent = nullptr);
   void setValue(double value);
   double getValue();
   bool isModified() const;

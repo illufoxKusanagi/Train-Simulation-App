@@ -1,6 +1,6 @@
 #include "left_panel_category.h"
 
-LeftPanelInputs::LeftPanelInputs(PanelType type, QWidget *parent)
+LeftPanelInputs::LeftPanelInputs(QWidget *parent, PanelType type)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)), m_type(type),
       m_buttonTypes(type == INPUT ? INPUT_BUTTON_TYPES : OUTPUT_BUTTON_TYPES),
       m_buttonNames(type == INPUT ? INPUT_BUTTON_NAMES : OUTPUT_BUTTON_NAMES) {

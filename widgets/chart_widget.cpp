@@ -1,7 +1,7 @@
 #include "chart_widget.h"
 
-ChartWidget::ChartWidget(QString chartTitle, QString seriesName,
-                         QWidget *parent, TrainSimulation *trainSimulation)
+ChartWidget::ChartWidget(QWidget *parent, QString chartTitle,
+                         QString seriesName, TrainSimulation *trainSimulation)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_chartLayout(nullptr), m_chartWidget(nullptr),
       m_trainSimulation(trainSimulation), m_chartTitle(chartTitle) {

@@ -1,8 +1,8 @@
 #include "button_panel_category.h"
 
-ButtonPanelCategory::ButtonPanelCategory(const QString &iconType,
-                                         const QString &buttonLabel,
-                                         QWidget *parent)
+ButtonPanelCategory::ButtonPanelCategory(QWidget *parent,
+                                         const QString &iconType,
+                                         const QString &buttonLabel)
     : QPushButton(parent), m_buttonPanelCategory(nullptr), mainLayout(nullptr),
       m_iconLabel(nullptr), m_textLabel(nullptr), m_iconType(iconType),
       m_buttonLabel(buttonLabel) {

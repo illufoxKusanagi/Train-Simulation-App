@@ -13,8 +13,8 @@ public:
   bool isReadOnly;
 
   InputType(const QString &inputType, const QString &inputLabel,
-            const QString &inputUnit = "", double value = 0.0,
-            bool isReadOnly = false)
+            const QString &inputUnit = "", bool isReadOnly = false,
+            double value = 0.0)
       : type(inputType), label(inputLabel), unit(inputUnit),
         isReadOnly(isReadOnly), value(value) {}
 };

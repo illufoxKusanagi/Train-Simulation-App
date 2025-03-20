@@ -11,9 +11,9 @@
 class ButtonPanelCategory : public QPushButton {
   Q_OBJECT
 public:
-  explicit ButtonPanelCategory(const QString &iconType = "",
-                               const QString &buttonLabel = "",
-                               QWidget *parent = nullptr);
+  explicit ButtonPanelCategory(QWidget *parent = nullptr,
+                               const QString &iconType = "",
+                               const QString &buttonLabel = "");
   void setActive(bool isActive);
 
 private:
