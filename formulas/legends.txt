@@ -54,6 +54,9 @@ CONSTANTS:
 g               : Gravitational acceleration (9.8 m/s²)
 cV              : Conversion coefficient from m/s to km/h
 cF              : Conversion coefficient from kN to kgf
+dt              : Time gap in second
+t_reaction      : Reaction time
+t_delay         : Delay time (3 second)
 
 FORMULAS:
 Velocity        : v += acc * dt 

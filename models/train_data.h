@@ -6,6 +6,8 @@ struct ConstantData {
   const double cV = 3.6;
   const double cF = 101.972;
   const double dt = 1.0;
+  const double t_reaction = 1.5;
+  const double t_delay = 3.0;
 };
 
 struct TrainData {

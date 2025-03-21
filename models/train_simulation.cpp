@@ -835,7 +835,34 @@ double TrainSimulation::findMaxEnergyAps() {
 
 double TrainSimulation::getAdhesion() { return trainMotorData->tm_adh; }
 
-double TrainSimulation::calculateSimulationTrack() {
-  double totalDistance = 0;
-  return trainData->trainsetLength + 1000;
+double TrainSimulation::calculateBrakingTrack() {
+  double speed = simulationDatas.trainSpeeds.last();
+  double brakingTrack = (speed * constantData.t_reaction) +
+                        (pow(speed, 2) / (2 * movingData->decc_start));
+  return brakingTrack;
+}
+
+double TrainSimulation::calculateNormalSimulationTrack() {
+  double poweringDistance = simulationDatas.distanceTotal.last();
+  double trainLength = trainData->trainsetLength;
+  double brakingDistance = calculateBrakingTrack();
+  return poweringDistance + trainLength + brakingDistance;
+}
+
+double TrainSimulation::calculateDelaySimulationTrack() {
+  double poweringDistance = simulationDatas.distanceTotal.last();
+  double trainLength = trainData->trainsetLength;
+  double brakingDistance = calculateBrakingTrack();
+  return poweringDistance +
+         (simulationDatas.trainSpeeds.last() * constantData.t_delay) +
+         ((pow(simulationDatas.trainSpeeds.last(), 2) /
+           (2 * movingData->decc_start)) *
+          constantData.t_reaction);
+}
+
+double TrainSimulation::calculateSafetySimulationTrack() {
+  double poweringDistance = simulationDatas.distanceTotal.last();
+  double trainLength = trainData->trainsetLength;
+  double brakingDistance = calculateBrakingTrack();
+  return 1.2 * (poweringDistance + trainLength + brakingDistance);
 }

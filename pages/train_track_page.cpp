@@ -38,7 +38,7 @@ void TrainTrackPage::setupSecondPage() {
 
 void TrainTrackPage::setupChart(QVBoxLayout *pageLayout) {
   ChartWidget *chartWidget =
-      new ChartWidget(this, "Distance", "Distance", m_trainSimulation);
+      new ChartWidget(this, "Track", "Distance", m_trainSimulation);
   pageLayout->addWidget(chartWidget);
 }
 

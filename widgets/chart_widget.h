@@ -10,8 +10,11 @@
 #include <QFileDialog>
 #include <QFont>
 #include <QHBoxLayout>
+#include <QHeaderView>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QTableView>
+#include <QTableWidget>
 #include <QVBoxLayout>
 #include <QValueAxis>
 #include <QWidget>
@@ -41,9 +44,12 @@ private:
   QChart *m_chart;
   QList<QString> m_seriesToDisplay;
   QMap<QString, QColor> m_seriesColors;
+  QTableWidget *m_table;
 
   void buildDummyLine(QString seriesName);
   void setupChart(QLineSeries *series, QString title);
+  void setupTable();
+  void updateTable();
   void createChartButtons(QChartView *chartView);
 
   void setupStaticSpeedChart();
