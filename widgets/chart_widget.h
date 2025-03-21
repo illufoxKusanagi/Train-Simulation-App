@@ -22,6 +22,7 @@
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
 
+
 class ChartWidget : public QWidget {
   Q_OBJECT
 public:
