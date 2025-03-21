@@ -115,19 +115,29 @@ void ChartWidget::setupTable() {
   m_table->setHorizontalHeaderLabels(dummyHeaders);
   m_table->setRowCount(0);
   m_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-  m_table->setStyleSheet("QTableView {" + TextStyle::BodyMediumRegular() +
-                         "border: 1px solid " + Colors::Grey800.name() +
-                         "; "
-                         "}"
-                         "QTableView::item:selected{"
-                         "background-color: " +
-                         Colors::Secondary100.name() +
-                         ";"
-                         "}"
-                         "QHeaderView::section { background-color:" +
-                         Colors::Primary700.name() + ";" +
-                         TextStyle::BodyMediumRegular() +
-                         "color: black; padding: 6px; }");
+  m_table->setStyleSheet(
+      "QTableView {"
+      "color : " +
+      Colors::StandardBlack.name() + ";" + TextStyle::BodyMediumRegular() +
+      "border: 1px solid " + Colors::Grey800.name() +
+      "; "
+      "}"
+      "QTableView::item:selected{"
+      "background-color: " +
+      Colors::Primary300.name() +
+      ";"
+      "color: " +
+      Colors::StandardBlack.name() +
+      ";"
+      "}"
+      "QTableView::item:hover {"
+      "background-color: " +
+      Colors::Primary100.name() +
+      ";"
+      "}"
+      "QHeaderView::section { background-color:" +
+      Colors::Secondary400.name() + ";" + TextStyle::BodyMediumBold() +
+      "color: white; padding: 6px; }");
   mainLayout->addWidget(m_table);
 }
 
