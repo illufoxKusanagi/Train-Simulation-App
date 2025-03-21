@@ -68,7 +68,7 @@ void TrainPowerPage::setupFourthPage() {
 void TrainPowerPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle,
                                 QString chartSeries) {
   ChartWidget *chartWidget =
-      new ChartWidget(chartTitle, chartSeries, this, m_trainSimulation);
+      new ChartWidget(this, chartTitle, chartSeries, m_trainSimulation);
   m_chartWidgets[chartTitle] = chartWidget;
   pageLayout->addWidget(chartWidget);
 }
@@ -79,7 +79,7 @@ void TrainPowerPage::setupInputs(QVBoxLayout *pageLayout,
   QStringList units = {"kW", "kW", "Ampere", "Ampere"};
   for (int i = 0; i < inputTitle.size(); i++) {
     InputWidget *inputWidget = new InputWidget(
-        InputType("field", inputTitle[i], units[i], 0, true), this);
+        this, InputType("field", inputTitle[i], units[i], true));
     exactValueLayout->addWidget(inputWidget);
     m_inputWidgets[inputTitle[i]] = inputWidget;
   }
@@ -138,10 +138,10 @@ void TrainPowerPage::setupPagination() {
   paginationLayout->setAlignment(Qt::AlignLeft);
   paginationLayout->setSpacing(16);
 
-  m_firstPageButton = new ButtonAction("Dynamic Power", "normal", this);
-  m_secondPageButton = new ButtonAction("Dynamic Current", "normal", this);
-  m_thirdPageButton = new ButtonAction("Static Power", "normal", this);
-  m_fourthPageButton = new ButtonAction("Static Current", "normal", this);
+  m_firstPageButton = new ButtonAction(this, "Dynamic Power");
+  m_secondPageButton = new ButtonAction(this, "Dynamic Current");
+  m_thirdPageButton = new ButtonAction(this, "Static Power");
+  m_fourthPageButton = new ButtonAction(this, "Static Current");
 
   m_firstPageButton->setFixedSize(144, 48);
   m_secondPageButton->setFixedSize(144, 48);

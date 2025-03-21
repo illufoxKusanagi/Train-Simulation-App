@@ -14,6 +14,7 @@ struct TrainData {
   double n_car;
   double gearRatio;
   double wheel;
+  double trainsetLength;
 };
 
 struct MassData {

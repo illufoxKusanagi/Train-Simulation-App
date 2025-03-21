@@ -38,7 +38,7 @@ void TrainTrackPage::setupSecondPage() {
 
 void TrainTrackPage::setupChart(QVBoxLayout *pageLayout) {
   ChartWidget *chartWidget =
-      new ChartWidget("Distance", "Distance", this, m_trainSimulation);
+      new ChartWidget(this, "Distance", "Distance", m_trainSimulation);
   pageLayout->addWidget(chartWidget);
 }
 
@@ -46,8 +46,8 @@ void TrainTrackPage::setupExactValues(QVBoxLayout *pageLayout,
                                       QString inputTitle) {
   QHBoxLayout *layout = new QHBoxLayout;
   layout->setAlignment(Qt::AlignCenter);
-  InputType inputType = InputType("field", inputTitle, "m", 0, true);
-  m_inputWidget = new InputWidget(inputType, this);
+  InputType inputType = InputType("field", inputTitle, "m", true);
+  m_inputWidget = new InputWidget(this, inputType);
   m_inputWidgets[inputTitle] = m_inputWidget;
   layout->addWidget(m_inputWidget);
   pageLayout->addLayout(layout);
@@ -58,8 +58,8 @@ void TrainTrackPage::setupPagination() {
   QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
   paginationLayout->setAlignment(Qt::AlignLeft);
   paginationLayout->setSpacing(16);
-  m_prevButton = new ButtonAction("Dynamic Track", "false", this);
-  m_nextButton = new ButtonAction("Static Track", "false", this);
+  m_prevButton = new ButtonAction(this, "Dynamic Track");
+  m_nextButton = new ButtonAction(this, "Static Track");
   m_prevButton->setFixedSize(144, 48);
   m_nextButton->setFixedSize(144, 48);
   connect(m_prevButton, &QPushButton::clicked, this,

@@ -1,11 +1,11 @@
 #include "button_sidebar_active.h"
 
-ButtonSidebarActive::ButtonSidebarActive(const QString &iconType,
-                                         const QString &buttonLabel,
-                                         QWidget *parent)
+ButtonSidebarActive::ButtonSidebarActive(QWidget *parent,
+                                         const QString &iconType,
+                                         const QString &buttonLabel)
     : QPushButton(parent), m_contentWidget(nullptr), m_layout(nullptr) {
   m_iconType = iconType;
-  m_contentWidget = new ButtonSidebarWidget(m_iconType, buttonLabel, this);
+  m_contentWidget = new ButtonSidebarWidget(this, m_iconType, buttonLabel);
   m_layout = new QHBoxLayout(this);
   m_layout->setContentsMargins(8, 8, 8, 8);
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);

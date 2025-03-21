@@ -5,7 +5,6 @@
 #include "../models/train_simulation.h"
 #include "../pages/constant_values_page.h"
 #include "../pages/electrical_parameter_page.h"
-#include "../pages/output_page.h"
 #include "../pages/running_parameter_page.h"
 #include "../pages/track_parameter_page.h"
 #include "../pages/traction_effort_page.h"

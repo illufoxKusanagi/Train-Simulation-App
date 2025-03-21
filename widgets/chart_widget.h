@@ -22,8 +22,8 @@
 class ChartWidget : public QWidget {
   Q_OBJECT
 public:
-  explicit ChartWidget(QString chartTitle, QString seriesName,
-                       QWidget *parent = nullptr,
+  explicit ChartWidget(QWidget *parent = nullptr, QString chartTitle = "",
+                       QString seriesName = "",
                        TrainSimulation *trainSimulation = nullptr);
   void addSeries(const QString &name, const QColor &color);
   void updateChart();

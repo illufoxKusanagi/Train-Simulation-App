@@ -53,10 +53,10 @@ void LeftPanel::createRunButton() {
   QWidget *runButtonWidget = new QWidget();
   m_runButtonLayout = new QVBoxLayout(runButtonWidget);
   m_runButtonLayout->setSpacing(8);
-  ButtonAction *runButton = new ButtonAction("Run", "yes", this);
+  ButtonAction *runButton = new ButtonAction(this, "Run");
   runButton->setEnabled(true);
   runButton->setSize(132, 40);
-  ButtonAction *runStaticButton = new ButtonAction("Static Run", "yes", this);
+  ButtonAction *runStaticButton = new ButtonAction(this, "Static Run");
   runStaticButton->setEnabled(true);
   runStaticButton->setSize(132, 40);
   m_runButtonLayout->setContentsMargins(16, 0, 0, 0);
@@ -80,7 +80,7 @@ void LeftPanel::createRunButton() {
 }
 
 void LeftPanel::setupInputPageButtons() {
-  m_inputPanel = new LeftPanelInputs(LeftPanelInputs::INPUT, this);
+  m_inputPanel = new LeftPanelInputs(this, LeftPanelInputs::INPUT);
   connect(m_inputPanel, &LeftPanelInputs::buttonClicked, this,
           [this](int index) {
             m_currentIndex = index;
@@ -93,7 +93,7 @@ void LeftPanel::setupInputPageButtons() {
 }
 
 void LeftPanel::setupOutputPageButtons() {
-  m_outputPanel = new LeftPanelInputs(LeftPanelInputs::OUTPUT, this);
+  m_outputPanel = new LeftPanelInputs(this, LeftPanelInputs::OUTPUT);
   connect(m_outputPanel, &LeftPanelInputs::buttonClicked, this,
           [this](int index) {
             m_currentIndex = index + 5;
