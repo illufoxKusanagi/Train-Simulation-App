@@ -4,6 +4,7 @@
 #include "../models/train_data.h"
 #include "../models/train_simulation.h"
 #include "../styles/colors.h"
+#include "../styles/text_style.h"
 #include "../widgets/button_action.h"
 #include "../widgets/button_pagination.h"
 #include <QAbstractSeries>

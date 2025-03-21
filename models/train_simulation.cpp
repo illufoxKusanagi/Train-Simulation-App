@@ -146,7 +146,9 @@ double TrainSimulation::calculateRpm() {
 double TrainSimulation::calculateAdhesion() {
   trainMotorData->tm_adh =
       (trainMotorData->tm_f * constantData.cF) /
-      (((massData->mass_M1 + massData->mass_M2) * 1000) / trainData->n_axle);
+      (((massData->mass_M2 + (loadData->mass_P_final * loadData->n_PM2)) *
+        1000) /
+       trainData->n_axle);
   return trainMotorData->tm_adh;
 }
 
@@ -403,7 +405,7 @@ void TrainSimulation::simulateStaticTrainMovement() {
   int CoastingCount = 0;
   float time = 0.0;
 
-  while (movingData->v < v_limit + 1) {
+  while (movingData->v <= movingData->v_limit) {
     resistanceData->f_resStart = calculateStartRes();
     phase = "Accelerating";
     resistanceData->f_resRunning = calculateRunningRes(movingData->v);
@@ -836,9 +838,10 @@ double TrainSimulation::findMaxEnergyAps() {
 double TrainSimulation::getAdhesion() { return trainMotorData->tm_adh; }
 
 double TrainSimulation::calculateBrakingTrack() {
-  double speed = simulationDatas.trainSpeeds.last();
+  double speed = simulationDatas.trainSpeedsSi.last();
   double brakingTrack = (speed * constantData.t_reaction) +
                         (pow(speed, 2) / (2 * movingData->decc_start));
+  qDebug() << "Braking track : " << brakingTrack;
   return brakingTrack;
 }
 
@@ -853,16 +856,12 @@ double TrainSimulation::calculateDelaySimulationTrack() {
   double poweringDistance = simulationDatas.distanceTotal.last();
   double trainLength = trainData->trainsetLength;
   double brakingDistance = calculateBrakingTrack();
-  return poweringDistance +
-         (simulationDatas.trainSpeeds.last() * constantData.t_delay) +
-         ((pow(simulationDatas.trainSpeeds.last(), 2) /
-           (2 * movingData->decc_start)) *
-          constantData.t_reaction);
+  return poweringDistance + brakingDistance + trainLength +
+         (simulationDatas.trainSpeedsSi.last() * constantData.t_delay) +
+         (0.5 * simulationDatas.accelerationsSi.last() *
+          pow(constantData.t_delay, 2));
 }
 
 double TrainSimulation::calculateSafetySimulationTrack() {
-  double poweringDistance = simulationDatas.distanceTotal.last();
-  double trainLength = trainData->trainsetLength;
-  double brakingDistance = calculateBrakingTrack();
-  return 1.2 * (poweringDistance + trainLength + brakingDistance);
+  return 1.2 * calculateDelaySimulationTrack();
 }

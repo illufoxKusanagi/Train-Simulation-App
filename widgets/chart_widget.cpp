@@ -115,14 +115,41 @@ void ChartWidget::setupTable() {
   m_table->setHorizontalHeaderLabels(dummyHeaders);
   m_table->setRowCount(0);
   m_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-  m_table->setStyleSheet("QTableView { border: 1px solid #e0e0e0; "
-                         "alternate-background-color: #f5f5f5; }"
-                         "QHeaderView::section { background-color: #333; "
-                         "color: white; padding: 6px; }");
+  m_table->setStyleSheet("QTableView {" + TextStyle::BodyMediumRegular() +
+                         "border: 1px solid " + Colors::Grey800.name() +
+                         "; "
+                         "}"
+                         "QTableView::item:selected{"
+                         "background-color: " +
+                         Colors::Secondary100.name() +
+                         ";"
+                         "}"
+                         "QHeaderView::section { background-color:" +
+                         Colors::Primary700.name() + ";" +
+                         TextStyle::BodyMediumRegular() +
+                         "color: black; padding: 6px; }");
   mainLayout->addWidget(m_table);
 }
 
-void ChartWidget::updateTable() { m_trainSimulation->calculateBrakingTrack(); }
+void ChartWidget::updateTable() {
+  double normalTrackLength =
+      m_trainSimulation->calculateNormalSimulationTrack();
+  double delayTrackLength = m_trainSimulation->calculateDelaySimulationTrack();
+  double safetyTrackLength =
+      m_trainSimulation->calculateSafetySimulationTrack();
+  QList<double> normalBraking = {normalTrackLength, delayTrackLength,
+                                 safetyTrackLength};
+  QList<double> emergencyBraking = {normalTrackLength, delayTrackLength,
+                                    safetyTrackLength};
+  m_table->setRowCount(normalBraking.size());
+  m_table->setVerticalHeaderLabels({"Normal", "Delay 3s", "Safety 20%"});
+  for (int i = 0; i < normalBraking.size(); i++)
+    m_table->setItem(i, 0,
+                     new QTableWidgetItem(QString::number(normalBraking[i])));
+  // for (int i = 0; i < emergencyBraking.size(); i++)
+  //   m_table->setItem(
+  //       i, 1, new QTableWidgetItem(QString::number(emergencyBraking[i])));
+}
 
 void ChartWidget::setupChart(QLineSeries *series, QString title) {
   m_chartWidget = new QWidget();
