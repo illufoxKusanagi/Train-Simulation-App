@@ -106,7 +106,13 @@ public:
   double getAdhesion();
 
   double calculateBrakingTrack();
-  double calculateSimulationTrack();
+  double calculateNormalSimulationTrack();
+  double calculateDelaySimulationTrack();
+  double calculateSafetySimulationTrack();
+  double calculateBrakingEmergencyTrack();
+  double calculateEmergencyNormalSimulationTrack();
+  double calculateEmergencyDelaySimulationTrack();
+  double calculateEmergencySafetySimulationTrack();
 
 private:
   ConstantData constantData;

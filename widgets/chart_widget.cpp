@@ -12,7 +12,7 @@ ChartWidget::ChartWidget(QWidget *parent, QString chartTitle,
           &ChartWidget::onSimulationCompleted);
   connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
           &ChartWidget::onStaticSimulationCompleted);
-  buildDummyLine(seriesName);
+  chartTitle.contains("Track") ? setupTable() : buildDummyLine(seriesName);
 }
 
 void ChartWidget::addSeries(const QString &name, const QColor &color) {
@@ -22,9 +22,13 @@ void ChartWidget::addSeries(const QString &name, const QColor &color) {
   }
 }
 
-void ChartWidget::onSimulationCompleted() { updateChart(); }
+void ChartWidget::onSimulationCompleted() {
+  m_chartTitle.contains("Track") ? updateTable() : updateChart();
+}
 
-void ChartWidget::onStaticSimulationCompleted() { updateStaticChart(); }
+void ChartWidget::onStaticSimulationCompleted() {
+  m_chartTitle.contains("Track") ? updateTable() : updateStaticChart();
+}
 
 void ChartWidget::updateChart() {
   if (m_chart) {
@@ -101,6 +105,60 @@ void ChartWidget::buildDummyLine(QString seriesName) {
   series->append(3.4, 3.0);
   series->append(4.1, 3.3);
   setupChart(series, m_chartTitle);
+}
+
+void ChartWidget::setupTable() {
+  QStringList dummyHeaders = {"Track distance", "Track distance on EB"};
+  m_table = new QTableWidget();
+  m_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  m_table->setColumnCount(dummyHeaders.size());
+  m_table->setHorizontalHeaderLabels(dummyHeaders);
+  m_table->setRowCount(0);
+  m_table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+  m_table->setStyleSheet(
+      "QTableView {"
+      "color : " +
+      Colors::StandardBlack.name() + ";" + TextStyle::BodyMediumRegular() +
+      "border: 1px solid " + Colors::Grey800.name() +
+      "; "
+      "}"
+      "QTableView::item:selected{"
+      "background-color: " +
+      Colors::Primary300.name() +
+      ";"
+      "color: " +
+      Colors::StandardBlack.name() +
+      ";"
+      "}"
+      "QTableView::item:hover {"
+      "background-color: " +
+      Colors::Primary100.name() +
+      ";"
+      "}"
+      "QHeaderView::section { background-color:" +
+      Colors::Secondary400.name() + ";" + TextStyle::BodyMediumBold() +
+      "color: white; padding: 6px; }");
+  mainLayout->addWidget(m_table);
+}
+
+void ChartWidget::updateTable() {
+  double normalTrackLength =
+      m_trainSimulation->calculateNormalSimulationTrack();
+  double delayTrackLength = m_trainSimulation->calculateDelaySimulationTrack();
+  double safetyTrackLength =
+      m_trainSimulation->calculateSafetySimulationTrack();
+  QList<double> normalBraking = {normalTrackLength, delayTrackLength,
+                                 safetyTrackLength};
+  QList<double> emergencyBraking = {normalTrackLength, delayTrackLength,
+                                    safetyTrackLength};
+  m_table->setRowCount(normalBraking.size());
+  m_table->setVerticalHeaderLabels({"Normal", "Delay 3s", "Safety 20%"});
+  for (int i = 0; i < normalBraking.size(); i++)
+    m_table->setItem(i, 0,
+                     new QTableWidgetItem(QString::number(normalBraking[i])));
+  // for (int i = 0; i < emergencyBraking.size(); i++)
+  //   m_table->setItem(
+  //       i, 1, new QTableWidgetItem(QString::number(emergencyBraking[i])));
 }
 
 void ChartWidget::setupChart(QLineSeries *series, QString title) {
@@ -452,4 +510,3 @@ void ChartWidget::setupAxis() {
     }
   }
 }
-

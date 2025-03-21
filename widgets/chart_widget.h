@@ -4,14 +4,18 @@
 #include "../models/train_data.h"
 #include "../models/train_simulation.h"
 #include "../styles/colors.h"
+#include "../styles/text_style.h"
 #include "../widgets/button_action.h"
 #include "../widgets/button_pagination.h"
 #include <QAbstractSeries>
 #include <QFileDialog>
 #include <QFont>
 #include <QHBoxLayout>
+#include <QHeaderView>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QTableView>
+#include <QTableWidget>
 #include <QVBoxLayout>
 #include <QValueAxis>
 #include <QWidget>
@@ -42,9 +46,12 @@ private:
   QChart *m_chart;
   QList<QString> m_seriesToDisplay;
   QMap<QString, QColor> m_seriesColors;
+  QTableWidget *m_table;
 
   void buildDummyLine(QString seriesName);
   void setupChart(QLineSeries *series, QString title);
+  void setupTable();
+  void updateTable();
   void createChartButtons(QChartView *chartView);
 
   void setupStaticSpeedChart();

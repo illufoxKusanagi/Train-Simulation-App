@@ -146,7 +146,9 @@ double TrainSimulation::calculateRpm() {
 double TrainSimulation::calculateAdhesion() {
   trainMotorData->tm_adh =
       (trainMotorData->tm_f * constantData.cF) /
-      (((massData->mass_M1 + massData->mass_M2) * 1000) / trainData->n_axle);
+      (((massData->mass_M2 + (loadData->mass_P_final * loadData->n_PM2)) *
+        1000) /
+       trainData->n_axle);
   return trainMotorData->tm_adh;
 }
 
@@ -403,7 +405,7 @@ void TrainSimulation::simulateStaticTrainMovement() {
   int CoastingCount = 0;
   float time = 0.0;
 
-  while (movingData->v < v_limit + 1) {
+  while (movingData->v <= movingData->v_limit) {
     resistanceData->f_resStart = calculateStartRes();
     phase = "Accelerating";
     resistanceData->f_resRunning = calculateRunningRes(movingData->v);
@@ -835,7 +837,58 @@ double TrainSimulation::findMaxEnergyAps() {
 
 double TrainSimulation::getAdhesion() { return trainMotorData->tm_adh; }
 
-double TrainSimulation::calculateSimulationTrack() {
-  double totalDistance = 0;
-  return trainData->trainsetLength + 1000;
+double TrainSimulation::calculateBrakingTrack() {
+  double speed = simulationDatas.trainSpeedsSi.last();
+  double brakingTrack = (speed * constantData.t_reaction) +
+                        (pow(speed, 2) / (2 * movingData->decc_start));
+  return brakingTrack;
+}
+
+double TrainSimulation::calculateBrakingEmergencyTrack() {
+  double speed = simulationDatas.trainSpeedsSi.last();
+  double brakingTrack = (speed * constantData.t_reaction) +
+                        (pow(speed, 2) / (2 * movingData->decc_emergency));
+  return brakingTrack;
+}
+
+double TrainSimulation::calculateNormalSimulationTrack() {
+  double poweringDistance = simulationDatas.distanceTotal.last();
+  double trainLength = trainData->trainsetLength;
+  double brakingDistance = calculateBrakingTrack();
+  return poweringDistance + trainLength + brakingDistance;
+}
+
+double TrainSimulation::calculateEmergencyNormalSimulationTrack() {
+  double poweringDistance = simulationDatas.distanceTotal.last();
+  double trainLength = trainData->trainsetLength;
+  double brakingDistance = calculateBrakingEmergencyTrack();
+  return poweringDistance + trainLength + brakingDistance;
+}
+
+double TrainSimulation::calculateDelaySimulationTrack() {
+  double poweringDistance = simulationDatas.distanceTotal.last();
+  double trainLength = trainData->trainsetLength;
+  double brakingDistance = calculateBrakingTrack();
+  return poweringDistance + brakingDistance + trainLength +
+         (simulationDatas.trainSpeedsSi.last() * constantData.t_delay) +
+         (0.5 * simulationDatas.accelerationsSi.last() *
+          pow(constantData.t_delay, 2));
+}
+
+double TrainSimulation::calculateEmergencyDelaySimulationTrack() {
+  double poweringDistance = simulationDatas.distanceTotal.last();
+  double trainLength = trainData->trainsetLength;
+  double brakingDistance = calculateBrakingEmergencyTrack();
+  return poweringDistance + brakingDistance + trainLength +
+         (simulationDatas.trainSpeedsSi.last() * constantData.t_delay) +
+         (0.5 * simulationDatas.accelerationsSi.last() *
+          pow(constantData.t_delay, 2));
+}
+
+double TrainSimulation::calculateSafetySimulationTrack() {
+  return 1.2 * calculateDelaySimulationTrack();
+}
+
+double TrainSimulation::calculateEmergencySafetySimulationTrack() {
+  return 1.2 * calculateEmergencyDelaySimulationTrack();
 }
