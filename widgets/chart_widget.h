@@ -66,6 +66,7 @@ private:
   void setupDynamicPowerChart();
   void setupDynamicCurrentChart();
   void setupDynamicEnergyChart();
+  void setupDistanceChart();
 
   void setupAxis();
 };

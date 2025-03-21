@@ -22,9 +22,7 @@ void ChartWidget::addSeries(const QString &name, const QColor &color) {
   }
 }
 
-void ChartWidget::onSimulationCompleted() {
-  m_chartTitle.contains("Track") ? updateTable() : updateChart();
-}
+void ChartWidget::onSimulationCompleted() { updateChart(); }
 
 void ChartWidget::onStaticSimulationCompleted() {
   m_chartTitle.contains("Track") ? updateTable() : updateStaticChart();
@@ -58,6 +56,8 @@ void ChartWidget::updateChart() {
       setupDynamicTractionChart();
     } else if (m_chartTitle == "Dynamic Energy") {
       setupDynamicEnergyChart();
+    } else if (m_chartTitle == "Distance") {
+      setupDistanceChart();
     }
     setupAxis();
   }
@@ -485,6 +485,18 @@ void ChartWidget::setupStaticEnergyChart() {
   m_chart->addSeries(energyApsSeries);
 }
 
+void ChartWidget::setupDistanceChart() {
+  QLineSeries *distanceSeries = new QLineSeries();
+  distanceSeries->setName("Distance");
+  distanceSeries->setPen(QPen(Colors::Primary500, 2));
+  const auto &distance = m_trainSimulation->simulationDatas.distanceTotal;
+  const auto &times = m_trainSimulation->simulationDatas.timeTotal;
+  for (int i = 0; i < distance.size(); i++) {
+    distanceSeries->append(times[i], distance[i]);
+  }
+  m_chart->addSeries(distanceSeries);
+}
+
 void ChartWidget::setupAxis() {
   if (m_chart->series().size() > 0) {
     m_chart->createDefaultAxes();
@@ -499,6 +511,8 @@ void ChartWidget::setupAxis() {
         axisX->setTitleText("Distance (m)");
       else if (m_chartTitle.contains("Static"))
         axisX->setTitleText("Speed (km/h)");
+      else if (m_chartTitle.contains("Distance"))
+        axisX->setTitleText("Time (s)");
       if (m_chartTitle.contains("Dynamic"))
         axisX->setTitleText("Time (s)");
 
@@ -515,6 +529,8 @@ void ChartWidget::setupAxis() {
         axisY->setTitleText("Distance (m)");
       else if (m_chartTitle.contains("Energy"))
         axisY->setTitleText("Energy (kW)");
+      else if (m_chartTitle.contains("Distance"))
+        axisY->setTitleText("Distance Travelled(m)");
     }
   }
 }
