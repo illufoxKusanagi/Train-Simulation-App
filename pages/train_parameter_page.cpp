@@ -265,7 +265,6 @@ void TrainParameterPage::setParameterValue() {
   loadData->mass_P = getParameterValue("Passenger Weight (kg)");
   massData->i_M = getParameterValue("Inertial Coefficient Motor");
   massData->i_T = getParameterValue("Inertial Coefficient Trailer");
-  updateTrainsetLengthValue();
 }
 
 void TrainParameterPage::setTypeValue() {
@@ -431,6 +430,7 @@ void TrainParameterPage::setupTrainsetSection(
   });
   numberCarLayout->addWidget(m_numberOfCar);
   numberCarLayout->addWidget(m_trainLabelImage);
+  updateTrainsetLengthValue();
 }
 
 void TrainParameterPage::connectAwDataInput() {
