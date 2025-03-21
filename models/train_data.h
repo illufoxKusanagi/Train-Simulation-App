@@ -81,6 +81,7 @@ struct MovingData {
   double decc_si = 0;
   double acc_start;
   double decc_start;
+  double decc_emergency;
   double v = 0;
   double v_si = 0;
   double v_limit;

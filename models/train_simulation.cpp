@@ -841,7 +841,13 @@ double TrainSimulation::calculateBrakingTrack() {
   double speed = simulationDatas.trainSpeedsSi.last();
   double brakingTrack = (speed * constantData.t_reaction) +
                         (pow(speed, 2) / (2 * movingData->decc_start));
-  qDebug() << "Braking track : " << brakingTrack;
+  return brakingTrack;
+}
+
+double TrainSimulation::calculateBrakingEmergencyTrack() {
+  double speed = simulationDatas.trainSpeedsSi.last();
+  double brakingTrack = (speed * constantData.t_reaction) +
+                        (pow(speed, 2) / (2 * movingData->decc_emergency));
   return brakingTrack;
 }
 
@@ -849,6 +855,13 @@ double TrainSimulation::calculateNormalSimulationTrack() {
   double poweringDistance = simulationDatas.distanceTotal.last();
   double trainLength = trainData->trainsetLength;
   double brakingDistance = calculateBrakingTrack();
+  return poweringDistance + trainLength + brakingDistance;
+}
+
+double TrainSimulation::calculateEmergencyNormalSimulationTrack() {
+  double poweringDistance = simulationDatas.distanceTotal.last();
+  double trainLength = trainData->trainsetLength;
+  double brakingDistance = calculateBrakingEmergencyTrack();
   return poweringDistance + trainLength + brakingDistance;
 }
 
@@ -862,6 +875,20 @@ double TrainSimulation::calculateDelaySimulationTrack() {
           pow(constantData.t_delay, 2));
 }
 
+double TrainSimulation::calculateEmergencyDelaySimulationTrack() {
+  double poweringDistance = simulationDatas.distanceTotal.last();
+  double trainLength = trainData->trainsetLength;
+  double brakingDistance = calculateBrakingEmergencyTrack();
+  return poweringDistance + brakingDistance + trainLength +
+         (simulationDatas.trainSpeedsSi.last() * constantData.t_delay) +
+         (0.5 * simulationDatas.accelerationsSi.last() *
+          pow(constantData.t_delay, 2));
+}
+
 double TrainSimulation::calculateSafetySimulationTrack() {
   return 1.2 * calculateDelaySimulationTrack();
+}
+
+double TrainSimulation::calculateEmergencySafetySimulationTrack() {
+  return 1.2 * calculateEmergencyDelaySimulationTrack();
 }
