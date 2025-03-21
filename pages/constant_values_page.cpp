@@ -10,19 +10,19 @@ ConstantValuesPage::ConstantValuesPage(QWidget *parent) : QWidget(parent) {
 
   QStringList labels = {"Gravitation", "m/s to km/h"};
   QStringList unitLabels = {"m/s^2", "km/h"};
-  InputType gravitationInputType("field", "Gravitation", "m/s^2", constants.g,
-                                 true);
-  InputType speedConverterInputType("field", "m/s to km/h", "", constants.cV,
-                                    true);
-  InputType forceConverterInputType("field", "kW to kgf", "", constants.cF,
-                                    true);
-  InputType timeStepInputType("field", "Time Step", "s", constants.dt, true);
-  InputWidget *gravitationInput = new InputWidget(gravitationInputType, this);
+  InputType gravitationInputType("field", "Gravitation", "m/s^2", true,
+                                 constants.g);
+  InputType speedConverterInputType("field", "m/s to km/h", "", true,
+                                    constants.cV);
+  InputType forceConverterInputType("field", "kW to kgf", "", true,
+                                    constants.cF);
+  InputType timeStepInputType("field", "Time Step", "s", true, constants.dt);
+  InputWidget *gravitationInput = new InputWidget(this, gravitationInputType);
   InputWidget *speedConverterInput =
-      new InputWidget(speedConverterInputType, this);
+      new InputWidget(this, speedConverterInputType);
   InputWidget *forceConverterInput =
-      new InputWidget(forceConverterInputType, this);
-  InputWidget *timeStepInput = new InputWidget(timeStepInputType, this);
+      new InputWidget(this, forceConverterInputType);
+  InputWidget *timeStepInput = new InputWidget(this, timeStepInputType);
   groupBoxLayout->addWidget(gravitationInput);
   groupBoxLayout->addWidget(speedConverterInput);
   groupBoxLayout->addWidget(forceConverterInput);

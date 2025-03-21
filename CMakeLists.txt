@@ -35,8 +35,6 @@ set(PAGE_SOURCES
     pages/constant_values_page.h
     pages/electrical_parameter_page.cpp
     pages/electrical_parameter_page.h
-    pages/output_page.cpp
-    pages/output_page.h
     pages/train_speed_page.h
     pages/train_speed_page.cpp
     pages/traction_effort_page.h
@@ -75,8 +73,6 @@ set(WIDGET_SOURCES
     widgets/left_panel.h
     widgets/button_pagination.h
     widgets/button_pagination.cpp
-    widgets/input_upload_widget.h
-    widgets/input_upload_widget.cpp
     widgets/left_panel_category.h
     widgets/left_panel_category.cpp
     widgets/button_panel_category.h

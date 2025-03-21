@@ -41,7 +41,7 @@ void TrainConsumptionPage::setupSecondPage() {
 void TrainConsumptionPage::setupChart(QVBoxLayout *pageLayout,
                                       QString chartTitle, QString chartSeries) {
   ChartWidget *chartWidget =
-      new ChartWidget(chartTitle, chartSeries, this, m_trainSimulation);
+      new ChartWidget(this, chartTitle, chartSeries, m_trainSimulation);
   m_chartWidget[chartTitle] = chartWidget;
   pageLayout->addWidget(chartWidget);
 }
@@ -51,8 +51,8 @@ void TrainConsumptionPage::setupExactValues(QVBoxLayout *pageLayout,
   QHBoxLayout *layout = new QHBoxLayout;
   layout->setAlignment(Qt::AlignCenter);
   for (const QString &inputTitles : inputLabels) {
-    InputType inputType = InputType("field", inputTitles, "km/h", 0, true);
-    InputWidget *inputWidget = new InputWidget(inputType, this);
+    InputType inputType = InputType("field", inputTitles, "km/h", true);
+    InputWidget *inputWidget = new InputWidget(this, inputType);
     m_inputWidgets[inputTitles] = inputWidget;
     inputWidget->setMinimumHeight(80);
     layout->addWidget(inputWidget);
@@ -65,8 +65,8 @@ void TrainConsumptionPage::setupPagination() {
   QHBoxLayout *paginationLayout = new QHBoxLayout(paginationWidget);
   paginationLayout->setAlignment(Qt::AlignLeft);
   paginationLayout->setSpacing(16);
-  m_prevButton = new ButtonAction("Dynamic Energy", "false", this);
-  m_nextButton = new ButtonAction("Static Energy", "false", this);
+  m_prevButton = new ButtonAction(this, "Dynamic Energy");
+  m_nextButton = new ButtonAction(this, "Static Energy");
   m_prevButton->setFixedSize(144, 48);
   m_nextButton->setFixedSize(144, 48);
   connect(m_prevButton, &QPushButton::clicked, this,

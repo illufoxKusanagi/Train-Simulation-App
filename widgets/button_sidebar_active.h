@@ -12,9 +12,9 @@ class ButtonSidebarActive : public QPushButton {
   Q_OBJECT
 
 public:
-  explicit ButtonSidebarActive(const QString &iconType = "",
-                               const QString &buttonLabel = "",
-                               QWidget *parent = nullptr);
+  explicit ButtonSidebarActive(QWidget *parent = nullptr,
+                               const QString &iconType = "",
+                               const QString &buttonLabel = "");
   void setLabelVisible(bool visible);
   void setIconVisible(bool visible);
   void setEnabled(bool isEnabled);

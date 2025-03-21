@@ -39,9 +39,9 @@ void RunningParameterPage::createInputs() {
 
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget = new InputWidget(
+        this,
         InputType(i == labels.size() - 2 || i == 7 ? "dropdown" : "field",
                   labels[i], unitLabels[i]),
-        this,
         (i == labels.size() - 2 || i == 7)
             ? (i == 7 ? poweringOptions : deceleratingOptions)
             : QStringList());
