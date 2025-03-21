@@ -30,19 +30,21 @@ void RunningParameterPage::createInputs() {
                         "Final Acceleration",
                         "Deceleration",
                         "Decelerating Gear",
-                        "Final Deceleration"};
-  QStringList unitLabels = {"",      "km/h", "km/h",  "km/h",  "km/h", "km/h",
-                            "m/s^2", "",     "m/s^2", "m/s^2", "",     "m/s^2"};
+                        "Final Deceleration",
+                        "Emergency Brake Deceleration"};
+  QStringList unitLabels = {"",     "km/h",  "km/h", "km/h",  "km/h",
+                            "km/h", "m/s^2", "",     "m/s^2", "m/s^2",
+                            "",     "m/s^2", "m/s^2"};
   QStringList poweringOptions = {"P7", "P6", "P5", "P4", "P3", "P2", "P1"};
   QStringList deceleratingOptions = {"B7", "B6", "B5", "B4", "B3", "B2", "B1"};
-  QList<double> values = {39.2, 35, 65, 5, 55, 70, 1, 0, 0, 1, 0, 0};
+  QList<double> values = {39.2, 35, 65, 5, 55, 70, 1, 0, 0, 1, 0, 0, 1.2};
 
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget = new InputWidget(
         this,
-        InputType(i == labels.size() - 2 || i == 7 ? "dropdown" : "field",
+        InputType(i == labels.size() - 3 || i == 7 ? "dropdown" : "field",
                   labels[i], unitLabels[i]),
-        (i == labels.size() - 2 || i == 7)
+        (i == labels.size() - 3 || i == 7)
             ? (i == 7 ? poweringOptions : deceleratingOptions)
             : QStringList());
     inputWidget->setValue(values[i]);
@@ -67,6 +69,8 @@ void RunningParameterPage::setParameterValue() {
   movingData->v_b1 = getParameterValue("Weakening Point 3 (Braking)");
   movingData->v_diffCoast = getParameterValue("Difference Coasting Speed");
   movingData->v_b2 = getParameterValue("Weakening Point 4 (Braking)");
+  movingData->decc_emergency =
+      getParameterValue("Emergency Brake Deceleration");
   setAccelerationValue();
   setDecelerationValue();
 }
