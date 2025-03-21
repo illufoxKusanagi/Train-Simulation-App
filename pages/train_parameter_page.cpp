@@ -51,10 +51,11 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
                         "Passenger Weight (kg)",
                         "Gear Ratio",
                         "Load per Car (ton)",
-                        "Load Train (AW)"};
+                        "Load Condition (AW)",
+                        "Car Length"};
 
-  QStringList unitLabels = {"", "", "", "", "mm", "kg", "", "ton", ""};
-  QList<double> values = {1.05, 4, 1.1, 24, 860, 70.0, 3.0, 0.0, 0};
+  QStringList unitLabels = {"", "", "", "", "mm", "kg", "", "ton", "", "m"};
+  QList<double> values = {1.05, 4, 1.1, 24, 860, 70.0, 3.0, 0.0, 0, 20};
   QStringList awOptions = {"AW4", "AW3", "AW2", "AW1", "AW0"};
   QGridLayout *formLayout = new QGridLayout(firstPageWidget);
   formLayout->setAlignment(Qt::AlignCenter);
@@ -64,9 +65,9 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget = new InputWidget(
         this,
-        InputType(i == labels.count() - 1 ? "dropdown" : "field", labels[i],
+        InputType(i == labels.count() - 2 ? "dropdown" : "field", labels[i],
                   unitLabels[i]),
-        i == labels.count() - 1 ? awOptions : QStringList());
+        i == labels.count() - 2 ? awOptions : QStringList());
     inputWidget->setValue(values[i]);
     formLayout->addWidget(inputWidget, i / 3, i % 3);
     inputWidget->setFixedHeight(80);
@@ -75,6 +76,7 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
   setParameterValue();
   connectInputSignals();
   connectAwDataInput();
+  connectTrainsetLengthInputSignal();
 }
 
 void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
@@ -424,16 +426,17 @@ void TrainParameterPage::setupTrainsetSection(
       }
     }
     updateMassCalculation();
+    updateTrainsetLengthValue();
   });
   numberCarLayout->addWidget(m_numberOfCar);
   numberCarLayout->addWidget(m_trainLabelImage);
 }
 
 void TrainParameterPage::connectAwDataInput() {
-  connect(m_inputWidgets["Load Train (AW)"], &InputWidget::valueChanged, this,
-          [this]() {
-            int index =
-                static_cast<int>(m_inputWidgets["Load Train (AW)"]->getValue());
+  connect(m_inputWidgets["Load Condition (AW)"], &InputWidget::valueChanged,
+          this, [this]() {
+            int index = static_cast<int>(
+                m_inputWidgets["Load Condition (AW)"]->getValue());
             const QStringList labels = {"Tc", "M1", "M2", "T1", "T2", "T3"};
             for (int i = 0; i < labels.size(); i++) {
               if (m_passengerInputWidgets.contains(labels[i])) {
@@ -480,6 +483,16 @@ void TrainParameterPage::setDefaultCarValues() {
 }
 
 double TrainParameterPage::getAwData() {
-  double awIndex = getParameterValue("Load Train (AW)");
+  double awIndex = getParameterValue("Load Condition (AW)");
   return awIndex;
+}
+
+void TrainParameterPage::connectTrainsetLengthInputSignal() {
+  connect(m_inputWidgets["Car Length"], &InputWidget::valueChanged, this,
+          &TrainParameterPage::updateTrainsetLengthValue);
+}
+
+void TrainParameterPage::updateTrainsetLengthValue() {
+  trainData->trainsetLength =
+      (trainData->n_car * getParameterValue("Car Length"));
 }

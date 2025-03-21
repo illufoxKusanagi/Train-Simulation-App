@@ -834,3 +834,8 @@ double TrainSimulation::findMaxEnergyAps() {
 }
 
 double TrainSimulation::getAdhesion() { return trainMotorData->tm_adh; }
+
+double TrainSimulation::calculateSimulationTrack() {
+  double totalDistance = 0;
+  return trainData->trainsetLength + 1000;
+}

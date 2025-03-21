@@ -105,6 +105,9 @@ public:
   double findMaxEnergyAps();
   double getAdhesion();
 
+  double calculateBrakingTrack();
+  double calculateSimulationTrack();
+
 private:
   ConstantData constantData;
   TrainData *trainData;
