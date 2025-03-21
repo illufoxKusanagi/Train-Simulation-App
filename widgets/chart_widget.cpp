@@ -147,18 +147,25 @@ void ChartWidget::updateTable() {
   double delayTrackLength = m_trainSimulation->calculateDelaySimulationTrack();
   double safetyTrackLength =
       m_trainSimulation->calculateSafetySimulationTrack();
+  double normalEmergencyTrackLength =
+      m_trainSimulation->calculateEmergencyNormalSimulationTrack();
+  double delayEmergencyTrackLength =
+      m_trainSimulation->calculateEmergencyDelaySimulationTrack();
+  double safetyEmergencyTrackLength =
+      m_trainSimulation->calculateEmergencySafetySimulationTrack();
   QList<double> normalBraking = {normalTrackLength, delayTrackLength,
                                  safetyTrackLength};
-  QList<double> emergencyBraking = {normalTrackLength, delayTrackLength,
-                                    safetyTrackLength};
+  QList<double> emergencyBraking = {normalEmergencyTrackLength,
+                                    delayEmergencyTrackLength,
+                                    safetyEmergencyTrackLength};
   m_table->setRowCount(normalBraking.size());
   m_table->setVerticalHeaderLabels({"Normal", "Delay 3s", "Safety 20%"});
   for (int i = 0; i < normalBraking.size(); i++)
     m_table->setItem(i, 0,
                      new QTableWidgetItem(QString::number(normalBraking[i])));
-  // for (int i = 0; i < emergencyBraking.size(); i++)
-  //   m_table->setItem(
-  //       i, 1, new QTableWidgetItem(QString::number(emergencyBraking[i])));
+  for (int i = 0; i < emergencyBraking.size(); i++)
+    m_table->setItem(
+        i, 1, new QTableWidgetItem(QString::number(emergencyBraking[i])));
 }
 
 void ChartWidget::setupChart(QLineSeries *series, QString title) {
