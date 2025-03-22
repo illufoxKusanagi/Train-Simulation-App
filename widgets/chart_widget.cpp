@@ -23,13 +23,17 @@ void ChartWidget::addSeries(const QString &name, const QColor &color) {
 }
 
 void ChartWidget::onSimulationCompleted() {
-  m_simulationType = Dynamic;
-  updateChart();
+  if (m_chartTitle.contains("Dynamic")) {
+    m_simulationType = Dynamic;
+    updateChart();
+  }
 }
 
 void ChartWidget::onStaticSimulationCompleted() {
-  m_simulationType = Static;
-  m_chartTitle.contains("Track") ? updateTable() : updateStaticChart();
+  if (m_chartTitle.contains("Static")) {
+    m_simulationType = Static;
+    m_chartTitle.contains("Track") ? updateTable() : updateStaticChart();
+  }
 }
 
 void ChartWidget::updateChart() {
@@ -513,6 +517,8 @@ void ChartWidget::setupStaticAxis() {
   double roundedMaxValue;
   if (m_chart->series().isEmpty())
     return;
+  if (m_simulationType == Static)
+    qDebug() << "Static chart updated";
   if (m_simulationType != Static)
     return;
   m_chart->createDefaultAxes();
@@ -607,6 +613,9 @@ void ChartWidget::setupDynamicAxis() {
   double roundedMaxValue;
   if (m_chart->series().isEmpty())
     return;
+
+  if (m_simulationType == Dynamic)
+    qDebug() << "Dynamic chart updated";
   if (m_simulationType != Dynamic)
     return;
   m_chart->createDefaultAxes();
@@ -624,12 +633,15 @@ void ChartWidget::setupDynamicAxis() {
   axisX->setLabelFormat("%.0f"); // No decimal places
   axisY->setMinorTickCount(4);   // Minor ticks for Y-axis
   axisY->setLabelFormat("%.0f"); // No decimal places
-  if (m_chartTitle.contains("Dynamic") || m_chartTitle.contains("Distance"))
+  if (m_chartTitle.contains("Dynamic") || m_chartTitle.contains("Distance")) {
     axisX->setRange(0,
                     1.2 * m_trainSimulation->simulationDatas.timeTotal.last());
-  else
+    axisX->setTitleText("Time (s)");
+  } else {
     axisX->setRange(
         0, 1.2 * m_trainSimulation->simulationDatas.trainSpeeds.last());
+    axisX->setTitleText("Spee (km/h)");
+  }
   // Set specific range for X-axis (adjust based on your data)
   // Use this if you want to hardcode the range:
   // axisX->setRange(-10, 400);
