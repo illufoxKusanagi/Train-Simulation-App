@@ -23,7 +23,7 @@ void ChartWidget::addSeries(const QString &name, const QColor &color) {
 }
 
 void ChartWidget::onSimulationCompleted() {
-  if (m_chartTitle.contains("Dynamic")) {
+  if (m_chartTitle.contains("Dynamic") || m_chartTitle.contains("Distance")) {
     m_simulationType = Dynamic;
     updateChart();
   }
@@ -54,8 +54,6 @@ void ChartWidget::updateChart() {
       setupDynamicPowerChart();
     } else if (m_chartTitle == "Dynamic Current") {
       setupDynamicCurrentChart();
-    } else if (m_chartTitle == "Dynamic Track") {
-      setupDynamicTrackChart();
     } else if (m_chartTitle == "Dynamic Speed") {
       setupDynamicSpeedChart();
     } else if (m_chartTitle == "Dynamic Traction Effort") {
@@ -311,18 +309,6 @@ void ChartWidget::setupDynamicTractionChart() {
   m_chart->addSeries(speedSeries);
 }
 
-void ChartWidget::setupDynamicTrackChart() {
-  QLineSeries *speedSeries = new QLineSeries();
-  speedSeries->setName("Distance Travelled");
-  speedSeries->setPen(QPen(Colors::Secondary400, 2));
-  const auto &time = m_trainSimulation->simulationDatas.timeTotal;
-  const auto &distance = m_trainSimulation->simulationDatas.distanceTotal;
-  for (int i = 0; i < time.size() && i < distance.size(); ++i) {
-    speedSeries->append(time[i], distance[i]);
-  }
-  m_chart->addSeries(speedSeries);
-}
-
 void ChartWidget::setupDynamicPowerChart() {
   QLineSeries *catenaryPowerSeries = new QLineSeries();
   QLineSeries *vvvfPowerSeries = new QLineSeries();
@@ -517,8 +503,6 @@ void ChartWidget::setupStaticAxis() {
   double roundedMaxValue;
   if (m_chart->series().isEmpty())
     return;
-  if (m_simulationType == Static)
-    qDebug() << "Static chart updated";
   if (m_simulationType != Static)
     return;
   m_chart->createDefaultAxes();
@@ -530,11 +514,10 @@ void ChartWidget::setupStaticAxis() {
   if (!axisX || !axisY)
     return;
 
-  // For X axis
-  axisX->setMinorTickCount(1);   // Minor ticks between major ticks
-  axisX->setLabelFormat("%.0f"); // No decimal places
-  axisY->setMinorTickCount(4);   // Minor ticks for Y-axis
-  axisY->setLabelFormat("%.0f"); // No decimal places
+  axisX->setMinorTickCount(1);
+  axisX->setLabelFormat("%.0f");
+  axisY->setMinorTickCount(4);
+  axisY->setLabelFormat("%.0f");
 
   if (m_chartTitle.contains("Static Speed")) {
     axisX->setRange(
@@ -545,12 +528,6 @@ void ChartWidget::setupStaticAxis() {
         0, 1.2 * m_trainSimulation->simulationDatas.trainSpeeds.last());
     axisX->setTitleText("Speed (km/h)");
   }
-
-  // Set specific range for X-axis (adjust based on your data)
-  // Use this if you want to hardcode the range:
-  // axisX->setRange(-10, 400);
-
-  // For Y axis
   if (m_chartTitle.contains("Static Power")) {
     maxValue = *std::max_element(
                    m_trainSimulation->simulationDatas.catenaryPowers.begin(),
@@ -598,14 +575,6 @@ void ChartWidget::setupStaticAxis() {
     axisY->setTickCount(ceil(roundedMaxValue / 10) + 1);
     axisY->setTitleText("Energy (kW)");
   }
-  // Set Y-axis tick configuration
-  // axisY->setTickCount(7);
-  // // Shows 0, 5, 10, 15, 20, 25, 30 (if range is 0-30)
-  // axisY->setMinorTickCount(5);   // Shows minor ticks at 1, 2, 3, 4, etc.
-  // axisY->setLabelFormat("%.0f"); // No decimal places
-
-  // Optional: For fixed intervals (like exactly 5 units between ticks)
-  // If your Y-axis should show exactly 0, 5, 10, 15, etc:
 }
 
 void ChartWidget::setupDynamicAxis() {
@@ -613,9 +582,6 @@ void ChartWidget::setupDynamicAxis() {
   double roundedMaxValue;
   if (m_chart->series().isEmpty())
     return;
-
-  if (m_simulationType == Dynamic)
-    qDebug() << "Dynamic chart updated";
   if (m_simulationType != Dynamic)
     return;
   m_chart->createDefaultAxes();
@@ -640,13 +606,9 @@ void ChartWidget::setupDynamicAxis() {
   } else {
     axisX->setRange(
         0, 1.2 * m_trainSimulation->simulationDatas.trainSpeeds.last());
-    axisX->setTitleText("Spee (km/h)");
+    axisX->setTitleText("Speed (km/h)");
   }
-  // Set specific range for X-axis (adjust based on your data)
-  // Use this if you want to hardcode the range:
-  // axisX->setRange(-10, 400);
 
-  // For Y axis
   if (m_chartTitle.contains("Dynamic Power")) {
     maxValue = *std::max_element(
                    m_trainSimulation->simulationDatas.catenaryPowers.begin(),
