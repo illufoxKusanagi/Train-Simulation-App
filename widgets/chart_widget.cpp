@@ -22,9 +22,13 @@ void ChartWidget::addSeries(const QString &name, const QColor &color) {
   }
 }
 
-void ChartWidget::onSimulationCompleted() { updateChart(); }
+void ChartWidget::onSimulationCompleted() {
+  m_simulationType = Dynamic;
+  updateChart();
+}
 
 void ChartWidget::onStaticSimulationCompleted() {
+  m_simulationType = Static;
   m_chartTitle.contains("Track") ? updateTable() : updateStaticChart();
 }
 
@@ -36,8 +40,6 @@ void ChartWidget::updateChart() {
       if (name.contains("Dynamic"))
         seriesToRemove.append(series);
       else if (name.contains("Distance"))
-        seriesToRemove.append(series);
-      else if (name.startsWith("Distance"))
         seriesToRemove.append(series);
     }
 
@@ -59,7 +61,7 @@ void ChartWidget::updateChart() {
     } else if (m_chartTitle == "Distance") {
       setupDistanceChart();
     }
-    setupAxis();
+    setupDynamicAxis();
   }
 }
 
@@ -89,8 +91,7 @@ void ChartWidget::updateStaticChart() {
     } else if (m_chartTitle == "Static Energy") {
       setupStaticEnergyChart();
     }
-
-    setupAxis();
+    setupStaticAxis();
   }
 }
 
@@ -305,7 +306,18 @@ void ChartWidget::setupDynamicTractionChart() {
   }
   m_chart->addSeries(speedSeries);
 }
-void ChartWidget::setupDynamicTrackChart() {}
+
+void ChartWidget::setupDynamicTrackChart() {
+  QLineSeries *speedSeries = new QLineSeries();
+  speedSeries->setName("Distance Travelled");
+  speedSeries->setPen(QPen(Colors::Secondary400, 2));
+  const auto &time = m_trainSimulation->simulationDatas.timeTotal;
+  const auto &distance = m_trainSimulation->simulationDatas.distanceTotal;
+  for (int i = 0; i < time.size() && i < distance.size(); ++i) {
+    speedSeries->append(time[i], distance[i]);
+  }
+  m_chart->addSeries(speedSeries);
+}
 
 void ChartWidget::setupDynamicPowerChart() {
   QLineSeries *catenaryPowerSeries = new QLineSeries();
@@ -422,7 +434,6 @@ void ChartWidget::setupStaticTractionChart() {
   }
   m_chart->addSeries(speedSeries);
 }
-void ChartWidget::setupStaticTrackChart() {}
 
 void ChartWidget::setupDynamicEnergyChart() {
   QLineSeries *energyMotorSeries = new QLineSeries();
@@ -473,12 +484,12 @@ void ChartWidget::setupStaticEnergyChart() {
   const auto &energyPoweringData =
       m_trainSimulation->simulationDatas.energyPowerings;
   const auto &energyApsData = m_trainSimulation->simulationDatas.energyAps;
-  const auto &times = m_trainSimulation->simulationDatas.timeTotal;
+  const auto &speed = m_trainSimulation->simulationDatas.trainSpeeds;
   for (int i = 0; i < energyMotorData.size() && i < energyPoweringData.size();
        i++) {
-    energyMotorSeries->append(times[i], energyMotorData[i]);
-    energyPoweringSeries->append(times[i], energyPoweringData[i]);
-    energyApsSeries->append(times[i], energyApsData[i]);
+    energyMotorSeries->append(speed[i], energyMotorData[i]);
+    energyPoweringSeries->append(speed[i], energyPoweringData[i]);
+    energyApsSeries->append(speed[i], energyApsData[i]);
   }
   m_chart->addSeries(energyMotorSeries);
   m_chart->addSeries(energyPoweringSeries);
@@ -497,40 +508,187 @@ void ChartWidget::setupDistanceChart() {
   m_chart->addSeries(distanceSeries);
 }
 
-void ChartWidget::setupAxis() {
-  if (m_chart->series().size() > 0) {
-    m_chart->createDefaultAxes();
-    // Set proper axis labels
-    QValueAxis *axisX =
-        qobject_cast<QValueAxis *>(m_chart->axes(Qt::Horizontal).first());
-    QValueAxis *axisY =
-        qobject_cast<QValueAxis *>(m_chart->axes(Qt::Vertical).first());
-    if (axisX && axisY) {
-      // For X axis
-      if (m_chartTitle.contains("Static Speed"))
-        axisX->setTitleText("Distance (m)");
-      else if (m_chartTitle.contains("Static"))
-        axisX->setTitleText("Speed (km/h)");
-      else if (m_chartTitle.contains("Distance"))
-        axisX->setTitleText("Time (s)");
-      if (m_chartTitle.contains("Dynamic"))
-        axisX->setTitleText("Time (s)");
+void ChartWidget::setupStaticAxis() {
+  double maxValue;
+  double roundedMaxValue;
+  if (m_chart->series().isEmpty())
+    return;
+  if (m_simulationType != Static)
+    return;
+  m_chart->createDefaultAxes();
+  // Set proper axis labels
+  QValueAxis *axisX =
+      qobject_cast<QValueAxis *>(m_chart->axes(Qt::Horizontal).first());
+  QValueAxis *axisY =
+      qobject_cast<QValueAxis *>(m_chart->axes(Qt::Vertical).first());
+  if (!axisX || !axisY)
+    return;
 
-      // For Y axis
-      if (m_chartTitle.contains("Power"))
-        axisY->setTitleText("Power (kW)");
-      else if (m_chartTitle.contains("Current"))
-        axisY->setTitleText("Current (A)");
-      else if (m_chartTitle.contains("Speed"))
-        axisY->setTitleText("Speed (km/h)");
-      else if (m_chartTitle.contains("Traction Effort"))
-        axisY->setTitleText("Traction Effort (kN)");
-      else if (m_chartTitle.contains("Distance"))
-        axisY->setTitleText("Distance (m)");
-      else if (m_chartTitle.contains("Energy"))
-        axisY->setTitleText("Energy (kW)");
-      else if (m_chartTitle.contains("Distance"))
-        axisY->setTitleText("Distance Travelled(m)");
-    }
+  // For X axis
+  axisX->setMinorTickCount(1);   // Minor ticks between major ticks
+  axisX->setLabelFormat("%.0f"); // No decimal places
+  axisY->setMinorTickCount(4);   // Minor ticks for Y-axis
+  axisY->setLabelFormat("%.0f"); // No decimal places
+
+  if (m_chartTitle.contains("Static Speed")) {
+    axisX->setRange(
+        0, (1.2 * m_trainSimulation->simulationDatas.distanceTotal.last()));
+    axisX->setTitleText("Distance (m)");
+  } else if (m_chartTitle.contains("Static")) {
+    axisX->setRange(
+        0, 1.2 * m_trainSimulation->simulationDatas.trainSpeeds.last());
+    axisX->setTitleText("Speed (km/h)");
+  }
+
+  // Set specific range for X-axis (adjust based on your data)
+  // Use this if you want to hardcode the range:
+  // axisX->setRange(-10, 400);
+
+  // For Y axis
+  if (m_chartTitle.contains("Static Power")) {
+    maxValue = *std::max_element(
+                   m_trainSimulation->simulationDatas.catenaryPowers.begin(),
+                   m_trainSimulation->simulationDatas.catenaryPowers.end()) *
+               1.2;
+    roundedMaxValue = ceil(maxValue / 100) * 100;
+    axisY->setRange(0, roundedMaxValue);
+    axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
+    axisY->setTitleText("Power (kW)");
+  } else if (m_chartTitle.contains("Static Current")) {
+    maxValue = *std::max_element(
+                   m_trainSimulation->simulationDatas.catenaryCurrents.begin(),
+                   m_trainSimulation->simulationDatas.catenaryCurrents.end()) *
+               1.1;
+    roundedMaxValue = ceil(maxValue / 100) * 100;
+    axisY->setRange(0, roundedMaxValue);
+    axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
+    axisY->setTitleText("Current (A)");
+  } else if (m_chartTitle.contains("Static Speed")) {
+    maxValue = *std::max_element(
+                   m_trainSimulation->simulationDatas.trainSpeeds.begin(),
+                   m_trainSimulation->simulationDatas.trainSpeeds.end()) *
+               1.1;
+    roundedMaxValue = ceil(maxValue / 10) * 10;
+    axisY->setRange(0, roundedMaxValue);
+    axisY->setTickCount(ceil(roundedMaxValue / 100) + 1);
+    axisY->setTitleText("Speed (km/h)");
+  } else if (m_chartTitle.contains("Static Traction Effort")) {
+    maxValue = *std::max_element(
+                   m_trainSimulation->simulationDatas.tractionEfforts.begin(),
+                   m_trainSimulation->simulationDatas.tractionEfforts.end()) *
+               1.1;
+    roundedMaxValue = ceil(maxValue / 100) * 100;
+    axisY->setRange(0, roundedMaxValue);
+    axisY->setTickCount(ceil(roundedMaxValue / 100) + 1);
+    axisY->setTitleText("Traction Effort (kN)");
+  } else if (m_chartTitle.contains("Static Energy")) {
+    maxValue =
+        *std::max_element(
+            m_trainSimulation->simulationDatas.energyConsumptions.begin(),
+            m_trainSimulation->simulationDatas.energyConsumptions.end()) *
+        1.1;
+    roundedMaxValue = ceil(maxValue / 10) * 10;
+    axisY->setRange(0, roundedMaxValue);
+    axisY->setTickCount(ceil(roundedMaxValue / 10) + 1);
+    axisY->setTitleText("Energy (kW)");
+  }
+  // Set Y-axis tick configuration
+  // axisY->setTickCount(7);
+  // // Shows 0, 5, 10, 15, 20, 25, 30 (if range is 0-30)
+  // axisY->setMinorTickCount(5);   // Shows minor ticks at 1, 2, 3, 4, etc.
+  // axisY->setLabelFormat("%.0f"); // No decimal places
+
+  // Optional: For fixed intervals (like exactly 5 units between ticks)
+  // If your Y-axis should show exactly 0, 5, 10, 15, etc:
+}
+
+void ChartWidget::setupDynamicAxis() {
+  double maxValue;
+  double roundedMaxValue;
+  if (m_chart->series().isEmpty())
+    return;
+  if (m_simulationType != Dynamic)
+    return;
+  m_chart->createDefaultAxes();
+
+  // Set proper axis labels
+  QValueAxis *axisX =
+      qobject_cast<QValueAxis *>(m_chart->axes(Qt::Horizontal).first());
+  QValueAxis *axisY =
+      qobject_cast<QValueAxis *>(m_chart->axes(Qt::Vertical).first());
+
+  if (!axisX || !axisY)
+    return;
+  // For X axis
+  axisX->setMinorTickCount(1);   // Minor ticks between major ticks
+  axisX->setLabelFormat("%.0f"); // No decimal places
+  axisY->setMinorTickCount(4);   // Minor ticks for Y-axis
+  axisY->setLabelFormat("%.0f"); // No decimal places
+  if (m_chartTitle.contains("Dynamic") || m_chartTitle.contains("Distance"))
+    axisX->setRange(0,
+                    1.2 * m_trainSimulation->simulationDatas.timeTotal.last());
+  else
+    axisX->setRange(
+        0, 1.2 * m_trainSimulation->simulationDatas.trainSpeeds.last());
+  // Set specific range for X-axis (adjust based on your data)
+  // Use this if you want to hardcode the range:
+  // axisX->setRange(-10, 400);
+
+  // For Y axis
+  if (m_chartTitle.contains("Dynamic Power")) {
+    maxValue = *std::max_element(
+                   m_trainSimulation->simulationDatas.catenaryPowers.begin(),
+                   m_trainSimulation->simulationDatas.catenaryPowers.end()) *
+               1.2;
+    roundedMaxValue = ceil(maxValue / 100) * 100;
+    axisY->setRange(0, roundedMaxValue);
+    axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
+    axisY->setTitleText("Power (kW)");
+  } else if (m_chartTitle.contains("Dynamic Current")) {
+    maxValue = *std::max_element(
+                   m_trainSimulation->simulationDatas.catenaryCurrents.begin(),
+                   m_trainSimulation->simulationDatas.catenaryCurrents.end()) *
+               1.1;
+    roundedMaxValue = ceil(maxValue / 100) * 100;
+    axisY->setRange(0, roundedMaxValue);
+    axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
+    axisY->setTitleText("Current (A)");
+  } else if (m_chartTitle.contains("Dynamic Speed")) {
+    maxValue = *std::max_element(
+                   m_trainSimulation->simulationDatas.trainSpeeds.begin(),
+                   m_trainSimulation->simulationDatas.trainSpeeds.end()) *
+               1.1;
+    roundedMaxValue = ceil(maxValue / 10) * 10;
+    axisY->setRange(0, roundedMaxValue);
+    axisY->setTickCount(ceil(roundedMaxValue / 100) + 1);
+    axisY->setTitleText("Speed (km/h)");
+  } else if (m_chartTitle.contains("Dynamic Traction Effort")) {
+    maxValue = *std::max_element(
+                   m_trainSimulation->simulationDatas.tractionEfforts.begin(),
+                   m_trainSimulation->simulationDatas.tractionEfforts.end()) *
+               1.1;
+    roundedMaxValue = ceil(maxValue / 100) * 100;
+    axisY->setRange(0, roundedMaxValue);
+    axisY->setTickCount(ceil(roundedMaxValue / 100) + 1);
+    axisY->setTitleText("Traction Effort (kN)");
+  } else if (m_chartTitle.contains("Dynamic Energy")) {
+    maxValue =
+        *std::max_element(
+            m_trainSimulation->simulationDatas.energyConsumptions.begin(),
+            m_trainSimulation->simulationDatas.energyConsumptions.end()) *
+        1.1;
+    roundedMaxValue = ceil(maxValue / 10) * 10;
+    axisY->setRange(0, roundedMaxValue);
+    axisY->setTickCount(ceil(roundedMaxValue / 10) + 1);
+    axisY->setTitleText("Energy (kW)");
+  } else if (m_chartTitle.contains("Distance")) {
+    maxValue = *std::max_element(
+                   m_trainSimulation->simulationDatas.distanceTotal.begin(),
+                   m_trainSimulation->simulationDatas.distanceTotal.end()) *
+               1.1;
+    roundedMaxValue = ceil(maxValue / 1000) * 1000;
+    axisY->setRange(0, roundedMaxValue);
+    axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
+    axisY->setTitleText("Distance (m)");
   }
 }

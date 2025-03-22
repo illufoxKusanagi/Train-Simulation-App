@@ -51,7 +51,7 @@ void TrainConsumptionPage::setupExactValues(QVBoxLayout *pageLayout,
   QHBoxLayout *layout = new QHBoxLayout;
   layout->setAlignment(Qt::AlignCenter);
   for (const QString &inputTitles : inputLabels) {
-    InputType inputType = InputType("field", inputTitles, "km/h", true);
+    InputType inputType = InputType("field", inputTitles, "kWh", true);
     InputWidget *inputWidget = new InputWidget(this, inputType);
     m_inputWidgets[inputTitles] = inputWidget;
     inputWidget->setMinimumHeight(80);
