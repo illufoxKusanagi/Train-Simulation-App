@@ -40,7 +40,8 @@ private:
   void setupFourthPage();
   void setupChart(QVBoxLayout *pageLayout, QString chartTitle,
                   QString chartSeries);
-  void setupInputs(QVBoxLayout *pageLayout, QStringList inputTitle);
+  void setupInputs(QVBoxLayout *pageLayout, QStringList inputTitle,
+                   QStringList inputUnit);
   double getParameterValue(const QString &paramName) const;
   void setParameterValue();
   void setStaticParameterValue();
