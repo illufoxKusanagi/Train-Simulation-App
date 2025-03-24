@@ -33,7 +33,7 @@ void TrainTrackPage::setupSecondPage() {
   QStringList inputTitles = {"Distance on Powering", "Distance on Braking",
                              "Distance on Emergency Braking"};
   setupExactValues(secondPageLayout, inputTitles);
-  setupChart(secondPageLayout, "Track");
+  setupChart(secondPageLayout, "Static Track");
   // m_inputWidgets["Static Distance Travelled"] = m_inputWidget;
   stackedWidget->addWidget(secondPage);
 }

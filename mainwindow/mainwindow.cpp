@@ -22,10 +22,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 }
 
 void MainWindow::setupPages() {
-  const int PAGE_HEIGHT = 720;
-  auto setupFixedSizePage = [this, PAGE_HEIGHT](QWidget *page) {
-    page->setFixedHeight(PAGE_HEIGHT);
-    page->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+  auto setupFixedSizePage = [this](QWidget *page) {
+    page->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     stackedWidget->addWidget(page);
   };
   ConstantValuesPage *constantValuesPage = new ConstantValuesPage(this);

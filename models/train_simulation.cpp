@@ -404,7 +404,6 @@ void TrainSimulation::simulateStaticTrainMovement() {
   QString phase = "Starting";
   int CoastingCount = 0;
   float time = 0.0;
-
   while (movingData->v <= movingData->v_limit) {
     resistanceData->f_resStart = calculateStartRes();
     phase = "Accelerating";
@@ -446,6 +445,12 @@ void TrainSimulation::simulateStaticTrainMovement() {
     addSimulationDatas(i, movingData->time_total, phase);
     if (i == 0) {
       trainMotorData->tm_adh = calculateAdhesion();
+    }
+    if (energyData->curr_vvvf > m_maxVvvfCurrent) {
+      m_maxVvvfCurrent = energyData->curr_vvvf;
+    }
+    if (powerData->p_motorOut > m_maxVvvfPower) {
+      m_maxVvvfPower = powerData->p_vvvfIn;
     }
     i++;
   }
@@ -833,6 +838,30 @@ double TrainSimulation::findMaxEnergyAps() {
     return 0.0;
   return *std::max_element(simulationDatas.energyAps.begin(),
                            simulationDatas.energyAps.end());
+}
+
+double TrainSimulation::findMaxCurrTime() {
+  double maxCurrTime = 0.0;
+  double maxVvvfCurrent = findMaxVvvfCurrent();
+  const double epsilon = 0.001; // Precision on decimal double value
+  for (int i = 0; i < simulationDatas.vvvfCurrents.size(); i++) {
+    if (std::abs(simulationDatas.vvvfCurrents[i] - maxVvvfCurrent) < epsilon) {
+      maxCurrTime += simulationDatas.time[i];
+    }
+  }
+  return maxCurrTime;
+}
+
+double TrainSimulation::findMaxPowTime() {
+  double maxPowTime = 0.0;
+  double maxVvvfPower = findMaxVvvfPower();
+  const double epsilon = 0.001; // Precision on decimal double value
+  for (int i = 0; i < simulationDatas.vvvfPowers.size(); i++) {
+    if (std::abs(simulationDatas.vvvfPowers[i] - maxVvvfPower) < epsilon) {
+      maxPowTime += simulationDatas.time[i];
+    }
+  }
+  return maxPowTime;
 }
 
 double TrainSimulation::getAdhesion() { return trainMotorData->tm_adh; }

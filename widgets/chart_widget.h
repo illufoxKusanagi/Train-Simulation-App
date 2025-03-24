@@ -38,6 +38,7 @@ public slots:
   void onStaticSimulationCompleted();
 
 private:
+  enum SimulationType { None, Dynamic, Static };
   QVBoxLayout *mainLayout;
   QWidget *m_chartWidget;
   QVBoxLayout *m_chartLayout;
@@ -47,6 +48,7 @@ private:
   QList<QString> m_seriesToDisplay;
   QMap<QString, QColor> m_seriesColors;
   QTableWidget *m_table;
+  SimulationType m_simulationType = None;
 
   void buildDummyLine(QString seriesName);
   void setupChart(QLineSeries *series, QString title);
@@ -69,7 +71,8 @@ private:
   void setupDynamicEnergyChart();
   void setupDistanceChart();
 
-  void setupAxis();
+  void setupStaticAxis();
+  void setupDynamicAxis();
 };
 
 #endif // CHART_WIDGET_H

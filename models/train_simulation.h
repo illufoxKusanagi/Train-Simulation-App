@@ -74,6 +74,8 @@ public:
     QList<double> energyPowerings;
     QList<double> energyRegenerations;
     QList<double> energyAps;
+    QList<double> maxCurrTime;
+    QList<double> maxPowTime;
   } simulationDatas;
 
   double countMassEmptyCar();
@@ -103,6 +105,8 @@ public:
   double findMaxEnergyRegen();
   double findMaxEnergyPowering();
   double findMaxEnergyAps();
+  double findMaxCurrTime();
+  double findMaxPowTime();
   double getAdhesion();
 
   double calculateBrakingTrack();
@@ -125,6 +129,8 @@ private:
   EfficiencyData *efficiencyData;
   PowerData *powerData;
   EnergyData *energyData;
+  double m_maxVvvfCurrent = 0;
+  double m_maxVvvfPower = 0;
 
   void initTrainMassData();
   void initData();
