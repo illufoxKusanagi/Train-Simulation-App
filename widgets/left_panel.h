@@ -9,9 +9,11 @@
 #include <QFutureWatcher>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QStackedLayout>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QtConcurrent/QtConcurrent>
+
 
 class LeftPanel : public QWidget {
   Q_OBJECT
@@ -33,7 +35,8 @@ private:
   LeftPanelInputs *m_inputPanel;
   LeftPanelInputs *m_outputPanel;
   TrainSimulation *m_trainSimulation;
-  QVBoxLayout *m_runButtonLayout;
+  QVBoxLayout *m_runVButtonLayout;
+  QHBoxLayout *m_runHButtonLayout;
 
   int getCurrentIndex() const { return m_currentIndex; }
   void setCurrentIndex(int index) { m_currentIndex = index; }

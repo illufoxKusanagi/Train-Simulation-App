@@ -10,8 +10,20 @@ LeftPanelInputs::LeftPanelInputs(QWidget *parent, PanelType type)
   m_categoryButton = new ButtonSidebarActive(
       this, "category", type == INPUT ? "Inputs" : "Outputs");
   m_categoryButton->setEnabled(m_currentIndex);
+  QFrame *topSeparator = new QFrame();
+  topSeparator->setFrameShape(QFrame::HLine);
+  topSeparator->setFrameShadow(QFrame::Sunken);
+  topSeparator->setFixedHeight(1);
+
+  QFrame *bottomSeparator = new QFrame();
+  bottomSeparator->setFrameShape(QFrame::HLine);
+  bottomSeparator->setFrameShadow(QFrame::Sunken);
+  bottomSeparator->setFixedHeight(1);
+
+  mainLayout->addWidget(topSeparator);
   mainLayout->addWidget(m_categoryButton);
   setupButtons();
+  mainLayout->addWidget(bottomSeparator);
   connect(m_categoryButton, &QPushButton::clicked, this,
           &::LeftPanelInputs::toggleButtons);
 }
