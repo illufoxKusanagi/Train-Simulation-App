@@ -10,7 +10,7 @@ RunningParameterPage::RunningParameterPage(QWidget *parent,
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setContentsMargins(16, 16, 16, 16);
   m_inputsLayout->setHorizontalSpacing(64);
-  m_inputsLayout->setVerticalSpacing(64);
+  m_inputsLayout->setVerticalSpacing(32);
 
   createInputs();
   connectInputSignals();
