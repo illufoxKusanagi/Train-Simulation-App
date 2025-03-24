@@ -44,7 +44,7 @@ void TrainPowerPage::setupSecondPage() {
 void TrainPowerPage::setupThirdPage() {
   QWidget *thirdPage = new QWidget(this);
   QVBoxLayout *thirdPageLayout = new QVBoxLayout(thirdPage);
-  QStringList units = {"kW", "kW", "kW", "s"};
+  QStringList units = {"kW", "kW", "s"};
   thirdPageLayout->setSpacing(16);
   QStringList labels = {"Static Catenary Power", "Static VVVF Power",
                         "Time at Maximum Power"};
