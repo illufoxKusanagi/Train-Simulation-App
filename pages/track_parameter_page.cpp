@@ -20,7 +20,7 @@ void TrackParameterPage::createInputs() {
                         "Station Distance",  "Slope per Section",
                         "Section Distance",  "Speed Limit"};
   QStringList units = {"m/s2", "m", "m", "‰", "m", "km/h"};
-  QList<double> values = {0.0, 2000, 0.0, 0.0, 0.0, 70};
+  QList<double> values = {0.0, 2000, 400, 0.0, 0.0, 70};
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
         new InputWidget(this, InputType("field", labels[i], units[i]));
@@ -44,6 +44,7 @@ void TrackParameterPage::setParameterValue() {
   movingData->v_limit = getParameterValue("Speed Limit");
   resistanceData->radius = getParameterValue("Radius per Section");
   resistanceData->slope = getParameterValue("Slope per Section");
+  movingData->x_station = getParameterValue("Station Distance");
 }
 
 void TrackParameterPage::connectInputSignals() {
