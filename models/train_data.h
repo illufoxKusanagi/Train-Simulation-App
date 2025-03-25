@@ -94,6 +94,7 @@ struct MovingData {
   double x = 0;
   double time_total = 0;
   double x_total = 0;
+  double x_station = 100;
 };
 
 struct TrainMotorData {
