@@ -108,13 +108,6 @@ double TrainSimulation::calculateStartForce(float acc) {
   return massData->mass_totalInertial * acc + resistanceData->f_resStart;
 }
 
-double TrainSimulation::calculateBrakeForce() {
-  resistanceData->f_brake =
-      massData->mass_totalInertial * movingData->decc_start * 190000;
-  qDebug() << "Brake force: " << resistanceData->f_brake;
-  return resistanceData->f_brake;
-}
-
 double TrainSimulation::calculateTotalForce(float v) {
   resistanceData->f_total =
       resistanceData->f_motor -
@@ -247,7 +240,7 @@ void TrainSimulation::calculateBrakingForce() {
         -((resistanceData->f_brake * movingData->v_b1 * movingData->v_b2) /
           (movingData->v * movingData->v));
   } else {
-    qDebug() << "Invalid input";
+    QMessageBox::warning(nullptr, "Alert", "Weakening point is invalid");
   }
 }
 
@@ -306,18 +299,11 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   double previousSpeed;
   double mileage = 0;
   double stationDistance = 400;
-  // simulationDatas.accelerations.append(0);
-  // simulationDatas.trainSpeeds.append(0);
-  // simulationDatas.trainSpeedsSi.append(0);
-  // simulationDatas.time.append(0);
-  // simulationDatas.timeTotal.append(0);
-  // simulationDatas.distance.append(0);
-  // simulationDatas.distanceTotal.append(0);
   while (movingData->v >= 0) {
     resistanceData->f_resStart = calculateStartRes();
     resistanceData->f_resRunning = calculateRunningRes(movingData->v);
     mileage = calculateMileage();
-    if (mileage < stationDistance - calculateBrakingTrack()) {
+    if (mileage < stationDistance) {
       if (isAccelerating) {
         if (movingData->v >= movingData->v_limit &&
             resistanceData->f_total > 0) {
@@ -346,11 +332,6 @@ void TrainSimulation::simulateDynamicTrainMovement() {
           isCoasting = false;
           isAccelerating = true;
           coastingCount++;
-          // if (coastingCount >= 0) {
-          //   isAccelerating = false;
-          //   isCoasting = false;
-          //   continue;
-          // }
         }
         phase = "Coasting";
         resistanceData->f_motor = 0;
@@ -393,16 +374,6 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     phase == "Braking"
         ? energyData->e_catenary += calculateEnergyRegeneration(i)
         : energyData->e_catenary += calculateEnergyOfPowering(i);
-    // simulationDatas.accelerations.append(phase == "Braking" ?
-    // movingData->decc:movingData->acc);
-    // simulationDatas.accelerationsSi.append(
-    //     phase == "Braking" ? movingData->decc_si : movingData->acc_si);
-    // simulationDatas.trainSpeeds.append(movingData->v);
-    // simulationDatas.trainSpeedsSi.append(movingData->v_si);
-
-    // time += constantData.dt;
-    // simulationDatas.time.append(constantData.dt);
-
     movingData->x = abs(calculateTotalDistance(i));
     movingData->x_total += movingData->x;
     trainMotorData->tm_f_res = calculateResistanceForcePerMotor(
@@ -502,7 +473,7 @@ void TrainSimulation::readCsvFile(const QString path, QStringList &values) {
   QFile file(path);
   bool isHeader = true;
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    qDebug() << "Could not open file for reading:" << path;
+    QMessageBox::warning(nullptr, "Alert", "Could not open file for reading");
     return;
   }
   QTextStream in(&file);
@@ -908,9 +879,6 @@ double TrainSimulation::findMaxPowTime() {
 double TrainSimulation::getAdhesion() { return trainMotorData->tm_adh; }
 
 double TrainSimulation::calculateBrakingTrack() {
-  // double speed = simulationDatas.trainSpeedsSi.isEmpty()
-  //                    ? 0
-  //                    : simulationDatas.trainSpeedsSi.last();
   double speed = movingData->v_limit / constantData.cV;
   double brakingTrack = (speed * constantData.t_reaction) +
                         (pow(speed, 2) / (2 * movingData->decc_start));
@@ -971,8 +939,5 @@ double TrainSimulation::calculateMileage() {
                         ? 0
                         : simulationDatas.distanceTotal.last();
   double brakingDistance = calculateBrakingTrack();
-  // qDebug() << "Braking distance : " << brakingDistance;
-  // qDebug() << "Train real distance : " << distance;
-  // qDebug() << "Mileage : " << distance + brakingDistance;
-  return distance;
+  return distance + brakingDistance;
 }
