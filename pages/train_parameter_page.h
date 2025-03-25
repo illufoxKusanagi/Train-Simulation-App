@@ -80,7 +80,9 @@ private:
   void updateTrainImage(QLabel *trainImageLabel, int nCar);
   void setupTrainsetSection(QHBoxLayout *numberCarLayout,
                             QList<QList<QList<double>>> carData);
+  void connectTrainsetLengthInputSignal();
   void setDefaultCarValues();
+  void updateTrainsetLengthValue();
 
   QGroupBox *createTypeLayout(const QStringList &labels, QList<double> values);
   QGroupBox *createMassLayout(const QStringList &labels, QList<double> values);

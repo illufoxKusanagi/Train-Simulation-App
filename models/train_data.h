@@ -6,6 +6,8 @@ struct ConstantData {
   const double cV = 3.6;
   const double cF = 101.972;
   const double dt = 1.0;
+  const double t_reaction = 1.5;
+  const double t_delay = 3.0;
 };
 
 struct TrainData {
@@ -14,6 +16,7 @@ struct TrainData {
   double n_car;
   double gearRatio;
   double wheel;
+  double trainsetLength;
 };
 
 struct MassData {
@@ -78,6 +81,7 @@ struct MovingData {
   double decc_si = 0;
   double acc_start;
   double decc_start;
+  double decc_emergency;
   double v = 0;
   double v_si = 0;
   double v_limit;
@@ -120,6 +124,7 @@ struct EnergyData {
   double e_pow = 0;
   double e_reg = 0;
   double e_aps = 0;
+  double e_catenary = 0;
   double vol_line = 0;
   double curr_catenary = 0;
   double curr_vvvf = 0;

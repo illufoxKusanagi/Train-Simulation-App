@@ -14,7 +14,9 @@ ConstantValuesPage::ConstantValuesPage(QWidget *parent) : QWidget(parent) {
                                  constants.g);
   InputType speedConverterInputType("field", "m/s to km/h", "", true,
                                     constants.cV);
-  InputType forceConverterInputType("field", "kW to kgf", "", true,
+
+  InputType forceConverterInputType("field", "kN to kgf", "", true,
+
                                     constants.cF);
   InputType timeStepInputType("field", "Time Step", "s", true, constants.dt);
   InputWidget *gravitationInput = new InputWidget(this, gravitationInputType);

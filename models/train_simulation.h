@@ -74,6 +74,10 @@ public:
     QList<double> energyPowerings;
     QList<double> energyRegenerations;
     QList<double> energyAps;
+    QList<double> maxCurrTime;
+    QList<double> maxPowTime;
+    QList<double> energyCatenaries;
+    QList<double> mileages;
   } simulationDatas;
 
   double countMassEmptyCar();
@@ -103,7 +107,18 @@ public:
   double findMaxEnergyRegen();
   double findMaxEnergyPowering();
   double findMaxEnergyAps();
+  double findMaxCurrTime();
+  double findMaxPowTime();
   double getAdhesion();
+
+  double calculateBrakingTrack();
+  double calculateNormalSimulationTrack();
+  double calculateDelaySimulationTrack();
+  double calculateSafetySimulationTrack();
+  double calculateBrakingEmergencyTrack();
+  double calculateEmergencyNormalSimulationTrack();
+  double calculateEmergencyDelaySimulationTrack();
+  double calculateEmergencySafetySimulationTrack();
 
 private:
   ConstantData constantData;
@@ -116,6 +131,8 @@ private:
   EfficiencyData *efficiencyData;
   PowerData *powerData;
   EnergyData *energyData;
+  double m_maxVvvfCurrent = 0;
+  double m_maxVvvfPower = 0;
 
   void initTrainMassData();
   void initData();
@@ -144,6 +161,11 @@ private:
   double calculateCatenaryCurrent();
   double calculateTotalTime(int i);
   double calculateTotalDistance(int i);
+  double calculateEnergyConsumption(int i);
+  double calculateEnergyOfPowering(int i);
+  double calculateEnergyRegeneration(int i);
+  double calculateEnergyOfAps(int i);
+  double calculateMileage();
 
   void addOutputDatas(double speed, double tractionEffort, double vvvfPower,
                       double catenaryPower, double vvvfCurrent,
@@ -153,10 +175,5 @@ private:
 
   void deleteCsvFile(QString csvPath);
   void readCsvFile(const QString path, QStringList &values);
-
-  double calculateEnergyConsumption(int i);
-  double calculateEnergyOfPowering(int i);
-  double calculateEnergyRegeneration(int i);
-  double calculateEnergyOfAps(int i);
 };
 #endif // TRAIN_SIMULATION_H

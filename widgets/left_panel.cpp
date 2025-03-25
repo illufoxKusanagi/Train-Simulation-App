@@ -10,17 +10,9 @@ LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
   m_buttonLayout = new QVBoxLayout(buttonContainer);
   m_buttonLayout->setContentsMargins(8, 8, 8, 8);
   m_buttonLayout->setSpacing(8);
-  m_buttonLayout->setAlignment(Qt::AlignTop);
+  m_buttonLayout->setAlignment(Qt::AlignCenter);
   m_buttonLayout->addWidget(m_buttonToggle);
 
-  connect(m_buttonToggle, &QPushButton::clicked, this, [this]() {
-    m_isCollapsed = !m_isCollapsed;
-    m_inputPanel->toggleCollapse(m_isCollapsed);
-    m_outputPanel->toggleCollapse(m_isCollapsed);
-    m_buttonToggle->toggleCollapse();
-    m_runButtonLayout->setContentsMargins(0, 0, 0, 0);
-    setFixedWidth(m_isCollapsed ? 160 : 320);
-  });
   setupInputPageButtons();
   createRunButton();
   setupOutputPageButtons();
@@ -30,6 +22,7 @@ LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
   scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   scrollArea->setFrameShape(QFrame::NoFrame);
+
   mainLayout->addWidget(scrollArea);
   setFixedWidth(320);
   setLayout(mainLayout);
@@ -42,6 +35,12 @@ LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
                 "    background-color: " +
                 Colors::Secondary500.name() +
                 ";"
+                "}"
+                "QFrame[frameShape=\"4\"] {"
+                "    background-color: " +
+                Colors::Secondary300.name() +
+                ";"
+                "    color: transparent;"
                 "}");
 }
 
@@ -51,32 +50,102 @@ void LeftPanel::emitNavigateSignal(int pageIndex) {
 
 void LeftPanel::createRunButton() {
   QWidget *runButtonWidget = new QWidget();
-  m_runButtonLayout = new QVBoxLayout(runButtonWidget);
-  m_runButtonLayout->setSpacing(8);
-  ButtonAction *runButton = new ButtonAction(this, "Run");
-  runButton->setEnabled(true);
-  runButton->setSize(132, 40);
-  ButtonAction *runStaticButton = new ButtonAction(this, "Static Run");
-  runStaticButton->setEnabled(true);
-  runStaticButton->setSize(132, 40);
-  m_runButtonLayout->setContentsMargins(16, 0, 0, 0);
-  m_runButtonLayout->setAlignment(Qt::AlignCenter);
-  m_runButtonLayout->addWidget(runButton);
-  m_runButtonLayout->addWidget(runStaticButton);
-  connect(runButton, &ButtonAction::clicked, this,
-          [this, runButton, runStaticButton]() {
-            QFuture<void> future = QtConcurrent::run([this]() {
-              m_trainSimulation->simulateDynamicTrainMovement();
-            });
-            updateButtonState(future, runButton, runStaticButton);
+  QStackedLayout *stackedLayout = new QStackedLayout(runButtonWidget);
+  stackedLayout->setSpacing(8);
+
+  ButtonAction *runButtonV = new ButtonAction(this, "Run");
+  runButtonV->setEnabled(true);
+  runButtonV->setSize(132, 40);
+
+  ButtonAction *runStaticButtonV = new ButtonAction(this, "Static Run");
+  runStaticButtonV->setEnabled(true);
+  runStaticButtonV->setSize(132, 40);
+
+  ButtonAction *runButtonH = new ButtonAction(this, "Run");
+  runButtonH->setEnabled(true);
+  runButtonH->setSize(132, 40);
+
+  ButtonAction *runStaticButtonH = new ButtonAction(this, "Static Run");
+  runStaticButtonH->setEnabled(true);
+  runStaticButtonH->setSize(132, 40);
+
+  QWidget *verticalContainer = new QWidget(runButtonWidget);
+  m_runVButtonLayout = new QVBoxLayout(verticalContainer);
+  m_runVButtonLayout->setSpacing(4);
+  m_runVButtonLayout->setContentsMargins(0, 0, 0, 0);
+  m_runVButtonLayout->setAlignment(Qt::AlignCenter);
+  m_runVButtonLayout->addWidget(runButtonV);
+  m_runVButtonLayout->addWidget(runStaticButtonV);
+
+  QWidget *horizontalContainer = new QWidget(runButtonWidget);
+  m_runHButtonLayout = new QHBoxLayout(horizontalContainer);
+  m_runHButtonLayout->setSpacing(4);
+  m_runHButtonLayout->setContentsMargins(0, 0, 0, 0);
+  m_runHButtonLayout->setAlignment(Qt::AlignCenter);
+  m_runHButtonLayout->addWidget(runButtonH);
+  m_runHButtonLayout->addWidget(runStaticButtonH);
+
+  stackedLayout->addWidget(horizontalContainer);
+  stackedLayout->addWidget(verticalContainer);
+  stackedLayout->setCurrentIndex(0);
+
+  connect(m_buttonToggle, &QPushButton::clicked, this,
+          [this, stackedLayout, runButtonH, runStaticButtonH]() {
+            m_isCollapsed = !m_isCollapsed;
+            if (m_isCollapsed) {
+              runButtonH->setSize(70, 40);
+              runStaticButtonH->setSize(70, 40);
+            } else {
+              runButtonH->setSize(132, 40);
+              runStaticButtonH->setSize(132, 40);
+            }
+
+            m_inputPanel->toggleCollapse(m_isCollapsed);
+            m_outputPanel->toggleCollapse(m_isCollapsed);
+            m_buttonToggle->toggleCollapse();
+            stackedLayout->setCurrentIndex(m_isCollapsed ? 1 : 0);
+            setFixedWidth(m_isCollapsed ? 160 : 320);
           });
-  connect(runStaticButton, &ButtonAction::clicked, this,
-          [this, runButton, runStaticButton]() {
-            QFuture<void> future = QtConcurrent::run(
-                [this]() { m_trainSimulation->simulateStaticTrainMovement(); });
-            updateButtonState(future, runButton, runStaticButton);
-          });
+  auto setupDynamicRunHandler = [this](ButtonAction *runBtn,
+                                       ButtonAction *staticBtn) {
+    return [this, runBtn, staticBtn]() {
+      QFuture<void> future = QtConcurrent::run(
+          [this]() { m_trainSimulation->simulateDynamicTrainMovement(); });
+      updateButtonState(future, runBtn, staticBtn);
+    };
+  };
+
+  auto setupStaticRunHandler = [this](ButtonAction *runBtn,
+                                      ButtonAction *staticBtn) {
+    return [this, runBtn, staticBtn]() {
+      QFuture<void> future = QtConcurrent::run(
+          [this]() { m_trainSimulation->simulateStaticTrainMovement(); });
+      updateButtonState(future, runBtn, staticBtn);
+    };
+  };
+
+  connect(runButtonV, &ButtonAction::clicked, this,
+          setupDynamicRunHandler(runButtonV, runStaticButtonV));
+  connect(runStaticButtonV, &ButtonAction::clicked, this,
+          setupStaticRunHandler(runButtonV, runStaticButtonV));
+  connect(runButtonH, &ButtonAction::clicked, this,
+          setupDynamicRunHandler(runButtonH, runStaticButtonH));
+  connect(runStaticButtonH, &ButtonAction::clicked, this,
+          setupStaticRunHandler(runButtonH, runStaticButtonH));
+
+  // QFrame *topSeparator = new QFrame();
+  // topSeparator->setFrameShape(QFrame::HLine);
+  // topSeparator->setFrameShadow(QFrame::Sunken);
+  // topSeparator->setFixedHeight(1);
+
+  // QFrame *bottomSeparator = new QFrame();
+  // bottomSeparator->setFrameShape(QFrame::HLine);
+  // bottomSeparator->setFrameShadow(QFrame::Sunken);
+  // bottomSeparator->setFixedHeight(1);
+
+  // m_buttonLayout->addWidget(topSeparator);
   m_buttonLayout->addWidget(runButtonWidget);
+  // m_buttonLayout->addWidget(bottomSeparator);
 }
 
 void LeftPanel::setupInputPageButtons() {

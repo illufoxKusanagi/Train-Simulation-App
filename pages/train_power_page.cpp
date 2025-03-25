@@ -22,9 +22,10 @@ TrainPowerPage::TrainPowerPage(QWidget *parent,
 void TrainPowerPage::setupFirstPage() {
   QWidget *firstPage = new QWidget(this);
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
+  QStringList units = {"kW", "kW"};
   firstPageLayout->setSpacing(16);
   QStringList labels = {"Dynamic Catenary Power", "Dynamic VVVF Power"};
-  setupInputs(firstPageLayout, labels);
+  setupInputs(firstPageLayout, labels, units);
   setupChart(firstPageLayout, "Dynamic Power", "Dynamic Power");
   stackedWidget->addWidget(firstPage);
 }
@@ -32,9 +33,10 @@ void TrainPowerPage::setupFirstPage() {
 void TrainPowerPage::setupSecondPage() {
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
+  QStringList units = {"Ampere", "Ampere"};
   secondPageLayout->setSpacing(16);
   QStringList labels = {"Dynamic Catenary Current", "Dynamic VVVF Current"};
-  setupInputs(secondPageLayout, labels);
+  setupInputs(secondPageLayout, labels, units);
   setupChart(secondPageLayout, "Dynamic Current", "Dynamic Current");
   stackedWidget->addWidget(secondPage);
 }
@@ -42,12 +44,11 @@ void TrainPowerPage::setupSecondPage() {
 void TrainPowerPage::setupThirdPage() {
   QWidget *thirdPage = new QWidget(this);
   QVBoxLayout *thirdPageLayout = new QVBoxLayout(thirdPage);
+  QStringList units = {"kW", "kW", "s"};
   thirdPageLayout->setSpacing(16);
-  QStringList labels = {
-      "Static Catenary Power",
-      "Static VVVF Power",
-  };
-  setupInputs(thirdPageLayout, labels);
+  QStringList labels = {"Static Catenary Power", "Static VVVF Power",
+                        "Time at Maximum Power"};
+  setupInputs(thirdPageLayout, labels, units);
   setupChart(thirdPageLayout, "Static Power", "Static Power");
   stackedWidget->addWidget(thirdPage);
 }
@@ -55,12 +56,11 @@ void TrainPowerPage::setupThirdPage() {
 void TrainPowerPage::setupFourthPage() {
   QWidget *fourthPage = new QWidget(this);
   QVBoxLayout *fourthPageLayout = new QVBoxLayout(fourthPage);
+  QStringList units = {"Ampere", "Ampere", "s"};
   fourthPageLayout->setSpacing(16);
-  QStringList labels = {
-      "Static Catenary Current",
-      "Static VVVF Current",
-  };
-  setupInputs(fourthPageLayout, labels);
+  QStringList labels = {"Static Catenary Current", "Static VVVF Current",
+                        "Time at Maximum Current"};
+  setupInputs(fourthPageLayout, labels, units);
   setupChart(fourthPageLayout, "Static Current", "Static Current");
   stackedWidget->addWidget(fourthPage);
 }
@@ -74,12 +74,14 @@ void TrainPowerPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle,
 }
 
 void TrainPowerPage::setupInputs(QVBoxLayout *pageLayout,
-                                 QStringList inputTitle) {
+                                 QStringList inputTitle,
+                                 QStringList inputUnit) {
   QHBoxLayout *exactValueLayout = new QHBoxLayout;
-  QStringList units = {"kW", "kW", "Ampere", "Ampere"};
+  exactValueLayout->setSpacing(16);
   for (int i = 0; i < inputTitle.size(); i++) {
     InputWidget *inputWidget = new InputWidget(
-        this, InputType("field", inputTitle[i], units[i], true));
+        this, InputType("field", inputTitle[i], inputUnit[i], true));
+    inputWidget->setFixedHeight(80);
     exactValueLayout->addWidget(inputWidget);
     m_inputWidgets[inputTitle[i]] = inputWidget;
   }
@@ -130,6 +132,12 @@ void TrainPowerPage::setStaticParameterValue() {
   if (m_inputWidgets.contains("Static VVVF Current"))
     m_inputWidgets["Static VVVF Current"]->setValue(
         m_trainSimulation->findMaxVvvfCurrent());
+  if (m_inputWidgets["Time at Maximum Power"])
+    m_inputWidgets["Time at Maximum Power"]->setValue(
+        m_trainSimulation->findMaxPowTime());
+  if (m_inputWidgets["Time at Maximum Current"])
+    m_inputWidgets["Time at Maximum Current"]->setValue(
+        m_trainSimulation->findMaxCurrTime());
 }
 
 void TrainPowerPage::setupPagination() {
@@ -157,9 +165,9 @@ void TrainPowerPage::setupPagination() {
   connect(m_fourthPageButton, &QPushButton::clicked, this,
           [this]() { pageChanged(3); });
   paginationLayout->addWidget(m_firstPageButton);
+  paginationLayout->addWidget(m_secondPageButton);
   paginationLayout->addWidget(m_thirdPageButton);
   paginationLayout->addWidget(m_fourthPageButton);
-  paginationLayout->addWidget(m_secondPageButton);
 
   mainLayout->addWidget(paginationWidget);
   updatePageButtons();

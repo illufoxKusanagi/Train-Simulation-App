@@ -20,9 +20,9 @@ void TrainTrackPage::setupFirstPage() {
   QWidget *firstPage = new QWidget(this);
   QVBoxLayout *firstPageLayout = new QVBoxLayout(firstPage);
   firstPageLayout->setSpacing(16);
-  setupExactValues(firstPageLayout, "Distance Travelled");
-  setupChart(firstPageLayout);
-  m_inputWidgets["Distance Travelled"] = m_inputWidget;
+  setupExactValues(firstPageLayout, {"Distance Travelled"});
+  setupChart(firstPageLayout, "Distance");
+  // m_inputWidgets["Distance Travelled"] = m_inputWidget;
   stackedWidget->addWidget(firstPage);
 }
 
@@ -30,26 +30,31 @@ void TrainTrackPage::setupSecondPage() {
   QWidget *secondPage = new QWidget(this);
   QVBoxLayout *secondPageLayout = new QVBoxLayout(secondPage);
   secondPageLayout->setSpacing(16);
-  setupExactValues(secondPageLayout, "Static Distance Travelled");
-  setupChart(secondPageLayout);
-  m_inputWidgets["Static Distance Travelled"] = m_inputWidget;
+  QStringList inputTitles = {"Distance on Powering", "Distance on Braking",
+                             "Distance on Emergency Braking"};
+  setupExactValues(secondPageLayout, inputTitles);
+  setupChart(secondPageLayout, "Static Track");
+  // m_inputWidgets["Static Distance Travelled"] = m_inputWidget;
   stackedWidget->addWidget(secondPage);
 }
 
-void TrainTrackPage::setupChart(QVBoxLayout *pageLayout) {
+void TrainTrackPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle) {
   ChartWidget *chartWidget =
-      new ChartWidget(this, "Distance", "Distance", m_trainSimulation);
+      new ChartWidget(this, chartTitle, "Distance", m_trainSimulation);
   pageLayout->addWidget(chartWidget);
 }
 
 void TrainTrackPage::setupExactValues(QVBoxLayout *pageLayout,
-                                      QString inputTitle) {
+                                      QStringList inputTitle) {
   QHBoxLayout *layout = new QHBoxLayout;
   layout->setAlignment(Qt::AlignCenter);
-  InputType inputType = InputType("field", inputTitle, "m", true);
-  m_inputWidget = new InputWidget(this, inputType);
-  m_inputWidgets[inputTitle] = m_inputWidget;
-  layout->addWidget(m_inputWidget);
+  for (int i = 0; i < inputTitle.size(); i++) {
+    InputType inputType = InputType("field", inputTitle[i], "m", true);
+    InputWidget *inputWidget = new InputWidget(this, inputType);
+    inputWidget->setFixedHeight(80);
+    layout->addWidget(inputWidget);
+    m_inputWidgets[inputTitle[i]] = inputWidget;
+  }
   pageLayout->addLayout(layout);
 }
 
@@ -100,7 +105,13 @@ void TrainTrackPage::setParameterValue() {
 }
 
 void TrainTrackPage::setStaticParameterValue() {
-  m_inputWidgets["Static Distance Travelled"]->setValue(0);
-  m_inputWidgets["Static Distance Travelled"]->setValue(
+  m_inputWidgets["Distance on Powering"]->setValue(0);
+  m_inputWidgets["Distance on Powering"]->setValue(
       m_trainSimulation->findDistanceTravelled());
+  m_inputWidgets["Distance on Braking"]->setValue(0);
+  m_inputWidgets["Distance on Braking"]->setValue(
+      m_trainSimulation->calculateBrakingTrack());
+  m_inputWidgets["Distance on Emergency Braking"]->setValue(0);
+  m_inputWidgets["Distance on Emergency Braking"]->setValue(
+      m_trainSimulation->calculateBrakingEmergencyTrack());
 }

@@ -26,8 +26,8 @@ private:
 
   void setupFirstPage();
   void setupSecondPage();
-  void setupChart(QVBoxLayout *pageLayout);
-  void setupExactValues(QVBoxLayout *pageLayout, QString inputTitle);
+  void setupChart(QVBoxLayout *pageLayout, QString chartTitle);
+  void setupExactValues(QVBoxLayout *pageLayout, QStringList inputTitle);
   void setParameterValue();
   void setStaticParameterValue();
   void setupPagination();
