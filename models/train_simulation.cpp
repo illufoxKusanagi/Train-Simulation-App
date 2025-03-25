@@ -304,7 +304,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   int coastingCount = 0;
   double previousSpeed;
   double mileage = 0;
-  double stationDistance = 1000;
+  double stationDistance = 500;
   // simulationDatas.accelerations.append(0);
   // simulationDatas.trainSpeeds.append(0);
   // simulationDatas.trainSpeedsSi.append(0);
