@@ -633,7 +633,7 @@ void ChartWidget::setupDynamicAxis() {
                1.1;
     roundedMaxValue = ceil(maxValue / 10) * 10;
     axisY->setRange(0, roundedMaxValue);
-    axisY->setTickCount(ceil(roundedMaxValue / 100) + 1);
+    axisY->setTickCount(ceil(roundedMaxValue / 20) + 1);
     axisY->setTitleText("Speed (km/h)");
   } else if (m_chartTitle.contains("Dynamic Traction Effort")) {
     maxValue = *std::max_element(
@@ -659,9 +659,9 @@ void ChartWidget::setupDynamicAxis() {
                    m_trainSimulation->simulationDatas.distanceTotal.begin(),
                    m_trainSimulation->simulationDatas.distanceTotal.end()) *
                1.1;
-    roundedMaxValue = ceil(maxValue / 1000) * 1000;
+    roundedMaxValue = ceil(maxValue / 100) * 100;
     axisY->setRange(0, roundedMaxValue);
-    axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
+    axisY->setTickCount(ceil(roundedMaxValue / 100) + 1);
     axisY->setTitleText("Distance (m)");
   }
 }
