@@ -77,6 +77,7 @@ public:
     QList<double> maxCurrTime;
     QList<double> maxPowTime;
     QList<double> energyCatenaries;
+    QList<double> mileages;
   } simulationDatas;
 
   double countMassEmptyCar();
