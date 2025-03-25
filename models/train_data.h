@@ -124,6 +124,7 @@ struct EnergyData {
   double e_pow = 0;
   double e_reg = 0;
   double e_aps = 0;
+  double e_catenary = 0;
   double vol_line = 0;
   double curr_catenary = 0;
   double curr_vvvf = 0;
