@@ -30,13 +30,13 @@ To run the Train Simulation App, follow these steps:
 
 3. **Customize Components** 
    To ensure this project can be run in your device, check these options during Qt installation : 
-   [x] Qt Design Studio
-   [x] Qt 6.x.x (uncheck the WebAssembly, MSVC, Qt Debug Information Files, Android and Sources options)
-   [x] LLVM-MinGW 17.0.6 64-bit
-   [x] MinGW 64-bit (latest version)
-   [x] MinGW 32-bit (optional)
-   [x] CMake 3.30.5
-   [x] Ninja 1.12.1
+   - [x] Qt Design Studio
+   - [x] Qt 6.x.x (uncheck the WebAssembly, MSVC, Qt Debug Information Files, Android and Sources options)
+   - [x] LLVM-MinGW 17.0.6 64-bit
+   - [x] MinGW 64-bit (latest version)
+   - [x] MinGW 32-bit (optional)
+   - [x] CMake 3.30.5
+   - [x] Ninja 1.12.1
 
 5. **Open the Project**:
    - Open the cloned project in Qt Creator.
