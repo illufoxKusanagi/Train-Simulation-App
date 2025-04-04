@@ -8,7 +8,6 @@
 /.vscode
 /.trunk
 .gitignore
-/.git
 
 # C++ objects and libs
 *.slo
