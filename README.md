@@ -3,19 +3,23 @@
 ## Overview
 
 The Train Simulation App is a graphical user interface (GUI) application designed to simulate various parameters related to train operations. This application allows users to input and visualize different train parameters, making it a useful tool for educational purposes and engineering simulations.
+![App Interface](https://github.com/user-attachments/assets/ca5ffba9-289b-42ce-9954-1a4615c68e1a)
 
 ## Features
 
-- **User -Friendly Interface**: Intuitive layout with easy navigation between different parameter settings.
-- **Parameter Input Forms**: Users can input various train parameters such as inertial coefficients, axle numbers, and more.
-- **Dynamic Visualization**: The app provides real-time feedback and visualization of the input parameters.
-- **Multiple Parameter Categories**: Organizes parameters into categories for better usability.
+- **User -Friendly Interface**: Intuitive layout with easy navigation between different parameter settings
+- **Parameter Input Forms**: Users can input various train parameters such as inertial coefficients, axle numbers, and more
+- **Dynamic Visualization**: The app provides real-time feedback and visualization of the input parameters
+- **Multiple Parameter Categories**: Organizes parameters into categories for better usability
+- **Data Visualization**: Provides readable data with chart as the result of the simulation
+- **Saving output**: Users can save output data based on inputted parameters as .csv file
 
 ## Technologies Used
 
-- **Qt Framework**: The application is built using the Qt framework for C++.
-- **C++**: The primary programming language used for the application logic.
-- **QWidgets**: Utilizes Qt's widget toolkit for creating the GUI.
+- **Qt Framework**: The application is built using the Qt framework for C++
+- **C++**: The primary programming language used for the application logic
+- **QWidgets**: Utilizes Qt's widget toolkit for creating the GUI
+- **QCharts**: Utilizes Qt's chart widget for showing data output
 
 ## Running Project
 
