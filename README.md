@@ -17,7 +17,7 @@ The Train Simulation App is a graphical user interface (GUI) application designe
 - **C++**: The primary programming language used for the application logic.
 - **QWidgets**: Utilizes Qt's widget toolkit for creating the GUI.
 
-## Installation
+## Running Project
 
 To run the Train Simulation App, follow these steps:
 
@@ -26,18 +26,35 @@ To run the Train Simulation App, follow these steps:
    git clone https://github.com/illufoxKusanagi/Train-Simulation-App.git
    ```
 
-2. **Install Qt**: Make sure you have the Qt framework installed on your machine. You can download it from [the official Qt website](https://www.qt.io/download).
+2. **Install Qt**: Make sure you have the Qt framework installed on your machine. You can download it from [the official Qt website](https://www.qt.io/download), or click [here](https://d13lb3tujbc8s0.cloudfront.net/onlineinstallers/qt-online-installer-windows-x64-4.9.0.exe) to directly download Qt online installer.
 
-3. **Open the Project**:
+3. **Customize Components** 
+   To ensure this project can be run in your device, check these options during Qt installation : 
+   [x] Qt Design Studio
+   [x] Qt 6.x.x (uncheck the WebAssembly, MSVC, Qt Debug Information Files, Android and Sources options)
+   [x] LLVM-MinGW 17.0.6 64-bit
+   [x] MinGW 64-bit (latest version)
+   [x] MinGW 32-bit (optional)
+   [x] CMake 3.30.5
+   [x] Ninja 1.12.1
+
+5. **Open the Project**:
    - Open the cloned project in Qt Creator.
    - Open `CMakeLists.txt` file located in project directory.
 
-4. **Build the Project**:
-   - Configure the build kit according to your system.
+6. **Build the Project**:
+   - Configure the build kit according to your system. Specifically, using MinGW for this project.
    - Use the build option in Qt Creator to compile the application.
 
-5. **Run the Application**:
+7. **Run the Application**:
    - After building, run the application from Qt Creator.
+
+## Installation 
+
+   - Go to [here](https://github.com/illufoxKusanagi/Train-Simulation-App/releases) to find the binaries.
+   - Download the latest `TrainSimulationApp.zip` or `TrainSimulationApp.7z` file.
+   - Extract the contents to any folder on your computer.
+   - Run `TrainSimulationApp.exe` without installation needed.
 
 ## Usage
 
@@ -55,3 +72,7 @@ Contributions are welcome! If you would like to contribute to the Train Simulati
 3. Make your changes and commit them.
 4. Push your changes to your forked repository.
 5. Create a pull request to the main repository.
+
+---
+
+<!-- *This project is maintained by Illufox Kusangi. Released under [License Type].* -->
