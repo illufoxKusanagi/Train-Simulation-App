@@ -138,19 +138,7 @@ void LeftPanel::createRunButton() {
   connect(runStaticButtonH, &ButtonAction::clicked, this,
           setupStaticRunHandler(runButtonH, runStaticButtonH));
 
-  // QFrame *topSeparator = new QFrame();
-  // topSeparator->setFrameShape(QFrame::HLine);
-  // topSeparator->setFrameShadow(QFrame::Sunken);
-  // topSeparator->setFixedHeight(1);
-
-  // QFrame *bottomSeparator = new QFrame();
-  // bottomSeparator->setFrameShape(QFrame::HLine);
-  // bottomSeparator->setFrameShadow(QFrame::Sunken);
-  // bottomSeparator->setFixedHeight(1);
-
-  // m_buttonLayout->addWidget(topSeparator);
   m_buttonLayout->addWidget(runButtonWidget);
-  // m_buttonLayout->addWidget(bottomSeparator);
 }
 
 void LeftPanel::setupInputPageButtons() {
