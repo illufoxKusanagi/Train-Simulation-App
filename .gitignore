@@ -9,6 +9,7 @@
 /.trunk
 .gitignore
 /formulas
+dummy.txt
 
 # C++ objects and libs
 *.slo
