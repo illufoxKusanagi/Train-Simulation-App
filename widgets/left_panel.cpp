@@ -26,6 +26,7 @@ LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
   mainLayout->addWidget(scrollArea);
   setFixedWidth(320);
   setLayout(mainLayout);
+
   setStyleSheet("QWidget {"
                 "    background-color: " +
                 Colors::Secondary500.name() +
@@ -173,11 +174,39 @@ void LeftPanel::updateButtonState(QFuture<void> future, ButtonAction *runButton,
               runStaticButton->setEnabled(true);
               runButton->setEnabled(true);
               watcher->deleteLater();
-              QMessageBox::information(this, "Information",
-                                       "Simulation completed.");
+              showSimMessageBox();
             });
     watcher->setFuture(future);
   });
+}
+
+void LeftPanel::showSimMessageBox() {
+  QMessageBox simCompleteMessage;
+  simCompleteMessage.setWindowTitle("Information");
+  simCompleteMessage.setText("Simulation completed.");
+  simCompleteMessage.setIcon(QMessageBox::Information);
+  simCompleteMessage.setStandardButtons(QMessageBox::Ok);
+  simCompleteMessage.setStyleSheet("QMessageBox QLabel {"
+                                   "    color:" +
+                                   Colors::StandardBlack.name() + ";" +
+                                   TextStyle::BodyMediumRegular() +
+                                   "}"
+                                   "QPushButton {"
+                                   "    background-color: " +
+                                   Colors::Primary500.name() +
+                                   ";"
+                                   "    color: white;"
+                                   "    border: none;"
+                                   "    padding: 6px 12px;"
+                                   "    border-radius: 4px;"
+                                   "}"
+                                   "QPushButton:hover {"
+                                   "    background-color: " +
+                                   Colors::Primary600.name() +
+                                   ";"
+                                   "}");
+
+  simCompleteMessage.exec();
 }
 
 void LeftPanel::onSimulationCompleted() {

@@ -48,6 +48,7 @@ private:
   void setupOutputPageButtons();
   void updateButtonState(QFuture<void> future, ButtonAction *runButton,
                          ButtonAction *staticRunButton);
+  void showSimMessageBox();
 };
 
 #endif // LEFT_PANEL_H
