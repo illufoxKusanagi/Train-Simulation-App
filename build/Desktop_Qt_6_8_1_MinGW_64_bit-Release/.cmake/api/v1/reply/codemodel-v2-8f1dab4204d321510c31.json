@@ -1,0 +1,79 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Release-cee00d50214364e30dce.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "TrainAppSimulation",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "TrainAppSimulation::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TrainAppSimulation-Release-84a28eab5fd16d45f972.json",
+					"name" : "TrainAppSimulation",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TrainAppSimulation_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TrainAppSimulation_autogen-Release-e9c7f204f87ede6d72ab.json",
+					"name" : "TrainAppSimulation_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "TrainAppSimulation_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-TrainAppSimulation_autogen_timestamp_deps-Release-2102cb8c7e8cd7cf56b1.json",
+					"name" : "TrainAppSimulation_autogen_timestamp_deps",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "F:/matkul/sem_6/AppProject/TrainAppSimulation/build/Desktop_Qt_6_8_1_MinGW_64_bit-Release",
+		"source" : "F:/matkul/sem_6/AppProject/TrainAppSimulation"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}
