@@ -24,6 +24,11 @@ LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
   scrollArea->setFrameShape(QFrame::NoFrame);
 
   mainLayout->addWidget(scrollArea);
+  // connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
+  //         &LeftPanel::onSimulationCompleted);
+  // connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted,
+  // this,
+  //         &LeftPanel::onSimulationCompleted);
   setFixedWidth(320);
   setLayout(mainLayout);
   setStyleSheet("QWidget {"
@@ -185,7 +190,13 @@ void LeftPanel::updateButtonState(QFuture<void> future, ButtonAction *runButton,
               runStaticButton->setEnabled(true);
               runButton->setEnabled(true);
               watcher->deleteLater();
+              QMessageBox::information(this, "Information",
+                                       "Simulation completed.");
             });
     watcher->setFuture(future);
   });
+}
+
+void LeftPanel::onSimulationCompleted() {
+  QMessageBox::information(this, "Simulation", "Simulation completed.");
 }
