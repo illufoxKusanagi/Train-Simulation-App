@@ -8,7 +8,6 @@
 /.vscode
 /.trunk
 /formulas
-/.cmake
 dummy.txt
 
 # C++ objects and libs
