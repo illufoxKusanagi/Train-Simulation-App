@@ -24,11 +24,6 @@ LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
   scrollArea->setFrameShape(QFrame::NoFrame);
 
   mainLayout->addWidget(scrollArea);
-  // connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
-  //         &LeftPanel::onSimulationCompleted);
-  // connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted,
-  // this,
-  //         &LeftPanel::onSimulationCompleted);
   setFixedWidth(320);
   setLayout(mainLayout);
   setStyleSheet("QWidget {"

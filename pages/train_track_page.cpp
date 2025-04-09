@@ -22,7 +22,6 @@ void TrainTrackPage::setupFirstPage() {
   firstPageLayout->setSpacing(16);
   setupExactValues(firstPageLayout, {"Distance Travelled"});
   setupChart(firstPageLayout, "Distance");
-  // m_inputWidgets["Distance Travelled"] = m_inputWidget;
   stackedWidget->addWidget(firstPage);
 }
 
@@ -34,7 +33,6 @@ void TrainTrackPage::setupSecondPage() {
                              "Distance on Emergency Braking"};
   setupExactValues(secondPageLayout, inputTitles);
   setupChart(secondPageLayout, "Static Track");
-  // m_inputWidgets["Static Distance Travelled"] = m_inputWidget;
   stackedWidget->addWidget(secondPage);
 }
 
