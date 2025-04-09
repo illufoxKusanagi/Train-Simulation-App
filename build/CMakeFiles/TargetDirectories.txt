@@ -1,9 +1,0 @@
-F:/matkul/sem_6/AppProject/TrainAppSimulation/build/CMakeFiles/TrainSimulationApp.dir
-F:/matkul/sem_6/AppProject/TrainAppSimulation/build/CMakeFiles/edit_cache.dir
-F:/matkul/sem_6/AppProject/TrainAppSimulation/build/CMakeFiles/rebuild_cache.dir
-F:/matkul/sem_6/AppProject/TrainAppSimulation/build/CMakeFiles/list_install_components.dir
-F:/matkul/sem_6/AppProject/TrainAppSimulation/build/CMakeFiles/install.dir
-F:/matkul/sem_6/AppProject/TrainAppSimulation/build/CMakeFiles/install/local.dir
-F:/matkul/sem_6/AppProject/TrainAppSimulation/build/CMakeFiles/install/strip.dir
-F:/matkul/sem_6/AppProject/TrainAppSimulation/build/CMakeFiles/TrainSimulationApp_autogen_timestamp_deps.dir
-F:/matkul/sem_6/AppProject/TrainAppSimulation/build/CMakeFiles/TrainSimulationApp_autogen.dir
