@@ -26,6 +26,7 @@ LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
   mainLayout->addWidget(scrollArea);
   setFixedWidth(320);
   setLayout(mainLayout);
+
   setStyleSheet("QWidget {"
                 "    background-color: " +
                 Colors::Secondary500.name() +
@@ -133,19 +134,7 @@ void LeftPanel::createRunButton() {
   connect(runStaticButtonH, &ButtonAction::clicked, this,
           setupStaticRunHandler(runButtonH, runStaticButtonH));
 
-  // QFrame *topSeparator = new QFrame();
-  // topSeparator->setFrameShape(QFrame::HLine);
-  // topSeparator->setFrameShadow(QFrame::Sunken);
-  // topSeparator->setFixedHeight(1);
-
-  // QFrame *bottomSeparator = new QFrame();
-  // bottomSeparator->setFrameShape(QFrame::HLine);
-  // bottomSeparator->setFrameShadow(QFrame::Sunken);
-  // bottomSeparator->setFixedHeight(1);
-
-  // m_buttonLayout->addWidget(topSeparator);
   m_buttonLayout->addWidget(runButtonWidget);
-  // m_buttonLayout->addWidget(bottomSeparator);
 }
 
 void LeftPanel::setupInputPageButtons() {
@@ -185,7 +174,41 @@ void LeftPanel::updateButtonState(QFuture<void> future, ButtonAction *runButton,
               runStaticButton->setEnabled(true);
               runButton->setEnabled(true);
               watcher->deleteLater();
+              showSimMessageBox();
             });
     watcher->setFuture(future);
   });
+}
+
+void LeftPanel::showSimMessageBox() {
+  QMessageBox simCompleteMessage;
+  simCompleteMessage.setWindowTitle("Information");
+  simCompleteMessage.setText("Simulation completed.");
+  simCompleteMessage.setIcon(QMessageBox::Information);
+  simCompleteMessage.setStandardButtons(QMessageBox::Ok);
+  simCompleteMessage.setStyleSheet("QMessageBox QLabel {"
+                                   "    color:" +
+                                   Colors::StandardBlack.name() + ";" +
+                                   TextStyle::BodyMediumRegular() +
+                                   "}"
+                                   "QPushButton {"
+                                   "    background-color: " +
+                                   Colors::Primary500.name() +
+                                   ";"
+                                   "    color: white;"
+                                   "    border: none;"
+                                   "    padding: 6px 12px;"
+                                   "    border-radius: 4px;"
+                                   "}"
+                                   "QPushButton:hover {"
+                                   "    background-color: " +
+                                   Colors::Primary600.name() +
+                                   ";"
+                                   "}");
+
+  simCompleteMessage.exec();
+}
+
+void LeftPanel::onSimulationCompleted() {
+  QMessageBox::information(this, "Simulation", "Simulation completed.");
 }

@@ -298,12 +298,11 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   int coastingCount = 0;
   double previousSpeed;
   double mileage = 0;
-  double stationDistance = 400;
   while (movingData->v >= 0) {
     resistanceData->f_resStart = calculateStartRes();
     resistanceData->f_resRunning = calculateRunningRes(movingData->v);
     mileage = calculateMileage();
-    if (mileage < stationDistance) {
+    if (mileage < movingData->x_station) {
       if (isAccelerating) {
         if (movingData->v >= movingData->v_limit &&
             resistanceData->f_total > 0) {

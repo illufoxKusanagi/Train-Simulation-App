@@ -7,13 +7,13 @@
 #include "left_panel_category.h"
 #include <QFuture>
 #include <QFutureWatcher>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QStackedLayout>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QtConcurrent/QtConcurrent>
-
 
 class LeftPanel : public QWidget {
   Q_OBJECT
@@ -26,6 +26,9 @@ public slots:
 
 signals:
   void navigateToPage(int pageIndex);
+
+private slots:
+  void onSimulationCompleted();
 
 private:
   bool m_isCollapsed = false;
@@ -45,6 +48,7 @@ private:
   void setupOutputPageButtons();
   void updateButtonState(QFuture<void> future, ButtonAction *runButton,
                          ButtonAction *staticRunButton);
+  void showSimMessageBox();
 };
 
 #endif // LEFT_PANEL_H
