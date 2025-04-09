@@ -5,6 +5,7 @@
 #include "../widgets/button_action.h"
 #include "button_toggle.h"
 #include "left_panel_category.h"
+#include "message_box_widget.h"
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QMessageBox>

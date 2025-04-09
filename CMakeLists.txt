@@ -77,6 +77,8 @@ set(WIDGET_SOURCES
     widgets/button_panel_category.cpp
     widgets/chart_widget.h
     widgets/chart_widget.cpp
+    widgets/message_box_widget.h
+    widgets/message_box_widget.cpp
 )
 
 # Models
