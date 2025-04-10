@@ -8,7 +8,6 @@
 #include "message_box_widget.h"
 #include <QFuture>
 #include <QFutureWatcher>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QStackedLayout>

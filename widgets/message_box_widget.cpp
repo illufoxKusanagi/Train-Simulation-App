@@ -25,6 +25,7 @@ MessageBoxWidget::MessageBoxWidget(QString windowTitle, QString text,
                 Colors::Primary600.name() +
                 ";"
                 "}");
+  exec();
 }
 
 QMessageBox::Icon MessageBoxWidget::switchIcon(IconType iconType) {

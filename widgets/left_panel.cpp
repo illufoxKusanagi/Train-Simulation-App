@@ -183,9 +183,4 @@ void LeftPanel::updateButtonState(QFuture<void> future, ButtonAction *runButton,
 void LeftPanel::showSimMessageBox() {
   MessageBoxWidget messageBox("Simulation", "Simulation completed.",
                               MessageBoxWidget::Information);
-  messageBox.exec();
-}
-
-void LeftPanel::onSimulationCompleted() {
-  QMessageBox::information(this, "Simulation", "Simulation completed.");
 }

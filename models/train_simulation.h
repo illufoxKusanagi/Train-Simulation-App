@@ -2,12 +2,12 @@
 #define TRAIN_SIMULATION_H
 
 #define _USE_MATH_DEFINES
+#include "../widgets/message_box_widget.h"
 #include "train_data.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <QObject>
 #include <QString>
 #include <cmath>

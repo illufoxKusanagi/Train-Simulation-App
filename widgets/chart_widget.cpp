@@ -217,19 +217,26 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
 
     if (!filePath.isEmpty()) {
       QPixmap pixmap = chartView->grab();
-      if (!pixmap.save(filePath)) {
-        QMessageBox::warning(
-            this, tr("Save Failed"),
-            tr("Could not save the chart to %1").arg(filePath));
+      if (pixmap.save(filePath)) {
+        MessageBoxWidget messageBox(
+            "Save Successful", QString("Chart image saved at %1").arg(filePath),
+            MessageBoxWidget::Information);
+      } else {
+        MessageBoxWidget messageBox(
+            "Save Failed",
+            QString("Could not save the chart to %1").arg(filePath) +
+                "the file path and try again.",
+            MessageBoxWidget::Warning);
       }
     }
   });
   connect(saveCurrentData, &QPushButton::clicked, this, [this]() {
     try {
       if (m_trainSimulation->simulationDatas.trainSpeeds.isEmpty()) {
-        QMessageBox::warning(
-            this, "No Data",
-            "No simulation data to save. Please run a simulation first.");
+        MessageBoxWidget messageBox(
+            "No Data",
+            "No simulation data to save. Please run a simulation first.",
+            MessageBoxWidget::Warning);
         return;
       }
       bool saveSuccessful = false;
@@ -247,25 +254,31 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
       else if (m_chartTitle == "Dynamic Energy" ||
                m_chartTitle == "Static Energy")
         saveSuccessful = m_trainSimulation->saveEnergyConsumptionData();
-      if (saveSuccessful)
-        QMessageBox::information(this, "Success", "Data saved successfully!");
+      if (saveSuccessful) {
+        MessageBoxWidget messageBox("Success", "Data saved successfully!",
+                                    MessageBoxWidget::Information);
+      }
+
     } catch (const std::exception &e) {
-      QMessageBox::critical(this, "Error",
-                            QString("Failed to save data: %1").arg(e.what()));
+      MessageBoxWidget messageBox(
+          "Error", QString("Failed to save data: %1").arg(e.what()),
+          MessageBoxWidget::Critical);
     }
   });
   connect(saveAllData, &QPushButton::clicked, this, [this]() {
     try {
       if (m_trainSimulation->simulationDatas.trainSpeeds.isEmpty()) {
-        QMessageBox::warning(
-            this, "No Data",
-            "No simulation data to save. Please run a simulation first.");
+        MessageBoxWidget messageBox(
+            "No Data",
+            "No simulation data to save. Please run a simulation first.",
+            MessageBoxWidget::Warning);
         return;
       }
       m_trainSimulation->printSimulationDatas();
     } catch (const std::exception &e) {
-      QMessageBox::critical(this, "Error",
-                            QString("Failed to save data: %1").arg(e.what()));
+      MessageBoxWidget messageBox(
+          "Error", QString("Failed to save data: %1").arg(e.what()),
+          MessageBoxWidget::Critical);
     }
   });
 
