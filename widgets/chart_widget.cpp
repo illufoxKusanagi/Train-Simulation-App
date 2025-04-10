@@ -4,7 +4,8 @@ ChartWidget::ChartWidget(QWidget *parent, QString chartTitle,
                          QString seriesName, TrainSimulation *trainSimulation)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_chartLayout(nullptr), m_chartWidget(nullptr),
-      m_trainSimulation(trainSimulation), m_chartTitle(chartTitle) {
+      m_trainSimulation(trainSimulation), m_chartTitle(chartTitle),
+      m_simulationType(None) {
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(16);
   addSeries(seriesName, QColor(0, 114, 206));
@@ -23,15 +24,15 @@ void ChartWidget::addSeries(const QString &name, const QColor &color) {
 }
 
 void ChartWidget::onSimulationCompleted() {
+  m_simulationType = Dynamic;
   if (m_chartTitle.contains("Dynamic") || m_chartTitle.contains("Distance")) {
-    m_simulationType = Dynamic;
     updateChart();
   }
 }
 
 void ChartWidget::onStaticSimulationCompleted() {
+  m_simulationType = Static;
   if (m_chartTitle.contains("Static")) {
-    m_simulationType = Static;
     m_chartTitle.contains("Track") ? updateTable() : updateStaticChart();
   }
 }
@@ -210,77 +211,12 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
   ButtonAction *saveButton = new ButtonAction(this, "Save Chart");
   ButtonAction *saveCurrentData = new ButtonAction(this, "Save this data");
   ButtonAction *saveAllData = new ButtonAction(this, "Save all data");
-  connect(saveButton, &QPushButton::clicked, this, [this, chartView]() {
-    QString filePath = QFileDialog::getSaveFileName(
-        this, tr("Save Chart"), QDir::homePath(),
-        tr("Images (*.png *.jpg *.bmp);;All Files (*)"));
-
-    if (!filePath.isEmpty()) {
-      QPixmap pixmap = chartView->grab();
-      if (pixmap.save(filePath)) {
-        MessageBoxWidget messageBox(
-            "Save Successful", QString("Chart image saved at %1").arg(filePath),
-            MessageBoxWidget::Information);
-      } else {
-        MessageBoxWidget messageBox(
-            "Save Failed",
-            QString("Could not save the chart to %1").arg(filePath) +
-                "the file path and try again.",
-            MessageBoxWidget::Warning);
-      }
-    }
-  });
-  connect(saveCurrentData, &QPushButton::clicked, this, [this]() {
-    try {
-      if (m_trainSimulation->simulationDatas.trainSpeeds.isEmpty()) {
-        MessageBoxWidget messageBox(
-            "No Data",
-            "No simulation data to save. Please run a simulation first.",
-            MessageBoxWidget::Warning);
-        return;
-      }
-      bool saveSuccessful = false;
-      if (m_chartTitle == "Dynamic Power" || m_chartTitle == "Static Power" ||
-          m_chartTitle == "Dynamic Current" || m_chartTitle == "Static Current")
-        saveSuccessful = m_trainSimulation->saveTrainPowerData();
-      else if (m_chartTitle == "Traction Effort" ||
-               m_chartTitle == "Static Traction Effort")
-        saveSuccessful = m_trainSimulation->saveTractionEffortData();
-      else if (m_chartTitle == "Dynamic Speed" ||
-               m_chartTitle == "Static Speed")
-        saveSuccessful = m_trainSimulation->saveTrainSpeedData();
-      else if (m_chartTitle == "Distance")
-        saveSuccessful = m_trainSimulation->saveTrainTrackData();
-      else if (m_chartTitle == "Dynamic Energy" ||
-               m_chartTitle == "Static Energy")
-        saveSuccessful = m_trainSimulation->saveEnergyConsumptionData();
-      if (saveSuccessful) {
-        MessageBoxWidget messageBox("Success", "Data saved successfully!",
-                                    MessageBoxWidget::Information);
-      }
-
-    } catch (const std::exception &e) {
-      MessageBoxWidget messageBox(
-          "Error", QString("Failed to save data: %1").arg(e.what()),
-          MessageBoxWidget::Critical);
-    }
-  });
-  connect(saveAllData, &QPushButton::clicked, this, [this]() {
-    try {
-      if (m_trainSimulation->simulationDatas.trainSpeeds.isEmpty()) {
-        MessageBoxWidget messageBox(
-            "No Data",
-            "No simulation data to save. Please run a simulation first.",
-            MessageBoxWidget::Warning);
-        return;
-      }
-      m_trainSimulation->printSimulationDatas();
-    } catch (const std::exception &e) {
-      MessageBoxWidget messageBox(
-          "Error", QString("Failed to save data: %1").arg(e.what()),
-          MessageBoxWidget::Critical);
-    }
-  });
+  connect(saveButton, &QPushButton::clicked, this,
+          [this, chartView]() { onSaveButtonClicked(chartView); });
+  connect(saveCurrentData, &QPushButton::clicked, this,
+          &ChartWidget::onSaveCurrentDataClicked);
+  connect(saveAllData, &QPushButton::clicked, this,
+          &ChartWidget::onSaveAllDataClicked);
 
   saveButton->setEnabled(true);
   saveCurrentData->setEnabled(true);
@@ -532,12 +468,22 @@ void ChartWidget::setupStaticAxis() {
   axisY->setLabelFormat("%.0f");
 
   if (m_chartTitle.contains("Static Speed")) {
-    axisX->setRange(
-        0, (1.2 * m_trainSimulation->simulationDatas.distanceTotal.last()));
+    maxValue = *std::max_element(
+                   m_trainSimulation->simulationDatas.distanceTotal.begin(),
+                   m_trainSimulation->simulationDatas.distanceTotal.end()) *
+               1.2;
+    roundedMaxValue = ceil(maxValue / 100) * 100;
+    axisX->setRange(0, roundedMaxValue);
+    axisX->setTickCount(ceil(roundedMaxValue / 100) + 1);
     axisX->setTitleText("Distance (m)");
   } else if (m_chartTitle.contains("Static")) {
-    axisX->setRange(
-        0, 1.2 * m_trainSimulation->simulationDatas.trainSpeeds.last());
+    maxValue = *std::max_element(
+                   m_trainSimulation->simulationDatas.trainSpeeds.begin(),
+                   m_trainSimulation->simulationDatas.trainSpeeds.end()) *
+               1.2;
+    roundedMaxValue = ceil(maxValue / 100) * 100;
+    axisX->setRange(0, roundedMaxValue);
+    axisX->setTickCount(ceil(roundedMaxValue / 10) + 1);
     axisX->setTitleText("Speed (km/h)");
   }
   if (m_chartTitle.contains("Static Power")) {
@@ -612,12 +558,22 @@ void ChartWidget::setupDynamicAxis() {
   axisY->setMinorTickCount(4);   // Minor ticks for Y-axis
   axisY->setLabelFormat("%.0f"); // No decimal places
   if (m_chartTitle.contains("Dynamic") || m_chartTitle.contains("Distance")) {
-    axisX->setRange(0,
-                    1.2 * m_trainSimulation->simulationDatas.timeTotal.last());
+    maxValue =
+        *std::max_element(m_trainSimulation->simulationDatas.timeTotal.begin(),
+                          m_trainSimulation->simulationDatas.timeTotal.end()) *
+        1.2;
+    roundedMaxValue = ceil(maxValue / 10) * 10;
+    axisX->setRange(0, roundedMaxValue);
+    axisX->setTickCount(ceil(roundedMaxValue / 10) + 1);
     axisX->setTitleText("Time (s)");
   } else {
-    axisX->setRange(
-        0, 1.2 * m_trainSimulation->simulationDatas.trainSpeeds.last());
+    maxValue = *std::max_element(
+                   m_trainSimulation->simulationDatas.trainSpeeds.begin(),
+                   m_trainSimulation->simulationDatas.trainSpeeds.end()) *
+               1.2;
+    roundedMaxValue = ceil(maxValue / 10) * 10;
+    axisX->setRange(0, roundedMaxValue);
+    axisX->setTickCount(ceil(roundedMaxValue / 10) + 1);
     axisX->setTitleText("Speed (km/h)");
   }
 
@@ -676,5 +632,112 @@ void ChartWidget::setupDynamicAxis() {
     axisY->setRange(0, roundedMaxValue);
     axisY->setTickCount(ceil(roundedMaxValue / 100) + 1);
     axisY->setTitleText("Distance (m)");
+  }
+}
+
+void ChartWidget::onSaveAllDataClicked() {
+  try {
+    if (m_trainSimulation->simulationDatas.trainSpeeds.isEmpty()) {
+      MessageBoxWidget messageBox(
+          "No Data",
+          "No simulation data to save. Please run a simulation first.",
+          MessageBoxWidget::Warning);
+      return;
+    }
+
+    // Add validation to check if simulation type matches chart type
+    if (m_chartTitle.contains("Dynamic") && m_simulationType != Dynamic) {
+      MessageBoxWidget messageBox("Simulation Type Mismatch",
+                                  "This chart shows dynamic data but you have "
+                                  "static simulation results. "
+                                  "Please run a dynamic simulation first.",
+                                  MessageBoxWidget::Warning);
+      return;
+    } else if (m_chartTitle.contains("Static") && m_simulationType != Static) {
+      MessageBoxWidget messageBox("Simulation Type Mismatch",
+                                  "This chart shows static data but you have "
+                                  "dynamic simulation results. "
+                                  "Please run a static simulation first.",
+                                  MessageBoxWidget::Warning);
+      return;
+    }
+
+    m_trainSimulation->printSimulationDatas();
+  } catch (const std::exception &e) {
+    MessageBoxWidget messageBox(
+        "Error", QString("Failed to save data: %1").arg(e.what()),
+        MessageBoxWidget::Critical);
+  }
+}
+
+void ChartWidget::onSaveCurrentDataClicked() {
+  try {
+    if (m_trainSimulation->simulationDatas.trainSpeeds.isEmpty()) {
+      MessageBoxWidget messageBox(
+          "No Data",
+          "No simulation data to save. Please run a simulation first.",
+          MessageBoxWidget::Warning);
+      return;
+    }
+    // Add validation to check if simulation type matches chart type
+    if (m_chartTitle.contains("Dynamic") && m_simulationType != Dynamic) {
+      MessageBoxWidget messageBox("Simulation Type Mismatch",
+                                  "This chart shows dynamic data but you have "
+                                  "static simulation results. "
+                                  "Please run a dynamic simulation first.",
+                                  MessageBoxWidget::Warning);
+      return;
+    } else if (m_chartTitle.contains("Static") && m_simulationType != Static) {
+      MessageBoxWidget messageBox("Simulation Type Mismatch",
+                                  "This chart shows static data but you have "
+                                  "dynamic simulation results. "
+                                  "Please run a static simulation first.",
+                                  MessageBoxWidget::Warning);
+      return;
+    }
+    bool saveSuccessful = false;
+    if (m_chartTitle == "Dynamic Power" || m_chartTitle == "Static Power" ||
+        m_chartTitle == "Dynamic Current" || m_chartTitle == "Static Current")
+      saveSuccessful = m_trainSimulation->saveTrainPowerData();
+    else if (m_chartTitle == "Traction Effort" ||
+             m_chartTitle == "Static Traction Effort")
+      saveSuccessful = m_trainSimulation->saveTractionEffortData();
+    else if (m_chartTitle == "Dynamic Speed" || m_chartTitle == "Static Speed")
+      saveSuccessful = m_trainSimulation->saveTrainSpeedData();
+    else if (m_chartTitle == "Distance")
+      saveSuccessful = m_trainSimulation->saveTrainTrackData();
+    else if (m_chartTitle == "Dynamic Energy" ||
+             m_chartTitle == "Static Energy")
+      saveSuccessful = m_trainSimulation->saveEnergyConsumptionData();
+    if (saveSuccessful) {
+      MessageBoxWidget messageBox("Success", "Data saved successfully!",
+                                  MessageBoxWidget::Information);
+    }
+
+  } catch (const std::exception &e) {
+    MessageBoxWidget messageBox(
+        "Error", QString("Failed to save data: %1").arg(e.what()),
+        MessageBoxWidget::Critical);
+  }
+}
+
+void ChartWidget::onSaveButtonClicked(QChartView *chartView) {
+  QString filePath = QFileDialog::getSaveFileName(
+      this, tr("Save Chart"), QDir::homePath(),
+      tr("Images (*.png *.jpg *.bmp);;All Files (*)"));
+
+  if (!filePath.isEmpty()) {
+    QPixmap pixmap = chartView->grab();
+    if (pixmap.save(filePath)) {
+      MessageBoxWidget messageBox(
+          "Save Successful", QString("Chart image saved at %1").arg(filePath),
+          MessageBoxWidget::Information);
+    } else {
+      MessageBoxWidget messageBox(
+          "Save Failed",
+          QString("Could not save the chart to %1").arg(filePath) +
+              "the file path and try again.",
+          MessageBoxWidget::Warning);
+    }
   }
 }
