@@ -120,6 +120,13 @@ public:
   double calculateEmergencyDelaySimulationTrack();
   double calculateEmergencySafetySimulationTrack();
 
+  int getAllDataNumber();
+  int getTrainSpeedDataNumber();
+  int getTractionEffortDataNumber();
+  int getTrainPowerDataNumber();
+  int getTrainTrackDataNumber();
+  int getEnergyConsumptionDataNumber();
+
 private:
   ConstantData constantData;
   TrainData *trainData;

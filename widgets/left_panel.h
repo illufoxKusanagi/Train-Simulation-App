@@ -27,9 +27,6 @@ public slots:
 signals:
   void navigateToPage(int pageIndex);
 
-private slots:
-  void onSimulationCompleted();
-
 private:
   bool m_isCollapsed = false;
   int m_currentIndex = -1;

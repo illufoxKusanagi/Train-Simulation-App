@@ -35,6 +35,9 @@ public:
 public slots:
   void onSimulationCompleted();
   void onStaticSimulationCompleted();
+  void onSaveAllDataClicked();
+  void onSaveCurrentDataClicked();
+  void onSaveButtonClicked(QChartView *chartView);
 
 private:
   enum SimulationType { None, Dynamic, Static };
