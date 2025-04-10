@@ -7,12 +7,12 @@
 #include "../styles/text_style.h"
 #include "../widgets/button_action.h"
 #include "../widgets/button_pagination.h"
+#include "../widgets/message_box_widget.h"
 #include <QAbstractSeries>
 #include <QFileDialog>
 #include <QFont>
 #include <QHBoxLayout>
 #include <QHeaderView>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QTableView>
 #include <QTableWidget>

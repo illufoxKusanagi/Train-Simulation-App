@@ -240,7 +240,8 @@ void TrainSimulation::calculateBrakingForce() {
         -((resistanceData->f_brake * movingData->v_b1 * movingData->v_b2) /
           (movingData->v * movingData->v));
   } else {
-    QMessageBox::warning(nullptr, "Alert", "Weakening point is invalid");
+    MessageBoxWidget messagebox("Error", "Braking point is invalid",
+                                MessageBoxWidget::Warning);
   }
 }
 
@@ -472,7 +473,8 @@ void TrainSimulation::readCsvFile(const QString path, QStringList &values) {
   QFile file(path);
   bool isHeader = true;
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    QMessageBox::warning(nullptr, "Alert", "Could not open file for reading");
+    MessageBoxWidget messagebox("Error", "Could not open file for reading",
+                                MessageBoxWidget::Warning);
     return;
   }
   QTextStream in(&file);
@@ -499,7 +501,8 @@ bool TrainSimulation::saveTrainSpeedData() {
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   if (filepath.isEmpty()) {
-    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    MessageBoxWidget messagebox("Alert", "The process canceled by user",
+                                MessageBoxWidget::Warning);
     return false;
   }
   ofstream outFile(filepath.toStdString(), ios::out);
@@ -521,7 +524,8 @@ bool TrainSimulation::saveTractionEffortData() {
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   if (filepath.isEmpty()) {
-    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    MessageBoxWidget messagebox("Alert", "The process canceled by user",
+                                MessageBoxWidget::Warning);
     return false;
   }
   ofstream outFile(filepath.toStdString(), ios::out);
@@ -544,7 +548,8 @@ bool TrainSimulation::saveTrainPowerData() {
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   if (filepath.isEmpty()) {
-    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    MessageBoxWidget messagebox("Alert", "The process canceled by user",
+                                MessageBoxWidget::Warning);
     return false;
   }
   ofstream outFile(filepath.toStdString(), ios::out);
@@ -571,7 +576,8 @@ bool TrainSimulation::saveTrainTrackData() {
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   if (filepath.isEmpty()) {
-    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    MessageBoxWidget messagebox("Alert", "The process canceled by user",
+                                MessageBoxWidget::Warning);
     return false;
   }
   ofstream outFile(filepath.toStdString(), ios::out);
@@ -597,7 +603,8 @@ bool TrainSimulation::saveEnergyConsumptionData() {
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   if (filepath.isEmpty()) {
-    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    MessageBoxWidget messagebox("Alert", "The process canceled by user",
+                                MessageBoxWidget::Warning);
     return false;
   }
   ofstream outFile(filepath.toStdString(), ios::out);
@@ -633,7 +640,8 @@ void TrainSimulation::printSimulationDatas() {
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
 
   if (filepath.isEmpty()) {
-    QMessageBox::information(nullptr, "Alert", "The process canceled by user");
+    MessageBoxWidget messagebox("Alert", "The process canceled by user",
+                                MessageBoxWidget::Warning);
     return;
   }
   if (!filepath.endsWith(".csv", Qt::CaseInsensitive)) {
@@ -677,7 +685,8 @@ void TrainSimulation::printSimulationDatas() {
             << simulationDatas.energyCatenaries[i] << "\n";
   }
   outFile.close();
-  QMessageBox::information(nullptr, "Success", "Data saved successfully!");
+  MessageBoxWidget messagebox("Alert", "The process canceled by user",
+                              MessageBoxWidget::Warning);
 }
 
 void TrainSimulation::addSimulationDatas(int i, double time, QString phase) {
