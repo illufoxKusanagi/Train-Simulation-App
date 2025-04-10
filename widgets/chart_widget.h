@@ -7,12 +7,12 @@
 #include "../styles/text_style.h"
 #include "../widgets/button_action.h"
 #include "../widgets/button_pagination.h"
+#include "../widgets/message_box_widget.h"
 #include <QAbstractSeries>
 #include <QFileDialog>
 #include <QFont>
 #include <QHBoxLayout>
 #include <QHeaderView>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QTableView>
 #include <QTableWidget>
@@ -21,7 +21,6 @@
 #include <QWidget>
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
-
 
 class ChartWidget : public QWidget {
   Q_OBJECT
@@ -36,6 +35,9 @@ public:
 public slots:
   void onSimulationCompleted();
   void onStaticSimulationCompleted();
+  void onSaveAllDataClicked();
+  void onSaveCurrentDataClicked();
+  void onSaveButtonClicked(QChartView *chartView);
 
 private:
   enum SimulationType { None, Dynamic, Static };

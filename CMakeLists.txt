@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(TrainAppSimulation VERSION 0.1 LANGUAGES CXX)
+project(TrainSimulationApp VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -13,7 +13,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt6 REQUIRED COMPONENTS Widgets Charts)
 find_package(Qt6 REQUIRED COMPONENTS Concurrent)
 
-# target_link_libraries(TrainAppSimulation PRIVATE Qt6::Widgets Qt6::Charts)
 # Main sources
 set(PROJECT_SOURCES
     main.cpp
@@ -78,6 +77,8 @@ set(WIDGET_SOURCES
     widgets/button_panel_category.cpp
     widgets/chart_widget.h
     widgets/chart_widget.cpp
+    widgets/message_box_widget.h
+    widgets/message_box_widget.cpp
 )
 
 # Models
@@ -97,7 +98,7 @@ set(MODEL_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(TrainAppSimulation
+    qt_add_executable(TrainSimulationApp
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         ${PAGE_SOURCES}
@@ -107,27 +108,27 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     )
 
 # Define target properties for Android with Qt 6 as:
-# set_property(TARGET TrainAppSimulation APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+# set_property(TARGET TrainSimulationApp APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 # ${CMAKE_CURRENT_SOURCE_DIR}/android)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
     if(ANDROID)
-        add_library(TrainAppSimulation SHARED
+        add_library(TrainSimulationApp SHARED
             ${PROJECT_SOURCES}
         )
 
     # Define properties for Android with Qt 5 after find_package() calls as:
     # set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
-        add_executable(TrainAppSimulation
+        add_executable(TrainSimulationApp
             ${PROJECT_SOURCES}
         )
     endif()
 endif()
 
-target_link_libraries(TrainAppSimulation PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-target_link_libraries(TrainAppSimulation PRIVATE Qt6::Concurrent)
-target_link_libraries(TrainAppSimulation PRIVATE
+target_link_libraries(TrainSimulationApp PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(TrainSimulationApp PRIVATE Qt6::Concurrent)
+target_link_libraries(TrainSimulationApp PRIVATE
     Qt6::Widgets
     Qt6::Charts
 )
@@ -136,10 +137,10 @@ target_link_libraries(TrainAppSimulation PRIVATE
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
 if(${QT_VERSION} VERSION_LESS 6.1.0)
-    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.TrainAppSimulation)
+    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.TrainSimulationApp)
 endif()
 
-set_target_properties(TrainAppSimulation PROPERTIES
+set_target_properties(TrainSimulationApp PROPERTIES
     ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -148,12 +149,12 @@ set_target_properties(TrainAppSimulation PROPERTIES
 )
 
 include(GNUInstallDirs)
-install(TARGETS TrainAppSimulation
+install(TARGETS TrainSimulationApp
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(TrainAppSimulation)
+    qt_finalize_executable(TrainSimulationApp)
 endif()
