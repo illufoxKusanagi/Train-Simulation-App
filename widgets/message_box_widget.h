@@ -9,7 +9,18 @@ class MessageBoxWidget : public QMessageBox {
   Q_OBJECT
 
 public:
-  explicit MessageBoxWidget();
+  enum IconType {
+    NoIcon = 0,
+    Question = 1,
+    Information = 2,
+    Warning = 3,
+    Critical = 4
+  };
+  explicit MessageBoxWidget(QString windowTitle, QString text,
+                            IconType iconType);
+
+private:
+  QMessageBox::Icon switchIcon(IconType iconType);
 };
 
 #endif // MESSAGE_BOX_H
