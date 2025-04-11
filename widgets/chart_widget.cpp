@@ -537,7 +537,9 @@ void ChartWidget::setupStaticAxis() {
 
 void ChartWidget::setupDynamicAxis() {
   double maxValue;
+  double minValue;
   double roundedMaxValue;
+  double roundedMinValue;
   if (m_chart->series().isEmpty())
     return;
   if (m_simulationType != Dynamic)
@@ -582,8 +584,16 @@ void ChartWidget::setupDynamicAxis() {
                    m_trainSimulation->simulationDatas.catenaryPowers.begin(),
                    m_trainSimulation->simulationDatas.catenaryPowers.end()) *
                1.2;
+    minValue = *std::min_element(
+                   m_trainSimulation->simulationDatas.catenaryPowers.begin(),
+                   m_trainSimulation->simulationDatas.catenaryPowers.end()) *
+               1.1;
     roundedMaxValue = ceil(maxValue / 100) * 100;
-    axisY->setRange(0, roundedMaxValue);
+    roundedMinValue = floor(minValue / 100) * 100;
+    if (minValue > 0) {
+      roundedMinValue = 0;
+    }
+    axisY->setRange(roundedMinValue, roundedMaxValue);
     axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
     axisY->setTitleText("Power (kW)");
   } else if (m_chartTitle.contains("Dynamic Current")) {
@@ -591,8 +601,16 @@ void ChartWidget::setupDynamicAxis() {
                    m_trainSimulation->simulationDatas.catenaryCurrents.begin(),
                    m_trainSimulation->simulationDatas.catenaryCurrents.end()) *
                1.1;
+    minValue = *std::min_element(
+                   m_trainSimulation->simulationDatas.catenaryCurrents.begin(),
+                   m_trainSimulation->simulationDatas.catenaryCurrents.end()) *
+               1.1;
     roundedMaxValue = ceil(maxValue / 100) * 100;
-    axisY->setRange(0, roundedMaxValue);
+    roundedMinValue = floor(minValue / 100) * 100;
+    if (minValue > 0) {
+      roundedMinValue = 0;
+    }
+    axisY->setRange(roundedMinValue, roundedMaxValue);
     axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
     axisY->setTitleText("Current (A)");
   } else if (m_chartTitle.contains("Dynamic Speed")) {
@@ -609,8 +627,16 @@ void ChartWidget::setupDynamicAxis() {
                    m_trainSimulation->simulationDatas.tractionEfforts.begin(),
                    m_trainSimulation->simulationDatas.tractionEfforts.end()) *
                1.1;
+    minValue = *std::min_element(
+                   m_trainSimulation->simulationDatas.tractionEfforts.begin(),
+                   m_trainSimulation->simulationDatas.tractionEfforts.end()) *
+               1.1;
     roundedMaxValue = ceil(maxValue / 100) * 100;
-    axisY->setRange(0, roundedMaxValue);
+    roundedMinValue = floor(minValue / 100) * 100;
+    if (minValue > 0) {
+      roundedMinValue = 0;
+    }
+    axisY->setRange(roundedMinValue, roundedMaxValue);
     axisY->setTickCount(ceil(roundedMaxValue / 100) + 1);
     axisY->setTitleText("Traction Effort (kN)");
   } else if (m_chartTitle.contains("Dynamic Energy")) {
@@ -619,8 +645,17 @@ void ChartWidget::setupDynamicAxis() {
             m_trainSimulation->simulationDatas.energyConsumptions.begin(),
             m_trainSimulation->simulationDatas.energyConsumptions.end()) *
         1.1;
+    minValue =
+        *std::min_element(
+            m_trainSimulation->simulationDatas.energyRegenerations.begin(),
+            m_trainSimulation->simulationDatas.energyRegenerations.end()) *
+        1.1;
     roundedMaxValue = ceil(maxValue / 10) * 10;
-    axisY->setRange(0, roundedMaxValue);
+    roundedMinValue = floor(minValue / 10) * 10;
+    if (minValue > 0) {
+      roundedMinValue = 0;
+    }
+    axisY->setRange(roundedMinValue, roundedMaxValue);
     axisY->setTickCount(ceil(roundedMaxValue / 10) + 1);
     axisY->setTitleText("Energy (kW)");
   } else if (m_chartTitle.contains("Distance")) {
@@ -645,7 +680,6 @@ void ChartWidget::onSaveAllDataClicked() {
       return;
     }
 
-    // Add validation to check if simulation type matches chart type
     if (m_chartTitle.contains("Dynamic") && m_simulationType != Dynamic) {
       MessageBoxWidget messageBox("Simulation Type Mismatch",
                                   "This chart shows dynamic data but you have "
@@ -679,7 +713,6 @@ void ChartWidget::onSaveCurrentDataClicked() {
           MessageBoxWidget::Warning);
       return;
     }
-    // Add validation to check if simulation type matches chart type
     if (m_chartTitle.contains("Dynamic") && m_simulationType != Dynamic) {
       MessageBoxWidget messageBox("Simulation Type Mismatch",
                                   "This chart shows dynamic data but you have "
