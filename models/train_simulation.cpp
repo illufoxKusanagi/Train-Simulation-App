@@ -147,13 +147,13 @@ double TrainSimulation::calculateAdhesion() {
 }
 
 double TrainSimulation::calculateResistanceForcePerMotor(double f_res) {
-  trainMotorData->tm_f_res = f_res / (loadData->n_M1 + loadData->n_M2);
+  trainMotorData->tm_f_res = f_res / trainData->n_tm;
   return trainMotorData->tm_f_res;
 }
 
 double TrainSimulation::calculatePowerWheel() {
   powerData->p_wheel =
-      abs(resistanceData->f_motor) * (movingData->v / constantData.cV);
+      resistanceData->f_motor * (movingData->v / constantData.cV);
   return powerData->p_wheel;
 }
 
