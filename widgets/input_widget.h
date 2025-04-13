@@ -40,6 +40,7 @@ private:
   double m_inputValue;
   void setPlaceholder(const QString &placeholder);
   void buildInputField(InputType inputType);
+  void buildInputUpload(InputType inputType);
 };
 
 #endif // INPUTWIDGET_H
