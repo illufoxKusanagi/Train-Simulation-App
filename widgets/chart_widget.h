@@ -1,7 +1,7 @@
 #ifndef CHART_WIDGET_H
 #define CHART_WIDGET_H
 
-#include "../controllers/train_simulation.h.h"
+#include "../controllers/train_simulation.h"
 #include "../models/train_data.h"
 #include "../styles/colors.h"
 #include "../styles/text_style.h"

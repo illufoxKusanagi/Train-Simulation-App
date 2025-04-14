@@ -3,7 +3,7 @@
 
 #define _USE_MATH_DEFINES
 #include "../widgets/message_box_widget.h"
-#include "train_data.h"
+#include "../models/train_data.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileDialog>

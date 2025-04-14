@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include "../models/train_data.h"
-#include "../models/train_simulation.h"
+#include "../controllers/train_simulation.h"
 #include "../pages/constant_values_page.h"
 #include "../pages/electrical_parameter_page.h"
 #include "../pages/running_parameter_page.h"

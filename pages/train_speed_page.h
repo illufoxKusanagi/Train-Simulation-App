@@ -1,7 +1,7 @@
 #ifndef TRAIN_SPEED_PAGE_H
 #define TRAIN_SPEED_PAGE_H
 
-#include "../controllers/train_simulation.h.h"
+#include "../controllers/train_simulation.h"
 #include "../resources/input_type.h"
 #include "../widgets/button_action.h"
 #include "../widgets/chart_widget.h"
