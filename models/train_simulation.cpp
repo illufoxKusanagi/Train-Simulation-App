@@ -996,3 +996,10 @@ void TrainSimulation::readCsvFile(const QString path, QStringList &values) {
   }
   file.close();
 }
+
+bool TrainSimulation::validateCsvVariables() {
+  if (stationData->stationDistance.size() > 0) {
+    return true;
+  } else
+    return false;
+}
