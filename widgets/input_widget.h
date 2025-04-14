@@ -26,6 +26,7 @@ public:
   double getValue();
   bool isModified() const;
   void setModified(bool modified);
+  QList<double> getCsvValue();
 
 signals:
   void valueChanged();
@@ -40,6 +41,7 @@ private:
   double m_inputValue;
   void setPlaceholder(const QString &placeholder);
   void buildInputField(InputType inputType);
+  void buildInputUpload(InputType inputType);
 };
 
 #endif // INPUTWIDGET_H

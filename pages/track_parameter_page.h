@@ -20,9 +20,11 @@ private:
   QMap<QString, InputWidget *> m_inputWidgets;
   ResistanceData *resistanceData;
   MovingData *movingData;
+  StationData *stationData;
 
   void createInputs();
   double getParameterValue(const QString &paramName) const;
+  QList<double> getCsvParamValue(const QString &paramName) const;
   void setParameterValue();
   void connectInputSignals();
 };

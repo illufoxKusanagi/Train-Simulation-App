@@ -22,7 +22,6 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-
 class MainWindow : public QMainWindow {
   Q_OBJECT
 
@@ -45,6 +44,7 @@ private:
   EfficiencyData m_efficiencyData;
   PowerData m_powerData;
   EnergyData m_energyData;
+  StationData m_stationData;
   LeftPanel *leftPanel;
 
   void setupLeftPanel();

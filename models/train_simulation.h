@@ -30,16 +30,14 @@ public slots:
   void resetSimulation();
 
 public:
-  explicit TrainSimulation(QObject *parent = nullptr,
-                           TrainData *trainData = nullptr,
-                           MassData *massData = nullptr,
-                           LoadData *loadData = nullptr,
-                           ResistanceData *resistanceData = nullptr,
-                           MovingData *movingData = nullptr,
-                           TrainMotorData *trainMotorData = nullptr,
-                           EfficiencyData *efficiencyData = nullptr,
-                           PowerData *powerData = nullptr,
-                           EnergyData *energyData = nullptr);
+  explicit TrainSimulation(
+      QObject *parent = nullptr, TrainData *trainData = nullptr,
+      MassData *massData = nullptr, LoadData *loadData = nullptr,
+      ResistanceData *resistanceData = nullptr,
+      MovingData *movingData = nullptr,
+      TrainMotorData *trainMotorData = nullptr,
+      EfficiencyData *efficiencyData = nullptr, PowerData *powerData = nullptr,
+      EnergyData *energyData = nullptr, StationData *stationData = nullptr);
 
   struct SimulationDatas {
     QList<double> trainSpeeds;
@@ -138,6 +136,7 @@ private:
   EfficiencyData *efficiencyData;
   PowerData *powerData;
   EnergyData *energyData;
+  StationData *stationData;
   double m_maxVvvfCurrent = 0;
   double m_maxVvvfPower = 0;
 
