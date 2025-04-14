@@ -290,26 +290,55 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   clearSimulationDatas();
   initData();
   int i = 0;
+  int j = 0;
   bool isAccelerating = true;
   bool isCoasting = false;
+  bool isAtStation = false;
+  bool isBraking = false;
   float time = 0;
   QString phase = "Starting";
   int coastingCount = 0;
   double previousSpeed;
   double mileage = 0;
   double stationDistance = 0;
+  double trainStopTime = 0;
+  const double WAIT_TIME = 10.0;
   movingData->x_station = 2000;
-  while (movingData->v >= 0) {
-    if (i < stationData->stationDistance.size()) {
-      stationDistance = stationData->stationDistance[i];
-    } else {
-      stationDistance = 19000;
-    }
-    qDebug() << "Station Distance : " << stationDistance;
+  // stationData->stationDistance.end();
+  while (movingData->v >= 0 || j < stationData->stationDistance.size()) {
     resistanceData->f_resStart = calculateStartRes();
     resistanceData->f_resRunning = calculateRunningRes(movingData->v);
     mileage = calculateMileage();
-    if (mileage < movingData->x_station) {
+    // Add check to make sure stationData has stations
+    // if (stationData->stationDistance.empty()) {
+    //   // No stations defined - exit loop
+    //   MessageBoxWidget messageBox("No Stations",
+    //                               "No station data available for
+    //                               simulation.", MessageBoxWidget::Warning);
+    //   break;
+    // }
+    if (isAtStation) {
+      phase = "At Station";
+      qDebug() << "Yoohoo! ore wa doko desu";
+      movingData->v = 0;
+      movingData->v_si = 0;
+      movingData->acc = 0;
+      movingData->acc_si = 0;
+      trainStopTime += constantData.dt;
+      time += constantData.dt;
+      simulationDatas.time.append(constantData.dt);
+      if (trainStopTime >= WAIT_TIME) {
+        isAtStation = false;
+        trainStopTime = 0;
+        j++;
+        isAccelerating = true;
+        isCoasting = false;
+      }
+      simulationDatas.accelerations.append(movingData->acc);
+      simulationDatas.accelerationsSi.append(movingData->acc_si);
+      simulationDatas.trainSpeeds.append(movingData->v);
+      simulationDatas.trainSpeedsSi.append(movingData->v_si);
+    } else if (mileage < stationData->stationDistance[j]) {
       if (isAccelerating) {
         if (movingData->v >= movingData->v_limit &&
             resistanceData->f_total > 0) {
@@ -371,8 +400,17 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       time += constantData.dt;
       simulationDatas.time.append(constantData.dt);
       energyData->e_reg += calculateEnergyRegeneration(i);
-      if (movingData->v <= 0 || resistanceData->f_total == 0)
+      if (movingData->v <= 0) {
+        isAtStation = true;
+        trainStopTime = 0;
+        continue;
+      }
+      if (resistanceData->f_total == 0) {
+        MessageBoxWidget messageBox("Error",
+                                    "Total force is unable to move the train.",
+                                    MessageBoxWidget::Warning);
         break;
+      }
     }
     simulationDatas.mileages.append(mileage);
     energyData->e_motor += calculateEnergyConsumption(i);
