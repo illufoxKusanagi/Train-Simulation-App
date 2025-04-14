@@ -37,8 +37,8 @@ void MainWindow::setupPages() {
       new RunningParameterPage(this, &m_movingData, &m_resistanceData);
   setupFixedSizePage(runningParameterPage);
 
-  TrackParameterPage *trackParameterPage =
-      new TrackParameterPage(this, &m_movingData, &m_resistanceData);
+  TrackParameterPage *trackParameterPage = new TrackParameterPage(
+      this, &m_movingData, &m_resistanceData, &m_stationData);
   setupFixedSizePage(trackParameterPage);
 
   ElectricalParameterPage *electricalParameterPage =

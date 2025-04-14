@@ -100,7 +100,6 @@ void LeftPanel::createRunButton() {
               runButtonH->setSize(132, 40);
               runStaticButtonH->setSize(132, 40);
             }
-
             m_inputPanel->toggleCollapse(m_isCollapsed);
             m_outputPanel->toggleCollapse(m_isCollapsed);
             m_buttonToggle->toggleCollapse();
@@ -110,6 +109,12 @@ void LeftPanel::createRunButton() {
   auto setupDynamicRunHandler = [this](ButtonAction *runBtn,
                                        ButtonAction *staticBtn) {
     return [this, runBtn, staticBtn]() {
+      if (!m_trainSimulation->validateCsvVariables()) {
+        MessageBoxWidget messagebox(
+            "Alert", "Station distance is empty. Please upload station data",
+            MessageBoxWidget::Warning);
+        return;
+      }
       QFuture<void> future = QtConcurrent::run(
           [this]() { m_trainSimulation->simulateDynamicTrainMovement(); });
       updateButtonState(future, runBtn, staticBtn);

@@ -297,7 +297,15 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   int coastingCount = 0;
   double previousSpeed;
   double mileage = 0;
+  double stationDistance = 0;
+  movingData->x_station = 2000;
   while (movingData->v >= 0) {
+    if (i < stationData->stationDistance.size()) {
+      stationDistance = stationData->stationDistance[i];
+    } else {
+      stationDistance = 19000;
+    }
+    qDebug() << "Station Distance : " << stationDistance;
     resistanceData->f_resStart = calculateStartRes();
     resistanceData->f_resRunning = calculateRunningRes(movingData->v);
     mileage = calculateMileage();
@@ -995,4 +1003,11 @@ void TrainSimulation::readCsvFile(const QString path, QStringList &values) {
     }
   }
   file.close();
+}
+
+bool TrainSimulation::validateCsvVariables() {
+  if (stationData->stationDistance.size() > 0) {
+    return true;
+  } else
+    return false;
 }

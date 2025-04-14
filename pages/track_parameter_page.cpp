@@ -1,11 +1,13 @@
 #include "track_parameter_page.h"
 
 TrackParameterPage::TrackParameterPage(QWidget *parent, MovingData *movingData,
-                                       ResistanceData *resistanceData)
+                                       ResistanceData *resistanceData,
+                                       StationData *stationData)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_formContainer(new QWidget(this)),
       m_formLayout(new QGridLayout(m_formContainer)),
-      resistanceData(resistanceData), movingData(movingData) {
+      resistanceData(resistanceData), movingData(movingData),
+      stationData(stationData) {
   mainLayout->setContentsMargins(16, 16, 16, 16);
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setHorizontalSpacing(128);
@@ -53,6 +55,9 @@ void TrackParameterPage::setParameterValue() {
   resistanceData->radius = getParameterValue("Radius per Section");
   resistanceData->slope = getParameterValue("Slope per Section");
   movingData->x_station = getParameterValue("Station Distance");
+  QList<double> stationDistances = getCsvParamValue("Station Distance");
+  stationData->stationDistance =
+      std::vector<double>(stationDistances.begin(), stationDistances.end());
 }
 
 void TrackParameterPage::connectInputSignals() {
@@ -65,7 +70,6 @@ void TrackParameterPage::connectInputSignals() {
       if (paramName == "Station Distance") {
         QList<double> csvValues = m_inputWidgets[paramName]->getCsvValue();
         if (!csvValues.isEmpty()) {
-          qDebug() << "CSV Values:" << csvValues;
         }
       } else
         double value = getParameterValue(paramName);

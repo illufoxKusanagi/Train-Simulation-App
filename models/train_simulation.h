@@ -125,6 +125,8 @@ public:
   int getTrainTrackDataNumber();
   int getEnergyConsumptionDataNumber();
 
+  bool validateCsvVariables();
+
 private:
   ConstantData constantData;
   TrainData *trainData;
