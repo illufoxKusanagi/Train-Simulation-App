@@ -32,7 +32,7 @@ signals:
   void fileLoaded(const QString &filePath);
   void fileLoadError(const QString &errorMessage);
 
-private slots:
+public slots:
   void onUploadButtonClicked();
 
 private:

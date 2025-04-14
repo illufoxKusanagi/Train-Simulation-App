@@ -26,6 +26,7 @@ public:
   double getValue();
   bool isModified() const;
   void setModified(bool modified);
+  QList<double> getCsvValue();
 
 signals:
   void valueChanged();

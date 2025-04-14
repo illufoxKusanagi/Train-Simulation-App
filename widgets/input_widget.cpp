@@ -53,6 +53,13 @@ void InputWidget::buildInputField(InputType inputType) {
   layout->setAlignment(m_inputField, Qt::AlignLeft);
 }
 
+QList<double> InputWidget::getCsvValue() {
+  if (m_inputUpload) {
+    return m_inputUpload->getColumnData(2);
+  }
+  return QList<double>();
+}
+
 void InputWidget::setValue(double value) {
   if (m_inputField) {
     m_inputValue = value;
@@ -79,16 +86,12 @@ void InputWidget::buildInputUpload(InputType inputType) {
   m_inputUpload->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   m_inputUpload->setRequiredColumnCount(3);
   m_inputUpload->setTargetColumns({0, 1, 2});
-  // connect(m_inputUpload, &InputUpload::onUploadButtonClicked, this, [this]()
-  // {
-  //   m_inputValue = m_inputUpload->getFilePath();
-  //   emit valueChanged();
-  // });
+  connect(m_inputUpload, &InputUpload::onUploadButtonClicked, this,
+          [this]() { emit valueChanged(); });
   connect(m_inputUpload, &InputUpload::fileLoaded, this, [this]() {
     if (m_inputUpload->hasRequiredColumns()) {
       QList<double> speedData = m_inputUpload->getColumnData(0);
     }
-    qDebug() << "CSV Values:" << m_inputUpload->getAllData();
   });
   connect(m_inputUpload, &InputUpload::fileLoadError, this,
           [this](const QString &errorMessage) {
