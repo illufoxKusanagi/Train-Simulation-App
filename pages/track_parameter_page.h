@@ -11,7 +11,8 @@ class TrackParameterPage : public QWidget {
 public:
   explicit TrackParameterPage(QWidget *parent = nullptr,
                               MovingData *movingData = nullptr,
-                              ResistanceData *resistanceData = nullptr);
+                              ResistanceData *resistanceData = nullptr,
+                              StationData *stationData = nullptr);
 
 private:
   QVBoxLayout *mainLayout;
