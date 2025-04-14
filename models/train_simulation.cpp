@@ -2,18 +2,16 @@
 
 using namespace std;
 
-TrainSimulation::TrainSimulation(QObject *parent, TrainData *trainData,
-                                 MassData *massData, LoadData *loadData,
-                                 ResistanceData *resistanceData,
-                                 MovingData *movingData,
-                                 TrainMotorData *trainMotorData,
-                                 EfficiencyData *efficiencyData,
-                                 PowerData *powerData, EnergyData *energyData)
+TrainSimulation::TrainSimulation(
+    QObject *parent, TrainData *trainData, MassData *massData,
+    LoadData *loadData, ResistanceData *resistanceData, MovingData *movingData,
+    TrainMotorData *trainMotorData, EfficiencyData *efficiencyData,
+    PowerData *powerData, EnergyData *energyData, StationData *stationData)
     : QObject(parent), trainData(trainData), massData(massData),
       loadData(loadData), resistanceData(resistanceData),
       movingData(movingData), trainMotorData(trainMotorData),
       efficiencyData(efficiencyData), powerData(powerData),
-      energyData(energyData) {
+      energyData(energyData), stationData(stationData) {
   initData();
   connect(this, &TrainSimulation::simulationCompleted, this,
           &TrainSimulation::resetSimulation);

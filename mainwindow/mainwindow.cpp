@@ -5,10 +5,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
   QHBoxLayout *mainLayout = new QHBoxLayout(centralWidget);
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(0);
-  m_trainSimulation =
-      new TrainSimulation(this, &m_trainData, &m_massData, &m_loadData,
-                          &m_resistanceData, &m_movingData, &m_trainMotorData,
-                          &m_efficiencyData, &m_powerData, &m_energyData);
+  m_trainSimulation = new TrainSimulation(
+      this, &m_trainData, &m_massData, &m_loadData, &m_resistanceData,
+      &m_movingData, &m_trainMotorData, &m_efficiencyData, &m_powerData,
+      &m_energyData, &m_stationData);
   leftPanel = new LeftPanel(this, m_trainSimulation);
   stackedWidget = new QStackedWidget(this);
   connect(leftPanel, &LeftPanel::navigateToPage, this,

@@ -1,5 +1,9 @@
+using namespace std;
+
 #ifndef TRAIN_DATA_H
 #define TRAIN_DATA_H
+
+#include <vector>
 
 struct ConstantData {
   const double g = 9.8;
@@ -129,6 +133,14 @@ struct EnergyData {
   double vol_line = 0;
   double curr_catenary = 0;
   double curr_vvvf = 0;
+};
+
+struct StationData {
+  vector<double> stationDistance;
+  vector<double> speedLimit;
+  vector<double> sectionDistance;
+  vector<double> slope;
+  vector<double> radius;
 };
 
 #endif // TRAIN_DATA_H
