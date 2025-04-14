@@ -2,21 +2,21 @@
 
 using namespace std;
 
-TrainSimulation::TrainSimulation(QObject *parent, TrainData *trainData,
-                                 MassData *massData, LoadData *loadData,
-                                 ResistanceData *resistanceData,
-                                 MovingData *movingData,
-                                 TrainMotorData *trainMotorData,
-                                 EfficiencyData *efficiencyData,
-                                 PowerData *powerData, EnergyData *energyData)
+TrainSimulation::TrainSimulation(
+    QObject *parent, TrainData *trainData, MassData *massData,
+    LoadData *loadData, ResistanceData *resistanceData, MovingData *movingData,
+    TrainMotorData *trainMotorData, EfficiencyData *efficiencyData,
+    PowerData *powerData, EnergyData *energyData, StationData *stationData)
     : QObject(parent), trainData(trainData), massData(massData),
       loadData(loadData), resistanceData(resistanceData),
       movingData(movingData), trainMotorData(trainMotorData),
       efficiencyData(efficiencyData), powerData(powerData),
-      energyData(energyData)
-
-{
+      energyData(energyData), stationData(stationData) {
   initData();
+  connect(this, &TrainSimulation::simulationCompleted, this,
+          &TrainSimulation::resetSimulation);
+  connect(this, &TrainSimulation::staticSimulationCompleted, this,
+          &TrainSimulation::resetSimulation);
 }
 
 void TrainSimulation::initTrainMassData() {}
@@ -32,7 +32,7 @@ void TrainSimulation::initData() {
   }
   movingData->v = 0.0;
   movingData->acc = movingData->acc_start;
-  movingData->decc = movingData->decc_start;
+  movingData->decc = movingData->decc_start * constantData.cV;
 }
 
 double TrainSimulation::countMassEmptyCar() {
@@ -72,7 +72,7 @@ double TrainSimulation::countInertialMass() {
       (loadData->n_M1 * (loadData->mass_P_final * loadData->n_PM1) +
        loadData->n_M2 * (loadData->mass_P_final * loadData->n_PM2));
   massData->mass_Ti =
-      (massData->mass_Te * massData->i_M) +
+      (massData->mass_Te * massData->i_T) +
       (loadData->n_Tc * (loadData->mass_P_final * loadData->n_PTc) +
        loadData->n_T1 * (loadData->mass_P_final * loadData->n_PT1) +
        loadData->n_T2 * (loadData->mass_P_final * loadData->n_PT2) +
@@ -93,7 +93,7 @@ double TrainSimulation::calculateResTrain(float m, float startRes) {
 }
 
 double TrainSimulation::calculateResSlope(float m, float slope) {
-  resistanceData->r_slope = (m * constantData.g * slope / 1000);
+  resistanceData->r_slope = (m * constantData.g * slope) / 1000;
   return resistanceData->r_slope;
 }
 
@@ -103,16 +103,7 @@ double TrainSimulation::calculateResRadius(float m, float radius) {
 }
 
 double TrainSimulation::calculateStartForce(float acc) {
-  resistanceData->f_start =
-      massData->mass_totalInertial * (acc / constantData.cV) +
-      resistanceData->f_resStart;
-  return resistanceData->f_start;
-}
-
-double TrainSimulation::calculateBrakeForce() {
-  resistanceData->f_brake =
-      massData->mass_totalInertial * (movingData->decc_start / constantData.cV);
-  return resistanceData->f_brake;
+  return massData->mass_totalInertial * acc + resistanceData->f_resStart;
 }
 
 double TrainSimulation::calculateTotalForce(float v) {
@@ -147,18 +138,20 @@ double TrainSimulation::calculateRpm() {
 double TrainSimulation::calculateAdhesion() {
   trainMotorData->tm_adh =
       (trainMotorData->tm_f * constantData.cF) /
-      (((massData->mass_M1 + massData->mass_M2) * 1000) / trainData->n_axle);
+      (((massData->mass_M2 + (loadData->mass_P_final * loadData->n_PM2)) *
+        1000) /
+       trainData->n_axle);
   return trainMotorData->tm_adh;
 }
 
 double TrainSimulation::calculateResistanceForcePerMotor(double f_res) {
-  trainMotorData->tm_f_res = f_res / (loadData->n_M1 + loadData->n_M2);
+  trainMotorData->tm_f_res = f_res / trainData->n_tm;
   return trainMotorData->tm_f_res;
 }
 
 double TrainSimulation::calculatePowerWheel() {
   powerData->p_wheel =
-      abs(resistanceData->f_motor) * (movingData->v / constantData.cV);
+      resistanceData->f_motor * (movingData->v / constantData.cV);
   return powerData->p_wheel;
 }
 
@@ -219,8 +212,7 @@ double TrainSimulation::calculateRunningRes(float v) {
 }
 
 void TrainSimulation::calculatePoweringForce(float acc, float v) {
-  if (v <= 0)
-    resistanceData->f_start = calculateStartForce(acc);
+  resistanceData->f_start = calculateStartForce(movingData->acc_start);
   if (v <= movingData->v_p1) {
     resistanceData->f_motor = resistanceData->f_start;
   } else if (v > movingData->v_p1 && v <= movingData->v_p2) {
@@ -234,7 +226,7 @@ void TrainSimulation::calculatePoweringForce(float acc, float v) {
 
 void TrainSimulation::calculateBrakingForce() {
   resistanceData->f_brake =
-      massData->mass_totalInertial * (movingData->decc_start / constantData.cV);
+      massData->mass_totalInertial * movingData->decc_start;
   if (movingData->v < movingData->v_b1) {
     resistanceData->f_motor = -resistanceData->f_brake;
   } else if (movingData->v > movingData->v_b1 &&
@@ -246,81 +238,190 @@ void TrainSimulation::calculateBrakingForce() {
         -((resistanceData->f_brake * movingData->v_b1 * movingData->v_b2) /
           (movingData->v * movingData->v));
   } else {
-    qDebug() << "Invalid input";
+    MessageBoxWidget messagebox("Error", "Braking point is invalid",
+                                MessageBoxWidget::Warning);
   }
 }
 
-double TrainSimulation::calculateTotalTime() {
-  return (movingData->v_limit - movingData->v) / movingData->acc;
+double TrainSimulation::calculateTotalTime(int i) {
+  if (i <= 0)
+    return 0;
+  return ((simulationDatas.trainSpeeds[i] -
+           simulationDatas.trainSpeeds[i - 1]) /
+          constantData.cV) /
+         (simulationDatas.accelerations[i - 1] / constantData.cV);
 }
 
-double TrainSimulation::calculateTotalDistance() {
-  return movingData->v + (0.5 * movingData->acc * pow(constantData.dt, 2));
+double TrainSimulation::calculateTotalDistance(int i) {
+  if (i <= 0)
+    return 0;
+  else
+    return ((simulationDatas.trainSpeeds[i - 1] / constantData.cV) *
+            simulationDatas.time[i]) +
+           (0.5 * (simulationDatas.accelerations[i - 1] / constantData.cV) *
+            pow(simulationDatas.time[i], 2));
+}
+
+double TrainSimulation::calculateEnergyConsumption(int i) {
+  if (simulationDatas.time.isEmpty())
+    return 0;
+  return powerData->p_motorOut / 3600 * simulationDatas.time[i];
+}
+
+double TrainSimulation::calculateEnergyOfPowering(int i) {
+  if (simulationDatas.time.isEmpty())
+    return 0;
+  return powerData->p_catenary / 3600 * simulationDatas.time[i];
+}
+
+double TrainSimulation::calculateEnergyRegeneration(int i) {
+  if (simulationDatas.time.isEmpty())
+    return 0;
+  return powerData->p_catenary / 3600 * simulationDatas.time[i];
+}
+
+double TrainSimulation::calculateEnergyOfAps(int i) {
+  if (simulationDatas.time.isEmpty())
+    return 0;
+  return powerData->p_aps / 3600 * simulationDatas.time[i];
 }
 
 void TrainSimulation::simulateDynamicTrainMovement() {
-  // QString filePath = QDir(QCoreApplication::applicationDirPath())
-  //                        .filePath("fixed_dynamic_simulation.csv");
-  QString filePath = "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-                     "fixed_dynamic_simulation.csv";
-  deleteCsvFile(filePath);
-  clearOutputDatas();
-  ofstream outFile(filePath.toStdString(), ios::out);
-  outFile
-      << "Phase,Iteration,Time,Speed,Acceleration,F Motor,F Res,F Total,F "
-         "Motor/TM,F Res/TM,Torque,RPM,P_wheel,P_motor Out,P_motor In,P_vvvf, "
-         "P_catenary,Catenary current,VVVF current\n";
+  clearSimulationDatas();
   initData();
   int i = 0;
+  int j = 0;
   bool isAccelerating = true;
   bool isCoasting = false;
+  bool isAtStation = false;
+  bool isBraking = false;
   float time = 0;
-  QString phase;
+  QString phase = "Starting";
   int coastingCount = 0;
-  while (movingData->v >= 0) {
+  double previousSpeed;
+  double mileage = 0;
+  double stationDistance = 0;
+  double trainStopTime = 0;
+  const double WAIT_TIME = 10.0;
+  movingData->x_station = 2000;
+  // stationData->stationDistance.end();
+  while (movingData->v >= 0 || j < stationData->stationDistance.size()) {
     resistanceData->f_resStart = calculateStartRes();
     resistanceData->f_resRunning = calculateRunningRes(movingData->v);
-    if (isAccelerating) {
-      if (movingData->v >= movingData->v_limit) {
-        isAccelerating = false;
-        isCoasting = true;
-        phase = "Coasting";
-        continue;
-      }
-      phase = "Accelerating";
-      calculatePoweringForce(movingData->acc, movingData->v);
-      calculateTotalForce(movingData->v);
-      movingData->acc = constantData.cV * resistanceData->f_total /
-                        massData->mass_totalInertial;
-      movingData->v += movingData->acc * constantData.dt;
-    } else if (isCoasting) {
-      if (movingData->v <= (movingData->v_limit - movingData->v_diffCoast)) {
-        isCoasting = false;
+    mileage = calculateMileage();
+    // Add check to make sure stationData has stations
+    // if (stationData->stationDistance.empty()) {
+    //   // No stations defined - exit loop
+    //   MessageBoxWidget messageBox("No Stations",
+    //                               "No station data available for
+    //                               simulation.", MessageBoxWidget::Warning);
+    //   break;
+    // }
+    if (isAtStation) {
+      phase = "At Station";
+      qDebug() << "Yoohoo! ore wa doko desu";
+      movingData->v = 0;
+      movingData->v_si = 0;
+      movingData->acc = 0;
+      movingData->acc_si = 0;
+      energyData->e_aps = 0;
+      energyData->e_motor = 0;
+      trainStopTime += constantData.dt;
+      time += constantData.dt;
+      simulationDatas.time.append(constantData.dt);
+      if (trainStopTime >= WAIT_TIME) {
+        isAtStation = false;
+        trainStopTime = 0;
+        j++;
         isAccelerating = true;
-        coastingCount++;
-        if (coastingCount >= 3) {
+        isCoasting = false;
+      }
+      simulationDatas.accelerations.append(movingData->acc);
+      simulationDatas.accelerationsSi.append(movingData->acc_si);
+      simulationDatas.trainSpeeds.append(movingData->v);
+      simulationDatas.trainSpeedsSi.append(movingData->v_si);
+    } else if (mileage < stationData->stationDistance[j]) {
+      if (isAccelerating) {
+        if (movingData->v >= movingData->v_limit &&
+            resistanceData->f_total > 0) {
           isAccelerating = false;
-          isCoasting = false;
+          isCoasting = true;
+          phase = "Coasting";
           continue;
         }
+        phase = "Accelerating";
+        calculatePoweringForce(movingData->acc, movingData->v);
+        calculateTotalForce(movingData->v);
+        movingData->acc_si =
+            (resistanceData->f_total / massData->mass_totalInertial);
+        movingData->acc = constantData.cV * movingData->acc_si;
+        movingData->v_si += movingData->acc_si * constantData.dt;
+        movingData->v += movingData->acc * constantData.dt;
+        simulationDatas.accelerations.append(movingData->acc);
+        simulationDatas.accelerationsSi.append(movingData->acc_si);
+        simulationDatas.trainSpeeds.append(movingData->v);
+        simulationDatas.trainSpeedsSi.append(movingData->v_si);
+        time += constantData.dt;
+        simulationDatas.time.append(constantData.dt);
+        energyData->e_pow += calculateEnergyOfPowering(i);
+      } else if (isCoasting) {
+        if (movingData->v <= (movingData->v_limit - movingData->v_diffCoast)) {
+          isCoasting = false;
+          isAccelerating = true;
+          coastingCount++;
+        }
+        phase = "Coasting";
+        resistanceData->f_motor = 0;
+        resistanceData->f_total = -resistanceData->f_resRunning;
+        movingData->acc_si =
+            (resistanceData->f_total / massData->mass_totalInertial);
+        movingData->acc = constantData.cV * movingData->acc_si;
+        movingData->v_si += movingData->acc_si * constantData.dt;
+        movingData->v += movingData->acc * constantData.dt;
+        simulationDatas.accelerations.append(movingData->acc);
+        simulationDatas.accelerationsSi.append(movingData->acc_si);
+        simulationDatas.trainSpeeds.append(movingData->v);
+        simulationDatas.trainSpeedsSi.append(movingData->v_si);
+        time += constantData.dt;
+        simulationDatas.time.append(constantData.dt);
+        energyData->e_pow += calculateEnergyOfPowering(i);
       }
-      phase = "Coasting";
-      resistanceData->f_motor = 0;
-      resistanceData->f_total = -resistanceData->f_resRunning;
-      movingData->acc = constantData.cV * resistanceData->f_total /
-                        massData->mass_totalInertial;
-      movingData->v += movingData->acc * constantData.dt;
     } else {
       phase = "Braking";
       calculateBrakingForce();
       resistanceData->f_brake = calculateTotalBrakeForce();
-
-      movingData->decc = constantData.cV * resistanceData->f_total /
-                         massData->mass_totalInertial;
+      movingData->decc_si =
+          resistanceData->f_brake / massData->mass_totalInertial;
+      movingData->decc = constantData.cV * movingData->decc_si;
+      movingData->v_si += movingData->decc_si * constantData.dt;
       movingData->v += movingData->decc * constantData.dt;
-      if (movingData->v <= 0 || resistanceData->f_total == 0)
+      simulationDatas.accelerations.append(movingData->decc);
+      simulationDatas.accelerationsSi.append(movingData->decc_si);
+      simulationDatas.trainSpeeds.append(movingData->v);
+      simulationDatas.trainSpeedsSi.append(movingData->v_si);
+      time += constantData.dt;
+      simulationDatas.time.append(constantData.dt);
+      energyData->e_reg += calculateEnergyRegeneration(i);
+      if (movingData->v <= 0) {
+        isAtStation = true;
+        trainStopTime = 0;
+        continue;
+      }
+      if (resistanceData->f_total == 0) {
+        MessageBoxWidget messageBox("Error",
+                                    "Total force is unable to move the train.",
+                                    MessageBoxWidget::Warning);
         break;
+      }
     }
+    simulationDatas.mileages.append(mileage);
+    energyData->e_motor += calculateEnergyConsumption(i);
+    energyData->e_aps += calculateEnergyOfAps(i);
+    phase == "Braking"
+        ? energyData->e_catenary += calculateEnergyRegeneration(i)
+        : energyData->e_catenary += calculateEnergyOfPowering(i);
+    movingData->x = abs(calculateTotalDistance(i));
+    movingData->x_total += movingData->x;
     trainMotorData->tm_f_res = calculateResistanceForcePerMotor(
         movingData->v > 0 ? resistanceData->f_resRunning
                           : resistanceData->f_resStart);
@@ -334,57 +435,18 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     powerData->p_catenary = calculatePowerOfCatenary();
     energyData->curr_catenary = calculateCatenaryCurrent();
     energyData->curr_vvvf = calculateVvvfCurrent();
-    addOutputDatas(movingData->v, trainMotorData->tm_f, powerData->p_vvvfIn,
-                   powerData->p_catenary, energyData->curr_vvvf,
-                   energyData->curr_catenary);
-    emit powerValuesChanged(powerData->p_vvvfIn, powerData->p_catenary,
-                            energyData->curr_vvvf, energyData->curr_catenary);
+
+    addSimulationDatas(i, time, phase);
     if (i == 0) {
       trainMotorData->tm_adh = calculateAdhesion();
-      outFile << "Starting" << "," << i << "," << time << "," << 0 << ","
-              << movingData->acc << "," << resistanceData->f_motor << ","
-              << resistanceData->f_resStart << "," << resistanceData->f_total
-              << "," << trainMotorData->tm_f << "," << trainMotorData->tm_f_res
-              << "," << trainMotorData->tm_t << "," << trainMotorData->tm_rpm
-              << "," << powerData->p_wheel << "," << powerData->p_motorOut
-              << "," << powerData->p_motorIn << "," << powerData->p_vvvfIn
-              << "," << powerData->p_catenary << ","
-              << energyData->curr_catenary << "," << energyData->curr_vvvf
-              << "\n";
     }
-    time += constantData.dt;
-    outFile << phase.toStdString() << "," << i + 1 << "," << time << ","
-            << movingData->v << ","
-            << (isAccelerating || isCoasting ? movingData->acc
-                                             : movingData->decc)
-            << "," << resistanceData->f_motor << ","
-            << (movingData->v > 0 ? resistanceData->f_resRunning
-                                  : resistanceData->f_resStart)
-            << "," << resistanceData->f_total << "," << trainMotorData->tm_f
-            << "," << trainMotorData->tm_f_res << "," << trainMotorData->tm_t
-            << "," << trainMotorData->tm_rpm << "," << powerData->p_wheel << ","
-            << powerData->p_motorOut << "," << powerData->p_motorIn << ","
-            << powerData->p_vvvfIn << "," << powerData->p_catenary << ","
-            << energyData->curr_catenary << "," << energyData->curr_vvvf
-            << "\n";
-
     i++;
   }
-  outFile.close();
   emit simulationCompleted();
 }
 
 void TrainSimulation::simulateStaticTrainMovement() {
-  // QString filePath = QDir(QCoreApplication::applicationDirPath())
-  //                        .filePath("fixed_static_simulation.csv");
-  QString filePath = "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-                     "fixed_static_simulation.csv";
-  deleteCsvFile(filePath);
-  clearOutputDatas();
-  ofstream outFile(filePath.toStdString(), ios::out);
-  outFile << "Phase,Iteration,Time,Speed,Acceleration,F Motor,F Res,F Total,F "
-             "Motor/TM,F Res/TM,Torque,RPM,P_motor Out,P_motor In,P_vvvf, "
-             "P_catenary,Catenary current,VVVF current\n";
+  clearSimulationDatas();
   initData();
   double v_limit = 130;
   int i = 0;
@@ -393,11 +455,9 @@ void TrainSimulation::simulateStaticTrainMovement() {
   QString phase = "Starting";
   int CoastingCount = 0;
   float time = 0.0;
-  double totalDistance = 0;
-  double totalTime = 0;
-  while (movingData->v <= v_limit + 1) {
-    phase = "Accelerating";
+  while (movingData->v <= movingData->v_limit) {
     resistanceData->f_resStart = calculateStartRes();
+    phase = "Accelerating";
     resistanceData->f_resRunning = calculateRunningRes(movingData->v);
     calculatePoweringForce(movingData->acc, movingData->v);
     resistanceData->f_total = calculateTotalForce(movingData->v);
@@ -406,9 +466,20 @@ void TrainSimulation::simulateStaticTrainMovement() {
                           : resistanceData->f_resStart);
     trainMotorData->tm_f = calculateTractionForce();
     trainMotorData->tm_t = calculateTorque();
-    movingData->acc = constantData.cV * resistanceData->f_total /
-                      massData->mass_totalInertial;
-    movingData->v += 0.5;
+    movingData->acc_si = resistanceData->f_total / massData->mass_totalInertial;
+    movingData->acc = constantData.cV * movingData->acc_si;
+
+    simulationDatas.accelerations.append(movingData->acc);
+    simulationDatas.accelerationsSi.append(movingData->acc_si);
+    simulationDatas.trainSpeeds.append(movingData->v);
+    simulationDatas.trainSpeedsSi.append(movingData->v_si);
+
+    movingData->time = abs(calculateTotalTime(i));
+    movingData->time_total += movingData->time;
+    simulationDatas.time.append(movingData->time);
+    movingData->x = abs(calculateTotalDistance(i));
+    movingData->x_total += movingData->x;
+
     powerData->p_wheel = calculatePowerWheel();
     powerData->p_motorOut = calculateOutputTractionMotor();
     powerData->p_motorIn = calculateInputTractionMotor();
@@ -417,54 +488,52 @@ void TrainSimulation::simulateStaticTrainMovement() {
     trainMotorData->tm_rpm = calculateRpm();
     energyData->curr_catenary = calculateCatenaryCurrent();
     energyData->curr_vvvf = calculateVvvfCurrent();
-
-    addOutputDatas(movingData->v, trainMotorData->tm_f, powerData->p_vvvfIn,
-                   powerData->p_catenary, energyData->curr_vvvf,
-                   energyData->curr_catenary);
-    emit powerValuesChanged(powerData->p_vvvfIn, powerData->p_catenary,
-                            energyData->curr_vvvf, energyData->curr_catenary);
-    addSimulationDatas(i, time, phase);
-
+    energyData->e_motor += calculateEnergyConsumption(i);
+    energyData->e_pow += calculateEnergyOfPowering(i);
+    energyData->e_aps += calculateEnergyOfAps(i);
+    movingData->v++;
+    movingData->v_si = movingData->v / constantData.cV;
+    addSimulationDatas(i, movingData->time_total, phase);
     if (i == 0) {
       trainMotorData->tm_adh = calculateAdhesion();
-      outFile << "Starting" << "," << i << "," << time << "," << 0 << ","
-              << movingData->acc << "," << resistanceData->f_motor << ","
-              << (movingData->v > 0 ? resistanceData->f_resRunning
-                                    : resistanceData->f_resStart)
-              << "," << resistanceData->f_total << "," << trainMotorData->tm_f
-              << "," << trainMotorData->tm_f_res << "," << trainMotorData->tm_t
-              << "," << trainMotorData->tm_rpm << "," << powerData->p_wheel
-              << "," << powerData->p_motorOut << "," << powerData->p_motorIn
-              << "," << powerData->p_vvvfIn << "," << powerData->p_catenary
-              << "," << energyData->curr_catenary << ","
-              << energyData->curr_vvvf << "\n";
     }
-    time += constantData.dt;
-    outFile << phase.toStdString() << "," << i + 1 << "," << time << ","
-            << movingData->v << ","
-            << (isAccelerating || isCoasting ? movingData->acc
-                                             : movingData->decc)
-            << "," << resistanceData->f_motor << ","
-            << (movingData->v > 0 ? resistanceData->f_resRunning
-                                  : resistanceData->f_resStart)
-            << "," << resistanceData->f_total << "," << trainMotorData->tm_f
-            << "," << trainMotorData->tm_f_res << "," << trainMotorData->tm_t
-            << "," << trainMotorData->tm_rpm << "," << powerData->p_wheel << ","
-            << powerData->p_motorOut << "," << powerData->p_motorIn << ","
-            << powerData->p_vvvfIn << "," << powerData->p_catenary << ","
-            << energyData->curr_catenary << "," << energyData->curr_vvvf
-            << "\n";
-    totalTime += calculateTotalTime();
-    totalDistance += calculateTotalDistance();
-    qDebug() << "Time consumed : " << totalTime;
-    qDebug() << "Distance traveled : " << totalDistance;
+    if (energyData->curr_vvvf > m_maxVvvfCurrent) {
+      m_maxVvvfCurrent = energyData->curr_vvvf;
+    }
+    if (powerData->p_motorOut > m_maxVvvfPower) {
+      m_maxVvvfPower = powerData->p_vvvfIn;
+    }
     i++;
   }
-  printSimulationDatas();
-  clearOutputDatas();
-  clearSimulationDatas();
-  emit simulationCompleted();
-  // emit staticSimulationCompleted();
+  emit staticSimulationCompleted();
+}
+
+void TrainSimulation::addSimulationDatas(int i, double time, QString phase) {
+  simulationDatas.tractionEfforts.append(resistanceData->f_motor);
+  simulationDatas.vvvfPowers.append(powerData->p_vvvfIn);
+  simulationDatas.catenaryPowers.append(powerData->p_catenary);
+  simulationDatas.vvvfCurrents.append(energyData->curr_vvvf);
+  simulationDatas.catenaryCurrents.append(energyData->curr_catenary);
+  simulationDatas.distance.append(movingData->x);
+  simulationDatas.timeTotal.append(time);
+  simulationDatas.distanceTotal.append(movingData->x_total);
+  simulationDatas.phase.append(phase);
+  simulationDatas.motorForce.append(resistanceData->f_motor);
+  simulationDatas.motorResistance.append(i == 0 ? resistanceData->f_resStart
+                                                : resistanceData->f_resRunning);
+  simulationDatas.totalResistance.append(resistanceData->f_total);
+  simulationDatas.tractionForcePerMotor.append(trainMotorData->tm_f);
+  simulationDatas.resistancePerMotor.append(trainMotorData->tm_f_res);
+  simulationDatas.torque.append(trainMotorData->tm_t);
+  simulationDatas.rpm.append(trainMotorData->tm_rpm);
+  simulationDatas.powerWheel.append(powerData->p_wheel);
+  simulationDatas.powerMotorOut.append(powerData->p_motorOut);
+  simulationDatas.powerMotorIn.append(powerData->p_motorIn);
+  simulationDatas.energyConsumptions.append(energyData->e_motor);
+  simulationDatas.energyPowerings.append(energyData->e_pow);
+  simulationDatas.energyRegenerations.append(energyData->e_reg);
+  simulationDatas.energyAps.append(energyData->e_aps);
+  simulationDatas.energyCatenaries.append(energyData->e_catenary);
 }
 
 void TrainSimulation::resetSimulation() {
@@ -479,13 +548,466 @@ void TrainSimulation::resetSimulation() {
   trainMotorData->tm_f = 0;
   trainMotorData->tm_t = 0;
   movingData->acc = movingData->acc_start;
+  movingData->acc_si = movingData->acc_start;
   movingData->v = 0;
+  movingData->v_si = 0;
   powerData->p_wheel = 0;
   powerData->p_motorOut = 0;
   powerData->p_motorIn = 0;
   powerData->p_vvvfIn = 0;
   powerData->p_catenary = 0;
   trainMotorData->tm_rpm = 0;
+  movingData->x = 0;
+  movingData->time = 0;
+  movingData->x_total = 0;
+  movingData->time_total = 0;
+  energyData->e_aps = 0;
+  energyData->e_motor = 0;
+  energyData->e_pow = 0;
+  energyData->e_reg = 0;
+  energyData->curr_catenary = 0;
+  energyData->curr_vvvf = 0;
+  energyData->e_catenary = 0;
+}
+
+void TrainSimulation::clearSimulationDatas() {
+  simulationDatas.trainSpeeds.clear();
+  simulationDatas.trainSpeedsSi.clear();
+  simulationDatas.accelerations.clear();
+  simulationDatas.accelerationsSi.clear();
+  simulationDatas.tractionEfforts.clear();
+  simulationDatas.vvvfPowers.clear();
+  simulationDatas.catenaryPowers.clear();
+  simulationDatas.vvvfCurrents.clear();
+  simulationDatas.catenaryCurrents.clear();
+  simulationDatas.phase.clear();
+  simulationDatas.motorForce.clear();
+  simulationDatas.motorResistance.clear();
+  simulationDatas.totalResistance.clear();
+  simulationDatas.tractionForcePerMotor.clear();
+  simulationDatas.resistancePerMotor.clear();
+  simulationDatas.torque.clear();
+  simulationDatas.rpm.clear();
+  simulationDatas.powerWheel.clear();
+  simulationDatas.powerMotorOut.clear();
+  simulationDatas.powerMotorIn.clear();
+  simulationDatas.distance.clear();
+  simulationDatas.time.clear();
+  simulationDatas.distanceTotal.clear();
+  simulationDatas.timeTotal.clear();
+  simulationDatas.energyConsumptions.clear();
+  simulationDatas.energyPowerings.clear();
+  simulationDatas.energyRegenerations.clear();
+  simulationDatas.energyAps.clear();
+  simulationDatas.energyCatenaries.clear();
+  simulationDatas.mileages.clear();
+}
+
+void TrainSimulation::printSimulationDatas() {
+  int maxSize = getAllDataNumber();
+  qDebug() << "Max size:" << maxSize;
+  // Handle empty energyRegenerations array - this is the critical fix
+  if (simulationDatas.energyRegenerations.size() < maxSize) {
+    simulationDatas.energyRegenerations.resize(maxSize);
+  }
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  qDebug() << filepath;
+  if (filepath.isEmpty()) {
+    MessageBoxWidget messagebox("Alert", "The process canceled by user",
+                                MessageBoxWidget::Warning);
+    return;
+  }
+  if (!filepath.endsWith(".csv", Qt::CaseInsensitive)) {
+    filepath += ".csv";
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "Phase,Iteration,Time (s),Total "
+             "time (s),Distance (m),TotalDistance (m),Mileage (m),Speed "
+             "(km/h),Speed (m/s),Acceleration (km/h/s),Acceleration (m/s2),F "
+             "Motor,F Res,F Total,F Motor/TM,F Res/TM,Torque,RPM,P "
+             "Wheel,P_motor Out,P_motor In,P_vvvf, P_catenary,Catenary "
+             "current,VVVF current,Energy Consumption,Energy of "
+             "Powering,Energy Regen,Energy of APS,Energy Catenary\n";
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.phase[i].toStdString() << "," << i + 1 << ","
+            << simulationDatas.time[i] << "," << simulationDatas.timeTotal[i]
+            << "," << simulationDatas.distance[i] << ","
+            << simulationDatas.distanceTotal[i] << ","
+            << (simulationDatas.mileages.isEmpty()
+                    ? 0
+                    : simulationDatas.mileages[i])
+            << "," << simulationDatas.trainSpeeds[i] << ","
+            << simulationDatas.trainSpeedsSi[i] << ","
+            << simulationDatas.accelerations[i] << ","
+            << simulationDatas.accelerationsSi[i] << ","
+            << simulationDatas.motorForce[i] << ","
+            << simulationDatas.motorResistance[i] << ","
+            << simulationDatas.totalResistance[i] << ","
+            << simulationDatas.tractionForcePerMotor[i] << ","
+            << simulationDatas.resistancePerMotor[i] << ","
+            << simulationDatas.torque[i] << "," << simulationDatas.rpm[i] << ","
+            << simulationDatas.powerWheel[i] << ","
+            << simulationDatas.powerMotorOut[i] << ","
+            << simulationDatas.powerMotorIn[i] << ","
+            << simulationDatas.vvvfPowers[i] << ","
+            << simulationDatas.catenaryPowers[i] << ","
+            << simulationDatas.catenaryCurrents[i] << ","
+            << simulationDatas.vvvfCurrents[i] << ","
+            << simulationDatas.energyConsumptions[i] << ","
+            << simulationDatas.energyPowerings[i] << ","
+            << simulationDatas.energyRegenerations[i] << ","
+            << simulationDatas.energyAps[i] << ","
+            << simulationDatas.energyCatenaries[i] << "\n";
+  }
+  outFile.close();
+  MessageBoxWidget messagebox("Information",
+                              "Simulation data saved at " + filepath,
+                              MessageBoxWidget::Information);
+}
+
+bool TrainSimulation::saveTrainSpeedData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    MessageBoxWidget messagebox("Alert", "The process canceled by user",
+                                MessageBoxWidget::Warning);
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "Speed (km/h),Time (s)\n ";
+  int maxSize = getTrainSpeedDataNumber();
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.trainSpeeds[i] << ","
+            << simulationDatas.timeTotal[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
+bool TrainSimulation::saveTractionEffortData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    MessageBoxWidget messagebox("Alert", "The process canceled by user",
+                                MessageBoxWidget::Warning);
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "F motor (kN),Speed(km/h),Time(s)\n ";
+  int maxSize = getTractionEffortDataNumber();
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.tractionEfforts[i] << ","
+            << simulationDatas.trainSpeeds[i] << ","
+            << simulationDatas.timeTotal[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
+bool TrainSimulation::saveTrainPowerData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    MessageBoxWidget messagebox("Alert", "The process canceled by user",
+                                MessageBoxWidget::Warning);
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "P_vvvf(kW),P_catenary(kW),Catenary "
+             "current(A),VVVFcurrent(A),Speed(km/h),time(s)\n ";
+  int maxSize = getTrainPowerDataNumber();
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.vvvfPowers[i] << ","
+            << simulationDatas.catenaryPowers[i] << ","
+            << simulationDatas.vvvfCurrents[i] << ","
+            << simulationDatas.catenaryCurrents[i] << ","
+            << simulationDatas.trainSpeeds[i] << ","
+            << simulationDatas.timeTotal[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
+bool TrainSimulation::saveTrainTrackData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    MessageBoxWidget messagebox("Alert", "The process canceled by user",
+                                MessageBoxWidget::Warning);
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "Simulation Time(s),Total "
+             "Time(s),Distance(m),TotalDistance(m),Speed(km/h)\n ";
+  int maxSize = getTrainTrackDataNumber();
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.time[i] << "," << simulationDatas.timeTotal[i]
+            << "," << simulationDatas.distance[i] << ","
+            << simulationDatas.distanceTotal[i] << ","
+            << simulationDatas.trainSpeeds[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
+bool TrainSimulation::saveEnergyConsumptionData() {
+  QString filepath = QFileDialog::getSaveFileName(
+      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
+  if (filepath.isEmpty()) {
+    MessageBoxWidget messagebox("Alert", "The process canceled by user",
+                                MessageBoxWidget::Warning);
+    return false;
+  }
+  ofstream outFile(filepath.toStdString(), ios::out);
+  outFile << "Energy Consumption (kW),Energy Powering(kW),Energy Regen "
+             "(kW),Energy of APS (kW)\n ";
+  int maxSize = std::min({
+      simulationDatas.energyConsumptions.size(),
+      simulationDatas.energyPowerings.size(),
+      simulationDatas.energyAps.size(),
+  });
+  if (simulationDatas.energyRegenerations.size() < maxSize) {
+    simulationDatas.energyRegenerations.resize(maxSize);
+  }
+  for (int i = 0; i < maxSize; i++) {
+    outFile << simulationDatas.energyConsumptions[i] << ","
+            << simulationDatas.energyPowerings[i] << ","
+            << (simulationDatas.energyRegenerations.isEmpty()
+                    ? 0
+                    : simulationDatas.energyRegenerations[i])
+            << "," << simulationDatas.energyAps[i] << "\n";
+  }
+  outFile.close();
+  return true;
+}
+
+double TrainSimulation::findMaxSpeed() {
+  if (simulationDatas.trainSpeeds.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.trainSpeeds.begin(),
+                           simulationDatas.trainSpeeds.end());
+}
+
+double TrainSimulation::findMaxVvvfPower() {
+  if (simulationDatas.vvvfPowers.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.vvvfPowers.begin(),
+                           simulationDatas.vvvfPowers.end());
+}
+
+double TrainSimulation::findMaxCatenaryPower() {
+  if (simulationDatas.catenaryPowers.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.catenaryPowers.begin(),
+                           simulationDatas.catenaryPowers.end());
+}
+
+double TrainSimulation::findMaxVvvfCurrent() {
+  if (simulationDatas.vvvfCurrents.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.vvvfCurrents.begin(),
+                           simulationDatas.vvvfCurrents.end());
+}
+
+double TrainSimulation::findMaxCatenaryCurrent() {
+  if (simulationDatas.catenaryCurrents.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.catenaryCurrents.begin(),
+                           simulationDatas.catenaryCurrents.end());
+}
+
+double TrainSimulation::findMaxTractionEffort() {
+  if (simulationDatas.tractionEfforts.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.tractionEfforts.begin(),
+                           simulationDatas.tractionEfforts.end());
+}
+
+double TrainSimulation::findDistanceTravelled() {
+  if (simulationDatas.distanceTotal.isEmpty())
+    return 0.0;
+  return simulationDatas.distanceTotal.last();
+}
+
+double TrainSimulation::findMaxEnergyConsumption() {
+  if (simulationDatas.energyConsumptions.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.energyConsumptions.begin(),
+                           simulationDatas.energyConsumptions.end());
+}
+
+double TrainSimulation::findMaxEnergyRegen() {
+  if (simulationDatas.energyRegenerations.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.energyRegenerations.begin(),
+                           simulationDatas.energyRegenerations.end());
+}
+
+double TrainSimulation::findMaxEnergyPowering() {
+  if (simulationDatas.energyPowerings.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.energyPowerings.begin(),
+                           simulationDatas.energyPowerings.end());
+}
+
+double TrainSimulation::findMaxEnergyAps() {
+  if (simulationDatas.energyAps.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.energyAps.begin(),
+                           simulationDatas.energyAps.end());
+}
+
+double TrainSimulation::findMaxCurrTime() {
+  double maxCurrTime = 0.0;
+  double maxVvvfCurrent = findMaxVvvfCurrent();
+  const double epsilon = 0.001; // Precision on decimal double value
+  for (int i = 0; i < simulationDatas.vvvfCurrents.size(); i++) {
+    if (std::abs(simulationDatas.vvvfCurrents[i] - maxVvvfCurrent) < epsilon) {
+      maxCurrTime += simulationDatas.time[i];
+    }
+  }
+  return maxCurrTime;
+}
+
+double TrainSimulation::findMaxPowTime() {
+  double maxPowTime = 0.0;
+  double maxVvvfPower = findMaxVvvfPower();
+  const double epsilon = 0.001; // Precision on decimal double value
+  for (int i = 0; i < simulationDatas.vvvfPowers.size(); i++) {
+    if (std::abs(simulationDatas.vvvfPowers[i] - maxVvvfPower) < epsilon) {
+      maxPowTime += simulationDatas.time[i];
+    }
+  }
+  return maxPowTime;
+}
+
+double TrainSimulation::getAdhesion() { return trainMotorData->tm_adh; }
+
+double TrainSimulation::calculateBrakingTrack() {
+  double speed = movingData->v_limit / constantData.cV;
+  double brakingTrack = (speed * constantData.t_reaction) +
+                        (pow(speed, 2) / (2 * movingData->decc_start));
+  return brakingTrack;
+}
+
+double TrainSimulation::calculateBrakingEmergencyTrack() {
+  double speed = simulationDatas.trainSpeedsSi.last();
+  double brakingTrack = (speed * constantData.t_reaction) +
+                        (pow(speed, 2) / (2 * movingData->decc_emergency));
+  return brakingTrack;
+}
+
+double TrainSimulation::calculateNormalSimulationTrack() {
+  double poweringDistance = simulationDatas.distanceTotal.last();
+  double trainLength = trainData->trainsetLength;
+  double brakingDistance = calculateBrakingTrack();
+  return poweringDistance + trainLength + brakingDistance;
+}
+
+double TrainSimulation::calculateEmergencyNormalSimulationTrack() {
+  double poweringDistance = simulationDatas.distanceTotal.last();
+  double trainLength = trainData->trainsetLength;
+  double brakingDistance = calculateBrakingEmergencyTrack();
+  return poweringDistance + trainLength + brakingDistance;
+}
+
+double TrainSimulation::calculateDelaySimulationTrack() {
+  double poweringDistance = simulationDatas.distanceTotal.last();
+  double trainLength = trainData->trainsetLength;
+  double brakingDistance = calculateBrakingTrack();
+  return poweringDistance + brakingDistance + trainLength +
+         (simulationDatas.trainSpeedsSi.last() * constantData.t_delay) +
+         (0.5 * simulationDatas.accelerationsSi.last() *
+          pow(constantData.t_delay, 2));
+}
+
+double TrainSimulation::calculateEmergencyDelaySimulationTrack() {
+  double poweringDistance = simulationDatas.distanceTotal.last();
+  double trainLength = trainData->trainsetLength;
+  double brakingDistance = calculateBrakingEmergencyTrack();
+  return poweringDistance + brakingDistance + trainLength +
+         (simulationDatas.trainSpeedsSi.last() * constantData.t_delay) +
+         (0.5 * simulationDatas.accelerationsSi.last() *
+          pow(constantData.t_delay, 2));
+}
+
+double TrainSimulation::calculateSafetySimulationTrack() {
+  return 1.2 * calculateDelaySimulationTrack();
+}
+
+double TrainSimulation::calculateEmergencySafetySimulationTrack() {
+  return 1.2 * calculateEmergencyDelaySimulationTrack();
+}
+
+double TrainSimulation::calculateMileage() {
+  double distance = simulationDatas.distanceTotal.isEmpty()
+                        ? 0
+                        : simulationDatas.distanceTotal.last();
+  double brakingDistance = calculateBrakingTrack();
+  return distance + brakingDistance;
+}
+
+int TrainSimulation::getAllDataNumber() {
+  return (std::min({simulationDatas.trainSpeeds.size(),
+                    simulationDatas.vvvfPowers.size(),
+                    simulationDatas.catenaryPowers.size(),
+                    simulationDatas.vvvfCurrents.size(),
+                    simulationDatas.catenaryCurrents.size(),
+                    simulationDatas.time.size(),
+                    simulationDatas.timeTotal.size(),
+                    simulationDatas.distance.size(),
+                    simulationDatas.distanceTotal.size(),
+                    simulationDatas.accelerations.size(),
+                    simulationDatas.accelerationsSi.size(),
+                    simulationDatas.motorForce.size(),
+                    simulationDatas.motorResistance.size(),
+                    simulationDatas.totalResistance.size(),
+                    simulationDatas.tractionForcePerMotor.size(),
+                    simulationDatas.resistancePerMotor.size(),
+                    simulationDatas.torque.size(),
+                    simulationDatas.rpm.size(),
+                    simulationDatas.powerWheel.size(),
+                    simulationDatas.powerMotorOut.size(),
+                    simulationDatas.powerMotorIn.size(),
+                    simulationDatas.vvvfPowers.size(),
+                    simulationDatas.catenaryPowers.size(),
+                    simulationDatas.catenaryCurrents.size(),
+                    simulationDatas.vvvfCurrents.size(),
+                    simulationDatas.energyConsumptions.size(),
+                    simulationDatas.energyPowerings.size(),
+                    simulationDatas.energyAps.size(),
+                    simulationDatas.energyCatenaries.size()}));
+}
+
+int TrainSimulation::getTrainSpeedDataNumber() {
+  return std::min({simulationDatas.trainSpeeds.size(),
+                   simulationDatas.vvvfPowers.size(),
+                   simulationDatas.catenaryPowers.size(),
+                   simulationDatas.vvvfCurrents.size(),
+                   simulationDatas.catenaryCurrents.size()});
+}
+
+int TrainSimulation::getTractionEffortDataNumber() {
+  return std::min({simulationDatas.trainSpeeds.size(),
+                   simulationDatas.vvvfPowers.size(),
+                   simulationDatas.catenaryPowers.size(),
+                   simulationDatas.vvvfCurrents.size(),
+                   simulationDatas.catenaryCurrents.size()});
+}
+
+int TrainSimulation::getTrainPowerDataNumber() {
+  return std::min({simulationDatas.trainSpeeds.size(),
+                   simulationDatas.vvvfPowers.size(),
+                   simulationDatas.catenaryPowers.size(),
+                   simulationDatas.vvvfCurrents.size(),
+                   simulationDatas.catenaryCurrents.size()});
+}
+
+int TrainSimulation::getTrainTrackDataNumber() {
+  return std::min(
+      {simulationDatas.time.size(), simulationDatas.timeTotal.size(),
+       simulationDatas.distance.size(), simulationDatas.distanceTotal.size()});
 }
 
 void TrainSimulation::deleteCsvFile(QString csvPath) {
@@ -498,9 +1020,9 @@ void TrainSimulation::deleteCsvFile(QString csvPath) {
 void TrainSimulation::readCsvFile(const QString path, QStringList &values) {
   QFile file(path);
   bool isHeader = true;
-  clearOutputDatas();
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    qDebug() << "Could not open file for reading:" << path;
+    MessageBoxWidget messagebox("Error", "Could not open file for reading",
+                                MessageBoxWidget::Warning);
     return;
   }
   QTextStream in(&file);
@@ -518,223 +1040,14 @@ void TrainSimulation::readCsvFile(const QString path, QStringList &values) {
       double catenaryPower = values[16].toDouble();
       double vvvfCurrent = values[18].toDouble();
       double catenaryCurrent = values[17].toDouble();
-      addOutputDatas(speed, tractionEffort, vvvfPower, catenaryPower,
-                     vvvfCurrent, catenaryCurrent);
     }
   }
   file.close();
 }
 
-bool TrainSimulation::saveTrainSpeedData() {
-  // QString tractionEffortFile = QDir(QCoreApplication::applicationDirPath())
-  //                                  .filePath("train_speed_simulation.csv");
-  QString filepath = QFileDialog::getSaveFileName(
-      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
-  // QString tractionEffortFile =
-  //     "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-  //     "train_speed_simulation.csv";
-  // deleteCsvFile(tractionEffortFile);
-  ofstream outFile(filepath.toStdString(), ios::out);
-  outFile << "velocity (km/h)\n ";
-  int maxSize =
-      std::min({trainSpeeds.size(), vvvfPowers.size(), catenaryPowers.size(),
-                vvvfCurrents.size(), catenaryCurrents.size()});
-  for (int i = 0; i < maxSize; i++) {
-    outFile << trainSpeeds[i] << "\n";
-  }
-  outFile.close();
-  return true;
-}
-
-bool TrainSimulation::saveTractionEffortData() {
-  // QString tractionEffortFile = QDir(QCoreApplication::applicationDirPath())
-  //                                  .filePath("tractive_effort_simulation.csv");
-  QString filepath = QFileDialog::getSaveFileName(
-      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
-  // QString tractionEffortFile =
-  //     "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-  //     "tractive_effort_simulation.csv";
-  // deleteCsvFile(tractionEffortFile);
-  ofstream outFile(filepath.toStdString(), ios::out);
-  outFile << "F motor (kN)\n ";
-  int maxSize =
-      std::min({trainSpeeds.size(), vvvfPowers.size(), catenaryPowers.size(),
-                vvvfCurrents.size(), catenaryCurrents.size()});
-  for (int i = 0; i < maxSize; i++) {
-    outFile << tractionEfforts[i] << "\n";
-  }
-  outFile.close();
-  return true;
-}
-
-bool TrainSimulation::saveTrainPowerData() {
-  //   QString trainPowerFile = QDir(QCoreApplication::applicationDirPath())
-  //                                .filePath("train_power_simulation.csv");
-  QString filepath = QFileDialog::getSaveFileName(
-      nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
-  // QString trainPowerFile =
-  //     "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-  //     "train_power_simulation.csv";
-  // deleteCsvFile(trainPowerFile);
-  ofstream outFile(filepath.toStdString(), ios::out);
-  outFile << "P_vvvf(kW),P_catenary(kW),Catenary current(A),VVVFcurrent(A)\n ";
-  int maxSize =
-      std::min({trainSpeeds.size(), vvvfPowers.size(), catenaryPowers.size(),
-                vvvfCurrents.size(), catenaryCurrents.size()});
-  for (int i = 0; i < maxSize; i++) {
-    outFile << vvvfPowers[i] << "," << catenaryPowers[i] << ","
-            << vvvfCurrents[i] << "," << catenaryCurrents[i] << "\n";
-  }
-  outFile.close();
-  return true;
-}
-
-void TrainSimulation::addOutputDatas(double speed, double tractionEffort,
-                                     double vvvfPower, double catenaryPower,
-                                     double vvvfCurrent,
-                                     double catenaryCurrent) {
-  trainSpeeds.append(speed);
-  tractionEfforts.append(tractionEffort);
-  vvvfPowers.append(vvvfPower);
-  catenaryPowers.append(catenaryPower);
-  vvvfCurrents.append(vvvfCurrent);
-  catenaryCurrents.append(catenaryCurrent);
-}
-
-void TrainSimulation::clearOutputDatas() {
-  trainSpeeds.clear();
-  tractionEfforts.clear();
-  vvvfPowers.clear();
-  catenaryPowers.clear();
-  vvvfCurrents.clear();
-  catenaryCurrents.clear();
-}
-
-void TrainSimulation::printSimulationDatas() {
-  // QString filePath = QDir(QCoreApplication::applicationDirPath())
-  //                        .filePath("fixed_static_simulation.csv");
-  QString filepath = "F:/matkul/sem_6/AppProject/TrainAppSimulation/formulas/"
-                     "new_static_simulation.csv";
-  // QString filepath = QFileDialog::getSaveFileName(
-  //     nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
-  ofstream outFile(filepath.toStdString(), ios::out);
-  outFile << "Phase,Iteration,Time,Speed,Acceleration,F Motor,F Res,F Total,F "
-             "Motor/TM,F Res/TM,Torque,RPM,P_motor Out,P_motor In,P_vvvf, "
-             "P_catenary,Catenary current,VVVF current\n";
-  for (int i = 0; i < trainSpeeds.size(); i++) {
-    // if (i == 0) {
-    //   trainMotorData->tm_adh = calculateAdhesion();
-    //   outFile << "Starting" << "," << i << "," << time << "," << 0 << ","
-    //           << movingData->acc << "," << resistanceData->f_motor << ","
-    //           << (movingData->v > 0 ? resistanceData->f_resRunning
-    //                                 : resistanceData->f_resStart)
-    //           << "," << resistanceData->f_total << "," <<
-    //           trainMotorData->tm_f
-    //           << "," << trainMotorData->tm_f_res << "," <<
-    //           trainMotorData->tm_t
-    //           << "," << trainMotorData->tm_rpm << "," << powerData->p_wheel
-    //           << "," << powerData->p_motorOut << "," << powerData->p_motorIn
-    //           << "," << powerData->p_vvvfIn << "," << powerData->p_catenary
-    //           << "," << energyData->curr_catenary << ","
-    //           << energyData->curr_vvvf << "\n";
-    // }
-    outFile << simulationDatas.phase[i].toStdString() << "," << i + 1 << ","
-            << time << "," << simulationDatas.trainSpeeds[i] << ","
-            << simulationDatas.accelerations[i] << ","
-            << simulationDatas.motorForce[i] << ","
-            << simulationDatas.motorResistance[i] << ","
-            << simulationDatas.totalResistance[i] << ","
-            << simulationDatas.tractionForcePerMotor[i] << ","
-            << simulationDatas.resistancePerMotor[i] << ","
-            << simulationDatas.torque[i] << "," << simulationDatas.rpm[i] << ","
-            << simulationDatas.powerWheel[i] << ","
-            << simulationDatas.powerMotorOut[i] << ","
-            << simulationDatas.powerMotorIn[i] << ","
-            << simulationDatas.vvvfPowers[i] << ","
-            << simulationDatas.catenaryPowers[i] << ","
-            << simulationDatas.catenaryCurrents[i] << ","
-            << simulationDatas.vvvfCurrents[i] << "\n";
-  }
-}
-
-void TrainSimulation::addSimulationDatas(int i, double time, QString phase) {
-  // simulationDatas = SimulationDatas();
-  simulationDatas.trainSpeeds.append(movingData->v);
-  simulationDatas.tractionEfforts.append(resistanceData->f_motor);
-  simulationDatas.vvvfPowers.append(powerData->p_vvvfIn);
-  simulationDatas.catenaryPowers.append(powerData->p_catenary);
-  simulationDatas.vvvfCurrents.append(energyData->curr_vvvf);
-  simulationDatas.catenaryCurrents.append(energyData->curr_catenary);
-  simulationDatas.time.append(time);
-  simulationDatas.phase.append(phase);
-  simulationDatas.motorForce.append(resistanceData->f_motor);
-  simulationDatas.motorResistance.append(movingData->v == 0
-                                             ? resistanceData->f_resStart
-                                             : resistanceData->f_resRunning);
-  simulationDatas.totalResistance.append(resistanceData->f_total);
-  simulationDatas.tractionForcePerMotor.append(trainMotorData->tm_f);
-  simulationDatas.resistancePerMotor.append(trainMotorData->tm_f_res);
-  simulationDatas.torque.append(trainMotorData->tm_t);
-  simulationDatas.rpm.append(trainMotorData->tm_rpm);
-  simulationDatas.powerWheel.append(powerData->p_wheel);
-  simulationDatas.powerMotorOut.append(powerData->p_motorOut);
-  simulationDatas.powerMotorIn.append(powerData->p_motorIn);
-  simulationDatas.accelerations.append(movingData->acc);
-}
-
-void TrainSimulation::clearSimulationDatas() {
-  simulationDatas.trainSpeeds.clear();
-  simulationDatas.tractionEfforts.clear();
-  simulationDatas.vvvfPowers.clear();
-  simulationDatas.catenaryPowers.clear();
-  simulationDatas.vvvfCurrents.clear();
-  simulationDatas.catenaryCurrents.clear();
-  simulationDatas.time.clear();
-  simulationDatas.phase.clear();
-  simulationDatas.motorForce.clear();
-  simulationDatas.motorResistance.clear();
-  simulationDatas.totalResistance.clear();
-  simulationDatas.tractionForcePerMotor.clear();
-  simulationDatas.resistancePerMotor.clear();
-  simulationDatas.torque.clear();
-  simulationDatas.rpm.clear();
-  simulationDatas.powerWheel.clear();
-  simulationDatas.powerMotorOut.clear();
-  simulationDatas.powerMotorIn.clear();
-}
-
-double TrainSimulation::findMaxSpeed() {
-  if (trainSpeeds.isEmpty())
-    return 0.0;
-  return *std::max_element(trainSpeeds.begin(), trainSpeeds.end());
-}
-
-double TrainSimulation::findMaxVvvfPower() {
-  if (vvvfPowers.isEmpty())
-    return 0.0;
-  return *std::max_element(vvvfPowers.begin(), vvvfPowers.end());
-}
-
-double TrainSimulation::findMaxCatenaryPower() {
-  if (catenaryPowers.isEmpty())
-    return 0.0;
-  return *std::max_element(catenaryPowers.begin(), catenaryPowers.end());
-}
-
-double TrainSimulation::findMaxVvvfCurrent() {
-  if (vvvfCurrents.isEmpty())
-    return 0.0;
-  return *std::max_element(vvvfCurrents.begin(), vvvfCurrents.end());
-}
-
-double TrainSimulation::findMaxCatenaryCurrent() {
-  if (catenaryCurrents.isEmpty())
-    return 0.0;
-  return *std::max_element(catenaryCurrents.begin(), catenaryCurrents.end());
-}
-
-double TrainSimulation::findMaxTractionEffort() {
-  if (tractionEfforts.isEmpty())
-    return 0.0;
-  return *std::max_element(tractionEfforts.begin(), tractionEfforts.end());
+bool TrainSimulation::validateCsvVariables() {
+  if (stationData->stationDistance.size() > 0) {
+    return true;
+  } else
+    return false;
 }
