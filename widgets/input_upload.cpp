@@ -13,7 +13,6 @@ InputUpload::InputUpload(QWidget *parent)
   layout->addWidget(m_uploadLabel);
 
   setStyleSheet("QPushButton{"
-                "padding: 4px 12px; "
                 "border: 1px solid " +
                 Colors::Secondary400.name() +
                 ";"
@@ -27,11 +26,10 @@ InputUpload::InputUpload(QWidget *parent)
                 Colors::Secondary50.name() +
                 ";"
                 "}");
-  setBaseSize(120, 32);
+  m_uploadButton->setFixedSize(132, 32);
   setDisabled(false);
-  // setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
   connect(m_uploadButton, &QPushButton::clicked, this,
-          &InputUpload::onUploadButtonClicked);
+          [this]() { onUploadButtonClicked(); });
   m_uploadLabel->setStyleSheet(TextStyle::SubttileSmallRegular() +
                                "color: " + Colors::Secondary700.name() + ";");
 }

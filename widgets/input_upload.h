@@ -31,8 +31,9 @@ public:
 signals:
   void fileLoaded(const QString &filePath);
   void fileLoadError(const QString &errorMessage);
+  void uploadButtonClicked();
 
-public slots:
+private slots:
   void onUploadButtonClicked();
 
 private:

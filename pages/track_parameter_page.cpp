@@ -23,7 +23,7 @@ void TrackParameterPage::createInputs() {
   QList<double> values = {0.0, 2000, 400, 0.0, 0.0, 70};
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget = new InputWidget(
-        this, InputType(i == 0 ? "field" : "upload", labels[i], units[i]));
+        this, InputType(i == 2 ? "upload" : "field", labels[i], units[i]));
     inputWidget->setValue(values[i]);
     inputWidget->setFixedHeight(80);
     m_formLayout->addWidget(inputWidget, i / 2, i % 2);
@@ -40,6 +40,14 @@ double TrackParameterPage::getParameterValue(const QString &paramName) const {
   return 0.0;
 }
 
+QList<double>
+TrackParameterPage::getCsvParamValue(const QString &paramName) const {
+  if (m_inputWidgets.contains("Station Distance")) {
+    return m_inputWidgets[paramName]->getCsvValue();
+  }
+  return QList<double>();
+}
+
 void TrackParameterPage::setParameterValue() {
   movingData->v_limit = getParameterValue("Speed Limit");
   resistanceData->radius = getParameterValue("Radius per Section");
@@ -54,7 +62,13 @@ void TrackParameterPage::connectInputSignals() {
     InputWidget *widget = it.value();
     connect(it.value(), &InputWidget::valueChanged, this, [this, paramName]() {
       setParameterValue();
-      double value = getParameterValue(paramName);
+      if (paramName == "Station Distance") {
+        QList<double> csvValues = m_inputWidgets[paramName]->getCsvValue();
+        if (!csvValues.isEmpty()) {
+          qDebug() << "CSV Values:" << csvValues;
+        }
+      } else
+        double value = getParameterValue(paramName);
     });
   }
 }

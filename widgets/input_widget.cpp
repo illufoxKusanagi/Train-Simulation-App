@@ -86,8 +86,10 @@ void InputWidget::buildInputUpload(InputType inputType) {
   m_inputUpload->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   m_inputUpload->setRequiredColumnCount(3);
   m_inputUpload->setTargetColumns({0, 1, 2});
-  connect(m_inputUpload, &InputUpload::onUploadButtonClicked, this,
-          [this]() { emit valueChanged(); });
+  connect(m_inputUpload, &InputUpload::fileLoaded, this, [this]() {
+    qDebug() << "Yoohoo!";
+    emit valueChanged();
+  });
   connect(m_inputUpload, &InputUpload::fileLoaded, this, [this]() {
     if (m_inputUpload->hasRequiredColumns()) {
       QList<double> speedData = m_inputUpload->getColumnData(0);
