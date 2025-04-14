@@ -1,7 +1,7 @@
 #ifndef LEFT_PANEL_H
 #define LEFT_PANEL_H
 
-#include "../models/train_simulation.h"
+#include "../controllers/train_simulation.h.h"
 #include "../widgets/button_action.h"
 #include "button_toggle.h"
 #include "left_panel_category.h"

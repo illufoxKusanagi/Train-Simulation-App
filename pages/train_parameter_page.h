@@ -1,8 +1,8 @@
 #ifndef TRAINPARAMETERPAGE_H
 #define TRAINPARAMETERPAGE_H
 
+#include "../controllers/train_simulation.h.h"
 #include "../models/train_data.h"
-#include "../models/train_simulation.h"
 #include "../styles/colors.h"
 #include "../styles/text_style.h"
 #include "../widgets/button_action.h"
@@ -12,6 +12,7 @@
 #include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QWidget>
+
 
 class TrainParameterPage : public QWidget {
   Q_OBJECT

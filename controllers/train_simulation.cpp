@@ -324,6 +324,8 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       movingData->v_si = 0;
       movingData->acc = 0;
       movingData->acc_si = 0;
+      energyData->e_aps = 0;
+      energyData->e_motor = 0;
       trainStopTime += constantData.dt;
       time += constantData.dt;
       simulationDatas.time.append(constantData.dt);

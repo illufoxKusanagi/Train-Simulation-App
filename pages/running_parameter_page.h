@@ -1,14 +1,15 @@
 #ifndef RUNNINGPARAMETERWIDGET_H
 #define RUNNINGPARAMETERWIDGET_H
 
+#include "../controllers/train_simulation.h.h"
 #include "../models/train_data.h"
-#include "../models/train_simulation.h"
 #include "../styles/colors.h"
 #include "../styles/text_style.h"
 #include "../widgets/input_widget.h"
 #include <QGridLayout>
 #include <QMap>
 #include <QWidget>
+
 
 class RunningParameterPage : public QWidget {
   Q_OBJECT
