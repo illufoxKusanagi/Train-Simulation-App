@@ -10,7 +10,6 @@
 #include <QMap>
 #include <QWidget>
 
-
 class RunningParameterPage : public QWidget {
   Q_OBJECT
 

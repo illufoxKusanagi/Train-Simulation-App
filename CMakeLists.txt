@@ -19,6 +19,8 @@ set(PROJECT_SOURCES
     mainwindow/mainwindow.cpp
     mainwindow/mainwindow.h
     mainwindow/mainwindow.ui
+    core/appcontext.h
+    core/appcontext.cpp
 )
 
 # Pages
@@ -83,8 +85,29 @@ set(WIDGET_SOURCES
 
 # Models
 set(RESOURCE_SOURCES
+    styles/colors.h
+    styles/text_style.h
+    resources/input_type.h
+    resources/icon_paths.h
+    resources/icons.qrc
+)
+
+# Styles and Resources
+set(MODEL_SOURCES
     models/train_data.h
     models/simulation_data.h
+    models/constant_data.h
+    models/mass_data.h
+    models/energy_data.h
+    models/power_data.h
+    models/resistance_data.h
+    models/moving_data.h
+    models/load_data.h
+    models/efficiency_data.h
+    models/station_data.h
+)
+
+set(CONTROLLER_SOURCES
     controllers/train_simulation.h
     controllers/train_simulation.cpp
     controllers/mass_handler.h
@@ -111,15 +134,6 @@ set(RESOURCE_SOURCES
     controllers/csv_handler.cpp
 )
 
-# Styles and Resources
-set(MODEL_SOURCES
-    styles/colors.h
-    styles/text_style.h
-    resources/input_type.h
-    resources/icon_paths.h
-    resources/icons.qrc
-)
-
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(TrainSimulationApp
         MANUAL_FINALIZATION
@@ -128,6 +142,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${WIDGET_SOURCES}
         ${MODEL_SOURCES}
         ${RESOURCE_SOURCES}
+        ${CONTROLLER_SOURCES}
     )
 
 # Define target properties for Android with Qt 6 as:

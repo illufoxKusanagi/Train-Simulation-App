@@ -318,7 +318,6 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     // }
     if (isAtStation) {
       phase = "At Station";
-      qDebug() << "Yoohoo! ore wa doko desu";
       movingData->v = 0;
       movingData->v_si = 0;
       movingData->acc = 0;
@@ -604,14 +603,12 @@ void TrainSimulation::clearSimulationDatas() {
 
 void TrainSimulation::printSimulationDatas() {
   int maxSize = getAllDataNumber();
-  qDebug() << "Max size:" << maxSize;
   // Handle empty energyRegenerations array - this is the critical fix
   if (simulationDatas->energyRegenerations.size() < maxSize) {
     simulationDatas->energyRegenerations.resize(maxSize);
   }
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
-  qDebug() << filepath;
   if (filepath.isEmpty()) {
     MessageBoxWidget messagebox("Alert", "The process canceled by user",
                                 MessageBoxWidget::Warning);
