@@ -2,8 +2,9 @@
 #define TRAIN_SIMULATION_H
 
 #define _USE_MATH_DEFINES
-#include "../widgets/message_box_widget.h"
+#include "../models/simulation_data.h"
 #include "../models/train_data.h"
+#include "../widgets/message_box_widget.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileDialog>
@@ -141,6 +142,7 @@ private:
   StationData *stationData;
   double m_maxVvvfCurrent = 0;
   double m_maxVvvfPower = 0;
+  SimulationDatasPtr simulationDatasPtr;
 
   void initTrainMassData();
   void initData();

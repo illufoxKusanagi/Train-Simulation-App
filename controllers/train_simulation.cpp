@@ -19,8 +19,6 @@ TrainSimulation::TrainSimulation(
           &TrainSimulation::resetSimulation);
 }
 
-void TrainSimulation::initTrainMassData() {}
-
 void TrainSimulation::initData() {
   massData->mass_totalEmpty = countMassEmptyCar();
   if (loadData->load > 0) {
@@ -1010,6 +1008,13 @@ int TrainSimulation::getTrainTrackDataNumber() {
        simulationDatas.distance.size(), simulationDatas.distanceTotal.size()});
 }
 
+bool TrainSimulation::validateCsvVariables() {
+  if (stationData->stationDistance.size() > 0) {
+    return true;
+  } else
+    return false;
+}
+
 void TrainSimulation::deleteCsvFile(QString csvPath) {
   QFile file(csvPath);
   if (file.exists()) {
@@ -1043,11 +1048,4 @@ void TrainSimulation::readCsvFile(const QString path, QStringList &values) {
     }
   }
   file.close();
-}
-
-bool TrainSimulation::validateCsvVariables() {
-  if (stationData->stationDistance.size() > 0) {
-    return true;
-  } else
-    return false;
 }

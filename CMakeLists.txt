@@ -84,6 +84,7 @@ set(WIDGET_SOURCES
 # Models
 set(RESOURCE_SOURCES
     models/train_data.h
+    models/simulation_data.h
     controllers/train_simulation.h
     controllers/train_simulation.cpp
     controllers/mass_handler.h
@@ -104,6 +105,10 @@ set(RESOURCE_SOURCES
     controllers/output_handler.cpp
     controllers/simulation_track_handler.h
     controllers/simulation_track_handler.cpp
+    controllers/utility_handler.h
+    controllers/utility_handler.cpp
+    controllers/csv_handler.h
+    controllers/csv_handler.cpp
 )
 
 # Styles and Resources

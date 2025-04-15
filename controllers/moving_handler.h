@@ -1,10 +1,13 @@
 #ifndef MOVING_HANDLER_H
 #define MOVING_HANDLER_H
 
-class MovingHandler
-{
+#include "../models/train_data.h"
+#include <QObject>
+
+class MovingHandler : public QObject {
+  Q_OBJECT
 public:
-    MovingHandler();
+  explicit MovingHandler();
 };
 
 #endif // MOVING_HANDLER_H
