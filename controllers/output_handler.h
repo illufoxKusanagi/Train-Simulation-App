@@ -16,7 +16,6 @@ public:
   bool saveEnergyPoweringData();
   bool saveEnergyRegenData();
   bool saveEnergyApsData();
-  void printSimulationDatas();
 
   double findMaxSpeed();
   double findMaxVvvfPower();
