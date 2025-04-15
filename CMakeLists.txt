@@ -84,8 +84,31 @@ set(WIDGET_SOURCES
 # Models
 set(RESOURCE_SOURCES
     models/train_data.h
-    models/train_simulation.h
-    models/train_simulation.cpp
+    models/simulation_data.h
+    controllers/train_simulation.h
+    controllers/train_simulation.cpp
+    controllers/mass_handler.h
+    controllers/mass_handler.cpp
+    controllers/resistance_handler.h
+    controllers/resistance_handler.cpp
+    controllers/tractive_effort_handler.h
+    controllers/tractive_effort_handler.cpp
+    controllers/traction_motor_handler.h
+    controllers/traction_motor_handler.cpp
+    controllers/energy_handler.h
+    controllers/energy_handler.cpp
+    controllers/power_handler.h
+    controllers/power_handler.cpp
+    controllers/moving_handler.h
+    controllers/moving_handler.cpp
+    controllers/output_handler.h
+    controllers/output_handler.cpp
+    controllers/simulation_track_handler.h
+    controllers/simulation_track_handler.cpp
+    controllers/utility_handler.h
+    controllers/utility_handler.cpp
+    controllers/csv_handler.h
+    controllers/csv_handler.cpp
 )
 
 # Styles and Resources
