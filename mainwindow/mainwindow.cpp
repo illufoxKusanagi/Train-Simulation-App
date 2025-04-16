@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+MainWindow::MainWindow(AppContext &context, QWidget *parent)
+    : QMainWindow(parent), context(&context) {
   QWidget *centralWidget = new QWidget(this);
   QHBoxLayout *mainLayout = new QHBoxLayout(centralWidget);
   mainLayout->setContentsMargins(0, 0, 0, 0);

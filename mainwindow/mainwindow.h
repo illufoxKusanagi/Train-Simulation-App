@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "controllers/train_simulation.h"
+#include "core/appcontext.h"
 #include "models/train_data.h"
 #include "pages/constant_values_page.h"
 #include "pages/electrical_parameter_page.h"
@@ -22,12 +23,11 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-
 class MainWindow : public QMainWindow {
   Q_OBJECT
 
 public:
-  explicit MainWindow(QWidget *parent = nullptr);
+  explicit MainWindow(AppContext &context, QWidget *parent = nullptr);
 
 private slots:
   void navigateToPage(int pageIndex);
@@ -47,6 +47,7 @@ private:
   EnergyData m_energyData;
   StationData m_stationData;
   LeftPanel *leftPanel;
+  AppContext *context;
 
   void setupLeftPanel();
   void setupPages();

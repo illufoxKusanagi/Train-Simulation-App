@@ -11,4 +11,6 @@ AppContext::AppContext() {
   powerData = QSharedPointer<PowerData>::create();
   energyData = QSharedPointer<EnergyData>::create();
   stationData = QSharedPointer<StationData>::create();
+  constantData = QSharedPointer<ConstantData>::create();
+  simulationData = QSharedPointer<SimulationDatas>::create();
 }

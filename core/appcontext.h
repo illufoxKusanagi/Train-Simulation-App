@@ -15,7 +15,6 @@
 #include "models/train_motor_data.h"
 #include <QSharedPointer>
 
-
 class AppContext {
 public:
   AppContext();
@@ -30,7 +29,7 @@ public:
   QSharedPointer<EnergyData> energyData;
   QSharedPointer<EfficiencyData> efficiencyData;
   QSharedPointer<StationData> stationData;
-  // QSharedPointer<SimulationData> simulationData;
+  QSharedPointer<SimulationDatas> simulationData;
 };
 
 #endif // APPCONTEXT_H
