@@ -1,7 +1,7 @@
 #ifndef UTILITY_HANDLER_H
 #define UTILITY_HANDLER_H
 
-#include "../models/train_data.h"
+#include "models/train_data.h"
 #include <QObject>
 
 class UtilityHandler : public QObject {

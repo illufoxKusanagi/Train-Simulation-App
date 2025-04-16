@@ -1,7 +1,7 @@
 #ifndef MOVING_HANDLER_H
 #define MOVING_HANDLER_H
 
-#include "../models/train_data.h"
+#include "models/train_data.h"
 #include <QObject>
 
 class MovingHandler : public QObject {

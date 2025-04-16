@@ -1,13 +1,14 @@
 #ifndef INPUTUPLOAD_H
 #define INPUTUPLOAD_H
 
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
 #include "message_box_widget.h"
+#include "styles/colors.h"
+#include "styles/text_style.h"
 #include <QBoxLayout>
 #include <QFileDialog>
 #include <QLabel>
 #include <QPushButton>
+
 
 class InputUpload : public QWidget {
   Q_OBJECT

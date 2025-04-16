@@ -1,13 +1,13 @@
 #ifndef CHART_WIDGET_H
 #define CHART_WIDGET_H
 
-#include "../controllers/train_simulation.h"
-#include "../models/train_data.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
-#include "../widgets/button_action.h"
-#include "../widgets/button_pagination.h"
-#include "../widgets/message_box_widget.h"
+#include "controllers/train_simulation.h"
+#include "models/train_data.h"
+#include "styles/colors.h"
+#include "styles/text_style.h"
+#include "widgets/button_action.h"
+#include "widgets/button_pagination.h"
+#include "widgets/message_box_widget.h"
 #include <QAbstractSeries>
 #include <QFileDialog>
 #include <QFont>
@@ -21,7 +21,6 @@
 #include <QWidget>
 #include <QtCharts/QChartView>
 #include <QtCharts/QLineSeries>
-
 
 class ChartWidget : public QWidget {
   Q_OBJECT

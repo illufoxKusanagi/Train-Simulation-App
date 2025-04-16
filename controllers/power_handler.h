@@ -1,7 +1,7 @@
 #ifndef POWER_HANDLER_H
 #define POWER_HANDLER_H
 
-#include "../models/train_data.h"
+#include "models/train_data.h"
 #include <QObject>
 
 class PowerHandler : public QObject {

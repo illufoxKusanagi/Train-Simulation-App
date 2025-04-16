@@ -1,7 +1,7 @@
 #ifndef OUTPUT_HANDLER_H
 #define OUTPUT_HANDLER_H
 
-#include "../models/train_data.h"
+#include "models/train_data.h"
 #include <QObject>
 
 class OutputHandler : public QObject {

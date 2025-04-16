@@ -1,11 +1,11 @@
 #ifndef LEFT_PANEL_H
 #define LEFT_PANEL_H
 
-#include "../controllers/train_simulation.h"
-#include "../widgets/button_action.h"
 #include "button_toggle.h"
+#include "controllers/train_simulation.h"
 #include "left_panel_category.h"
 #include "message_box_widget.h"
+#include "widgets/button_action.h"
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QPushButton>
@@ -14,6 +14,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QtConcurrent/QtConcurrent>
+
 
 class LeftPanel : public QWidget {
   Q_OBJECT

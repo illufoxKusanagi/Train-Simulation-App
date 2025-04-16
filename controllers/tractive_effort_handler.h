@@ -1,8 +1,8 @@
 #ifndef TRACTIVE_EFFORT_HANDLER_H
 #define TRACTIVE_EFFORT_HANDLER_H
 
-#include "../models/train_data.h"
-#include "../widgets/message_box_widget.h"
+#include "models/train_data.h"
+#include "widgets/message_box_widget.h"
 #include <QObject>
 
 class TractiveEffortHandler : public QObject {

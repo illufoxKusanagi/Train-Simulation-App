@@ -1,11 +1,11 @@
 #ifndef RUNNINGPARAMETERWIDGET_H
 #define RUNNINGPARAMETERWIDGET_H
 
-#include "../controllers/train_simulation.h"
-#include "../models/train_data.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
-#include "../widgets/input_widget.h"
+#include "controllers/train_simulation.h"
+#include "models/train_data.h"
+#include "styles/colors.h"
+#include "styles/text_style.h"
+#include "widgets/input_widget.h"
 #include <QGridLayout>
 #include <QMap>
 #include <QWidget>

@@ -1,10 +1,13 @@
 #ifndef APPCONTEXT_H
 #define APPCONTEXT_H
 
-class AppContext
-{
+#include "models/moving_data.h"
+#include <QSharedPointer>
+
+
+class AppContext {
 public:
-    AppContext();
+  AppContext();
 };
 
 #endif // APPCONTEXT_H

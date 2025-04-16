@@ -1,6 +1,6 @@
 #include "button_pagination.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
+#include "styles/colors.h"
+#include "styles/text_style.h"
 
 ButtonPagination::ButtonPagination(QWidget *parent) : QWidget(parent) {
   QHBoxLayout *layout = new QHBoxLayout(this);

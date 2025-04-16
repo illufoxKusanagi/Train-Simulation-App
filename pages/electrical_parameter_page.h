@@ -1,8 +1,8 @@
 #ifndef ELECTRICAL_PARAMETER_PAGE_H
 #define ELECTRICAL_PARAMETER_PAGE_H
 
-#include "../models/train_data.h"
-#include "../widgets/input_widget.h"
+#include "models/train_data.h"
+#include "widgets/input_widget.h"
 #include <QGridLayout>
 #include <QMap>
 #include <QWidget>

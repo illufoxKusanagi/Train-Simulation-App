@@ -1,7 +1,7 @@
 #ifndef RESISTANCE_HANDLER_H
 #define RESISTANCE_HANDLER_H
 
-#include "../models/train_data.h"
+#include "models/train_data.h"
 #include <QObject>
 
 class ResistanceHandler : public QObject {

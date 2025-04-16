@@ -1,7 +1,10 @@
 #ifndef MASS_HANDLER_H
 #define MASS_HANDLER_H
 
-#include "../models/train_data.h"
+#include "models/load_data.h"
+#include "models/mass_data.h"
+#include "models/train_data.h"
+
 #include <QObject>
 
 class MassHandler : public QObject {

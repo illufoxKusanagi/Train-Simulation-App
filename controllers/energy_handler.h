@@ -1,7 +1,7 @@
 #ifndef ENERGY_HANDLER_H
 #define ENERGY_HANDLER_H
 
-#include "../models/train_data.h"
+#include "models/train_data.h"
 #include <QObject>
 
 class EnergyHandler : public QObject {
