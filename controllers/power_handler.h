@@ -2,15 +2,7 @@
 #define POWER_HANDLER_H
 
 #include "core/appcontext.h"
-#include "models/constant_data.h"
-#include "models/efficiency_data.h"
-#include "models/energy_data.h"
-#include "models/moving_data.h"
-#include "models/power_data.h"
-#include "models/resistance_data.h"
-#include "models/train_data.h"
 #include <QObject>
-
 
 class PowerHandler : public QObject {
   Q_OBJECT

@@ -2,9 +2,6 @@
 #define RESISTANCE_HANDLER_H
 
 #include "core/appcontext.h"
-#include "models/constant_data.h"
-#include "models/resistance_data.h"
-#include "models/train_data.h"
 #include <QObject>
 
 class ResistanceHandler : public QObject {

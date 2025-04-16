@@ -1,8 +1,6 @@
 #ifndef OUTPUT_HANDLER_H
 #define OUTPUT_HANDLER_H
 
-#include "models/simulation_data.h"
-#include "models/train_data.h"
 #include "utility_handler.h"
 #include "widgets/message_box_widget.h"
 #include <QFileDialog>

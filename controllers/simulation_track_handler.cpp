@@ -1,11 +1,10 @@
 #include "simulation_track_handler.h"
 
-SimulationTrackHandler::SimulationTrackHandler(ConstantData &constantData,
-                                               TrainData &trainData,
-                                               MovingData &movingData,
-                                               SimulationDatas &simulationDatas)
-    : constantData(&constantData), trainData(&trainData),
-      movingData(&movingData), simulationDatas(&simulationDatas) {}
+SimulationTrackHandler::SimulationTrackHandler(AppContext &context)
+    : constantData(context.constantData.data()),
+      trainData(context.trainData.data()),
+      movingData(context.movingData.data()),
+      simulationDatas(context.simulationData.data()) {}
 
 double SimulationTrackHandler::calculateBrakingTrack() {
   double speed = movingData->v_limit / constantData->cV;

@@ -3,18 +3,6 @@
 
 #define _USE_MATH_DEFINES
 #include "core/appcontext.h"
-#include "models/constant_data.h"
-#include "models/efficiency_data.h"
-#include "models/energy_data.h"
-#include "models/load_data.h"
-#include "models/mass_data.h"
-#include "models/moving_data.h"
-#include "models/power_data.h"
-#include "models/resistance_data.h"
-#include "models/simulation_data.h"
-#include "models/station_data.h"
-#include "models/train_data.h"
-#include "models/train_motor_data.h"
 #include "widgets/message_box_widget.h"
 #include <QCoreApplication>
 #include <QDir>

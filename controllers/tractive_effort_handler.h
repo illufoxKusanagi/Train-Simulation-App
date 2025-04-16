@@ -2,16 +2,8 @@
 #define TRACTIVE_EFFORT_HANDLER_H
 
 #include "core/appcontext.h"
-#include "models/constant_data.h"
-#include "models/load_data.h"
-#include "models/mass_data.h"
-#include "models/moving_data.h"
-#include "models/resistance_data.h"
-#include "models/train_data.h"
-#include "models/train_motor_data.h"
 #include "widgets/message_box_widget.h"
 #include <QObject>
-
 
 class TractiveEffortHandler : public QObject {
   Q_OBJECT

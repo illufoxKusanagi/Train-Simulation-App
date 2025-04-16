@@ -2,10 +2,6 @@
 #define MASS_HANDLER_H
 
 #include "core/appcontext.h"
-#include "models/load_data.h"
-#include "models/mass_data.h"
-#include "models/train_data.h"
-
 #include <QObject>
 
 class MassHandler : public QObject {
