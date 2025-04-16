@@ -1,6 +1,8 @@
 #ifndef RESISTANCE_HANDLER_H
 #define RESISTANCE_HANDLER_H
 
+#include "models/constant_data.h"
+#include "models/resistance_data.h"
 #include "models/train_data.h"
 #include <QObject>
 

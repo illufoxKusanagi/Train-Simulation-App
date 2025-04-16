@@ -1,7 +1,10 @@
 #ifndef TRACTION_MOTOR_HANDLER_H
 #define TRACTION_MOTOR_HANDLER_H
 
+#include "models/moving_data.h"
+#include "models/resistance_data.h"
 #include "models/train_data.h"
+#include "models/train_motor_data.h"
 #include <QObject>
 
 class TractionMotorHandler : public QObject {

@@ -1,6 +1,7 @@
 #ifndef SIMULATION_TRACK_HANDLER_H
 #define SIMULATION_TRACK_HANDLER_H
 
+#include "models/constant_data.h"
 #include "models/train_data.h"
 #include <QObject>
 

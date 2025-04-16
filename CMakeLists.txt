@@ -105,6 +105,7 @@ set(MODEL_SOURCES
     models/load_data.h
     models/efficiency_data.h
     models/station_data.h
+    models/train_motor_data.h
 )
 
 set(CONTROLLER_SOURCES

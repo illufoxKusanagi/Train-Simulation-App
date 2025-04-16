@@ -12,7 +12,7 @@ TrainSimulation::TrainSimulation(
       movingData(movingData), trainMotorData(trainMotorData),
       efficiencyData(efficiencyData), powerData(powerData),
       energyData(energyData), stationData(stationData) {
-  simulationDatas = QSharedPointer<SimulationDatas>(new SimulationDatas());
+  simulationDatas = QSharedPointer<SimulationDatas>::create();
   initData();
   connect(this, &TrainSimulation::simulationCompleted, this,
           &TrainSimulation::resetSimulation);

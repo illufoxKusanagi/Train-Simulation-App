@@ -44,6 +44,4 @@ struct SimulationDatas {
   QList<double> mileages;
 };
 
-typedef QSharedPointer<SimulationDatas> SimulationDatasPtr;
-
 #endif // SIMULATIONDATA_H

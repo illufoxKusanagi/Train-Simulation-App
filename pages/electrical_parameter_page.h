@@ -1,6 +1,9 @@
 #ifndef ELECTRICAL_PARAMETER_PAGE_H
 #define ELECTRICAL_PARAMETER_PAGE_H
 
+#include "models/efficiency_data.h"
+#include "models/energy_data.h"
+#include "models/power_data.h"
 #include "models/train_data.h"
 #include "widgets/input_widget.h"
 #include <QGridLayout>
