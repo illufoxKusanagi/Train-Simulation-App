@@ -2,16 +2,16 @@
 
 using namespace std;
 
-TrainSimulation::TrainSimulation(
-    QObject *parent, TrainData *trainData, MassData *massData,
-    LoadData *loadData, ResistanceData *resistanceData, MovingData *movingData,
-    TrainMotorData *trainMotorData, EfficiencyData *efficiencyData,
-    PowerData *powerData, EnergyData *energyData, StationData *stationData)
-    : QObject(parent), trainData(trainData), massData(massData),
-      loadData(loadData), resistanceData(resistanceData),
-      movingData(movingData), trainMotorData(trainMotorData),
-      efficiencyData(efficiencyData), powerData(powerData),
-      energyData(energyData), stationData(stationData) {
+TrainSimulation::TrainSimulation(AppContext &context, QObject *parent)
+    : QObject(parent), trainData(context.trainData.data()),
+      massData(context.massData.data()), loadData(context.loadData.data()),
+      resistanceData(context.resistanceData.data()),
+      movingData(context.movingData.data()),
+      trainMotorData(context.trainMotorData.data()),
+      efficiencyData(context.efficiencyData.data()),
+      powerData(context.powerData.data()),
+      energyData(context.energyData.data()),
+      stationData(context.stationData.data()) {
   simulationDatas = QSharedPointer<SimulationDatas>::create();
   initData();
   connect(this, &TrainSimulation::simulationCompleted, this,

@@ -2,6 +2,7 @@
 #define TRAIN_SIMULATION_H
 
 #define _USE_MATH_DEFINES
+#include "core/appcontext.h"
 #include "models/constant_data.h"
 #include "models/efficiency_data.h"
 #include "models/energy_data.h"
@@ -41,14 +42,7 @@ public slots:
   void resetSimulation();
 
 public:
-  explicit TrainSimulation(
-      QObject *parent = nullptr, TrainData *trainData = nullptr,
-      MassData *massData = nullptr, LoadData *loadData = nullptr,
-      ResistanceData *resistanceData = nullptr,
-      MovingData *movingData = nullptr,
-      TrainMotorData *trainMotorData = nullptr,
-      EfficiencyData *efficiencyData = nullptr, PowerData *powerData = nullptr,
-      EnergyData *energyData = nullptr, StationData *stationData = nullptr);
+  explicit TrainSimulation(AppContext &context, QObject *parent = nullptr);
   QSharedPointer<SimulationDatas> simulationDatas;
 
   double countMassEmptyCar();

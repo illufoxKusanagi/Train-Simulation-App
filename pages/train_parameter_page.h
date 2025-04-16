@@ -2,6 +2,7 @@
 #define TRAINPARAMETERPAGE_H
 
 #include "controllers/train_simulation.h"
+#include "core/appcontext.h"
 #include "models/train_data.h"
 #include "styles/colors.h"
 #include "styles/text_style.h"
@@ -20,11 +21,9 @@ signals:
   void awDataChanged();
 
 public:
-  explicit TrainParameterPage(QWidget *parent = nullptr,
-                              TrainData *trainData = nullptr,
-                              MassData *massData = nullptr,
-                              LoadData *loadData = nullptr,
-                              TrainSimulation *trainSimulation = nullptr);
+  explicit TrainParameterPage(AppContext &context,
+                              TrainSimulation *trainSimulation,
+                              QWidget *parent = nullptr);
   double getAwData();
 
 private:

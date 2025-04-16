@@ -1,11 +1,11 @@
 #include "train_parameter_page.h"
 
-TrainParameterPage::TrainParameterPage(QWidget *parent, TrainData *trainData,
-                                       MassData *massData, LoadData *loadData,
-                                       TrainSimulation *trainSimulation)
-    : QWidget(parent), mainLayout(new QVBoxLayout(this)), massData(massData),
-      loadData(loadData), trainData(trainData),
-      m_trainSimulation(trainSimulation),
+TrainParameterPage::TrainParameterPage(AppContext &context,
+                                       TrainSimulation *trainSimulation,
+                                       QWidget *parent)
+    : QWidget(parent), mainLayout(new QVBoxLayout(this)),
+      massData(context.massData.data()), loadData(context.loadData.data()),
+      trainData(context.trainData.data()), m_trainSimulation(trainSimulation),
       stackedWidget(new QStackedWidget(this)), m_prevButton(nullptr),
       m_nextButton(nullptr) {
   groupBoxStyle = "QGroupBox { "

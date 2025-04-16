@@ -1,13 +1,12 @@
 #include "track_parameter_page.h"
 
-TrackParameterPage::TrackParameterPage(QWidget *parent, MovingData *movingData,
-                                       ResistanceData *resistanceData,
-                                       StationData *stationData)
+TrackParameterPage::TrackParameterPage(AppContext &context, QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_formContainer(new QWidget(this)),
       m_formLayout(new QGridLayout(m_formContainer)),
-      resistanceData(resistanceData), movingData(movingData),
-      stationData(stationData) {
+      resistanceData(context.resistanceData.data()),
+      movingData(context.movingData.data()),
+      stationData(context.stationData.data()) {
   mainLayout->setContentsMargins(16, 16, 16, 16);
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setHorizontalSpacing(128);

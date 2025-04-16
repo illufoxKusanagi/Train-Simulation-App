@@ -2,6 +2,7 @@
 #define RUNNINGPARAMETERWIDGET_H
 
 #include "controllers/train_simulation.h"
+#include "core/appcontext.h"
 #include "models/train_data.h"
 #include "styles/colors.h"
 #include "styles/text_style.h"
@@ -17,9 +18,7 @@ public slots:
   void onAwChanged(double awIndex);
 
 public:
-  explicit RunningParameterPage(QWidget *parent = nullptr,
-                                MovingData *movingData = nullptr,
-                                ResistanceData *resistanceData = nullptr);
+  explicit RunningParameterPage(AppContext &context, QWidget *parent = nullptr);
 
 private:
   QVBoxLayout *mainLayout;

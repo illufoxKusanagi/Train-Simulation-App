@@ -47,7 +47,7 @@ private:
   EnergyData m_energyData;
   StationData m_stationData;
   LeftPanel *leftPanel;
-  AppContext *context;
+  AppContext &context;
 
   void setupLeftPanel();
   void setupPages();
