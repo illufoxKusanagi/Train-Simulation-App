@@ -1,13 +1,11 @@
 #include "tractive_effort_handler.h"
 
-TractiveEffortHandler::TractiveEffortHandler(MassData &massData,
-                                             ResistanceData &resistanceData,
-                                             TrainData &trainData,
-                                             MovingData &movingData,
-                                             TrainMotorData &trainMotorData)
-    : massData(&massData), resistanceData(&resistanceData),
-      trainData(&trainData), movingData(&movingData),
-      trainMotorData(&trainMotorData) {}
+TractiveEffortHandler::TractiveEffortHandler(AppContext &context)
+    : massData(context.massData.data()),
+      resistanceData(context.resistanceData.data()),
+      trainData(context.trainData.data()),
+      movingData(context.movingData.data()),
+      trainMotorData(context.trainMotorData.data()) {}
 
 double TractiveEffortHandler::calculateStartForce(float acc) {
   return massData->mass_totalInertial * acc + resistanceData->f_resStart;

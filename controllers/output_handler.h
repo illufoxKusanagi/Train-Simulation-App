@@ -1,12 +1,19 @@
 #ifndef OUTPUT_HANDLER_H
 #define OUTPUT_HANDLER_H
 
+#include "models/simulation_data.h"
 #include "models/train_data.h"
+#include "utility_handler.h"
+#include "widgets/message_box_widget.h"
+#include <QFileDialog>
 #include <QObject>
+#include <fstream>
+#include <iostream>
 
 class OutputHandler : public QObject {
 public:
-  explicit OutputHandler();
+  explicit OutputHandler(SimulationDatas &simulationDatas,
+                         UtilityHandler &utilityHandler);
   void printSimulationDatas();
   bool saveTrainSpeedData();
   bool saveTractionEffortData();
@@ -33,6 +40,14 @@ public:
   double getAdhesion();
 
   int getAllDataNumber();
+  int getTrainSpeedDataNumber();
+  int getTractionEffortDataNumber();
+  int getTrainPowerDataNumber();
+  int getTrainTrackDataNumber();
+
+private:
+  SimulationDatas *simulationDatas;
+  UtilityHandler *utilityHandler;
 };
 
 #endif // OUTPUT_HANDLER_H

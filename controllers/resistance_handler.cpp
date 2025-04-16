@@ -1,8 +1,8 @@
 #include "resistance_handler.h"
 
-ResistanceHandler::ResistanceHandler(ResistanceData &resistanceData,
-                                     ConstantData &constantData)
-    : resistanceData(&resistanceData), constantData(&constantData) {}
+ResistanceHandler::ResistanceHandler(AppContext &context)
+    : resistanceData(context.resistanceData.data()),
+      constantData(context.constantData.data()) {}
 
 double ResistanceHandler::calculateResTrain(float m, float startRes) {
   resistanceData->r_train = (m * startRes) / 1000;

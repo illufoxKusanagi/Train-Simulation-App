@@ -1,8 +1,8 @@
 #include "mass_handler.h"
 
-MassHandler::MassHandler(LoadData &loadData, MassData &massData,
-                         TrainData &trainData)
-    : loadData(&loadData), massData(&massData), trainData(&trainData) {}
+MassHandler::MassHandler(AppContext &context)
+    : loadData(context.loadData.data()), massData(context.massData.data()),
+      trainData(context.trainData.data()) {}
 
 double MassHandler::countMassEmptyCar() {
   massData->mass_Me = (loadData->n_M1 * massData->mass_M1) +

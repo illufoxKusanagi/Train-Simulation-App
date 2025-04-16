@@ -1,14 +1,12 @@
 #include "power_handler.h"
 
-PowerHandler::PowerHandler(PowerData &powerData, ResistanceData &resistanceData,
-                           MovingData &movingData,
-                           EfficiencyData &efficiencyData,
-                           EnergyData &energyData, ConstantData &constantData)
-    : powerData(&powerData), resistanceData(&resistanceData),
-      movingData(&movingData), efficiencyData(&efficiencyData),
-      energyData(&energyData), constantData(&constantData)
-
-{}
+PowerHandler::PowerHandler(AppContext &context)
+    : powerData(context.powerData.data()),
+      resistanceData(context.resistanceData.data()),
+      movingData(context.movingData.data()),
+      efficiencyData(context.efficiencyData.data()),
+      energyData(context.energyData.data()),
+      constantData(context.constantData.data()) {}
 
 double PowerHandler::calculatePowerWheel() {
   powerData->p_wheel =

@@ -1,6 +1,7 @@
 #ifndef RESISTANCE_HANDLER_H
 #define RESISTANCE_HANDLER_H
 
+#include "core/appcontext.h"
 #include "models/constant_data.h"
 #include "models/resistance_data.h"
 #include "models/train_data.h"
@@ -9,8 +10,7 @@
 class ResistanceHandler : public QObject {
   Q_OBJECT
 public:
-  explicit ResistanceHandler(ResistanceData &resistanceData,
-                             ConstantData &constantData);
+  explicit ResistanceHandler(AppContext &context);
   double calculateResTrain(float m, float startRes);
   double calculateResSlope(float m, float slope);
   double calculateResRadius(float m, float radius);
