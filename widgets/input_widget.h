@@ -1,15 +1,16 @@
 #ifndef INPUTWIDGET_H
 #define INPUTWIDGET_H
 
-#include "../resources/input_type.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
 #include "input_dropdown.h"
 #include "input_field.h"
 #include "input_invalid.h"
 #include "input_upload.h"
+#include "resources/input_type.h"
+#include "styles/colors.h"
+#include "styles/text_style.h"
 #include <QBoxLayout>
 #include <QLabel>
+
 
 struct InputSize {
   int width;
@@ -26,6 +27,7 @@ public:
   double getValue();
   bool isModified() const;
   void setModified(bool modified);
+  QList<double> getCsvValue();
 
 signals:
   void valueChanged();
@@ -40,6 +42,7 @@ private:
   double m_inputValue;
   void setPlaceholder(const QString &placeholder);
   void buildInputField(InputType inputType);
+  void buildInputUpload(InputType inputType);
 };
 
 #endif // INPUTWIDGET_H

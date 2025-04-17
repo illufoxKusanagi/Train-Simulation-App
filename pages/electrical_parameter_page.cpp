@@ -1,14 +1,13 @@
 #include "electrical_parameter_page.h"
 
-ElectricalParameterPage::ElectricalParameterPage(QWidget *parent,
-                                                 EfficiencyData *efficiencyData,
-                                                 PowerData *powerData,
-                                                 EnergyData *energyData)
+ElectricalParameterPage::ElectricalParameterPage(AppContext &context,
+                                                 QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_formContainer(new QWidget(this)),
       m_formLayout(new QGridLayout(m_formContainer)),
-      efficiencyData(efficiencyData), powerData(powerData),
-      energyData(energyData) {
+      efficiencyData(context.efficiencyData.data()),
+      powerData(context.powerData.data()),
+      energyData(context.energyData.data()) {
   mainLayout->setContentsMargins(16, 16, 16, 16);
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setHorizontalSpacing(128);

@@ -146,17 +146,21 @@ void ChartWidget::setupTable() {
 }
 
 void ChartWidget::updateTable() {
-  double normalTrackLength =
-      m_trainSimulation->calculateNormalSimulationTrack();
-  double delayTrackLength = m_trainSimulation->calculateDelaySimulationTrack();
-  double safetyTrackLength =
-      m_trainSimulation->calculateSafetySimulationTrack();
+  double normalTrackLength = m_trainSimulation->m_simulationTrackHandler
+                                 ->calculateNormalSimulationTrack();
+  double delayTrackLength = m_trainSimulation->m_simulationTrackHandler
+                                ->calculateDelaySimulationTrack();
+  double safetyTrackLength = m_trainSimulation->m_simulationTrackHandler
+                                 ->calculateSafetySimulationTrack();
   double normalEmergencyTrackLength =
-      m_trainSimulation->calculateEmergencyNormalSimulationTrack();
+      m_trainSimulation->m_simulationTrackHandler
+          ->calculateEmergencyNormalSimulationTrack();
   double delayEmergencyTrackLength =
-      m_trainSimulation->calculateEmergencyDelaySimulationTrack();
+      m_trainSimulation->m_simulationTrackHandler
+          ->calculateEmergencyDelaySimulationTrack();
   double safetyEmergencyTrackLength =
-      m_trainSimulation->calculateEmergencySafetySimulationTrack();
+      m_trainSimulation->m_simulationTrackHandler
+          ->calculateEmergencySafetySimulationTrack();
   QList<double> normalBraking = {normalTrackLength, delayTrackLength,
                                  safetyTrackLength};
   QList<double> emergencyBraking = {normalEmergencyTrackLength,
@@ -187,7 +191,7 @@ void ChartWidget::setupChart(QLineSeries *series, QString title) {
 
   QChartView *chartView = new QChartView(m_chart);
   chartView->setRenderHint(QPainter::Antialiasing);
-  chartView->setFixedSize(800, 450);
+  chartView->setFixedSize(860, 450);
   m_chartLayout = new QVBoxLayout(m_chartWidget);
   m_chartLayout->setContentsMargins(0, 0, 0, 0);
   m_chartLayout->setSpacing(16);
@@ -363,14 +367,50 @@ void ChartWidget::setupStaticSpeedChart() {
 
 void ChartWidget::setupStaticTractionChart() {
   QLineSeries *speedSeries = new QLineSeries();
+  QLineSeries *runResistanceSeries = new QLineSeries();
+  QLineSeries *runResistancesZeroSeries = new QLineSeries();
+  QLineSeries *runResistancesFiveSeries = new QLineSeries();
+  QLineSeries *runResistancesTenSeries = new QLineSeries();
+  QLineSeries *runResistancesTwentyFiveSeries = new QLineSeries();
   speedSeries->setName("Static F motor");
   speedSeries->setPen(QPen(Colors::Primary500, 2));
+  runResistanceSeries->setName("Static F running resistance");
+  runResistanceSeries->setPen(QPen(Colors::Secondary400, 2));
+  runResistancesZeroSeries->setName("Static F running resistance 0%");
+  runResistancesZeroSeries->setPen(QPen(Colors::Warning600, 2));
+  runResistancesFiveSeries->setName("Static F running resistance 5%");
+  runResistancesFiveSeries->setPen(QPen(Colors::Primary700, 2));
+  runResistancesTenSeries->setName("Static F running resistance 10%");
+  runResistancesTenSeries->setPen(QPen(Colors::Danger500, 2));
+  runResistancesTwentyFiveSeries->setName("Static F running resistance 25%");
+  runResistancesTwentyFiveSeries->setPen(QPen(Colors::Secondary700, 2));
   const auto &speed = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &resistance = m_trainSimulation->simulationDatas.tractionEfforts;
+  const auto &runningResistances =
+      m_trainSimulation->simulationDatas.motorResistance;
+  const auto &runningResistancesZero =
+      m_trainSimulation->simulationDatas.motorResistancesZero;
+  const auto &runningResistancesFive =
+      m_trainSimulation->simulationDatas.motorResistancesFive;
+  const auto &runningResistancesTen =
+      m_trainSimulation->simulationDatas.motorResistancesTen;
+  const auto &runningResistancesTwentyFive =
+      m_trainSimulation->simulationDatas.motorResistancesTwentyFive;
   for (int i = 0; i < speed.size() && i < resistance.size(); ++i) {
     speedSeries->append(speed[i], resistance[i]);
+    runResistanceSeries->append(speed[i], runningResistances[i]);
+    runResistancesZeroSeries->append(speed[i], runningResistancesZero[i]);
+    runResistancesFiveSeries->append(speed[i], runningResistancesFive[i]);
+    runResistancesTenSeries->append(speed[i], runningResistancesTen[i]);
+    runResistancesTwentyFiveSeries->append(speed[i],
+                                           runningResistancesTwentyFive[i]);
   }
   m_chart->addSeries(speedSeries);
+  m_chart->addSeries(runResistanceSeries);
+  m_chart->addSeries(runResistancesZeroSeries);
+  m_chart->addSeries(runResistancesFiveSeries);
+  m_chart->addSeries(runResistancesTenSeries);
+  m_chart->addSeries(runResistancesTwentyFiveSeries);
 }
 
 void ChartWidget::setupDynamicEnergyChart() {
@@ -471,7 +511,7 @@ void ChartWidget::setupStaticAxis() {
     maxValue = *std::max_element(
                    m_trainSimulation->simulationDatas.distanceTotal.begin(),
                    m_trainSimulation->simulationDatas.distanceTotal.end()) *
-               1.2;
+               1.1;
     roundedMaxValue = ceil(maxValue / 100) * 100;
     axisX->setRange(0, roundedMaxValue);
     axisX->setTickCount(ceil(roundedMaxValue / 100) + 1);
@@ -480,8 +520,8 @@ void ChartWidget::setupStaticAxis() {
     maxValue = *std::max_element(
                    m_trainSimulation->simulationDatas.trainSpeeds.begin(),
                    m_trainSimulation->simulationDatas.trainSpeeds.end()) *
-               1.2;
-    roundedMaxValue = ceil(maxValue / 100) * 100;
+               1.1;
+    roundedMaxValue = ceil(maxValue / 10) * 10;
     axisX->setRange(0, roundedMaxValue);
     axisX->setTickCount(ceil(roundedMaxValue / 10) + 1);
     axisX->setTitleText("Speed (km/h)");
@@ -490,7 +530,7 @@ void ChartWidget::setupStaticAxis() {
     maxValue = *std::max_element(
                    m_trainSimulation->simulationDatas.catenaryPowers.begin(),
                    m_trainSimulation->simulationDatas.catenaryPowers.end()) *
-               1.2;
+               1.1;
     roundedMaxValue = ceil(maxValue / 100) * 100;
     axisY->setRange(0, roundedMaxValue);
     axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
@@ -537,7 +577,9 @@ void ChartWidget::setupStaticAxis() {
 
 void ChartWidget::setupDynamicAxis() {
   double maxValue;
+  double minValue;
   double roundedMaxValue;
+  double roundedMinValue;
   if (m_chart->series().isEmpty())
     return;
   if (m_simulationType != Dynamic)
@@ -561,19 +603,19 @@ void ChartWidget::setupDynamicAxis() {
     maxValue =
         *std::max_element(m_trainSimulation->simulationDatas.timeTotal.begin(),
                           m_trainSimulation->simulationDatas.timeTotal.end()) *
-        1.2;
-    roundedMaxValue = ceil(maxValue / 10) * 10;
+        1.1;
+    roundedMaxValue = ceil(maxValue / 100) * 100;
     axisX->setRange(0, roundedMaxValue);
-    axisX->setTickCount(ceil(roundedMaxValue / 10) + 1);
+    axisX->setTickCount(ceil(roundedMaxValue / 100) + 1);
     axisX->setTitleText("Time (s)");
   } else {
     maxValue = *std::max_element(
                    m_trainSimulation->simulationDatas.trainSpeeds.begin(),
                    m_trainSimulation->simulationDatas.trainSpeeds.end()) *
-               1.2;
-    roundedMaxValue = ceil(maxValue / 10) * 10;
+               1.1;
+    roundedMaxValue = ceil(maxValue / 100) * 100;
     axisX->setRange(0, roundedMaxValue);
-    axisX->setTickCount(ceil(roundedMaxValue / 10) + 1);
+    axisX->setTickCount((ceil(roundedMaxValue / 100) + 1));
     axisX->setTitleText("Speed (km/h)");
   }
 
@@ -581,9 +623,17 @@ void ChartWidget::setupDynamicAxis() {
     maxValue = *std::max_element(
                    m_trainSimulation->simulationDatas.catenaryPowers.begin(),
                    m_trainSimulation->simulationDatas.catenaryPowers.end()) *
-               1.2;
+               1.1;
+    minValue = *std::min_element(
+                   m_trainSimulation->simulationDatas.catenaryPowers.begin(),
+                   m_trainSimulation->simulationDatas.catenaryPowers.end()) *
+               1.1;
     roundedMaxValue = ceil(maxValue / 100) * 100;
-    axisY->setRange(0, roundedMaxValue);
+    roundedMinValue = floor(minValue / 100) * 100;
+    if (minValue > 0) {
+      roundedMinValue = 0;
+    }
+    axisY->setRange(roundedMinValue, roundedMaxValue);
     axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
     axisY->setTitleText("Power (kW)");
   } else if (m_chartTitle.contains("Dynamic Current")) {
@@ -591,8 +641,16 @@ void ChartWidget::setupDynamicAxis() {
                    m_trainSimulation->simulationDatas.catenaryCurrents.begin(),
                    m_trainSimulation->simulationDatas.catenaryCurrents.end()) *
                1.1;
+    minValue = *std::min_element(
+                   m_trainSimulation->simulationDatas.catenaryCurrents.begin(),
+                   m_trainSimulation->simulationDatas.catenaryCurrents.end()) *
+               1.1;
     roundedMaxValue = ceil(maxValue / 100) * 100;
-    axisY->setRange(0, roundedMaxValue);
+    roundedMinValue = floor(minValue / 100) * 100;
+    if (minValue > 0) {
+      roundedMinValue = 0;
+    }
+    axisY->setRange(roundedMinValue, roundedMaxValue);
     axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
     axisY->setTitleText("Current (A)");
   } else if (m_chartTitle.contains("Dynamic Speed")) {
@@ -609,8 +667,16 @@ void ChartWidget::setupDynamicAxis() {
                    m_trainSimulation->simulationDatas.tractionEfforts.begin(),
                    m_trainSimulation->simulationDatas.tractionEfforts.end()) *
                1.1;
+    minValue = *std::min_element(
+                   m_trainSimulation->simulationDatas.tractionEfforts.begin(),
+                   m_trainSimulation->simulationDatas.tractionEfforts.end()) *
+               1.1;
     roundedMaxValue = ceil(maxValue / 100) * 100;
-    axisY->setRange(0, roundedMaxValue);
+    roundedMinValue = floor(minValue / 100) * 100;
+    if (minValue > 0) {
+      roundedMinValue = 0;
+    }
+    axisY->setRange(roundedMinValue, roundedMaxValue);
     axisY->setTickCount(ceil(roundedMaxValue / 100) + 1);
     axisY->setTitleText("Traction Effort (kN)");
   } else if (m_chartTitle.contains("Dynamic Energy")) {
@@ -619,8 +685,17 @@ void ChartWidget::setupDynamicAxis() {
             m_trainSimulation->simulationDatas.energyConsumptions.begin(),
             m_trainSimulation->simulationDatas.energyConsumptions.end()) *
         1.1;
+    minValue =
+        *std::min_element(
+            m_trainSimulation->simulationDatas.energyRegenerations.begin(),
+            m_trainSimulation->simulationDatas.energyRegenerations.end()) *
+        1.1;
     roundedMaxValue = ceil(maxValue / 10) * 10;
-    axisY->setRange(0, roundedMaxValue);
+    roundedMinValue = floor(minValue / 10) * 10;
+    if (minValue > 0) {
+      roundedMinValue = 0;
+    }
+    axisY->setRange(roundedMinValue, roundedMaxValue);
     axisY->setTickCount(ceil(roundedMaxValue / 10) + 1);
     axisY->setTitleText("Energy (kW)");
   } else if (m_chartTitle.contains("Distance")) {
@@ -630,7 +705,7 @@ void ChartWidget::setupDynamicAxis() {
                1.1;
     roundedMaxValue = ceil(maxValue / 100) * 100;
     axisY->setRange(0, roundedMaxValue);
-    axisY->setTickCount(ceil(roundedMaxValue / 100) + 1);
+    axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
     axisY->setTitleText("Distance (m)");
   }
 }
@@ -645,7 +720,6 @@ void ChartWidget::onSaveAllDataClicked() {
       return;
     }
 
-    // Add validation to check if simulation type matches chart type
     if (m_chartTitle.contains("Dynamic") && m_simulationType != Dynamic) {
       MessageBoxWidget messageBox("Simulation Type Mismatch",
                                   "This chart shows dynamic data but you have "
@@ -662,7 +736,7 @@ void ChartWidget::onSaveAllDataClicked() {
       return;
     }
 
-    m_trainSimulation->printSimulationDatas();
+    m_trainSimulation->m_outputHandler->printSimulationDatas();
   } catch (const std::exception &e) {
     MessageBoxWidget messageBox(
         "Error", QString("Failed to save data: %1").arg(e.what()),
@@ -679,7 +753,6 @@ void ChartWidget::onSaveCurrentDataClicked() {
           MessageBoxWidget::Warning);
       return;
     }
-    // Add validation to check if simulation type matches chart type
     if (m_chartTitle.contains("Dynamic") && m_simulationType != Dynamic) {
       MessageBoxWidget messageBox("Simulation Type Mismatch",
                                   "This chart shows dynamic data but you have "
@@ -698,17 +771,19 @@ void ChartWidget::onSaveCurrentDataClicked() {
     bool saveSuccessful = false;
     if (m_chartTitle == "Dynamic Power" || m_chartTitle == "Static Power" ||
         m_chartTitle == "Dynamic Current" || m_chartTitle == "Static Current")
-      saveSuccessful = m_trainSimulation->saveTrainPowerData();
+      saveSuccessful = m_trainSimulation->m_outputHandler->saveTrainPowerData();
     else if (m_chartTitle == "Traction Effort" ||
              m_chartTitle == "Static Traction Effort")
-      saveSuccessful = m_trainSimulation->saveTractionEffortData();
+      saveSuccessful =
+          m_trainSimulation->m_outputHandler->saveTractionEffortData();
     else if (m_chartTitle == "Dynamic Speed" || m_chartTitle == "Static Speed")
-      saveSuccessful = m_trainSimulation->saveTrainSpeedData();
+      saveSuccessful = m_trainSimulation->m_outputHandler->saveTrainSpeedData();
     else if (m_chartTitle == "Distance")
-      saveSuccessful = m_trainSimulation->saveTrainTrackData();
+      saveSuccessful = m_trainSimulation->m_outputHandler->saveTrainTrackData();
     else if (m_chartTitle == "Dynamic Energy" ||
              m_chartTitle == "Static Energy")
-      saveSuccessful = m_trainSimulation->saveEnergyConsumptionData();
+      saveSuccessful =
+          m_trainSimulation->m_outputHandler->saveEnergyConsumptionData();
     if (saveSuccessful) {
       MessageBoxWidget messageBox("Success", "Data saved successfully!",
                                   MessageBoxWidget::Information);

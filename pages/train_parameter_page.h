@@ -1,12 +1,14 @@
 #ifndef TRAINPARAMETERPAGE_H
 #define TRAINPARAMETERPAGE_H
 
-#include "../models/train_data.h"
-#include "../models/train_simulation.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
-#include "../widgets/button_action.h"
-#include "../widgets/input_widget.h"
+#include "controllers/mass_handler.h"
+#include "controllers/train_simulation.h"
+#include "core/appcontext.h"
+#include "models/train_data.h"
+#include "styles/colors.h"
+#include "styles/text_style.h"
+#include "widgets/button_action.h"
+#include "widgets/input_widget.h"
 #include <QGroupBox>
 #include <QPushButton>
 #include <QStackedWidget>
@@ -20,11 +22,9 @@ signals:
   void awDataChanged();
 
 public:
-  explicit TrainParameterPage(QWidget *parent = nullptr,
-                              TrainData *trainData = nullptr,
-                              MassData *massData = nullptr,
-                              LoadData *loadData = nullptr,
-                              TrainSimulation *trainSimulation = nullptr);
+  explicit TrainParameterPage(AppContext &context,
+                              TrainSimulation *trainSimulation,
+                              QWidget *parent = nullptr);
   double getAwData();
 
 private:
@@ -52,6 +52,7 @@ private:
   InputWidget *massPerTrainsetLoaded;
   InputWidget *massPerTrainsetInertial;
   QList<QList<QList<double>>> m_carData;
+  MassHandler *massHandler;
 
   void setupFirstPage(QWidget *firstPageWidget);
   void setupSecondPage(QVBoxLayout *layout);

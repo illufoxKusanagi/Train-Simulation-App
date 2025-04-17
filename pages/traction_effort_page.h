@@ -1,11 +1,11 @@
 #ifndef TRACTION_EFFORT_PAGE_H
 #define TRACTION_EFFORT_PAGE_H
 
-#include "../models/train_simulation.h"
-#include "../resources/input_type.h"
-#include "../widgets/button_action.h"
-#include "../widgets/chart_widget.h"
-#include "../widgets/input_widget.h"
+#include "controllers/train_simulation.h"
+#include "resources/input_type.h"
+#include "widgets/button_action.h"
+#include "widgets/chart_widget.h"
+#include "widgets/input_widget.h"
 #include <QLabel>
 #include <QMap>
 #include <QStackedWidget>

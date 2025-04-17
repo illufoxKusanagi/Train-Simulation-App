@@ -1,8 +1,8 @@
 #ifndef INPUTDROPDOWN_H
 #define INPUTDROPDOWN_H
 
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
+#include "styles/colors.h"
+#include "styles/text_style.h"
 #include <QAbstractItemView>
 #include <QComboBox>
 #include <QHBoxLayout>

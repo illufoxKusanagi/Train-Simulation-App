@@ -1,13 +1,13 @@
 #ifndef CHART_WIDGET_H
 #define CHART_WIDGET_H
 
-#include "../models/train_data.h"
-#include "../models/train_simulation.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
-#include "../widgets/button_action.h"
-#include "../widgets/button_pagination.h"
-#include "../widgets/message_box_widget.h"
+#include "controllers/tractive_effort_handler.h"
+#include "controllers/train_simulation.h"
+#include "styles/colors.h"
+#include "styles/text_style.h"
+#include "widgets/button_action.h"
+#include "widgets/button_pagination.h"
+#include "widgets/message_box_widget.h"
 #include <QAbstractSeries>
 #include <QFileDialog>
 #include <QFont>
@@ -51,6 +51,7 @@ private:
   QMap<QString, QColor> m_seriesColors;
   QTableWidget *m_table;
   SimulationType m_simulationType = None;
+  TractiveEffortHandler *m_tractiveEffortHandler = nullptr;
 
   void buildDummyLine(QString seriesName);
   void setupChart(QLineSeries *series, QString title);
