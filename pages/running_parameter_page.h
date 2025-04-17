@@ -27,6 +27,7 @@ private:
   QMap<QString, InputWidget *> m_inputWidgets;
   MovingData *movingData;
   ResistanceData *resistanceData;
+  LoadData *loadData;
 
   void createInputs();
   double getParameterValue(const QString &paramName) const;
