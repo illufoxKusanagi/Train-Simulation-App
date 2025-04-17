@@ -1,12 +1,11 @@
 #include "running_parameter_page.h"
 
-RunningParameterPage::RunningParameterPage(QWidget *parent,
-                                           MovingData *movingData,
-                                           ResistanceData *resistanceData)
+RunningParameterPage::RunningParameterPage(AppContext &context, QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_formLayout(new QWidget(this)),
       m_inputsLayout(new QGridLayout(m_formLayout)),
-      resistanceData(resistanceData), movingData(movingData) {
+      resistanceData(context.resistanceData.data()),
+      movingData(context.movingData.data()) {
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setContentsMargins(16, 16, 16, 16);
   m_inputsLayout->setHorizontalSpacing(64);

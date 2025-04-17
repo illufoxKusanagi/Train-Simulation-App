@@ -319,7 +319,6 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     // }
     if (isAtStation) {
       phase = "At Station";
-      qDebug() << "Yoohoo! ore wa doko desu";
       movingData->v = 0;
       movingData->v_si = 0;
       movingData->acc = 0;

@@ -99,17 +99,18 @@ void TrainTrackPage::updatePaginationButtons() {
 void TrainTrackPage::setParameterValue() {
   m_inputWidgets["Distance Travelled"]->setValue(0);
   m_inputWidgets["Distance Travelled"]->setValue(
-      m_trainSimulation->findDistanceTravelled());
+      m_trainSimulation->getDistanceTravelled());
 }
 
 void TrainTrackPage::setStaticParameterValue() {
   m_inputWidgets["Distance on Powering"]->setValue(0);
   m_inputWidgets["Distance on Powering"]->setValue(
-      m_trainSimulation->findDistanceTravelled());
+      m_trainSimulation->getDistanceTravelled());
   m_inputWidgets["Distance on Braking"]->setValue(0);
   m_inputWidgets["Distance on Braking"]->setValue(
-      m_trainSimulation->calculateBrakingTrack());
+      m_trainSimulation->m_simulationTrackHandler->calculateBrakingTrack());
   m_inputWidgets["Distance on Emergency Braking"]->setValue(0);
   m_inputWidgets["Distance on Emergency Braking"]->setValue(
-      m_trainSimulation->calculateBrakingEmergencyTrack());
+      m_trainSimulation->m_simulationTrackHandler
+          ->calculateBrakingEmergencyTrack());
 }

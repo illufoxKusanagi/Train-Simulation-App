@@ -101,11 +101,11 @@ void TrainSpeedPage::updateCharts() {
 void TrainSpeedPage::setParameterValue() {
   m_inputWidgets["Max Speed"]->setValue(0);
   m_inputWidgets["Max Speed"]->setValue(
-      static_cast<int>(m_trainSimulation->findMaxSpeed()));
+      static_cast<int>(m_trainSimulation->getMaxSpeed()));
 }
 
 void TrainSpeedPage::setStaticParameterValue() {
   m_inputWidgets["Static Max Speed"]->setValue(0);
   m_inputWidgets["Static Max Speed"]->setValue(
-      static_cast<int>(m_trainSimulation->findMaxSpeed()));
+      static_cast<int>(m_trainSimulation->getMaxSpeed()));
 }

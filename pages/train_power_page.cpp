@@ -100,16 +100,16 @@ void TrainPowerPage::setParameterValue() {
   }
   if (m_inputWidgets.contains("Dynamic Catenary Power"))
     m_inputWidgets["Dynamic Catenary Power"]->setValue(
-        m_trainSimulation->findMaxCatenaryPower());
+        m_trainSimulation->getMaxCatenaryPower());
   if (m_inputWidgets.contains("Dynamic VVVF Power"))
     m_inputWidgets["Dynamic VVVF Power"]->setValue(
-        m_trainSimulation->findMaxVvvfPower());
+        m_trainSimulation->getMaxVvvfPower());
   if (m_inputWidgets.contains("Dynamic Catenary Current"))
     m_inputWidgets["Dynamic Catenary Current"]->setValue(
-        m_trainSimulation->findMaxCatenaryCurrent());
+        m_trainSimulation->getMaxCatenaryCurrent());
   if (m_inputWidgets.contains("Dynamic VVVF Current"))
     m_inputWidgets["Dynamic VVVF Current"]->setValue(
-        m_trainSimulation->findMaxVvvfCurrent());
+        m_trainSimulation->getMaxVvvfCurrent());
 }
 
 void TrainPowerPage::setStaticParameterValue() {
@@ -122,22 +122,22 @@ void TrainPowerPage::setStaticParameterValue() {
   }
   if (m_inputWidgets.contains("Static Catenary Power"))
     m_inputWidgets["Static Catenary Power"]->setValue(
-        m_trainSimulation->findMaxCatenaryPower());
+        m_trainSimulation->getMaxCatenaryPower());
   if (m_inputWidgets.contains("Static VVVF Power"))
     m_inputWidgets["Static VVVF Power"]->setValue(
-        m_trainSimulation->findMaxVvvfPower());
+        m_trainSimulation->getMaxVvvfPower());
   if (m_inputWidgets.contains("Static Catenary Current"))
     m_inputWidgets["Static Catenary Current"]->setValue(
-        m_trainSimulation->findMaxCatenaryCurrent());
+        m_trainSimulation->getMaxCatenaryCurrent());
   if (m_inputWidgets.contains("Static VVVF Current"))
     m_inputWidgets["Static VVVF Current"]->setValue(
-        m_trainSimulation->findMaxVvvfCurrent());
+        m_trainSimulation->getMaxVvvfCurrent());
   if (m_inputWidgets["Time at Maximum Power"])
     m_inputWidgets["Time at Maximum Power"]->setValue(
-        m_trainSimulation->findMaxPowTime());
+        m_trainSimulation->getMaxPowTime());
   if (m_inputWidgets["Time at Maximum Current"])
     m_inputWidgets["Time at Maximum Current"]->setValue(
-        m_trainSimulation->findMaxCurrTime());
+        m_trainSimulation->getMaxCurrTime());
 }
 
 void TrainPowerPage::setupPagination() {

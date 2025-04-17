@@ -1,15 +1,13 @@
 #ifndef POWER_HANDLER_H
 #define POWER_HANDLER_H
 
-#include "../models/train_data.h"
+#include "core/appcontext.h"
 #include <QObject>
 
 class PowerHandler : public QObject {
   Q_OBJECT
 public:
-  explicit PowerHandler(PowerData &powerData, ResistanceData &resistanceData,
-                        MovingData &movingData, EfficiencyData &efficiencyData,
-                        EnergyData &energyData, ConstantData &constantData);
+  explicit PowerHandler(AppContext &context);
   double calculatePowerWheel();
   double calculateOutputTractionMotor();
   double calculateInputTractionMotor();

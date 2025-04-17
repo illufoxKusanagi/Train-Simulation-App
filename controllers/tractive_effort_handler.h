@@ -1,17 +1,14 @@
 #ifndef TRACTIVE_EFFORT_HANDLER_H
 #define TRACTIVE_EFFORT_HANDLER_H
 
-#include "../models/train_data.h"
-#include "../widgets/message_box_widget.h"
+#include "core/appcontext.h"
+#include "widgets/message_box_widget.h"
 #include <QObject>
 
 class TractiveEffortHandler : public QObject {
   Q_OBJECT
 public:
-  explicit TractiveEffortHandler(MassData &massData,
-                                 ResistanceData &resistanceData,
-                                 TrainData &trainData, MovingData &movingData,
-                                 TrainMotorData &trainMotorData);
+  explicit TractiveEffortHandler(AppContext &context);
   double calculateStartForce(float acc);
   double calculateTotalForce(float v);
   double calculateTotalBrakeForce();

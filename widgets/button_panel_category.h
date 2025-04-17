@@ -1,9 +1,9 @@
 #ifndef BUTTON_PANEL_CATEGORY_H
 #define BUTTON_PANEL_CATEGORY_H
 
-#include "../resources/icon_paths.h"
-#include "../styles/colors.h"
-#include "../styles/text_style.h"
+#include "resources/icon_paths.h"
+#include "styles/colors.h"
+#include "styles/text_style.h"
 #include <QBoxLayout>
 #include <QLabel>
 #include <QPushButton>

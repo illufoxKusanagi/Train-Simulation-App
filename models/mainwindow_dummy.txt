@@ -36,8 +36,8 @@ private:
 <!-- For main page -->
 
 #include "mainwindow.h"
-#include "../pages/trainParameterPage.h"
-#include "../widgets/InputWidget.h"
+#include "pages/trainParameterPage.h"
+#include "widgets/InputWidget.h"
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -214,10 +214,10 @@ void MainWindow::navigateToPage(int pageIndex) {
 
 <!-- For buttons debug -->
 #include "mainwindow.h"
-#include "../resources/inputType.h"
-#include "../widgets/buttonAction.h"
-#include "../widgets/buttonSidebarActive.h"
-#include "../widgets/leftPanel.h"
+#include "resources/inputType.h"
+#include "widgets/buttonAction.h"
+#include "widgets/buttonSidebarActive.h"
+#include "widgets/leftPanel.h"
 #include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {

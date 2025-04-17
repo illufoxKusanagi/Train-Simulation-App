@@ -63,13 +63,13 @@ void TractionEffortPage::setupExactValue(QVBoxLayout *pageLayout,
 void TractionEffortPage::setParameterValue() {
   m_inputWidgets["Max Dynamic Traction Effort"]->setValue(0);
   m_inputWidgets["Max Dynamic Traction Effort"]->setValue(
-      m_trainSimulation->findMaxTractionEffort());
+      m_trainSimulation->getMaxTractionEffort());
 }
 
 void TractionEffortPage::setStaticParameterValue() {
   m_inputWidgets["Max Static Traction Effort"]->setValue(0);
   m_inputWidgets["Max Static Traction Effort"]->setValue(
-      m_trainSimulation->findMaxTractionEffort());
+      m_trainSimulation->getMaxTractionEffort());
   m_inputWidgets["Adhesion"]->setValue(0);
   m_inputWidgets["Adhesion"]->setValue(m_trainSimulation->getAdhesion());
 }

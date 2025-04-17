@@ -1,14 +1,13 @@
 #ifndef MASS_HANDLER_H
 #define MASS_HANDLER_H
 
-#include "../models/train_data.h"
+#include "core/appcontext.h"
 #include <QObject>
 
 class MassHandler : public QObject {
   Q_OBJECT
 public:
-  explicit MassHandler(LoadData &loadData, MassData &massData,
-                       TrainData &trainData);
+  explicit MassHandler(AppContext &context);
   double countMassEmptyCar();
   double countMassWithLoad();
   double countMassLoadInput();

@@ -1,14 +1,12 @@
 #include "mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
+MainWindow::MainWindow(AppContext &context, QWidget *parent)
+    : QMainWindow(parent), context(context) {
   QWidget *centralWidget = new QWidget(this);
   QHBoxLayout *mainLayout = new QHBoxLayout(centralWidget);
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(0);
-  m_trainSimulation = new TrainSimulation(
-      this, &m_trainData, &m_massData, &m_loadData, &m_resistanceData,
-      &m_movingData, &m_trainMotorData, &m_efficiencyData, &m_powerData,
-      &m_energyData, &m_stationData);
+  m_trainSimulation = new TrainSimulation(context, this);
   leftPanel = new LeftPanel(this, m_trainSimulation);
   stackedWidget = new QStackedWidget(this);
   connect(leftPanel, &LeftPanel::navigateToPage, this,
@@ -29,21 +27,20 @@ void MainWindow::setupPages() {
   ConstantValuesPage *constantValuesPage = new ConstantValuesPage(this);
   setupFixedSizePage(constantValuesPage);
 
-  TrainParameterPage *trainParameterPage = new TrainParameterPage(
-      this, &m_trainData, &m_massData, &m_loadData, m_trainSimulation);
+  TrainParameterPage *trainParameterPage =
+      new TrainParameterPage(context, m_trainSimulation, this);
   setupFixedSizePage(trainParameterPage);
 
   RunningParameterPage *runningParameterPage =
-      new RunningParameterPage(this, &m_movingData, &m_resistanceData);
+      new RunningParameterPage(context, this);
   setupFixedSizePage(runningParameterPage);
 
-  TrackParameterPage *trackParameterPage = new TrackParameterPage(
-      this, &m_movingData, &m_resistanceData, &m_stationData);
+  TrackParameterPage *trackParameterPage =
+      new TrackParameterPage(context, this);
   setupFixedSizePage(trackParameterPage);
 
   ElectricalParameterPage *electricalParameterPage =
-      new ElectricalParameterPage(this, &m_efficiencyData, &m_powerData,
-                                  &m_energyData);
+      new ElectricalParameterPage(context, this);
   setupFixedSizePage(electricalParameterPage);
 
   TrainSpeedPage *trainSpeedPage = new TrainSpeedPage(this, m_trainSimulation);

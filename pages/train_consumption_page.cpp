@@ -111,12 +111,12 @@ void TrainConsumptionPage::setParameterValue() {
   m_inputWidgets["Energy Regen"]->setValue(0);
   m_inputWidgets["Energy APS"]->setValue(0);
   m_inputWidgets["Energy Consumption"]->setValue(
-      m_trainSimulation->findMaxEnergyConsumption());
+      m_trainSimulation->getMaxEnergyConsumption());
   m_inputWidgets["Energy Powering"]->setValue(
-      m_trainSimulation->findMaxEnergyPowering());
+      m_trainSimulation->getMaxEnergyPowering());
   m_inputWidgets["Energy Regen"]->setValue(
-      m_trainSimulation->findMaxEnergyRegen());
-  m_inputWidgets["Energy APS"]->setValue(m_trainSimulation->findMaxEnergyAps());
+      m_trainSimulation->getMaxEnergyRegen());
+  m_inputWidgets["Energy APS"]->setValue(m_trainSimulation->getMaxEnergyAps());
 }
 
 void TrainConsumptionPage::setStaticParameterValue() {
@@ -124,9 +124,9 @@ void TrainConsumptionPage::setStaticParameterValue() {
   m_inputWidgets["Static Energy Powering"]->setValue(0);
   m_inputWidgets["Static Energy APS"]->setValue(0);
   m_inputWidgets["Static Energy Consumption"]->setValue(
-      m_trainSimulation->findMaxEnergyConsumption());
+      m_trainSimulation->getMaxEnergyConsumption());
   m_inputWidgets["Static Energy Powering"]->setValue(
-      m_trainSimulation->findMaxEnergyPowering());
+      m_trainSimulation->getMaxEnergyPowering());
   m_inputWidgets["Static Energy APS"]->setValue(
-      m_trainSimulation->findMaxEnergyAps());
+      m_trainSimulation->getMaxEnergyAps());
 }

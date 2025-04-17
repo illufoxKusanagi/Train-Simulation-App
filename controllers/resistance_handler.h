@@ -1,21 +1,28 @@
 #ifndef RESISTANCE_HANDLER_H
 #define RESISTANCE_HANDLER_H
 
-#include "../models/train_data.h"
+#include "core/appcontext.h"
 #include <QObject>
 
 class ResistanceHandler : public QObject {
   Q_OBJECT
 public:
-  explicit ResistanceHandler(ResistanceData &resistanceData,
-                             ConstantData &constantData);
+  explicit ResistanceHandler(AppContext &context);
   double calculateResTrain(float m, float startRes);
   double calculateResSlope(float m, float slope);
   double calculateResRadius(float m, float radius);
+  double calculateStartRes();
+  double calculateRunningRes(float v);
+  double calculateTotalRes() {
+    return resistanceData->r_train + resistanceData->r_slope +
+           resistanceData->r_radius + resistanceData->r_run;
+  }
 
 private:
   ResistanceData *resistanceData;
   ConstantData *constantData;
+  MassData *massData;
+  TrainData *trainData;
 };
 
 #endif // RESISTANCE_HANDLER_H

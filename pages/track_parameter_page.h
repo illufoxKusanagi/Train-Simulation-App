@@ -1,18 +1,19 @@
 #ifndef TRACK_PARAMETER_PAGE_H
 #define TRACK_PARAMETER_PAGE_H
 
-#include "../models/train_data.h"
-#include "../widgets/input_widget.h"
+#include "core/appcontext.h"
+#include "models/moving_data.h"
+#include "models/resistance_data.h"
+#include "models/station_data.h"
+#include "models/train_data.h"
+#include "widgets/input_widget.h"
 #include <QGridLayout>
 #include <QWidget>
 
 class TrackParameterPage : public QWidget {
   Q_OBJECT
 public:
-  explicit TrackParameterPage(QWidget *parent = nullptr,
-                              MovingData *movingData = nullptr,
-                              ResistanceData *resistanceData = nullptr,
-                              StationData *stationData = nullptr);
+  explicit TrackParameterPage(AppContext &context, QWidget *parent = nullptr);
 
 private:
   QVBoxLayout *mainLayout;
