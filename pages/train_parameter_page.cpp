@@ -270,12 +270,12 @@ void TrainParameterPage::setParameterValue() {
 }
 
 void TrainParameterPage::setTypeValue() {
-  loadData->n_Tc = getTypeParameterValue("Tc");
-  loadData->n_M1 = getTypeParameterValue("M1");
-  loadData->n_M2 = getTypeParameterValue("M2");
-  loadData->n_T1 = getTypeParameterValue("T1");
-  loadData->n_T2 = getTypeParameterValue("T2");
-  loadData->n_T3 = getTypeParameterValue("T3");
+  trainData->n_Tc = getTypeParameterValue("Tc");
+  trainData->n_M1 = getTypeParameterValue("M1");
+  trainData->n_M2 = getTypeParameterValue("M2");
+  trainData->n_T1 = getTypeParameterValue("T1");
+  trainData->n_T2 = getTypeParameterValue("T2");
+  trainData->n_T3 = getTypeParameterValue("T3");
 }
 
 void TrainParameterPage::setMassValue() {
@@ -397,7 +397,7 @@ void TrainParameterPage::updateTrainImage(QLabel *trainImageLabel, int nCar) {
 
 void TrainParameterPage::setupTrainsetSection(
     QHBoxLayout *numberCarLayout, QList<QList<QList<double>>> carData) {
-  QStringList nCarOptions = {"12", "10", "8", "6"};
+  QStringList nCarOptions = {"12", "10", "8", "6", "12-Degraded"};
   m_numberOfCar = new InputWidget(this, InputType("dropdown", "Number of Car"),
                                   nCarOptions);
   m_trainLabelImage = new QLabel(this);
@@ -408,22 +408,25 @@ void TrainParameterPage::setupTrainsetSection(
   connect(m_numberOfCar, &InputWidget::valueChanged, this, [this, carData] {
     double value = m_numberOfCar->getValue();
     trainData->n_car = value;
-    updateTrainImage(m_trainLabelImage, value);
+    qDebug() << "Value" << value;
     int index = -1;
     const QStringList labels = {"Tc", "M1", "M2", "T1", "T2", "T3"};
-    if (value == 12)
-      index = 0;
-    else if (value == 10)
-      index = 1;
-    else if (value == 8)
-      index = 2;
-    else if (value == 6)
-      index = 3;
-    if (index >= 0 && index < carData[0].size()) {
+    if (value == 0)
+      index = 12;
+    else if (value == 1)
+      index = 10;
+    else if (value == 2)
+      index = 8;
+    else if (value == 3)
+      index = 6;
+    else if (value == 4)
+      index = 14;
+    updateTrainImage(m_trainLabelImage, index);
+    if (value >= 0 && value < carData[0].size()) {
       for (int i = 0; i < labels.size(); i++) {
         if (m_typeInputWidgets.contains(labels[i])) {
-          m_typeInputWidgets[labels[i]]->setValue(carData[0][index][i]);
-          m_massInputWidgets[labels[i]]->setValue(carData[1][index][i]);
+          m_typeInputWidgets[labels[i]]->setValue(carData[0][value][i]);
+          m_massInputWidgets[labels[i]]->setValue(carData[1][value][i]);
         }
       }
     }

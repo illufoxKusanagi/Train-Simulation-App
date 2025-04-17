@@ -3,12 +3,6 @@
 
 struct LoadData {
   double load;
-  double n_M1;
-  double n_M2;
-  double n_Tc;
-  double n_T1;
-  double n_T2;
-  double n_T3;
   double mass_P;
   double mass_P_final;
   double n_PM1;

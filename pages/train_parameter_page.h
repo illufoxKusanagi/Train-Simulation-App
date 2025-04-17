@@ -46,13 +46,13 @@ private:
   TrainData *trainData;
   MassData *massData;
   LoadData *loadData;
+  MassHandler *massHandler;
   TrainSimulation *m_trainSimulation;
   QLabel *m_trainLabelImage;
   InputWidget *massPerTrainsetEmpty;
   InputWidget *massPerTrainsetLoaded;
   InputWidget *massPerTrainsetInertial;
   QList<QList<QList<double>>> m_carData;
-  MassHandler *massHandler;
 
   void setupFirstPage(QWidget *firstPageWidget);
   void setupSecondPage(QVBoxLayout *layout);
