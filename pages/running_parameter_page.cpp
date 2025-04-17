@@ -5,12 +5,11 @@ RunningParameterPage::RunningParameterPage(AppContext &context, QWidget *parent)
       m_formLayout(new QWidget(this)),
       m_inputsLayout(new QGridLayout(m_formLayout)),
       resistanceData(context.resistanceData.data()),
-      movingData(context.movingData.data()) {
+      movingData(context.movingData.data()), loadData(context.loadData.data()) {
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setContentsMargins(16, 16, 16, 16);
   m_inputsLayout->setHorizontalSpacing(64);
   m_inputsLayout->setVerticalSpacing(32);
-
   createInputs();
   connectInputSignals();
   mainLayout->addWidget(m_formLayout);
@@ -89,7 +88,9 @@ void RunningParameterPage::connectInputSignals() {
 void RunningParameterPage::setAccelerationValue() {
   double accelerationIndex = getParameterValue("Powering Gear");
   double originalAcceleration = getParameterValue("Acceleration");
-  double newAcceleration = originalAcceleration * ((7 - accelerationIndex) / 7);
+  double motorCarNumber = loadData->n_M1 + loadData->n_M2;
+  double newAcceleration = originalAcceleration *
+                           ((7 - accelerationIndex) / 7) * (motorCarNumber / 6);
   m_inputWidgets["Final Acceleration"]->setValue(newAcceleration);
   movingData->acc_start = newAcceleration;
 }
@@ -97,8 +98,10 @@ void RunningParameterPage::setAccelerationValue() {
 void RunningParameterPage::setDecelerationValue() {
   double decelerationIndex = getParameterValue("Decelerating Gear");
   double originalDecceleration = getParameterValue("Deceleration");
-  double newDecceleration =
-      originalDecceleration * ((7 - decelerationIndex) / 7);
+  double motorCarNumber = loadData->n_M1 + loadData->n_M2;
+  double newDecceleration = originalDecceleration *
+                            ((7 - decelerationIndex) / 7) *
+                            (motorCarNumber / 6);
   m_inputWidgets["Final Deceleration"]->setValue(newDecceleration);
   movingData->decc_start = newDecceleration;
 }
