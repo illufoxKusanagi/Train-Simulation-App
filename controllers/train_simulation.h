@@ -38,58 +38,35 @@ signals:
 public slots:
   void simulateStaticTrainMovement();
   void simulateDynamicTrainMovement();
-  // void resetSimulation();
 
 public:
   explicit TrainSimulation(AppContext &context, QObject *parent = nullptr);
   SimulationDatas &simulationDatas;
+  MassHandler *m_massHandler;
+  EnergyHandler *m_energyHandler;
+  PowerHandler *m_powerHandler;
+  ResistanceHandler *m_resistanceHandler;
+  SimulationTrackHandler *m_simulationTrackHandler;
+  TractionMotorHandler *m_tractionMotorHandler;
+  TractiveEffortHandler *m_tractiveEffortHandler;
+  UtilityHandler *m_utilityHandler;
+  OutputHandler *m_outputHandler;
+  CurrentHandler *m_currentHandler;
 
-  double countMassEmptyCar();
-  double countMassWithLoad();
-  double countMassLoadInput();
-  double countInertialMass();
-  double countInertialMassInput();
-
-  bool saveTrainSpeedData();
-  bool saveTractionEffortData();
-  bool saveTrainPowerData();
-  bool saveTrainTrackData();
-  bool saveEnergyConsumptionData();
-  bool saveEnergyPoweringData();
-  bool saveEnergyRegenData();
-  bool saveEnergyApsData();
-  void printSimulationDatas();
-
-  double findMaxSpeed();
-  double findMaxVvvfPower();
-  double findMaxCatenaryPower();
-  double findMaxVvvfCurrent();
-  double findMaxCatenaryCurrent();
-  double findMaxTractionEffort();
-  double findDistanceTravelled();
-  double findMaxEnergyConsumption();
-  double findMaxEnergyRegen();
-  double findMaxEnergyPowering();
-  double findMaxEnergyAps();
-  double findMaxCurrTime();
-  double findMaxPowTime();
+  double getMaxSpeed();
+  double getMaxVvvfPower();
+  double getMaxCatenaryPower();
+  double getMaxVvvfCurrent();
+  double getMaxCatenaryCurrent();
+  double getMaxTractionEffort();
+  double getDistanceTravelled();
+  double getMaxEnergyConsumption();
+  double getMaxEnergyRegen();
+  double getMaxEnergyPowering();
+  double getMaxEnergyAps();
+  double getMaxCurrTime();
+  double getMaxPowTime();
   double getAdhesion();
-
-  double calculateBrakingTrack();
-  double calculateNormalSimulationTrack();
-  double calculateDelaySimulationTrack();
-  double calculateSafetySimulationTrack();
-  double calculateBrakingEmergencyTrack();
-  double calculateEmergencyNormalSimulationTrack();
-  double calculateEmergencyDelaySimulationTrack();
-  double calculateEmergencySafetySimulationTrack();
-
-  int getAllDataNumber();
-  int getTrainSpeedDataNumber();
-  int getTractionEffortDataNumber();
-  int getTrainPowerDataNumber();
-  int getTrainTrackDataNumber();
-  int getEnergyConsumptionDataNumber();
 
   bool validateCsvVariables();
 
@@ -105,60 +82,13 @@ private:
   PowerData *powerData;
   EnergyData *energyData;
   StationData *stationData;
-  MassHandler *m_massHandler;
-  EnergyHandler *m_energyHandler;
-  PowerHandler *m_powerHandler;
-  ResistanceHandler *m_resistanceHandler;
-  SimulationTrackHandler *m_simulationTrackHandler;
-  TractionMotorHandler *m_tractionMotorHandler;
-  TractiveEffortHandler *m_tractiveEffortHandler;
-  UtilityHandler *m_utilityHandler;
-  OutputHandler *m_outputHandler;
-  CurrentHandler *m_currentHandler;
   double m_maxVvvfCurrent = 0;
   double m_maxVvvfPower = 0;
 
   void initTrainMassData();
   void initData();
-  double calculateResTrain(float m, float startRes);
-  double calculateResSlope(float m, float slope);
-  double calculateResRadius(float m, float radius);
-  double calculateStartForce(float acc);
-  double calculateTotalForce(float v);
-  double calculateBrakeForce();
-  double calculateTotalBrakeForce();
-  double calculateTractionForce();
-  double calculateTorque();
-  double calculateRpm();
-  double calculateAdhesion();
-  double calculateResistanceForcePerMotor(double f_res);
-  double calculatePowerWheel();
-  double calculateOutputTractionMotor();
-  double calculateInputTractionMotor();
-  double calculatePowerInputOfVvvf();
-  double calculatePowerOfCatenary();
-  double calculateStartRes();
-  double calculateRunningRes(float v);
-  void calculatePoweringForce(float acc, float v);
-  void calculateBrakingForce();
-  double calculateVvvfCurrent();
-  double calculateCatenaryCurrent();
   double calculateTotalTime(int i);
   double calculateTotalDistance(int i);
-  double calculateEnergyConsumption(int i);
-  double calculateEnergyOfPowering(int i);
-  double calculateEnergyRegeneration(int i);
-  double calculateEnergyOfAps(int i);
-  double calculateMileage();
-
-  void addOutputDatas(double speed, double tractionEffort, double vvvfPower,
-                      double catenaryPower, double vvvfCurrent,
-                      double catenaryCurrent);
-  void addSimulationDatas(int i, double time, QString phase);
-  void clearSimulationDatas();
-
-  void deleteCsvFile(QString csvPath);
-  void readCsvFile(const QString path, QStringList &values);
   void calculatePowers();
   void calculateEnergies(int i);
 };

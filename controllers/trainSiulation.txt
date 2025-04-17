@@ -1048,3 +1048,39 @@ void TrainSimulation::readCsvFile(const QString path, QStringList &values) {
   }
   file.close();
 }
+
+
+void TrainSimulation::deleteCsvFile(QString csvPath) {
+  QFile file(csvPath);
+  if (file.exists()) {
+    file.remove();
+  }
+}
+
+void TrainSimulation::readCsvFile(const QString path, QStringList &values) {
+  QFile file(path);
+  bool isHeader = true;
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    MessageBoxWidget messagebox("Error", "Could not open file for reading",
+                                MessageBoxWidget::Warning);
+    return;
+  }
+  QTextStream in(&file);
+  while (!in.atEnd()) {
+    QString line = in.readLine();
+    if (isHeader) {
+      isHeader = false;
+      continue;
+    }
+    values = line.split(",");
+    if (values.size() >= 19) {
+      double speed = values[3].toDouble();
+      double tractionEffort = values[6].toDouble();
+      double vvvfPower = values[15].toDouble();
+      double catenaryPower = values[16].toDouble();
+      double vvvfCurrent = values[18].toDouble();
+      double catenaryCurrent = values[17].toDouble();
+    }
+  }
+  file.close();
+}

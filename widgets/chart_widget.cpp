@@ -146,17 +146,21 @@ void ChartWidget::setupTable() {
 }
 
 void ChartWidget::updateTable() {
-  double normalTrackLength =
-      m_trainSimulation->calculateNormalSimulationTrack();
-  double delayTrackLength = m_trainSimulation->calculateDelaySimulationTrack();
-  double safetyTrackLength =
-      m_trainSimulation->calculateSafetySimulationTrack();
+  double normalTrackLength = m_trainSimulation->m_simulationTrackHandler
+                                 ->calculateNormalSimulationTrack();
+  double delayTrackLength = m_trainSimulation->m_simulationTrackHandler
+                                ->calculateDelaySimulationTrack();
+  double safetyTrackLength = m_trainSimulation->m_simulationTrackHandler
+                                 ->calculateSafetySimulationTrack();
   double normalEmergencyTrackLength =
-      m_trainSimulation->calculateEmergencyNormalSimulationTrack();
+      m_trainSimulation->m_simulationTrackHandler
+          ->calculateEmergencyNormalSimulationTrack();
   double delayEmergencyTrackLength =
-      m_trainSimulation->calculateEmergencyDelaySimulationTrack();
+      m_trainSimulation->m_simulationTrackHandler
+          ->calculateEmergencyDelaySimulationTrack();
   double safetyEmergencyTrackLength =
-      m_trainSimulation->calculateEmergencySafetySimulationTrack();
+      m_trainSimulation->m_simulationTrackHandler
+          ->calculateEmergencySafetySimulationTrack();
   QList<double> normalBraking = {normalTrackLength, delayTrackLength,
                                  safetyTrackLength};
   QList<double> emergencyBraking = {normalEmergencyTrackLength,
@@ -696,7 +700,7 @@ void ChartWidget::onSaveAllDataClicked() {
       return;
     }
 
-    m_trainSimulation->printSimulationDatas();
+    m_trainSimulation->m_outputHandler->printSimulationDatas();
   } catch (const std::exception &e) {
     MessageBoxWidget messageBox(
         "Error", QString("Failed to save data: %1").arg(e.what()),
@@ -731,17 +735,19 @@ void ChartWidget::onSaveCurrentDataClicked() {
     bool saveSuccessful = false;
     if (m_chartTitle == "Dynamic Power" || m_chartTitle == "Static Power" ||
         m_chartTitle == "Dynamic Current" || m_chartTitle == "Static Current")
-      saveSuccessful = m_trainSimulation->saveTrainPowerData();
+      saveSuccessful = m_trainSimulation->m_outputHandler->saveTrainPowerData();
     else if (m_chartTitle == "Traction Effort" ||
              m_chartTitle == "Static Traction Effort")
-      saveSuccessful = m_trainSimulation->saveTractionEffortData();
+      saveSuccessful =
+          m_trainSimulation->m_outputHandler->saveTractionEffortData();
     else if (m_chartTitle == "Dynamic Speed" || m_chartTitle == "Static Speed")
-      saveSuccessful = m_trainSimulation->saveTrainSpeedData();
+      saveSuccessful = m_trainSimulation->m_outputHandler->saveTrainSpeedData();
     else if (m_chartTitle == "Distance")
-      saveSuccessful = m_trainSimulation->saveTrainTrackData();
+      saveSuccessful = m_trainSimulation->m_outputHandler->saveTrainTrackData();
     else if (m_chartTitle == "Dynamic Energy" ||
              m_chartTitle == "Static Energy")
-      saveSuccessful = m_trainSimulation->saveEnergyConsumptionData();
+      saveSuccessful =
+          m_trainSimulation->m_outputHandler->saveEnergyConsumptionData();
     if (saveSuccessful) {
       MessageBoxWidget messageBox("Success", "Data saved successfully!",
                                   MessageBoxWidget::Information);
