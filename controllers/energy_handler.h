@@ -15,7 +15,6 @@ public:
 private:
   SimulationDatas *simulationDatas;
   PowerData *powerData;
-  LoadData *loadData;
 };
 
 #endif // ENERGY_HANDLER_H

@@ -3,6 +3,17 @@
 
 #define _USE_MATH_DEFINES
 #include "core/appcontext.h"
+#include "current_handler.h"
+#include "energy_handler.h"
+#include "mass_handler.h"
+#include "moving_handler.h"
+#include "output_handler.h"
+#include "power_handler.h"
+#include "resistance_handler.h"
+#include "simulation_track_handler.h"
+#include "traction_motor_handler.h"
+#include "tractive_effort_handler.h"
+#include "utility_handler.h"
 #include "widgets/message_box_widget.h"
 #include <QCoreApplication>
 #include <QDir>
@@ -27,11 +38,11 @@ signals:
 public slots:
   void simulateStaticTrainMovement();
   void simulateDynamicTrainMovement();
-  void resetSimulation();
+  // void resetSimulation();
 
 public:
   explicit TrainSimulation(AppContext &context, QObject *parent = nullptr);
-  QSharedPointer<SimulationDatas> simulationDatas;
+  SimulationDatas &simulationDatas;
 
   double countMassEmptyCar();
   double countMassWithLoad();
@@ -83,7 +94,7 @@ public:
   bool validateCsvVariables();
 
 private:
-  ConstantData constantData;
+  ConstantData *constantData;
   TrainData *trainData;
   MassData *massData;
   LoadData *loadData;
@@ -94,6 +105,16 @@ private:
   PowerData *powerData;
   EnergyData *energyData;
   StationData *stationData;
+  MassHandler *m_massHandler;
+  EnergyHandler *m_energyHandler;
+  PowerHandler *m_powerHandler;
+  ResistanceHandler *m_resistanceHandler;
+  SimulationTrackHandler *m_simulationTrackHandler;
+  TractionMotorHandler *m_tractionMotorHandler;
+  TractiveEffortHandler *m_tractiveEffortHandler;
+  UtilityHandler *m_utilityHandler;
+  OutputHandler *m_outputHandler;
+  CurrentHandler *m_currentHandler;
   double m_maxVvvfCurrent = 0;
   double m_maxVvvfPower = 0;
 
@@ -138,5 +159,7 @@ private:
 
   void deleteCsvFile(QString csvPath);
   void readCsvFile(const QString path, QStringList &values);
+  void calculatePowers();
+  void calculateEnergies(int i);
 };
 #endif // TRAIN_SIMULATION_H

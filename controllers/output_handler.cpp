@@ -1,9 +1,8 @@
 #include "output_handler.h"
 using namespace std;
 
-OutputHandler::OutputHandler(SimulationDatas &simulationDatas,
-                             UtilityHandler &utilityHandler)
-    : simulationDatas(&simulationDatas), utilityHandler(&utilityHandler) {}
+OutputHandler::OutputHandler(SimulationDatas &simulationDatas)
+    : simulationDatas(&simulationDatas) {}
 
 void OutputHandler::printSimulationDatas() {
   int maxSize = getAllDataNumber();

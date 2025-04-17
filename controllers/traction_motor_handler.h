@@ -11,6 +11,7 @@ public:
   double calculateTractionForce();
   double calculateTorque();
   double calculateRpm();
+  double calculateResistanceForcePerMotor(double f_res);
 
 private:
   TrainData *trainData;

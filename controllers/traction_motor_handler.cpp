@@ -22,3 +22,8 @@ double TractionMotorHandler::calculateTorque() {
                          trainData->gearRatio;
   return trainMotorData->tm_t;
 }
+
+double TractionMotorHandler::calculateResistanceForcePerMotor(double f_res) {
+  trainMotorData->tm_f_res = f_res / trainData->n_tm;
+  return trainMotorData->tm_f_res;
+}

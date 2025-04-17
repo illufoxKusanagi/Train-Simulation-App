@@ -7,11 +7,13 @@
 #include <QObject>
 
 class UtilityHandler : public QObject {
+public slots:
+  void resetSimulation();
+
 public:
   explicit UtilityHandler(AppContext &context,
                           SimulationDatas &simulationDatas);
   void addSimulationDatas(int i, double time, QString phase);
-  void resetSimulation();
   void clearSimulationDatas();
 
 private:

@@ -10,8 +10,7 @@
 
 class OutputHandler : public QObject {
 public:
-  explicit OutputHandler(SimulationDatas &simulationDatas,
-                         UtilityHandler &utilityHandler);
+  explicit OutputHandler(SimulationDatas &simulationDatas);
   void printSimulationDatas();
   bool saveTrainSpeedData();
   bool saveTractionEffortData();

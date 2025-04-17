@@ -133,6 +133,8 @@ set(CONTROLLER_SOURCES
     controllers/utility_handler.cpp
     controllers/csv_handler.h
     controllers/csv_handler.cpp
+    controllers/current_handler.h
+    controllers/current_handler.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

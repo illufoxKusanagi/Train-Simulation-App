@@ -8,6 +8,7 @@ TrainParameterPage::TrainParameterPage(AppContext &context,
       trainData(context.trainData.data()), m_trainSimulation(trainSimulation),
       stackedWidget(new QStackedWidget(this)), m_prevButton(nullptr),
       m_nextButton(nullptr) {
+  massHandler = new MassHandler(context);
   groupBoxStyle = "QGroupBox { "
                   "border: 1px solid" +
                   Colors::Grey300.name() +
@@ -364,23 +365,23 @@ void TrainParameterPage::updateMassCalculation() {
 }
 
 double TrainParameterPage::calculateEmptyMass() {
-  massData->mass_totalEmpty = m_trainSimulation->countMassEmptyCar();
+  massData->mass_totalEmpty = massHandler->countMassEmptyCar();
   return massData->mass_totalEmpty;
 }
 
 double TrainParameterPage::calculateLoadedMass() {
   massData->mass_totalLoad = (loadData->load > 0)
-                                 ? m_trainSimulation->countMassLoadInput()
-                                 : m_trainSimulation->countMassWithLoad();
+                                 ? massHandler->countMassLoadInput()
+                                 : massHandler->countMassWithLoad();
   return massData->mass_totalLoad;
 }
 
 double TrainParameterPage::calculateInertialMass() {
   double result;
   if (loadData->load > 0) {
-    result = m_trainSimulation->countInertialMassInput();
+    result = massHandler->countInertialMassInput();
   } else {
-    result = m_trainSimulation->countInertialMass();
+    result = massHandler->countInertialMass();
   }
   massData->mass_totalInertial = result;
   return result;

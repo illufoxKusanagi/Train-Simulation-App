@@ -5,7 +5,9 @@ TractiveEffortHandler::TractiveEffortHandler(AppContext &context)
       resistanceData(context.resistanceData.data()),
       trainData(context.trainData.data()),
       movingData(context.movingData.data()),
-      trainMotorData(context.trainMotorData.data()) {}
+      trainMotorData(context.trainMotorData.data()),
+      loadData(context.loadData.data()),
+      constantData(context.constantData.data()) {}
 
 double TractiveEffortHandler::calculateStartForce(float acc) {
   return massData->mass_totalInertial * acc + resistanceData->f_resStart;

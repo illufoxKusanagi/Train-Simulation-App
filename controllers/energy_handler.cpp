@@ -1,7 +1,8 @@
 #include "energy_handler.h"
 
 EnergyHandler::EnergyHandler(AppContext &context)
-    : simulationDatas(context.simulationData.data()) {}
+    : simulationDatas(context.simulationData.data()),
+      powerData(context.powerData.data()) {}
 
 double EnergyHandler::calculateEnergyConsumption(int i) {
   if (simulationDatas->time.isEmpty())

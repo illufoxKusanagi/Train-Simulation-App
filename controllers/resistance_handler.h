@@ -11,10 +11,18 @@ public:
   double calculateResTrain(float m, float startRes);
   double calculateResSlope(float m, float slope);
   double calculateResRadius(float m, float radius);
+  double calculateStartRes();
+  double calculateRunningRes(float v);
+  double calculateTotalRes() {
+    return resistanceData->r_train + resistanceData->r_slope +
+           resistanceData->r_radius + resistanceData->r_run;
+  }
 
 private:
   ResistanceData *resistanceData;
   ConstantData *constantData;
+  MassData *massData;
+  TrainData *trainData;
 };
 
 #endif // RESISTANCE_HANDLER_H
