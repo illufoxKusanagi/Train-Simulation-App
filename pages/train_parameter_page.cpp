@@ -181,6 +181,7 @@ TrainParameterPage::createOutputMassLayout(const QStringList &labels) {
   massPerTrainsetLoaded->setValue(calculateLoadedMass());
   massPerTrainsetInertial = new InputWidget(
       this, InputType("field", "Inertial Mass per One Trainset", "ton", true));
+  massPerTrainsetInertial->setValue(calculateInertialMass());
   outputMassFormLayout->addWidget(massPerTrainsetEmpty);
   outputMassFormLayout->addWidget(massPerTrainsetLoaded);
   outputMassFormLayout->addWidget(massPerTrainsetInertial);

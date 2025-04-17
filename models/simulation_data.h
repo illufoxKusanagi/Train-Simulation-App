@@ -42,6 +42,10 @@ struct SimulationDatas {
   QList<double> maxPowTime;
   QList<double> energyCatenaries;
   QList<double> mileages;
+  QList<double> motorResistancesZero;
+  QList<double> motorResistancesFive;
+  QList<double> motorResistancesTen;
+  QList<double> motorResistancesTwentyFive;
 };
 
 #endif // SIMULATIONDATA_H

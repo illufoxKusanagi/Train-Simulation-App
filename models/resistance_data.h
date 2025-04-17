@@ -12,6 +12,10 @@ struct ResistanceData {
   double f_res = 0;
   double f_resStart = 0;
   double f_resRunning = 0;
+  double f_resRunningZero = 0;
+  double f_resRunningFive = 0;
+  double f_resRunningTen = 0;
+  double f_resRunningTwentyFive = 0;
   double f_total = 0;
   double f_start = 0;
   double f_motor = 0;

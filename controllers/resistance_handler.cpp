@@ -31,9 +31,9 @@ double ResistanceHandler::calculateStartRes() {
          resistanceData->r_radius;
 }
 
-double ResistanceHandler::calculateRunningRes(float v) {
+double ResistanceHandler::calculateRunningRes(float v, double slope) {
   resistanceData->r_slope =
-      calculateResSlope(massData->mass_totalInertial, resistanceData->slope);
+      calculateResSlope(massData->mass_totalInertial, slope);
   resistanceData->r_radius =
       calculateResRadius(massData->mass_totalInertial, resistanceData->radius);
   resistanceData->r_run =
