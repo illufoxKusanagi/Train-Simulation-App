@@ -12,7 +12,7 @@ public:
   double calculateResSlope(float m, float slope);
   double calculateResRadius(float m, float radius);
   double calculateStartRes();
-  double calculateRunningRes(float v);
+  double calculateRunningRes(float v, double slope);
   double calculateTotalRes() {
     return resistanceData->r_train + resistanceData->r_slope +
            resistanceData->r_radius + resistanceData->r_run;

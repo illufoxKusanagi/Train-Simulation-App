@@ -84,8 +84,8 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   movingData->x_station = 2000;
   while (movingData->v >= 0 || j < stationData->stationDistance.size()) {
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes();
-    resistanceData->f_resRunning =
-        m_resistanceHandler->calculateRunningRes(movingData->v);
+    resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
+        movingData->v, resistanceData->slope);
     mileage = m_simulationTrackHandler->calculateMileage();
     if (isAtStation) {
       phase = "At Station";
@@ -230,8 +230,8 @@ void TrainSimulation::simulateStaticTrainMovement() {
   while (movingData->v <= movingData->v_limit) {
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes();
     phase = "Accelerating";
-    resistanceData->f_resRunning =
-        m_resistanceHandler->calculateRunningRes(movingData->v);
+    resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
+        movingData->v, resistanceData->slope);
     m_tractiveEffortHandler->calculatePoweringForce(movingData->acc,
                                                     movingData->v);
     resistanceData->f_total =

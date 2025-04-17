@@ -367,14 +367,21 @@ void ChartWidget::setupStaticSpeedChart() {
 
 void ChartWidget::setupStaticTractionChart() {
   QLineSeries *speedSeries = new QLineSeries();
+  QLineSeries *runResistanceSeries = new QLineSeries();
   speedSeries->setName("Static F motor");
   speedSeries->setPen(QPen(Colors::Primary500, 2));
+  runResistanceSeries->setName("Static F running resistance");
+  runResistanceSeries->setPen(QPen(Colors::Secondary400, 2));
   const auto &speed = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &resistance = m_trainSimulation->simulationDatas.tractionEfforts;
+  const auto &runningResistances =
+      m_trainSimulation->simulationDatas.motorResistance;
   for (int i = 0; i < speed.size() && i < resistance.size(); ++i) {
     speedSeries->append(speed[i], resistance[i]);
+    runResistanceSeries->append(speed[i], runningResistances[i]);
   }
   m_chart->addSeries(speedSeries);
+  m_chart->addSeries(runResistanceSeries);
 }
 
 void ChartWidget::setupDynamicEnergyChart() {
@@ -475,7 +482,7 @@ void ChartWidget::setupStaticAxis() {
     maxValue = *std::max_element(
                    m_trainSimulation->simulationDatas.distanceTotal.begin(),
                    m_trainSimulation->simulationDatas.distanceTotal.end()) *
-               1.2;
+               1.1;
     roundedMaxValue = ceil(maxValue / 100) * 100;
     axisX->setRange(0, roundedMaxValue);
     axisX->setTickCount(ceil(roundedMaxValue / 100) + 1);
@@ -484,7 +491,7 @@ void ChartWidget::setupStaticAxis() {
     maxValue = *std::max_element(
                    m_trainSimulation->simulationDatas.trainSpeeds.begin(),
                    m_trainSimulation->simulationDatas.trainSpeeds.end()) *
-               1.2;
+               1.1;
     roundedMaxValue = ceil(maxValue / 100) * 100;
     axisX->setRange(0, roundedMaxValue);
     axisX->setTickCount(ceil(roundedMaxValue / 10) + 1);
@@ -494,7 +501,7 @@ void ChartWidget::setupStaticAxis() {
     maxValue = *std::max_element(
                    m_trainSimulation->simulationDatas.catenaryPowers.begin(),
                    m_trainSimulation->simulationDatas.catenaryPowers.end()) *
-               1.2;
+               1.1;
     roundedMaxValue = ceil(maxValue / 100) * 100;
     axisY->setRange(0, roundedMaxValue);
     axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
@@ -567,19 +574,19 @@ void ChartWidget::setupDynamicAxis() {
     maxValue =
         *std::max_element(m_trainSimulation->simulationDatas.timeTotal.begin(),
                           m_trainSimulation->simulationDatas.timeTotal.end()) *
-        1.2;
-    roundedMaxValue = ceil(maxValue / 10) * 10;
+        1.1;
+    roundedMaxValue = ceil(maxValue / 100) * 100;
     axisX->setRange(0, roundedMaxValue);
-    axisX->setTickCount(ceil(roundedMaxValue / 10) + 1);
+    axisX->setTickCount(ceil(roundedMaxValue / 100) + 1);
     axisX->setTitleText("Time (s)");
   } else {
     maxValue = *std::max_element(
                    m_trainSimulation->simulationDatas.trainSpeeds.begin(),
                    m_trainSimulation->simulationDatas.trainSpeeds.end()) *
-               1.2;
-    roundedMaxValue = ceil(maxValue / 10) * 10;
+               1.1;
+    roundedMaxValue = ceil(maxValue / 100) * 100;
     axisX->setRange(0, roundedMaxValue);
-    axisX->setTickCount(ceil(roundedMaxValue / 10) + 1);
+    axisX->setTickCount(ceil(roundedMaxValue / 100) + 1);
     axisX->setTitleText("Speed (km/h)");
   }
 
@@ -587,7 +594,7 @@ void ChartWidget::setupDynamicAxis() {
     maxValue = *std::max_element(
                    m_trainSimulation->simulationDatas.catenaryPowers.begin(),
                    m_trainSimulation->simulationDatas.catenaryPowers.end()) *
-               1.2;
+               1.1;
     minValue = *std::min_element(
                    m_trainSimulation->simulationDatas.catenaryPowers.begin(),
                    m_trainSimulation->simulationDatas.catenaryPowers.end()) *
@@ -669,7 +676,7 @@ void ChartWidget::setupDynamicAxis() {
                1.1;
     roundedMaxValue = ceil(maxValue / 100) * 100;
     axisY->setRange(0, roundedMaxValue);
-    axisY->setTickCount(ceil(roundedMaxValue / 100) + 1);
+    axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
     axisY->setTitleText("Distance (m)");
   }
 }
