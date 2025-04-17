@@ -27,7 +27,8 @@ void OutputHandler::printSimulationDatas() {
              "Motor,F Res, F Total, F Motor / TM, F Res / TM, Torque, RPM,P "
              "Wheel,P_motor Out,P_motor In,P_vvvf, P_catenary,Catenary "
              "current,VVVF current,Energy Consumption,Energy of "
-             "Powering,Energy Regen,Energy of APS,Energy Catenary\n";
+             "Powering,Energy Regen,Energy of APS,Energy Catenary,Run res at "
+             "0,Run res at 5,Run res at 10,Run res at 25\n";
   for (int i = 0; i < maxSize; i++) {
     outFile << simulationDatas->phase[i].toStdString() << "," << i + 1 << ","
             << simulationDatas->time[i] << "," << simulationDatas->timeTotal[i]
@@ -57,7 +58,13 @@ void OutputHandler::printSimulationDatas() {
             << simulationDatas->energyPowerings[i] << ","
             << simulationDatas->energyRegenerations[i] << ","
             << simulationDatas->energyAps[i] << ","
-            << simulationDatas->energyCatenaries[i] << "\n";
+            << simulationDatas->energyCatenaries[i] << ","
+            << simulationDatas->motorResistancesZero[i] << ","
+            << simulationDatas->motorResistancesFive[i] << ","
+            << simulationDatas->motorResistancesTen[i] << ","
+            << simulationDatas->motorResistancesTwentyFive[i]
+            <<
+               "\n";
   }
   outFile.close();
   MessageBoxWidget messagebox("Information",

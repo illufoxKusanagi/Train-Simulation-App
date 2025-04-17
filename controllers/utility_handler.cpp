@@ -31,6 +31,14 @@ void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
   simulationDatas->energyRegenerations.append(context->energyData->e_reg);
   simulationDatas->energyAps.append(context->energyData->e_aps);
   simulationDatas->energyCatenaries.append(context->energyData->e_catenary);
+  simulationDatas->motorResistancesZero.append(
+      context->resistanceData->f_resRunningZero);
+  simulationDatas->motorResistancesFive.append(
+      context->resistanceData->f_resRunningFive);
+  simulationDatas->motorResistancesTen.append(
+      context->resistanceData->f_resRunningTen);
+  simulationDatas->motorResistancesTwentyFive.append(
+      context->resistanceData->f_resRunningTwentyFive);
 }
 
 void UtilityHandler::resetSimulation() {
@@ -65,6 +73,11 @@ void UtilityHandler::resetSimulation() {
   context->energyData->curr_catenary = 0;
   context->energyData->curr_vvvf = 0;
   context->energyData->e_catenary = 0;
+  context->resistanceData->f_resRunningZero = 0;
+  context->resistanceData->f_resRunningFive = 0;
+  context->resistanceData->f_resRunningTen = 0;
+  context->resistanceData->f_resRunningTwentyFive = 0;
+  context->resistanceData->f_res = 0;
 }
 
 void UtilityHandler::clearSimulationDatas() {
@@ -98,4 +111,8 @@ void UtilityHandler::clearSimulationDatas() {
   simulationDatas->energyAps.clear();
   simulationDatas->energyCatenaries.clear();
   simulationDatas->mileages.clear();
+  simulationDatas->motorResistancesZero.clear();
+  simulationDatas->motorResistancesFive.clear();
+  simulationDatas->motorResistancesTen.clear();
+  simulationDatas->motorResistancesTwentyFive.clear();
 }

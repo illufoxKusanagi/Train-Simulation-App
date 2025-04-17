@@ -232,6 +232,14 @@ void TrainSimulation::simulateStaticTrainMovement() {
     phase = "Accelerating";
     resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
         movingData->v, resistanceData->slope);
+    resistanceData->f_resRunningZero =
+        m_resistanceHandler->calculateRunningRes(movingData->v, 0.0);
+    resistanceData->f_resRunningFive =
+        m_resistanceHandler->calculateRunningRes(movingData->v, 5.0);
+    resistanceData->f_resRunningTen =
+        m_resistanceHandler->calculateRunningRes(movingData->v, 10.0);
+    resistanceData->f_resRunningTwentyFive =
+        m_resistanceHandler->calculateRunningRes(movingData->v, 25.0);
     m_tractiveEffortHandler->calculatePoweringForce(movingData->acc,
                                                     movingData->v);
     resistanceData->f_total =
