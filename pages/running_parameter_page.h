@@ -28,6 +28,7 @@ private:
   MovingData *movingData;
   ResistanceData *resistanceData;
   LoadData *loadData;
+  TrainData *trainData;
 
   void createInputs();
   double getParameterValue(const QString &paramName) const;
