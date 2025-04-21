@@ -11,6 +11,7 @@
 #include "widgets/input_widget.h"
 #include <QGroupBox>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QWidget>

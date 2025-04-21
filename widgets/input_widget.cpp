@@ -53,9 +53,9 @@ void InputWidget::buildInputField(InputType inputType) {
   layout->setAlignment(m_inputField, Qt::AlignLeft);
 }
 
-QList<double> InputWidget::getCsvValue() {
+QList<double> InputWidget::getCsvValue(const int requiredColumn) {
   if (m_inputUpload) {
-    return m_inputUpload->getColumnData(1);
+    return m_inputUpload->getColumnData(requiredColumn);
   }
   return QList<double>();
 }

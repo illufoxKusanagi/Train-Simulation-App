@@ -81,6 +81,7 @@ void TrainParameterPage::setupFirstPage(QWidget *firstPageWidget) {
 }
 
 void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
+  QScrollArea *scrollArea = new QScrollArea(this);
   const QStringList labels = {"Tc", "M1", "M2",     "T1",
                               "T2", "T3", "M1-Deg", "M2-Deg"};
   const QStringList massLabels = {"Total Empty Mass", "Total Load Mass",

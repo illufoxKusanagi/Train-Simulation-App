@@ -26,7 +26,8 @@ private:
 
   void createInputs();
   double getParameterValue(const QString &paramName) const;
-  QList<double> getCsvParamValue(const QString &paramName) const;
+  QList<double> getCsvParamValue(const QString &paramName,
+                                 const int requiredColumn) const;
   void setParameterValue();
   void connectInputSignals();
 };
