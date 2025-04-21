@@ -87,7 +87,6 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   while (movingData->v >= 0 || j < stationData->x_station.size()) {
     slopeIndex = setSlopeIndex(slopeIndex, movingData->x_total);
     slope = setSlopeData(slopeIndex, movingData->x_total);
-    qDebug() << "Slope: " << slope;
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes();
     resistanceData->f_resRunning =
         m_resistanceHandler->calculateRunningRes(movingData->v, slope);
