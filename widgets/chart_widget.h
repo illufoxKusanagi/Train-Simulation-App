@@ -1,8 +1,8 @@
 #ifndef CHART_WIDGET_H
 #define CHART_WIDGET_H
 
-#include "controllers/tractive_effort_handler.h"
-#include "controllers/train_simulation.h"
+#include "controllers/train_simulation//tractive_effort_handler.h"
+#include "controllers/train_simulation//train_simulation.h"
 #include "styles/colors.h"
 #include "styles/text_style.h"
 #include "widgets/button_action.h"
