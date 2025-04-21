@@ -93,11 +93,6 @@ void TrainSpeedPage::updatePaginationButtons() {
   m_nextButton->setEnabled(currentIndex < lastIndex);
 }
 
-void TrainSpeedPage::updateCharts() {
-  m_chartWidget["Dynamic Speed"]->updateChart();
-  m_chartWidget["Static Speed"]->updateChart();
-}
-
 void TrainSpeedPage::setParameterValue() {
   m_inputWidgets["Max Speed"]->setValue(0);
   m_inputWidgets["Max Speed"]->setValue(

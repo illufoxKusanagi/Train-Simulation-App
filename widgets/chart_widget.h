@@ -32,7 +32,7 @@ public:
   void updateChart();
   void updateStaticChart();
 
-public slots:
+private slots:
   void onSimulationCompleted();
   void onStaticSimulationCompleted();
   void onSaveAllDataClicked();

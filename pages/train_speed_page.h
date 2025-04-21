@@ -38,7 +38,6 @@ private:
   void updatePaginationButtons();
   void showPreviousPage();
   void showNextPage();
-  void updateCharts();
 };
 
 #endif // TRAIN_SPEED_PAGE_H
