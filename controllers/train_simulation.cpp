@@ -85,7 +85,9 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   double slope = 0.0;
   int slopeIndex = 0;
   while (movingData->v >= 0 || j < stationData->x_station.size()) {
-    slope = setSlopeData(slopeIndex);
+    slopeIndex = setSlopeIndex(slopeIndex, movingData->x_total);
+    slope = setSlopeData(slopeIndex, movingData->x_total);
+    qDebug() << "Slope: " << slope;
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes();
     resistanceData->f_resRunning =
         m_resistanceHandler->calculateRunningRes(movingData->v, slope);
@@ -233,7 +235,7 @@ void TrainSimulation::simulateStaticTrainMovement() {
   double slope = 0.0;
   int slopeIndex = 0;
   while (movingData->v <= movingData->v_limit) {
-    slope = setSlopeData(slopeIndex);
+    slope = setSlopeData(slopeIndex, movingData->x_total);
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes();
     phase = "Accelerating";
     resistanceData->f_resRunning =
@@ -415,15 +417,41 @@ void TrainSimulation::calculateEnergies(int i) {
   energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
 }
 
-double TrainSimulation::setSlopeData(int slopeIndex) {
-  if (!stationData->slope.empty()) {
-    if (movingData->x_total >= stationData->x_slopeStart[slopeIndex] &&
-        movingData->x_total < stationData->x_slopeEnd[slopeIndex]) {
-    } else if (movingData->x_total >= stationData->x_slopeEnd[slopeIndex]) {
-      slopeIndex++;
-    }
-    return stationData->slope[slopeIndex];
-  } else {
-    return 0.0;
+int TrainSimulation::setSlopeIndex(int slopeIndex, double distanceTravelled) {
+  if (distanceTravelled >= stationData->x_slopeEnd[slopeIndex]) {
+    slopeIndex++;
   }
+  return slopeIndex;
+}
+
+int TrainSimulation::setRadiusIndex(int radiusIndex, double distanceTravelled) {
+  if (distanceTravelled >= stationData->x_radiusEnd[radiusIndex]) {
+    radiusIndex++;
+  }
+  return radiusIndex;
+}
+
+double TrainSimulation::setSlopeData(int slopeIndex, double distanceTravelled) {
+  if (!stationData->slope.empty()) {
+    if (distanceTravelled >= stationData->x_slopeEnd[slopeIndex] ||
+        slopeIndex == 0) {
+      return stationData->slope[slopeIndex];
+    } else {
+      return stationData->slope[slopeIndex - 1];
+    }
+  }
+  return 0.0;
+}
+
+double TrainSimulation::setRadiusData(int radiusIndex,
+                                      double distanceTravelled) {
+  if (!stationData->radius.empty()) {
+    if (distanceTravelled >= stationData->x_radiusEnd[radiusIndex] ||
+        radiusIndex == 0) {
+      return stationData->radius[radiusIndex];
+    } else {
+      return stationData->radius[radiusIndex - 1];
+    }
+  }
+  return 0.0;
 }
