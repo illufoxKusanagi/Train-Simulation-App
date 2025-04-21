@@ -82,10 +82,13 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   double trainStopTime = 0;
   const double WAIT_TIME = 10.0;
   movingData->x_station = 2000;
-  while (movingData->v >= 0 || j < stationData->stationDistance.size()) {
+  double slope = 0.0;
+  int slopeIndex = 0;
+  while (movingData->v >= 0 || j < stationData->x_station.size()) {
+    slope = setSlopeData(slopeIndex);
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes();
-    resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
-        movingData->v, resistanceData->slope);
+    resistanceData->f_resRunning =
+        m_resistanceHandler->calculateRunningRes(movingData->v, slope);
     mileage = m_simulationTrackHandler->calculateMileage();
     if (isAtStation) {
       phase = "At Station";
@@ -109,7 +112,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       simulationDatas.accelerationsSi.append(movingData->acc_si);
       simulationDatas.trainSpeeds.append(movingData->v);
       simulationDatas.trainSpeedsSi.append(movingData->v_si);
-    } else if (mileage < stationData->stationDistance[j]) {
+    } else if (mileage < stationData->x_station[j]) {
       if (isAccelerating) {
         if (movingData->v >= movingData->v_limit &&
             resistanceData->f_total > 0) {
@@ -227,11 +230,14 @@ void TrainSimulation::simulateStaticTrainMovement() {
   QString phase = "Starting";
   int CoastingCount = 0;
   float time = 0.0;
+  double slope = 0.0;
+  int slopeIndex = 0;
   while (movingData->v <= movingData->v_limit) {
+    slope = setSlopeData(slopeIndex);
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes();
     phase = "Accelerating";
-    resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
-        movingData->v, resistanceData->slope);
+    resistanceData->f_resRunning =
+        m_resistanceHandler->calculateRunningRes(movingData->v, slope);
     resistanceData->f_resRunningZero =
         m_resistanceHandler->calculateRunningRes(movingData->v, 0.0);
     resistanceData->f_resRunningFive =
@@ -388,7 +394,7 @@ double TrainSimulation::getMaxPowTime() {
 double TrainSimulation::getAdhesion() { return trainMotorData->tm_adh; }
 
 bool TrainSimulation::validateCsvVariables() {
-  if (stationData->stationDistance.size() > 0) {
+  if (stationData->x_station.size() > 0) {
     return true;
   } else
     return false;
@@ -407,4 +413,17 @@ void TrainSimulation::calculateEnergies(int i) {
   energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
   energyData->e_pow += m_energyHandler->calculateEnergyOfPowering(i);
   energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
+}
+
+double TrainSimulation::setSlopeData(int slopeIndex) {
+  if (!stationData->slope.empty()) {
+    if (movingData->x_total >= stationData->x_slopeStart[slopeIndex] &&
+        movingData->x_total < stationData->x_slopeEnd[slopeIndex]) {
+    } else if (movingData->x_total >= stationData->x_slopeEnd[slopeIndex]) {
+      slopeIndex++;
+    }
+    return stationData->slope[slopeIndex];
+  } else {
+    return 0.0;
+  }
 }

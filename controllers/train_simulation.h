@@ -91,5 +91,6 @@ private:
   double calculateTotalDistance(int i);
   void calculatePowers();
   void calculateEnergies(int i);
+  double setSlopeData(int slopeIndex);
 };
 #endif // TRAIN_SIMULATION_H

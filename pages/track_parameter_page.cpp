@@ -23,8 +23,9 @@ void TrackParameterPage::createInputs() {
   QStringList units = {"m/s2", "m", "m", "‰", "m", "km/h"};
   QList<double> values = {0.0, 2000, 400, 0.0, 0.0, 70};
   for (int i = 0; i < labels.size(); i++) {
-    InputWidget *inputWidget = new InputWidget(
-        this, InputType(i == 2 ? "upload" : "field", labels[i], units[i]));
+    InputWidget *inputWidget =
+        new InputWidget(this, InputType(i == 2 || i == 3 ? "upload" : "field",
+                                        labels[i], units[i]));
     inputWidget->setValue(values[i]);
     inputWidget->setFixedHeight(80);
     m_formLayout->addWidget(inputWidget, i / 2, i % 2);
@@ -42,9 +43,10 @@ double TrackParameterPage::getParameterValue(const QString &paramName) const {
 }
 
 QList<double>
-TrackParameterPage::getCsvParamValue(const QString &paramName) const {
-  if (m_inputWidgets.contains("Station Distance")) {
-    return m_inputWidgets[paramName]->getCsvValue();
+TrackParameterPage::getCsvParamValue(const QString &paramName,
+                                     const int requiredColumn) const {
+  if (!m_inputWidgets.isEmpty()) {
+    return m_inputWidgets[paramName]->getCsvValue(requiredColumn);
   }
   return QList<double>();
 }
@@ -54,9 +56,17 @@ void TrackParameterPage::setParameterValue() {
   resistanceData->radius = getParameterValue("Radius per Section");
   resistanceData->slope = getParameterValue("Slope per Section");
   movingData->x_station = getParameterValue("Station Distance");
-  QList<double> stationDistances = getCsvParamValue("Station Distance");
-  stationData->stationDistance =
+  QList<double> stationDistances = getCsvParamValue("Station Distance", 1);
+  stationData->x_station =
       std::vector<double>(stationDistances.begin(), stationDistances.end());
+  QList<double> slopes = getCsvParamValue("Slope per Section", 2);
+  stationData->slope = std::vector<double>(slopes.begin(), slopes.end());
+  QList<double> slopeStartDistances = getCsvParamValue("Slope per Section", 0);
+  stationData->x_slopeStart = std::vector<double>(slopeStartDistances.begin(),
+                                                  slopeStartDistances.end());
+  QList<double> slopeEndDistances = getCsvParamValue("Slope per Section", 1);
+  stationData->x_slopeEnd =
+      std::vector<double>(slopeEndDistances.begin(), slopeEndDistances.end());
 }
 
 void TrackParameterPage::connectInputSignals() {
@@ -67,7 +77,7 @@ void TrackParameterPage::connectInputSignals() {
     connect(it.value(), &InputWidget::valueChanged, this, [this, paramName]() {
       setParameterValue();
       if (paramName == "Station Distance") {
-        QList<double> csvValues = m_inputWidgets[paramName]->getCsvValue();
+        QList<double> csvValues = m_inputWidgets[paramName]->getCsvValue(1);
         if (!csvValues.isEmpty()) {
         }
       } else

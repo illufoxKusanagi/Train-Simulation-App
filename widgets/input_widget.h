@@ -11,7 +11,6 @@
 #include <QBoxLayout>
 #include <QLabel>
 
-
 struct InputSize {
   int width;
   int height;
@@ -27,7 +26,7 @@ public:
   double getValue();
   bool isModified() const;
   void setModified(bool modified);
-  QList<double> getCsvValue();
+  QList<double> getCsvValue(const int requiredColumn);
 
 signals:
   void valueChanged();
