@@ -6,13 +6,15 @@
 struct StationData {
   std::vector<double> x_station;
   std::vector<double> v_limit;
-  std::vector<double> x_section;
+  std::vector<double> x_v_limitStart;
+  std::vector<double> x_v_limitEnd;
   std::vector<double> slope;
   std::vector<double> x_slopeStart;
   std::vector<double> x_slopeEnd;
   std::vector<double> radius;
   std::vector<double> x_radiusStart;
   std::vector<double> x_radiusEnd;
+  std::vector<double> x_section;
 };
 
 #endif // STATION_DATA_H

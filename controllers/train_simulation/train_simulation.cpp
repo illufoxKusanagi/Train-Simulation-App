@@ -84,9 +84,17 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   movingData->x_station = 2000;
   double slope = 0.0;
   int slopeIndex = 0;
+  double radius = 0.0;
+  int radiusIndex = 0;
+  double maxSpeed = 0.0;
+  int maxSpeedIndex = 0;
   while (movingData->v >= 0 || j < stationData->x_station.size()) {
     slope = setSlopeData(slopeIndex, movingData->x_total);
     slopeIndex = setSlopeIndex(slopeIndex, movingData->x_total);
+    radius = setRadiusData(radiusIndex, movingData->x_total);
+    radiusIndex = setRadiusIndex(radiusIndex, movingData->x_total);
+    maxSpeed = setMaxSpeedData(maxSpeedIndex, movingData->x_total);
+    maxSpeedIndex = setMaxSpeedIndex(maxSpeedIndex, movingData->x_total);
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes();
     resistanceData->f_resRunning =
         m_resistanceHandler->calculateRunningRes(movingData->v, slope);
@@ -233,9 +241,17 @@ void TrainSimulation::simulateStaticTrainMovement() {
   float time = 0.0;
   double slope = 0.0;
   int slopeIndex = 0;
+  double radius = 0.0;
+  int radiusIndex = 0;
+  double maxSpeed = 0.0;
+  int maxSpeedIndex = 0;
   while (movingData->v <= movingData->v_limit) {
     slope = setSlopeData(slopeIndex, movingData->x_total);
     slopeIndex = setSlopeIndex(slopeIndex, movingData->x_total);
+    radius = setRadiusData(radiusIndex, movingData->x_total);
+    radiusIndex = setRadiusIndex(radiusIndex, movingData->x_total);
+    maxSpeed = setMaxSpeedData(maxSpeedIndex, movingData->x_total);
+    maxSpeedIndex = setMaxSpeedIndex(maxSpeedIndex, movingData->x_total);
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes();
     phase = "Accelerating";
     resistanceData->f_resRunning =
@@ -418,21 +434,34 @@ void TrainSimulation::calculateEnergies(int i) {
 }
 
 int TrainSimulation::setSlopeIndex(int slopeIndex, double distanceTravelled) {
-  if (!stationData->x_slopeEnd.empty()) {
+  if (!stationData->slope.empty()) {
     if (distanceTravelled >= stationData->x_slopeEnd[slopeIndex]) {
       slopeIndex++;
     }
+    return slopeIndex;
   }
-  return slopeIndex;
+  return 0;
 }
 
 int TrainSimulation::setRadiusIndex(int radiusIndex, double distanceTravelled) {
-  if (!stationData->x_slopeEnd.empty()) {
+  if (!stationData->radius.empty()) {
     if (distanceTravelled >= stationData->x_radiusEnd[radiusIndex]) {
       radiusIndex++;
     }
     return radiusIndex;
   }
+  return 0;
+}
+
+int TrainSimulation::setMaxSpeedIndex(int maxSpeedIndex,
+                                      double distanceTravelled) {
+  if (!stationData->v_limit.empty()) {
+    if (distanceTravelled >= stationData->x_radiusEnd[maxSpeedIndex]) {
+      maxSpeedIndex++;
+    }
+    return maxSpeedIndex;
+  }
+  return 0;
 }
 
 double TrainSimulation::setSlopeData(int slopeIndex, double distanceTravelled) {
@@ -450,11 +479,24 @@ double TrainSimulation::setSlopeData(int slopeIndex, double distanceTravelled) {
 double TrainSimulation::setRadiusData(int radiusIndex,
                                       double distanceTravelled) {
   if (!stationData->radius.empty()) {
-    if (distanceTravelled >= stationData->x_radiusEnd[radiusIndex] ||
+    if (distanceTravelled >= stationData->x_v_limitEnd[radiusIndex] ||
         radiusIndex == 0) {
-      return stationData->radius[radiusIndex];
+      return stationData->radius[radiusIndex++];
     } else {
-      return stationData->radius[radiusIndex - 1];
+      return stationData->radius[radiusIndex];
+    }
+  }
+  return 0.0;
+}
+
+double TrainSimulation::setMaxSpeedData(int maxSpeedIndex,
+                                        double distanceTravelled) {
+  if (!stationData->v_limit.empty()) {
+    if (distanceTravelled >= stationData->v_limit[maxSpeedIndex] ||
+        maxSpeedIndex == 0) {
+      return stationData->radius[maxSpeedIndex++];
+    } else {
+      return stationData->radius[maxSpeedIndex];
     }
   }
   return 0.0;
