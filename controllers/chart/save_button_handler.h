@@ -10,13 +10,13 @@ class SaveButtonHandler : public QObject {
   Q_OBJECT
 public slots:
   void onSaveAllDataClicked();
-  void onSaveButtonClicked(QChartView &chartView);
+  void onSaveButtonClicked(QChartView *chartView);
   void onSaveCurrentDataClicked();
 
 public:
   enum SimulationType { None, Dynamic, Static };
   explicit SaveButtonHandler(TrainSimulation *trainSimulation,
-                             QString &chartTitle, QString &type);
+                             QString &chartTitle, QString *type);
   TrainSimulation *m_trainSimulation;
   QString m_chartTitle;
   QString m_simulationType = "";

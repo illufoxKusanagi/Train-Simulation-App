@@ -1,9 +1,9 @@
 #include "save_button_handler.h"
 
 SaveButtonHandler::SaveButtonHandler(TrainSimulation *trainSimulation,
-                                     QString &chartTitle, QString &type)
+                                     QString &chartTitle, QString *type)
     : m_trainSimulation(trainSimulation), m_chartTitle(chartTitle),
-      m_simulationType(type) {}
+      m_simulationType(*type) {}
 
 void SaveButtonHandler::onSaveAllDataClicked() {
   try {
@@ -93,13 +93,13 @@ void SaveButtonHandler::onSaveCurrentDataClicked() {
   }
 }
 
-void SaveButtonHandler::onSaveButtonClicked(QChartView &chartView) {
+void SaveButtonHandler::onSaveButtonClicked(QChartView *chartView) {
   QString filePath = QFileDialog::getSaveFileName(
       nullptr, tr("Save Chart"), QDir::homePath(),
       tr("Images (*.png *.jpg *.bmp);;All Files (*)"));
 
   if (!filePath.isEmpty()) {
-    QPixmap pixmap = chartView.grab();
+    QPixmap pixmap = chartView->grab();
     if (pixmap.save(filePath)) {
       MessageBoxWidget messageBox(
           "Save Successful", QString("Chart image saved at %1").arg(filePath),

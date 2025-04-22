@@ -52,7 +52,9 @@ private:
   QTableWidget *m_table;
   enum SimulationType { None, Dynamic, Static };
   SimulationType m_simulationType = None;
-  TractiveEffortHandler *m_tractiveEffortHandler = nullptr;
+  TractiveEffortHandler *m_tractiveEffortHandler;
+  SaveButtonHandler *m_saveButtonHandler;
+  // SaveButtonHandler *m_saveButtonHandler ;
 
   void buildDummyLine(QString seriesName);
   void setupChart(QLineSeries *series, QString title);
