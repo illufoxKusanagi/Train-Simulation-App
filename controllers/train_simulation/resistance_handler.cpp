@@ -20,22 +20,23 @@ double ResistanceHandler::calculateResRadius(float m, float radius) {
   return resistanceData->r_radius;
 }
 
-double ResistanceHandler::calculateStartRes() {
+double ResistanceHandler::calculateStartRes(double slope, double radius) {
   resistanceData->r_train =
       calculateResTrain(massData->mass_totalLoad, resistanceData->startRes);
   resistanceData->r_slope =
-      calculateResSlope(massData->mass_totalInertial, resistanceData->slope);
+      calculateResSlope(massData->mass_totalInertial, slope);
   resistanceData->r_radius =
-      calculateResRadius(massData->mass_totalInertial, resistanceData->radius);
+      calculateResRadius(massData->mass_totalInertial, radius);
   return resistanceData->r_train + resistanceData->r_slope +
          resistanceData->r_radius;
 }
 
-double ResistanceHandler::calculateRunningRes(float v, double slope) {
+double ResistanceHandler::calculateRunningRes(float v, double slope,
+                                              double radius) {
   resistanceData->r_slope =
       calculateResSlope(massData->mass_totalInertial, slope);
   resistanceData->r_radius =
-      calculateResRadius(massData->mass_totalInertial, resistanceData->radius);
+      calculateResRadius(massData->mass_totalInertial, radius);
   resistanceData->r_run =
       (1.0 / 1000.0) *
       (((1.65 + (0.0247 * v)) * (massData->mass_M * constantData->g)) +

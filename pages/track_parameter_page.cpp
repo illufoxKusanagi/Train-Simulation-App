@@ -21,7 +21,8 @@ void TrackParameterPage::createInputs() {
                         "Station Distance",  "Slope per Section",
                         "Section Distance",  "Speed Limit"};
   QStringList units = {"m/s2", "m", "m", "‰", "m", "km/h"};
-  QStringList types = {"field", "field", "upload", "upload", "field", "field"};
+  QStringList types = {"field",  "upload", "upload",
+                       "upload", "field",  "upload"};
   QList<double> values = {0.0, 2000, 400, 0.0, 0.0, 70};
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
