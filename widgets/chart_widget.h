@@ -1,6 +1,7 @@
 #ifndef CHART_WIDGET_H
 #define CHART_WIDGET_H
 
+#include "controllers/chart/save_button_handler.h"
 #include "controllers/train_simulation//tractive_effort_handler.h"
 #include "controllers/train_simulation//train_simulation.h"
 #include "styles/colors.h"
@@ -40,7 +41,6 @@ private slots:
   void onSaveButtonClicked(QChartView *chartView);
 
 private:
-  enum SimulationType { None, Dynamic, Static };
   QVBoxLayout *mainLayout;
   QWidget *m_chartWidget;
   QVBoxLayout *m_chartLayout;
@@ -50,6 +50,7 @@ private:
   QList<QString> m_seriesToDisplay;
   QMap<QString, QColor> m_seriesColors;
   QTableWidget *m_table;
+  enum SimulationType { None, Dynamic, Static };
   SimulationType m_simulationType = None;
   TractiveEffortHandler *m_tractiveEffortHandler = nullptr;
 

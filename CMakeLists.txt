@@ -135,6 +135,8 @@ set(CONTROLLER_SOURCES
     controllers/train_simulation/csv_handler.cpp
     controllers/train_simulation/current_handler.h
     controllers/train_simulation/current_handler.cpp
+    controllers/chart/save_button_handler.h
+    controllers/chart/save_button_handler.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
