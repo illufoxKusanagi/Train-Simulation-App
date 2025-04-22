@@ -11,8 +11,8 @@ public:
   double calculateResTrain(float m, float startRes);
   double calculateResSlope(float m, float slope);
   double calculateResRadius(float m, float radius);
-  double calculateStartRes();
-  double calculateRunningRes(float v, double slope);
+  double calculateStartRes(double slope, double radius);
+  double calculateRunningRes(float v, double slope, double radius);
   double calculateTotalRes() {
     return resistanceData->r_train + resistanceData->r_slope +
            resistanceData->r_radius + resistanceData->r_run;

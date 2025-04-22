@@ -93,7 +93,9 @@ private:
   void calculateEnergies(int i);
   int setSlopeIndex(int slopeIndex, double distanceTravelled);
   int setRadiusIndex(int radiusIndex, double distanceTravelled);
+  int setMaxSpeedIndex(int maxSpeedIndex, double distanceTravelled);
   double setSlopeData(int slopeIndex, double distanceTravelled);
   double setRadiusData(int radiusIndex, double distanceTravelled);
+  double setMaxSpeedData(int maxSpeedIndex, double distanceTravelled);
 };
 #endif // TRAIN_SIMULATION_H
