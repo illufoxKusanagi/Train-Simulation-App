@@ -1,7 +1,7 @@
 #ifndef TRAIN_POWER_PAGE_H
 #define TRAIN_POWER_PAGE_H
 
-#include "controllers/train_simulation.h"
+#include "controllers/train_simulation/train_simulation.h"
 #include "resources/input_type.h"
 #include "widgets/button_action.h"
 #include "widgets/chart_widget.h"
@@ -16,7 +16,6 @@ class TrainPowerPage : public QWidget {
 public:
   explicit TrainPowerPage(QWidget *parentWidget = nullptr,
                           TrainSimulation *trainSimulation = nullptr);
-  void updateCharts();
 private slots:
   void pageChanged(int pageIndex);
   void updatePageButtons();

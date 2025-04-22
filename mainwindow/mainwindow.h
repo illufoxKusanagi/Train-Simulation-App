@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "controllers/train_simulation.h"
+#include "controllers/train_simulation/train_simulation.h"
 #include "core/appcontext.h"
 #include "models/train_data.h"
 #include "pages/constant_values_page.h"

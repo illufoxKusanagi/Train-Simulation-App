@@ -1,9 +1,12 @@
 #include "running_parameter_page.h"
 
-RunningParameterPage::RunningParameterPage(AppContext &context, QWidget *parent)
+RunningParameterPage::RunningParameterPage(
+    AppContext &context, TrainParameterPage *trainParameterPage,
+    QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_formLayout(new QWidget(this)),
       m_inputsLayout(new QGridLayout(m_formLayout)),
+      m_trainParameterPage(trainParameterPage),
       resistanceData(context.resistanceData.data()),
       movingData(context.movingData.data()), loadData(context.loadData.data()),
       trainData(context.trainData.data()) {
@@ -84,6 +87,10 @@ void RunningParameterPage::connectInputSignals() {
       double value = getParameterValue(paramName);
     });
   }
+  connect(m_trainParameterPage, &TrainParameterPage::trainsetChanged, this,
+          [this]() { setAccelerationValue(); });
+  connect(m_trainParameterPage, &TrainParameterPage::trainsetChanged, this,
+          [this]() { setDecelerationValue(); });
 }
 
 void RunningParameterPage::setAccelerationValue() {

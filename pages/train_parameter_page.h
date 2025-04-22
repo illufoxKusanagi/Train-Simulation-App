@@ -1,8 +1,8 @@
 #ifndef TRAINPARAMETERPAGE_H
 #define TRAINPARAMETERPAGE_H
 
-#include "controllers/mass_handler.h"
-#include "controllers/train_simulation.h"
+#include "controllers/train_simulation/mass_handler.h"
+#include "controllers/train_simulation/train_simulation.h"
 #include "core/appcontext.h"
 #include "models/train_data.h"
 #include "styles/colors.h"
@@ -21,6 +21,7 @@ class TrainParameterPage : public QWidget {
 
 signals:
   void awDataChanged();
+  void trainsetChanged();
 
 public:
   explicit TrainParameterPage(AppContext &context,

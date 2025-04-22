@@ -32,7 +32,7 @@ void MainWindow::setupPages() {
   setupFixedSizePage(trainParameterPage);
 
   RunningParameterPage *runningParameterPage =
-      new RunningParameterPage(context, this);
+      new RunningParameterPage(context, trainParameterPage, this);
   setupFixedSizePage(runningParameterPage);
 
   TrackParameterPage *trackParameterPage =

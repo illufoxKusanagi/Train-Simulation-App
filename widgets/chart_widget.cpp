@@ -4,8 +4,7 @@ ChartWidget::ChartWidget(QWidget *parent, QString chartTitle,
                          QString seriesName, TrainSimulation *trainSimulation)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_chartLayout(nullptr), m_chartWidget(nullptr),
-      m_trainSimulation(trainSimulation), m_chartTitle(chartTitle),
-      m_simulationType(None) {
+      m_trainSimulation(trainSimulation), m_chartTitle(chartTitle) {
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(16);
   addSeries(seriesName, QColor(0, 114, 206));
@@ -14,6 +13,9 @@ ChartWidget::ChartWidget(QWidget *parent, QString chartTitle,
   connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
           &ChartWidget::onStaticSimulationCompleted);
   chartTitle.contains("Track") ? setupTable() : buildDummyLine(seriesName);
+  // m_saveButtonHandler =
+  //     new SaveButtonHandler(m_trainSimulation, m_chartTitle,
+  //     &m_simulationType);
 }
 
 void ChartWidget::addSeries(const QString &name, const QColor &color) {
@@ -218,9 +220,9 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
   connect(saveButton, &QPushButton::clicked, this,
           [this, chartView]() { onSaveButtonClicked(chartView); });
   connect(saveCurrentData, &QPushButton::clicked, this,
-          &ChartWidget::onSaveCurrentDataClicked);
+          [this]() { onSaveCurrentDataClicked(); });
   connect(saveAllData, &QPushButton::clicked, this,
-          &ChartWidget::onSaveAllDataClicked);
+          [this]() { onSaveAllDataClicked(); });
 
   saveButton->setEnabled(true);
   saveCurrentData->setEnabled(true);

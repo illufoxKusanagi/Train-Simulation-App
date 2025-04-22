@@ -1,11 +1,12 @@
 #ifndef RUNNINGPARAMETERWIDGET_H
 #define RUNNINGPARAMETERWIDGET_H
 
-#include "controllers/train_simulation.h"
+#include "controllers/train_simulation/train_simulation.h"
 #include "core/appcontext.h"
 #include "models/train_data.h"
 #include "styles/colors.h"
 #include "styles/text_style.h"
+#include "train_parameter_page.h"
 #include "widgets/input_widget.h"
 #include <QGridLayout>
 #include <QMap>
@@ -18,7 +19,9 @@ public slots:
   void onAwChanged(double awIndex);
 
 public:
-  explicit RunningParameterPage(AppContext &context, QWidget *parent = nullptr);
+  explicit RunningParameterPage(AppContext &context,
+                                TrainParameterPage *trainParameterPage,
+                                QWidget *parent = nullptr);
 
 private:
   QVBoxLayout *mainLayout;
@@ -29,6 +32,7 @@ private:
   ResistanceData *resistanceData;
   LoadData *loadData;
   TrainData *trainData;
+  TrainParameterPage *m_trainParameterPage;
 
   void createInputs();
   double getParameterValue(const QString &paramName) const;

@@ -85,8 +85,8 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   double slope = 0.0;
   int slopeIndex = 0;
   while (movingData->v >= 0 || j < stationData->x_station.size()) {
-    slopeIndex = setSlopeIndex(slopeIndex, movingData->x_total);
     slope = setSlopeData(slopeIndex, movingData->x_total);
+    slopeIndex = setSlopeIndex(slopeIndex, movingData->x_total);
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes();
     resistanceData->f_resRunning =
         m_resistanceHandler->calculateRunningRes(movingData->v, slope);
@@ -235,6 +235,7 @@ void TrainSimulation::simulateStaticTrainMovement() {
   int slopeIndex = 0;
   while (movingData->v <= movingData->v_limit) {
     slope = setSlopeData(slopeIndex, movingData->x_total);
+    slopeIndex = setSlopeIndex(slopeIndex, movingData->x_total);
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes();
     phase = "Accelerating";
     resistanceData->f_resRunning =
@@ -417,26 +418,30 @@ void TrainSimulation::calculateEnergies(int i) {
 }
 
 int TrainSimulation::setSlopeIndex(int slopeIndex, double distanceTravelled) {
-  if (distanceTravelled >= stationData->x_slopeEnd[slopeIndex]) {
-    slopeIndex++;
+  if (!stationData->x_slopeEnd.empty()) {
+    if (distanceTravelled >= stationData->x_slopeEnd[slopeIndex]) {
+      slopeIndex++;
+    }
   }
   return slopeIndex;
 }
 
 int TrainSimulation::setRadiusIndex(int radiusIndex, double distanceTravelled) {
-  if (distanceTravelled >= stationData->x_radiusEnd[radiusIndex]) {
-    radiusIndex++;
+  if (!stationData->x_slopeEnd.empty()) {
+    if (distanceTravelled >= stationData->x_radiusEnd[radiusIndex]) {
+      radiusIndex++;
+    }
+    return radiusIndex;
   }
-  return radiusIndex;
 }
 
 double TrainSimulation::setSlopeData(int slopeIndex, double distanceTravelled) {
   if (!stationData->slope.empty()) {
     if (distanceTravelled >= stationData->x_slopeEnd[slopeIndex] ||
         slopeIndex == 0) {
-      return stationData->slope[slopeIndex];
+      return stationData->slope[slopeIndex++];
     } else {
-      return stationData->slope[slopeIndex - 1];
+      return stationData->slope[slopeIndex];
     }
   }
   return 0.0;
