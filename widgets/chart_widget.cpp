@@ -584,7 +584,7 @@ void ChartWidget::setupDynamicAxis() {
   double roundedMinValue;
   if (m_chart->series().isEmpty())
     return;
-  if (m_simulationType != "Dynamic")
+  if (m_simulationType != Dynamic)
     return;
   m_chart->createDefaultAxes();
 
