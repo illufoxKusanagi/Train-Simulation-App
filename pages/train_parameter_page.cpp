@@ -448,6 +448,7 @@ void TrainParameterPage::setupTrainsetSection(
     }
     updateMassCalculation();
     updateTrainsetLengthValue();
+    emit trainsetChanged();
   });
   numberCarLayout->addWidget(m_numberOfCar);
   numberCarLayout->addWidget(m_trainLabelImage);

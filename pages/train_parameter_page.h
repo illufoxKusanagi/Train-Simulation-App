@@ -21,6 +21,7 @@ class TrainParameterPage : public QWidget {
 
 signals:
   void awDataChanged();
+  void trainsetChanged();
 
 public:
   explicit TrainParameterPage(AppContext &context,
