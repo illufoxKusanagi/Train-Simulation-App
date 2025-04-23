@@ -1,8 +1,8 @@
 #ifndef TRAINPARAMETERPAGE_H
 #define TRAINPARAMETERPAGE_H
 
-#include "controllers/mass_handler.h"
-#include "controllers/train_simulation.h"
+#include "controllers/train_simulation/mass_handler.h"
+#include "controllers/train_simulation/train_simulation.h"
 #include "core/appcontext.h"
 #include "models/train_data.h"
 #include "styles/colors.h"
@@ -11,6 +11,7 @@
 #include "widgets/input_widget.h"
 #include <QGroupBox>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QStackedWidget>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -20,6 +21,7 @@ class TrainParameterPage : public QWidget {
 
 signals:
   void awDataChanged();
+  void trainsetChanged();
 
 public:
   explicit TrainParameterPage(AppContext &context,
@@ -46,13 +48,13 @@ private:
   TrainData *trainData;
   MassData *massData;
   LoadData *loadData;
+  MassHandler *massHandler;
   TrainSimulation *m_trainSimulation;
   QLabel *m_trainLabelImage;
   InputWidget *massPerTrainsetEmpty;
   InputWidget *massPerTrainsetLoaded;
   InputWidget *massPerTrainsetInertial;
   QList<QList<QList<double>>> m_carData;
-  MassHandler *massHandler;
 
   void setupFirstPage(QWidget *firstPageWidget);
   void setupSecondPage(QVBoxLayout *layout);

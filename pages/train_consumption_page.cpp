@@ -100,11 +100,6 @@ void TrainConsumptionPage::updatePaginationButtons() {
   m_nextButton->setEnabled(currentIndex < lastIndex);
 }
 
-void TrainConsumptionPage::updateCharts() {
-  m_chartWidget["Dynamic Energy"]->updateChart();
-  m_chartWidget["Static Energy"]->updateChart();
-}
-
 void TrainConsumptionPage::setParameterValue() {
   m_inputWidgets["Energy Consumption"]->setValue(0);
   m_inputWidgets["Energy Powering"]->setValue(0);

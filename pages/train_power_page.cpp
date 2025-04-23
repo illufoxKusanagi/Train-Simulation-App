@@ -180,13 +180,6 @@ void TrainPowerPage::pageChanged(int pageIndex) {
   updatePageButtons();
 }
 
-void TrainPowerPage::updateCharts() {
-  m_chartWidgets["Dynamic Power"]->updateChart();
-  m_chartWidgets["Dynamic Current"]->updateChart();
-  m_chartWidgets["Static Power"]->updateChart();
-  m_chartWidgets["Static Current"]->updateChart();
-}
-
 void TrainPowerPage::updatePageButtons() {
   int currentIndex = stackedWidget->currentIndex();
   m_firstPageButton->setEnabled(currentIndex != 0);

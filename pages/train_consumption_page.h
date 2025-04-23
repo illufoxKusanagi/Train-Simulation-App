@@ -1,7 +1,7 @@
 #ifndef TRAIN_CONSUMPTION_PAGE_H
 #define TRAIN_CONSUMPTION_PAGE_H
 
-#include "controllers/train_simulation.h"
+#include "controllers/train_simulation/train_simulation.h"
 #include "resources/input_type.h"
 #include "widgets/button_action.h"
 #include "widgets/chart_widget.h"
@@ -38,7 +38,6 @@ private:
   void updatePaginationButtons();
   void showPreviousPage();
   void showNextPage();
-  void updateCharts();
 };
 
 #endif // TRAIN_CONSUMPTION_PAGE_H

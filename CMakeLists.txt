@@ -109,32 +109,34 @@ set(MODEL_SOURCES
 )
 
 set(CONTROLLER_SOURCES
-    controllers/train_simulation.h
-    controllers/train_simulation.cpp
-    controllers/mass_handler.h
-    controllers/mass_handler.cpp
-    controllers/resistance_handler.h
-    controllers/resistance_handler.cpp
-    controllers/tractive_effort_handler.h
-    controllers/tractive_effort_handler.cpp
-    controllers/traction_motor_handler.h
-    controllers/traction_motor_handler.cpp
-    controllers/energy_handler.h
-    controllers/energy_handler.cpp
-    controllers/power_handler.h
-    controllers/power_handler.cpp
-    controllers/moving_handler.h
-    controllers/moving_handler.cpp
-    controllers/output_handler.h
-    controllers/output_handler.cpp
-    controllers/simulation_track_handler.h
-    controllers/simulation_track_handler.cpp
-    controllers/utility_handler.h
-    controllers/utility_handler.cpp
-    controllers/csv_handler.h
-    controllers/csv_handler.cpp
-    controllers/current_handler.h
-    controllers/current_handler.cpp
+    controllers/train_simulation/train_simulation.h
+    controllers/train_simulation/train_simulation.cpp
+    controllers/train_simulation/mass_handler.h
+    controllers/train_simulation/mass_handler.cpp
+    controllers/train_simulation/resistance_handler.h
+    controllers/train_simulation/resistance_handler.cpp
+    controllers/train_simulation/tractive_effort_handler.h
+    controllers/train_simulation/tractive_effort_handler.cpp
+    controllers/train_simulation/traction_motor_handler.h
+    controllers/train_simulation/traction_motor_handler.cpp
+    controllers/train_simulation/energy_handler.h
+    controllers/train_simulation/energy_handler.cpp
+    controllers/train_simulation/power_handler.h
+    controllers/train_simulation/power_handler.cpp
+    controllers/train_simulation/moving_handler.h
+    controllers/train_simulation/moving_handler.cpp
+    controllers/train_simulation/output_handler.h
+    controllers/train_simulation/output_handler.cpp
+    controllers/train_simulation/simulation_track_handler.h
+    controllers/train_simulation/simulation_track_handler.cpp
+    controllers/train_simulation/utility_handler.h
+    controllers/train_simulation/utility_handler.cpp
+    controllers/train_simulation/csv_handler.h
+    controllers/train_simulation/csv_handler.cpp
+    controllers/train_simulation/current_handler.h
+    controllers/train_simulation/current_handler.cpp
+    controllers/chart/save_button_handler.h
+    controllers/chart/save_button_handler.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -146,6 +148,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${MODEL_SOURCES}
         ${RESOURCE_SOURCES}
         ${CONTROLLER_SOURCES}
+        pages/testpage.h pages/testpage.cpp
     )
 
 # Define target properties for Android with Qt 6 as:

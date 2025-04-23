@@ -26,9 +26,14 @@ private:
 
   void createInputs();
   double getParameterValue(const QString &paramName) const;
-  QList<double> getCsvParamValue(const QString &paramName) const;
+  QList<double> getCsvParamValue(const QString &paramName,
+                                 const int requiredColumn) const;
   void setParameterValue();
   void connectInputSignals();
+  void setSlopeValue();
+  void setRadiusValue();
+  void setMaxSpeedValue();
+  void setStationDistanceValue();
 };
 
 #endif // TRACK_PARAMETER_PAGE_H

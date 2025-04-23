@@ -2,7 +2,7 @@
 #define LEFT_PANEL_H
 
 #include "button_toggle.h"
-#include "controllers/train_simulation.h"
+#include "controllers/train_simulation/train_simulation.h"
 #include "left_panel_category.h"
 #include "message_box_widget.h"
 #include "widgets/button_action.h"
@@ -14,7 +14,6 @@
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QtConcurrent/QtConcurrent>
-
 
 class LeftPanel : public QWidget {
   Q_OBJECT

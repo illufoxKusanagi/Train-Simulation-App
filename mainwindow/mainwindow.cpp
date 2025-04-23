@@ -32,7 +32,7 @@ void MainWindow::setupPages() {
   setupFixedSizePage(trainParameterPage);
 
   RunningParameterPage *runningParameterPage =
-      new RunningParameterPage(context, this);
+      new RunningParameterPage(context, trainParameterPage, this);
   setupFixedSizePage(runningParameterPage);
 
   TrackParameterPage *trackParameterPage =
@@ -42,6 +42,9 @@ void MainWindow::setupPages() {
   ElectricalParameterPage *electricalParameterPage =
       new ElectricalParameterPage(context, this);
   setupFixedSizePage(electricalParameterPage);
+
+  // TestPage *testPage = new TestPage(this);
+  // setupFixedSizePage(testPage);
 
   TrainSpeedPage *trainSpeedPage = new TrainSpeedPage(this, m_trainSimulation);
   setupFixedSizePage(trainSpeedPage);

@@ -11,7 +11,6 @@ void OutputHandler::printSimulationDatas() {
   }
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
-  qDebug() << filepath;
   if (filepath.isEmpty()) {
     MessageBoxWidget messagebox("Alert", "The process canceled by user",
                                 MessageBoxWidget::Warning);
@@ -62,9 +61,7 @@ void OutputHandler::printSimulationDatas() {
             << simulationDatas->motorResistancesZero[i] << ","
             << simulationDatas->motorResistancesFive[i] << ","
             << simulationDatas->motorResistancesTen[i] << ","
-            << simulationDatas->motorResistancesTwentyFive[i]
-            <<
-               "\n";
+            << simulationDatas->motorResistancesTwentyFive[i] << "\n";
   }
   outFile.close();
   MessageBoxWidget messagebox("Information",
