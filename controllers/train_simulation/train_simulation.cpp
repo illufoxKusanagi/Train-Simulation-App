@@ -240,7 +240,7 @@ void TrainSimulation::simulateStaticTrainMovement() {
   int CoastingCount = 0;
   float time = 0.0;
   while (movingData->v <= stationData->stat_v_limit &&
-         movingData->x_total <= stationData->stat_x_station) {
+         movingData->x_total < stationData->stat_x_station) {
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes(
         stationData->stat_slope, stationData->stat_radius);
     phase = "Accelerating";

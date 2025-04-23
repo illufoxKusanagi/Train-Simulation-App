@@ -115,7 +115,6 @@ void TrackParameterPage::setRadiusValue() {
 void TrackParameterPage::setMaxSpeedValue() {
   QString paramName = "Speed Limit";
   stationData->stat_v_limit = getParameterValue(paramName);
-  qDebug() << "Speed Limit" << stationData->stat_v_limit;
   QList<double> maxSpeeds = getCsvParamValue(paramName, 2);
   stationData->v_limit =
       std::vector<double>(maxSpeeds.begin(), maxSpeeds.end());
