@@ -13,9 +13,6 @@ ChartWidget::ChartWidget(QWidget *parent, QString chartTitle,
   connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
           &ChartWidget::onStaticSimulationCompleted);
   chartTitle.contains("Track") ? setupTable() : buildDummyLine(seriesName);
-  // m_saveButtonHandler =
-  //     new SaveButtonHandler(m_trainSimulation, m_chartTitle,
-  //     &m_simulationType);
 }
 
 void ChartWidget::addSeries(const QString &name, const QColor &color) {
@@ -376,15 +373,15 @@ void ChartWidget::setupStaticTractionChart() {
   QLineSeries *runResistancesTwentyFiveSeries = new QLineSeries();
   speedSeries->setName("Static F motor");
   speedSeries->setPen(QPen(Colors::Primary500, 2));
-  runResistanceSeries->setName("Static F running resistance");
+  runResistanceSeries->setName("Static Run_Res");
   runResistanceSeries->setPen(QPen(Colors::Secondary400, 2));
-  runResistancesZeroSeries->setName("Static F running resistance 0%");
+  runResistancesZeroSeries->setName("Static Run_Res 0%");
   runResistancesZeroSeries->setPen(QPen(Colors::Warning600, 2));
-  runResistancesFiveSeries->setName("Static F running resistance 5%");
+  runResistancesFiveSeries->setName("Static Run_Res 5%");
   runResistancesFiveSeries->setPen(QPen(Colors::Primary700, 2));
-  runResistancesTenSeries->setName("Static F running resistance 10%");
+  runResistancesTenSeries->setName("Static Run_Res 10%");
   runResistancesTenSeries->setPen(QPen(Colors::Danger500, 2));
-  runResistancesTwentyFiveSeries->setName("Static F running resistance 25%");
+  runResistancesTwentyFiveSeries->setName("Static Run_Res 25%");
   runResistancesTwentyFiveSeries->setPen(QPen(Colors::Secondary700, 2));
   const auto &speed = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &resistance = m_trainSimulation->simulationDatas.tractionEfforts;
@@ -511,12 +508,11 @@ void ChartWidget::setupStaticAxis() {
 
   if (m_chartTitle.contains("Static Speed")) {
     maxValue = *std::max_element(
-                   m_trainSimulation->simulationDatas.distanceTotal.begin(),
-                   m_trainSimulation->simulationDatas.distanceTotal.end()) *
-               1.1;
-    roundedMaxValue = ceil(maxValue / 100) * 100;
+        m_trainSimulation->simulationDatas.distanceTotal.begin(),
+        m_trainSimulation->simulationDatas.distanceTotal.end());
+    roundedMaxValue = ceil(maxValue / 1000) * 1000;
     axisX->setRange(0, roundedMaxValue);
-    axisX->setTickCount(ceil(roundedMaxValue / 100) + 1);
+    axisX->setTickCount(ceil(roundedMaxValue / 500) + 1);
     axisX->setTitleText("Distance (m)");
   } else if (m_chartTitle.contains("Static")) {
     maxValue = *std::max_element(
@@ -702,10 +698,9 @@ void ChartWidget::setupDynamicAxis() {
     axisY->setTitleText("Energy (kW)");
   } else if (m_chartTitle.contains("Distance")) {
     maxValue = *std::max_element(
-                   m_trainSimulation->simulationDatas.distanceTotal.begin(),
-                   m_trainSimulation->simulationDatas.distanceTotal.end()) *
-               1.1;
-    roundedMaxValue = ceil(maxValue / 100) * 100;
+        m_trainSimulation->simulationDatas.distanceTotal.begin(),
+        m_trainSimulation->simulationDatas.distanceTotal.end());
+    roundedMaxValue = ceil(maxValue / 1000) * 1000;
     axisY->setRange(0, roundedMaxValue);
     axisY->setTickCount(ceil(roundedMaxValue / 1000) + 1);
     axisY->setTitleText("Distance (m)");
