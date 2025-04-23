@@ -83,6 +83,7 @@ void TrackParameterPage::connectInputSignals() {
 
 void TrackParameterPage::setSlopeValue() {
   QString paramName = "Slope per Section";
+  stationData->stat_slope = getParameterValue(paramName);
   QList<double> slopes = getCsvParamValue(paramName, 2);
   stationData->slope = std::vector<double>(slopes.begin(), slopes.end());
   QList<double> slopeStartDistances = getCsvParamValue(paramName, 0);
@@ -95,6 +96,7 @@ void TrackParameterPage::setSlopeValue() {
 
 void TrackParameterPage::setRadiusValue() {
   QString paramName = "Radius per Section";
+  stationData->stat_radius = getParameterValue(paramName);
   QList<double> radiuses = getCsvParamValue(paramName, 2);
   stationData->radius = std::vector<double>(radiuses.begin(), radiuses.end());
   QList<double> radiusStartDistances = getCsvParamValue(paramName, 0);
@@ -107,6 +109,7 @@ void TrackParameterPage::setRadiusValue() {
 
 void TrackParameterPage::setMaxSpeedValue() {
   QString paramName = "Speed Limit";
+  stationData->stat_v_limit = getParameterValue(paramName);
   QList<double> maxSpeeds = getCsvParamValue(paramName, 2);
   stationData->v_limit =
       std::vector<double>(maxSpeeds.begin(), maxSpeeds.end());

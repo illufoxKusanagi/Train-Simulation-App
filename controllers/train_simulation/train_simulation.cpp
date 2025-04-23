@@ -245,26 +245,21 @@ void TrainSimulation::simulateStaticTrainMovement() {
   int radiusIndex = 0;
   double maxSpeed = 0.0;
   int maxSpeedIndex = 0;
-  while (movingData->v <= v_limit) {
-    slope = setSlopeData(slopeIndex, movingData->x_total);
-    radius = setRadiusData(radiusIndex, movingData->x_total);
-    maxSpeed = setMaxSpeedData(maxSpeedIndex, movingData->x_total);
-    slopeIndex = setSlopeIndex(slopeIndex, movingData->x_total);
-    radiusIndex = setRadiusIndex(radiusIndex, movingData->x_total);
-    maxSpeedIndex = setMaxSpeedIndex(maxSpeedIndex, movingData->x_total);
-    resistanceData->f_resStart =
-        m_resistanceHandler->calculateStartRes(slope, radius);
+  while (movingData->v <= stationData->stat_v_limit) {
+    resistanceData->f_resStart = m_resistanceHandler->calculateStartRes(
+        stationData->stat_slope, stationData->stat_radius);
     phase = "Accelerating";
-    resistanceData->f_resRunning =
-        m_resistanceHandler->calculateRunningRes(movingData->v, slope, radius);
-    resistanceData->f_resRunningZero =
-        m_resistanceHandler->calculateRunningRes(movingData->v, 0.0, radius);
-    resistanceData->f_resRunningFive =
-        m_resistanceHandler->calculateRunningRes(movingData->v, 5.0, radius);
-    resistanceData->f_resRunningTen =
-        m_resistanceHandler->calculateRunningRes(movingData->v, 10.0, radius);
+    resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
+        movingData->v, stationData->stat_slope, stationData->stat_radius);
+    resistanceData->f_resRunningZero = m_resistanceHandler->calculateRunningRes(
+        movingData->v, 0.0, stationData->stat_radius);
+    resistanceData->f_resRunningFive = m_resistanceHandler->calculateRunningRes(
+        movingData->v, 5.0, stationData->stat_radius);
+    resistanceData->f_resRunningTen = m_resistanceHandler->calculateRunningRes(
+        movingData->v, 10.0, stationData->stat_radius);
     resistanceData->f_resRunningTwentyFive =
-        m_resistanceHandler->calculateRunningRes(movingData->v, 25.0, radius);
+        m_resistanceHandler->calculateRunningRes(movingData->v, 25.0,
+                                                 stationData->stat_radius);
     m_tractiveEffortHandler->calculatePoweringForce(movingData->acc,
                                                     movingData->v);
     resistanceData->f_total =
