@@ -97,5 +97,6 @@ private:
   double setSlopeData(int slopeIndex, double distanceTravelled);
   double setRadiusData(int radiusIndex, double distanceTravelled);
   double setMaxSpeedData(int maxSpeedIndex, double distanceTravelled);
+  void calculateRunningResEachSlope();
 };
 #endif // TRAIN_SIMULATION_H
