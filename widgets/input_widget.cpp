@@ -127,6 +127,11 @@ void InputWidget::buildInputFieldUpload(InputType inputType) {
 
   InputUpload *inputUpload = new InputUpload(m_inputFieldUpload);
   inputUpload->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  connect(inputField->findChild<QLineEdit *>(), &QLineEdit::textChanged, this,
+          [this, inputField]() {
+            m_inputValue = inputField->getValue();
+            emit valueChanged();
+          });
   connect(inputUpload, &InputUpload::fileLoaded, this,
           [this]() { emit valueChanged(); });
   connect(inputUpload, &InputUpload::fileLoadError, this,
