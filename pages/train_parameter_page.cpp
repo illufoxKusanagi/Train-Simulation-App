@@ -278,8 +278,8 @@ void TrainParameterPage::setTypeValue() {
   trainData->n_T1 = getTypeParameterValue("T1");
   trainData->n_T2 = getTypeParameterValue("T2");
   trainData->n_T3 = getTypeParameterValue("T3");
-  trainData->n_M1_Disabled = getTypeParameterValue("M1-Deg");
-  trainData->n_M2_Disabled = getTypeParameterValue("M2-Deg");
+  trainData->n_M1_disabled = getTypeParameterValue("M1-Deg");
+  trainData->n_M2_disabled = getTypeParameterValue("M2-Deg");
 }
 
 void TrainParameterPage::setMassValue() {
@@ -417,25 +417,25 @@ void TrainParameterPage::setupTrainsetSection(
     trainData->n_car = index;
     if (value == 0) {
       index = 12;
-      trainData->n_M1_Disabled = 0;
-      trainData->n_M2_Disabled = 0;
+      trainData->n_M1_disabled = 0;
+      trainData->n_M2_disabled = 0;
     } else if (value == 1) {
       index = 10;
-      trainData->n_M1_Disabled = 0;
-      trainData->n_M2_Disabled = 0;
+      trainData->n_M1_disabled = 0;
+      trainData->n_M2_disabled = 0;
     } else if (value == 2) {
       index = 8;
-      trainData->n_M1_Disabled = 0;
-      trainData->n_M2_Disabled = 0;
+      trainData->n_M1_disabled = 0;
+      trainData->n_M2_disabled = 0;
     } else if (value == 3) {
       index = 6;
-      trainData->n_M1_Disabled = 0;
-      trainData->n_M2_Disabled = 0;
+      trainData->n_M1_disabled = 0;
+      trainData->n_M2_disabled = 0;
     } else if (value == 4) {
       index = 14;
       trainData->n_car = 12;
-      trainData->n_M1_Disabled = 1;
-      trainData->n_M2_Disabled = 1;
+      trainData->n_M1_disabled = 1;
+      trainData->n_M2_disabled = 1;
     }
     updateTrainImage(m_trainLabelImage, index);
     if (value >= 0 && value < carData[0].size()) {

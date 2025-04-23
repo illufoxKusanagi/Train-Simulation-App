@@ -14,8 +14,8 @@ struct TrainData {
   double n_T1;
   double n_T2;
   double n_T3;
-  double n_M1_Disabled;
-  double n_M2_Disabled;
+  double n_M1_disabled;
+  double n_M2_disabled;
 };
 
 #endif // TRAIN_DATA_H
