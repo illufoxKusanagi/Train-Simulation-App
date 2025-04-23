@@ -43,6 +43,9 @@ void MainWindow::setupPages() {
       new ElectricalParameterPage(context, this);
   setupFixedSizePage(electricalParameterPage);
 
+  // TestPage *testPage = new TestPage(this);
+  // setupFixedSizePage(testPage);
+
   TrainSpeedPage *trainSpeedPage = new TrainSpeedPage(this, m_trainSimulation);
   setupFixedSizePage(trainSpeedPage);
 

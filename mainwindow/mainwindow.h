@@ -7,6 +7,7 @@
 #include "pages/constant_values_page.h"
 #include "pages/electrical_parameter_page.h"
 #include "pages/running_parameter_page.h"
+#include "pages/testpage.h"
 #include "pages/track_parameter_page.h"
 #include "pages/traction_effort_page.h"
 #include "pages/train_consumption_page.h"

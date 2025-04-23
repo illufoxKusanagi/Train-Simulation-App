@@ -3,7 +3,8 @@
 InputWidget::InputWidget(QWidget *parent, const InputType &inputType,
                          QStringList options)
     : QWidget(parent), m_inputField(nullptr), m_inputUpload(nullptr),
-      m_inputDropdown(nullptr), m_inputInvalid(nullptr) {
+      m_inputDropdown(nullptr), m_inputInvalid(nullptr),
+      m_inputFieldUpload(nullptr) {
   layout = new QVBoxLayout(this);
 
   m_label = new QLabel(inputType.label, this);
@@ -28,7 +29,15 @@ InputWidget::InputWidget(QWidget *parent, const InputType &inputType,
     layout->setAlignment(m_inputDropdown, Qt::AlignLeft);
   } else if (inputType.type == "upload") {
     buildInputUpload(inputType);
-  } else {
+  } else if (inputType.type == "field upload") {
+    buildInputFieldUpload(inputType);
+  } else if (inputType.type == "invalid") {
+    m_inputInvalid = new InputInvalid(inputType.type, this);
+    layout->addWidget(m_inputInvalid);
+    layout->setAlignment(m_inputInvalid, Qt::AlignLeft);
+  }
+
+  else {
     m_inputInvalid = new InputInvalid(inputType.type, this);
     layout->addWidget(m_inputInvalid);
     layout->setAlignment(m_inputInvalid, Qt::AlignLeft);
@@ -57,6 +66,12 @@ QList<double> InputWidget::getCsvValue(const int requiredColumn) {
   if (m_inputUpload) {
     return m_inputUpload->getColumnData(requiredColumn);
   }
+  if (m_inputFieldUpload) {
+    InputUpload *inputUpload = m_inputFieldUpload->findChild<InputUpload *>();
+    if (inputUpload) {
+      return inputUpload->getColumnData(requiredColumn);
+    }
+  }
   return QList<double>();
 }
 
@@ -66,6 +81,10 @@ void InputWidget::setValue(double value) {
     m_inputField->setValue(value);
   } else if (m_inputDropdown) {
     m_inputValue = m_inputDropdown->getValue();
+  } else if (m_inputFieldUpload) {
+    InputField *inputField = m_inputFieldUpload->findChild<InputField *>();
+    m_inputValue = value;
+    inputField->setValue(value);
   }
 }
 
@@ -84,15 +103,8 @@ void InputWidget::setModified(bool modified) {
 void InputWidget::buildInputUpload(InputType inputType) {
   m_inputUpload = new InputUpload(this);
   m_inputUpload->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-  m_inputUpload->setRequiredColumnCount(3);
-  m_inputUpload->setTargetColumns({0, 1, 2});
   connect(m_inputUpload, &InputUpload::fileLoaded, this,
           [this]() { emit valueChanged(); });
-  connect(m_inputUpload, &InputUpload::fileLoaded, this, [this]() {
-    if (m_inputUpload->hasRequiredColumns()) {
-      QList<double> speedData = m_inputUpload->getColumnData(0);
-    }
-  });
   connect(m_inputUpload, &InputUpload::fileLoadError, this,
           [this](const QString &errorMessage) {
             MessageBoxWidget messageBox("CSV Load Error", errorMessage,
@@ -100,4 +112,25 @@ void InputWidget::buildInputUpload(InputType inputType) {
           });
   layout->addWidget(m_inputUpload);
   layout->setAlignment(m_inputUpload, Qt::AlignLeft);
+}
+
+void InputWidget::buildInputFieldUpload(InputType inputType) {
+  m_inputFieldUpload = new QWidget(this);
+  QVBoxLayout *fieldLayout = new QVBoxLayout(m_inputFieldUpload);
+  fieldLayout->setContentsMargins(0, 0, 0, 0);
+  fieldLayout->setSpacing(4);
+
+  InputField *inputField = new InputField(inputType.unit, this);
+  inputField->setPlaceholder();
+  inputField->setReadOnly(inputType.isReadOnly);
+  inputField->setValue(inputType.value);
+
+  InputUpload *inputUpload = new InputUpload(this);
+  inputUpload->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  connect(inputUpload, &InputUpload::fileLoaded, this,
+          [this]() { emit valueChanged(); });
+  fieldLayout->addWidget(inputUpload);
+  fieldLayout->addWidget(inputField);
+  layout->addWidget(m_inputFieldUpload);
+  layout->setAlignment(m_inputFieldUpload, Qt::AlignLeft);
 }
