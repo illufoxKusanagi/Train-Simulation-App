@@ -246,15 +246,7 @@ void TrainSimulation::simulateStaticTrainMovement() {
     phase = "Accelerating";
     resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
         movingData->v, stationData->stat_slope, stationData->stat_radius);
-    resistanceData->f_resRunningZero = m_resistanceHandler->calculateRunningRes(
-        movingData->v, 0.0, stationData->stat_radius);
-    resistanceData->f_resRunningFive = m_resistanceHandler->calculateRunningRes(
-        movingData->v, 5.0, stationData->stat_radius);
-    resistanceData->f_resRunningTen = m_resistanceHandler->calculateRunningRes(
-        movingData->v, 10.0, stationData->stat_radius);
-    resistanceData->f_resRunningTwentyFive =
-        m_resistanceHandler->calculateRunningRes(movingData->v, 25.0,
-                                                 stationData->stat_radius);
+    calculateRunningResEachSlope();
     m_tractiveEffortHandler->calculatePoweringForce(movingData->acc,
                                                     movingData->v);
     resistanceData->f_total =
@@ -508,4 +500,29 @@ double TrainSimulation::setMaxSpeedData(int maxSpeedIndex,
   // MessageBoxWidget messageBox("Warning!", "Max speed data is out of range.",
   //                             MessageBoxWidget::Warning);
   return stationData->stat_v_limit;
+}
+
+void TrainSimulation::calculateRunningResEachSlope() {
+  resistanceData->f_resRunningZero =
+      movingData->v == 0
+          ? m_resistanceHandler->calculateStartRes(0, stationData->stat_radius)
+          : m_resistanceHandler->calculateRunningRes(movingData->v, 0.0,
+                                                     stationData->stat_radius);
+  resistanceData->f_resRunningFive =
+      movingData->v == 0
+          ? m_resistanceHandler->calculateStartRes(5, stationData->stat_radius)
+          : m_resistanceHandler->calculateRunningRes(movingData->v, 5.0,
+                                                     stationData->stat_radius);
+  resistanceData->f_resRunningTen =
+      movingData->v == 0
+          ? m_resistanceHandler->calculateStartRes(10.0,
+                                                   stationData->stat_radius)
+          : m_resistanceHandler->calculateRunningRes(movingData->v, 10.0,
+                                                     stationData->stat_radius);
+  resistanceData->f_resRunningTwentyFive =
+      movingData->v == 0
+          ? m_resistanceHandler->calculateStartRes(25.0,
+                                                   stationData->stat_radius)
+          : m_resistanceHandler->calculateRunningRes(movingData->v, 25.0,
+                                                     stationData->stat_radius);
 }
