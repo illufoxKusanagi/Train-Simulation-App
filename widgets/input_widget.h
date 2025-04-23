@@ -37,11 +37,13 @@ private:
   InputDropdown *m_inputDropdown;
   InputUpload *m_inputUpload;
   InputInvalid *m_inputInvalid;
+  QWidget *m_inputFieldUpload;
   QVBoxLayout *layout;
   double m_inputValue;
   void setPlaceholder(const QString &placeholder);
   void buildInputField(InputType inputType);
   void buildInputUpload(InputType inputType);
+  void buildInputFieldUpload(InputType inputType);
 };
 
 #endif // INPUTWIDGET_H
