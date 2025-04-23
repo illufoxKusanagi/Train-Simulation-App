@@ -120,15 +120,20 @@ void InputWidget::buildInputFieldUpload(InputType inputType) {
   fieldLayout->setContentsMargins(0, 0, 0, 0);
   fieldLayout->setSpacing(4);
 
-  InputField *inputField = new InputField(inputType.unit, this);
+  InputField *inputField = new InputField(inputType.unit, m_inputFieldUpload);
   inputField->setPlaceholder();
   inputField->setReadOnly(inputType.isReadOnly);
   inputField->setValue(inputType.value);
 
-  InputUpload *inputUpload = new InputUpload(this);
+  InputUpload *inputUpload = new InputUpload(m_inputFieldUpload);
   inputUpload->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   connect(inputUpload, &InputUpload::fileLoaded, this,
           [this]() { emit valueChanged(); });
+  connect(inputUpload, &InputUpload::fileLoadError, this,
+          [this](const QString &errorMessage) {
+            MessageBoxWidget messageBox("CSV Load Error", errorMessage,
+                                        MessageBoxWidget::Warning);
+          });
   fieldLayout->addWidget(inputUpload);
   fieldLayout->addWidget(inputField);
   layout->addWidget(m_inputFieldUpload);

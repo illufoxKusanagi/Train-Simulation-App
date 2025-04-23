@@ -2,7 +2,8 @@
 
 InputUpload::InputUpload(QWidget *parent)
     : QWidget(parent), m_uploadButton(new QPushButton("Choose csv File", this)),
-      m_uploadLabel(new QLabel("No file selected", this)) {
+      m_uploadLabel(new QLabel("No file selected", this)),
+      m_requiredColumnCount(0) {
   QHBoxLayout *layout = new QHBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
   // layout->setContentsMargins(4, 12, 4, 12);
