@@ -11,8 +11,8 @@ double MassHandler::countMassEmptyCar() {
                       (trainData->n_T1 * massData->mass_T1) +
                       (trainData->n_T2 * massData->mass_T2) +
                       (trainData->n_T3 * massData->mass_T3) +
-                      (trainData->n_M1_Disabled * massData->mass_M1) +
-                      (trainData->n_M2_Disabled * massData->mass_M2);
+                      (trainData->n_M1_disabled * massData->mass_M1) +
+                      (trainData->n_M2_disabled * massData->mass_M2);
   return massData->mass_Me + massData->mass_Te;
 }
 
@@ -22,8 +22,8 @@ double MassHandler::countMassWithLoad() {
       massData->mass_Me +
       trainData->n_M1 * (loadData->mass_P_final * loadData->n_PM1) +
       trainData->n_M2 * (loadData->mass_P_final * loadData->n_PM2) +
-      trainData->n_M1_Disabled * (loadData->mass_P_final * loadData->n_PM1) +
-      trainData->n_M2_Disabled * (loadData->mass_P_final * loadData->n_PM2);
+      trainData->n_M1_disabled * (loadData->mass_P_final * loadData->n_PM1) +
+      trainData->n_M2_disabled * (loadData->mass_P_final * loadData->n_PM2);
   massData->mass_T =
       massData->mass_Te +
       trainData->n_Tc * (loadData->mass_P_final * loadData->n_PTc) +
@@ -50,8 +50,8 @@ double MassHandler::countInertialMass() {
        trainData->n_T1 * (loadData->mass_P_final * loadData->n_PT1) +
        trainData->n_T2 * (loadData->mass_P_final * loadData->n_PT2) +
        trainData->n_T3 * (loadData->mass_P_final * loadData->n_PT3) +
-       trainData->n_M1_Disabled * (loadData->mass_P_final * loadData->n_PM1) +
-       trainData->n_M2_Disabled * (loadData->mass_P_final * loadData->n_PM2));
+       trainData->n_M1_disabled * (loadData->mass_P_final * loadData->n_PM1) +
+       trainData->n_M2_disabled * (loadData->mass_P_final * loadData->n_PM2));
   return massData->mass_Mi + massData->mass_Ti;
 }
 
