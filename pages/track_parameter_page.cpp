@@ -22,7 +22,7 @@ void TrackParameterPage::createInputs() {
   QStringList units = {"m/s2", "m", "m", "‰", "km/h"};
   QStringList types = {"field", "field upload", "field upload", "field upload",
                        "field upload"};
-  QList<double> values = {0.0, 2000, 400, 0.0, 70};
+  QList<double> values = {0.0, 2000, 2000, 0.0, 70};
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
         new InputWidget(this, InputType(types[i], labels[i], units[i]));
@@ -55,10 +55,8 @@ void TrackParameterPage::setParameterValue() {
   movingData->v_limit = getParameterValue("Speed Limit");
   resistanceData->radius = getParameterValue("Radius per Section");
   resistanceData->slope = getParameterValue("Slope per Section");
-  movingData->x_station = getParameterValue("Station Distance");
-  QList<double> stationDistances = getCsvParamValue("Station Distance", 1);
-  stationData->x_station =
-      std::vector<double>(stationDistances.begin(), stationDistances.end());
+  stationData->n_station = getParameterValue("Number of Station");
+  setStationDistanceValue();
   setSlopeValue();
   setRadiusValue();
   setMaxSpeedValue();
@@ -79,6 +77,13 @@ void TrackParameterPage::connectInputSignals() {
         double value = getParameterValue(paramName);
     });
   }
+}
+
+void TrackParameterPage::setStationDistanceValue() {
+  stationData->stat_x_station = getParameterValue("Station Distance");
+  QList<double> stationDistances = getCsvParamValue("Station Distance", 1);
+  stationData->x_station =
+      std::vector<double>(stationDistances.begin(), stationDistances.end());
 }
 
 void TrackParameterPage::setSlopeValue() {

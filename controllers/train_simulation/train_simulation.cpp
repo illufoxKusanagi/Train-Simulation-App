@@ -68,7 +68,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   m_utilityHandler->clearSimulationDatas();
   initData();
   int i = 0;
-  int j = 0;
+  int stationIndex = 0;
   bool isAccelerating = true;
   bool isCoasting = false;
   bool isAtStation = false;
@@ -81,14 +81,14 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   double stationDistance = 0;
   double trainStopTime = 0;
   const double WAIT_TIME = 10.0;
-  movingData->x_station = 2000;
-  double slope = 0.0;
   int slopeIndex = 0;
-  double radius = 0.0;
   int radiusIndex = 0;
-  double maxSpeed = 0.0;
   int maxSpeedIndex = 0;
-  while (movingData->v >= 0 || j < stationData->x_station.size()) {
+  double slope = 0.0;
+  double radius = 0.0;
+  double maxSpeed = 0.0;
+  while (movingData->v >= 0 || (stationIndex < stationData->n_station &&
+                                stationIndex < stationData->x_station.size())) {
     slope = setSlopeData(slopeIndex, movingData->x_total);
     radius = setRadiusData(radiusIndex, movingData->x_total);
     maxSpeed = setMaxSpeedData(maxSpeedIndex, movingData->x_total);
@@ -114,7 +114,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       if (trainStopTime >= WAIT_TIME) {
         isAtStation = false;
         trainStopTime = 0;
-        j++;
+        stationIndex++;
         isAccelerating = true;
         isCoasting = false;
       }
@@ -122,7 +122,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       simulationDatas.accelerationsSi.append(movingData->acc_si);
       simulationDatas.trainSpeeds.append(movingData->v);
       simulationDatas.trainSpeedsSi.append(movingData->v_si);
-    } else if (mileage < stationData->x_station[j]) {
+    } else if (mileage < stationData->x_station[stationIndex]) {
       if (isAccelerating) {
         if (movingData->v >= maxSpeed && resistanceData->f_total > 0) {
           isAccelerating = false;
@@ -239,13 +239,8 @@ void TrainSimulation::simulateStaticTrainMovement() {
   QString phase = "Starting";
   int CoastingCount = 0;
   float time = 0.0;
-  double slope = 0.0;
-  int slopeIndex = 0;
-  double radius = 0.0;
-  int radiusIndex = 0;
-  double maxSpeed = 0.0;
-  int maxSpeedIndex = 0;
-  while (movingData->v <= stationData->stat_v_limit) {
+  while (movingData->v <= stationData->stat_v_limit &&
+         movingData->x_total <= stationData->stat_x_station) {
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes(
         stationData->stat_slope, stationData->stat_radius);
     phase = "Accelerating";
