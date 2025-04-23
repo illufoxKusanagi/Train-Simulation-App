@@ -30,6 +30,8 @@ private:
   double getParameterValue(const QString &paramName) const;
   void setParameterValue();
   void connectInputSignals();
+  QList<double> getCsvParamValue(const QString &paramName,
+                                 const int requiredColumn) const;
 };
 
 #endif // ELECTRICAL_PARAMETER_PAGE_H

@@ -15,17 +15,17 @@ double PowerHandler::calculatePowerWheel() {
 }
 
 double PowerHandler::calculateOutputTractionMotor() {
-  powerData->p_motorOut = powerData->p_wheel / efficiencyData->eff_gear;
+  powerData->p_motorOut = powerData->p_wheel / efficiencyData->stat_eff_gear;
   return powerData->p_motorOut;
 }
 
 double PowerHandler::calculateInputTractionMotor() {
-  powerData->p_motorIn = powerData->p_motorOut / efficiencyData->eff_motor;
+  powerData->p_motorIn = powerData->p_motorOut / efficiencyData->stat_eff_motor;
   return powerData->p_motorIn;
 }
 
 double PowerHandler::calculatePowerInputOfVvvf() {
-  powerData->p_vvvfIn = powerData->p_motorIn / efficiencyData->eff_vvvf;
+  powerData->p_vvvfIn = powerData->p_motorIn / efficiencyData->stat_eff_vvvf;
   return powerData->p_vvvfIn;
 }
 
