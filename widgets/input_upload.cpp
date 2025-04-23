@@ -6,7 +6,6 @@ InputUpload::InputUpload(QWidget *parent)
       m_requiredColumnCount(0) {
   QHBoxLayout *layout = new QHBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
-  // layout->setContentsMargins(4, 12, 4, 12);
   m_uploadButton->setIcon(QIcon(":/icons/icons/upload.svg"));
   m_uploadButton->setIconSize(QSize(16, 16));
 
@@ -63,7 +62,7 @@ void InputUpload::onUploadButtonClicked() {
   if (filePath.isEmpty()) {
     MessageBoxWidget messageBox("Error", "No file selected",
                                 MessageBoxWidget::Warning);
-    return; // User canceled
+    return;
   }
 
   if (readCsvFile(filePath)) {
@@ -85,24 +84,16 @@ bool InputUpload::readCsvFile(const QString &filePath) {
     emit fileLoadError("Could not open file for reading");
     return false;
   }
-
-  // Clear previous data
   m_data.clear();
-
   QTextStream in(&file);
   int lineNumber = 0;
-
-  // Read all lines in the file
   while (!in.atEnd()) {
     lineNumber++;
     QString line = in.readLine();
     if (line.trimmed().isEmpty()) {
-      continue; // Skip empty lines
+      continue;
     }
-
     QStringList values = line.split(",", Qt::KeepEmptyParts);
-
-    // Validate column count
     if (!validateColumnCount(values)) {
       file.close();
       m_uploadLabel->setText(
@@ -113,27 +104,18 @@ bool InputUpload::readCsvFile(const QString &filePath) {
           QString("Line %1 doesn't have enough columns").arg(lineNumber));
       return false;
     }
-
-    // Parse data values
     QList<double> rowData;
     for (const QString &value : values) {
-      bool ok;
-      double numValue = value.trimmed().toDouble(&ok);
-
-      if (!ok) {
-        // Handle non-numeric values - here we use 0 as default
+      bool isNonNumeric;
+      double numValue = value.trimmed().toDouble(&isNonNumeric);
+      if (!isNonNumeric) {
         numValue = 0.0;
       }
-
       rowData.append(numValue);
     }
-
-    // Add row data to the collection
     m_data.append(rowData);
   }
-
   file.close();
-
   if (m_data.isEmpty()) {
     m_uploadLabel->setText("No valid data in file");
     m_uploadLabel->setStyleSheet(TextStyle::SubttileSmallRegular() +
@@ -141,22 +123,18 @@ bool InputUpload::readCsvFile(const QString &filePath) {
     emit fileLoadError("File contains no valid data");
     return false;
   }
-
   return true;
 }
 
 QList<double> InputUpload::getColumnData(int columnIndex) const {
   QList<double> columnData;
-
   for (const QList<double> &row : m_data) {
     if (columnIndex < row.size()) {
       columnData.append(row[columnIndex]);
     } else {
-      // If this row doesn't have this column, use default value
       columnData.append(0.0);
     }
   }
-
   return columnData;
 }
 
