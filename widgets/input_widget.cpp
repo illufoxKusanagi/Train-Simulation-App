@@ -117,6 +117,7 @@ void InputWidget::buildInputUpload(InputType inputType) {
 void InputWidget::buildInputFieldUpload(InputType inputType) {
   m_inputFieldUpload = new QWidget(this);
   QVBoxLayout *fieldLayout = new QVBoxLayout(m_inputFieldUpload);
+  m_inputFieldUpload->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   fieldLayout->setContentsMargins(0, 0, 0, 0);
   fieldLayout->setSpacing(4);
 

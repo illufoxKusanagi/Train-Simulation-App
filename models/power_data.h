@@ -7,7 +7,8 @@ struct PowerData {
   double p_motorIn = 0;
   double p_vvvfIn = 0;
   double p_catenary = 0;
-  double p_aps;
+  double p_aps = 0;
+  double stat_p_aps = 0;
 };
 
 #endif // POWER_DATA_H

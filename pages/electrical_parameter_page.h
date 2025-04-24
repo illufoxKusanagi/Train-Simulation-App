@@ -30,6 +30,14 @@ private:
   double getParameterValue(const QString &paramName) const;
   void setParameterValue();
   void connectInputSignals();
+  QList<double> getCsvParamValue(const QString &paramName,
+                                 const int requiredColumn) const;
+  void setGearboxEfficiencyValue();
+  void setVvvfEfficiencyValue();
+  void setTractionMotorValue();
+  void setLineVoltageValue();
+  void setMotorVoltageValue();
+  void setPowerFactorValue();
 };
 
 #endif // ELECTRICAL_PARAMETER_PAGE_H

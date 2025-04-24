@@ -69,12 +69,7 @@ void TrackParameterPage::connectInputSignals() {
     InputWidget *widget = it.value();
     connect(it.value(), &InputWidget::valueChanged, this, [this, paramName]() {
       setParameterValue();
-      if (paramName == "Station Distance") {
-        QList<double> csvValues = m_inputWidgets[paramName]->getCsvValue(1);
-        if (!csvValues.isEmpty()) {
-        }
-      } else
-        double value = getParameterValue(paramName);
+      double value = getParameterValue(paramName);
     });
   }
 }
