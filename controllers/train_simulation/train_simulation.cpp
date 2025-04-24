@@ -65,8 +65,10 @@ double TrainSimulation::calculateTotalDistance(int i) {
 }
 
 void TrainSimulation::simulateDynamicTrainMovement() {
+  clearWarnings();
   m_utilityHandler->clearSimulationDatas();
   initData();
+  QString phase = "Starting";
   int i = 0;
   int stationIndex = 0;
   bool isAccelerating = true;
@@ -74,7 +76,6 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   bool isAtStation = false;
   bool isBraking = false;
   float time = 0;
-  QString phase = "Starting";
   int coastingCount = 0;
   double previousSpeed;
   double mileage = 0;
@@ -97,6 +98,10 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   double efficiencyVvvf = efficiencyData->stat_eff_vvvf;
   double efficiencyGear = efficiencyData->stat_eff_gear;
   double efficiencyMotor = efficiencyData->stat_eff_motor;
+  if (stationData->n_station > stationData->x_station.size()) {
+    m_simulationWarnings.insert(
+        "Number of stations exceeds the number of station data.");
+  }
   while (movingData->v >= 0 || (stationIndex < stationData->n_station &&
                                 stationIndex < stationData->x_station.size())) {
     slope = setSlopeData(slopeIndex, movingData->x_total);
@@ -552,6 +557,10 @@ double TrainSimulation::setSlopeData(int slopeIndex, double distanceTravelled) {
     } else {
       return stationData->slope[slopeIndex];
     }
+  } else if (stationData->slope.empty()) {
+    m_simulationWarnings.insert("Slope csv data is empty.");
+  } else {
+    m_simulationWarnings.insert("Attempted to access slope data beyond range.");
   }
   return stationData->stat_slope;
 }
@@ -565,6 +574,11 @@ double TrainSimulation::setRadiusData(int radiusIndex,
     } else {
       return stationData->radius[radiusIndex];
     }
+  } else if (stationData->radius.empty()) {
+    m_simulationWarnings.insert("Radius csv data is empty.");
+  } else {
+    m_simulationWarnings.insert(
+        "Attempted to access radius data beyond range.");
   }
   return stationData->stat_radius;
 }
@@ -578,6 +592,11 @@ double TrainSimulation::setMaxSpeedData(int maxSpeedIndex,
     } else {
       return stationData->v_limit[maxSpeedIndex];
     }
+  } else if (stationData->v_limit.empty()) {
+    m_simulationWarnings.insert("Speed limit csv data is empty.");
+  } else {
+    m_simulationWarnings.insert(
+        "Attempted to access max speed data beyond range.");
   }
   return stationData->stat_v_limit;
 }
@@ -593,6 +612,11 @@ double TrainSimulation::setEffVvvfData(int effVvvfIndex, double speed) {
     } else {
       return efficiencyData->eff_vvvf[effVvvfIndex];
     }
+  } else if (efficiencyData->eff_vvvf.empty()) {
+    m_simulationWarnings.insert("VVVF efficiency csv data is empty.");
+  } else {
+    m_simulationWarnings.insert(
+        "Attempted to access VVVF efficiency data beyond range.");
   }
   return efficiencyData->stat_eff_vvvf;
 }
@@ -608,6 +632,11 @@ double TrainSimulation::setEffGearData(int effGearIndex, double speed) {
     } else {
       return efficiencyData->eff_gear[effGearIndex];
     }
+  } else if (efficiencyData->eff_gear.empty()) {
+    m_simulationWarnings.insert("Gear efficiency csv data is empty.");
+  } else {
+    m_simulationWarnings.insert(
+        "Attempted to access gear efficiency data beyond range.");
   }
   return efficiencyData->stat_eff_gear;
 }
@@ -623,6 +652,11 @@ double TrainSimulation::setEffMotorData(int effMotorIndex, double speed) {
     } else {
       return efficiencyData->eff_motor[effMotorIndex];
     }
+  } else if (efficiencyData->eff_motor.empty()) {
+    m_simulationWarnings.insert("Motor efficiency csv data is empty.");
+  } else {
+    m_simulationWarnings.insert(
+        "Attempted to access motor efficiency data beyond range.");
   }
   return efficiencyData->stat_eff_motor;
 }
@@ -638,6 +672,11 @@ double TrainSimulation::setLineVoltageData(int lineVoltageIndex, double speed) {
     } else {
       return energyData->vol_line[lineVoltageIndex];
     }
+  } else if (energyData->vol_line.empty()) {
+    m_simulationWarnings.insert("Line voltage csv data is empty.");
+  } else {
+    m_simulationWarnings.insert(
+        "Attempted to access line voltage data beyond range.");
   }
   return energyData->stat_vol_line;
 }
@@ -654,6 +693,11 @@ double TrainSimulation::setMotorVoltageData(int motorVoltageIndex,
     } else {
       return energyData->vol_motor[motorVoltageIndex];
     }
+  } else if (energyData->vol_motor.empty()) {
+    m_simulationWarnings.insert("Motor voltage csv data is empty.");
+  } else {
+    m_simulationWarnings.insert(
+        "Attempted to access motor voltage data beyond range.");
   }
   return energyData->stat_vol_motor;
 }

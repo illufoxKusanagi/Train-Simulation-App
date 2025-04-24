@@ -10,6 +10,7 @@
 #include <QFutureWatcher>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QSet>
 #include <QStackedLayout>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -45,7 +46,7 @@ private:
   void setupOutputPageButtons();
   void updateButtonState(QFuture<void> future, ButtonAction *runButton,
                          ButtonAction *staticRunButton);
-  void showSimMessageBox();
+  void showSimMessageBox(const QSet<QString> &warnings);
 };
 
 #endif // LEFT_PANEL_H

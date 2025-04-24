@@ -20,6 +20,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QObject>
+#include <QSet>
 #include <QString>
 #include <cmath>
 #include <fstream>
@@ -69,6 +70,8 @@ public:
   double getAdhesion();
 
   bool validateCsvVariables();
+  void clearWarnings() { m_simulationWarnings.clear(); }
+  QSet<QString> getSimulationWarnings() const { return m_simulationWarnings; }
 
 private:
   ConstantData *constantData;
@@ -82,6 +85,7 @@ private:
   PowerData *powerData;
   EnergyData *energyData;
   StationData *stationData;
+  QSet<QString> m_simulationWarnings;
   double m_maxVvvfCurrent = 0;
   double m_maxVvvfPower = 0;
 
