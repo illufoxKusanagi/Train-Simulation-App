@@ -6,8 +6,8 @@
 class CurrentHandler {
 public:
   explicit CurrentHandler(AppContext &context);
-  double calculateVvvfCurrent();
-  double calculateCatenaryCurrent();
+  double calculateVvvfCurrent(double vol_line);
+  double calculateCatenaryCurrent(double vol_line);
 
 private:
   EnergyData *energyData;

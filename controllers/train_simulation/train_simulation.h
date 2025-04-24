@@ -89,14 +89,25 @@ private:
   void initData();
   double calculateTotalTime(int i);
   double calculateTotalDistance(int i);
-  void calculatePowers();
+  void calculatePowers(double efficiencyGear, double efficiencyMotor,
+                       double efficiencyVvvf);
   void calculateEnergies(int i);
   int setSlopeIndex(int slopeIndex, double distanceTravelled);
   int setRadiusIndex(int radiusIndex, double distanceTravelled);
   int setMaxSpeedIndex(int maxSpeedIndex, double distanceTravelled);
+  int setEffGearIndex(int effGearIndex, double speed);
+  int setEffVvvfIndex(int effVvvfIndex, double speed);
+  int setEffMotorIndex(int effMotorIndex, double speed);
+  int setLineVoltageIndex(int lineVoltageIndex, double speed);
+  int setMotorVoltageIndex(int motorVoltageIndex, double speed);
   double setSlopeData(int slopeIndex, double distanceTravelled);
   double setRadiusData(int radiusIndex, double distanceTravelled);
   double setMaxSpeedData(int maxSpeedIndex, double distanceTravelled);
+  double setEffGearData(int effGearIndex, double speed);
+  double setEffVvvfData(int effVvvfIndex, double speed);
+  double setEffMotorData(int effMotorIndex, double speed);
+  double setLineVoltageData(int lineVoltageIndex, double speed);
+  double setMotorVoltageData(int motorVoltageIndex, double speed);
   void calculateRunningResEachSlope();
 };
 #endif // TRAIN_SIMULATION_H
