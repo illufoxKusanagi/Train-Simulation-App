@@ -3,7 +3,7 @@
 SaveButtonHandler::SaveButtonHandler(TrainSimulation *trainSimulation,
                                      QString &chartTitle, SimulationType *type)
     : m_trainSimulation(trainSimulation), m_chartTitle(chartTitle),
-      m_simulationType(*type) {}
+      m_simulationType(type) {}
 
 void SaveButtonHandler::onSaveAllDataClicked() {
   try {
@@ -15,14 +15,14 @@ void SaveButtonHandler::onSaveAllDataClicked() {
       return;
     }
 
-    if (m_chartTitle.contains("Dynamic") && m_simulationType != Dynamic) {
+    if (m_chartTitle.contains("Dynamic") && *m_simulationType != Dynamic) {
       MessageBoxWidget messageBox("Simulation Type Mismatch",
                                   "This chart shows dynamic data but you have "
                                   "static simulation results. "
                                   "Please run a dynamic simulation first.",
                                   MessageBoxWidget::Warning);
       return;
-    } else if (m_chartTitle.contains("Static") && m_simulationType != Static) {
+    } else if (m_chartTitle.contains("Static") && *m_simulationType != Static) {
       MessageBoxWidget messageBox("Simulation Type Mismatch",
                                   "This chart shows static data but you have "
                                   "dynamic simulation results. "
@@ -48,14 +48,14 @@ void SaveButtonHandler::onSaveCurrentDataClicked() {
           MessageBoxWidget::Warning);
       return;
     }
-    if (m_chartTitle.contains("Dynamic") && m_simulationType != Dynamic) {
+    if (m_chartTitle.contains("Dynamic") && *m_simulationType != Dynamic) {
       MessageBoxWidget messageBox("Simulation Type Mismatch",
                                   "This chart shows dynamic data but you have "
                                   "static simulation results. "
                                   "Please run a dynamic simulation first.",
                                   MessageBoxWidget::Warning);
       return;
-    } else if (m_chartTitle.contains("Static") && m_simulationType != Static) {
+    } else if (m_chartTitle.contains("Static") && *m_simulationType != Static) {
       MessageBoxWidget messageBox("Simulation Type Mismatch",
                                   "This chart shows static data but you have "
                                   "dynamic simulation results. "

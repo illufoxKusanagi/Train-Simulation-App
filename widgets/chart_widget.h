@@ -1,7 +1,10 @@
 #ifndef CHART_WIDGET_H
 #define CHART_WIDGET_H
 
+#include "controllers/chart/dynamic_simulation_chart_handler.h"
+#include "controllers/chart/output_table_handler.h"
 #include "controllers/chart/save_button_handler.h"
+#include "controllers/chart/static_simulation_chart_handler.h"
 #include "controllers/train_simulation//tractive_effort_handler.h"
 #include "controllers/train_simulation//train_simulation.h"
 #include "styles/colors.h"
@@ -36,9 +39,6 @@ public:
 private slots:
   void onSimulationCompleted();
   void onStaticSimulationCompleted();
-  void onSaveAllDataClicked();
-  void onSaveCurrentDataClicked();
-  void onSaveButtonClicked(QChartView *chartView);
 
 private:
   QVBoxLayout *mainLayout;
@@ -50,11 +50,12 @@ private:
   QList<QString> m_seriesToDisplay;
   QMap<QString, QColor> m_seriesColors;
   QTableWidget *m_table;
-  // enum SimulationType { None, Dynamic, Static };
   SaveButtonHandler::SimulationType m_simulationType;
-  // SimulationType m_simulationType = None;
   TractiveEffortHandler *m_tractiveEffortHandler;
   SaveButtonHandler *m_saveButtonHandler;
+  StaticSimulationChartHandler *m_staticSimulationChartHandler;
+  DynamicSimulationChartHandler *m_dynamicSimulationChartHandler;
+  OutputTableHandler *m_outputTableHandler;
 
   void buildDummyLine(QString seriesName);
   void setupChart(QLineSeries *series, QString title);

@@ -19,7 +19,7 @@ public:
                              QString &chartTitle, SimulationType *type);
   TrainSimulation *m_trainSimulation;
   QString m_chartTitle;
-  SimulationType m_simulationType = None;
+  SimulationType *m_simulationType;
 };
 
 #endif // SAVE_BUTTON_HANDLER_H
