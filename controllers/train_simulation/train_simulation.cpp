@@ -102,7 +102,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     m_simulationWarnings.insert(
         "Number of stations exceeds the number of station data.");
   }
-  while (movingData->v >= 0 || (stationIndex < stationData->n_station &&
+  while (movingData->v >= 0 || (stationIndex + 2 < stationData->n_station &&
                                 stationIndex < stationData->x_station.size())) {
     slope = setSlopeData(slopeIndex, movingData->x_total);
     radius = setRadiusData(radiusIndex, movingData->x_total);
