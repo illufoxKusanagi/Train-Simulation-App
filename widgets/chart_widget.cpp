@@ -13,15 +13,16 @@ ChartWidget::ChartWidget(QWidget *parent, QString chartTitle,
           &ChartWidget::onSimulationCompleted);
   connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
           &ChartWidget::onStaticSimulationCompleted);
-  chartTitle.contains("Track") ? setupTable() : buildDummyLine(seriesName);
+  m_outputTableHandler =
+      new OutputTableHandler(trainSimulation, mainLayout, chartTitle);
+  chartTitle.contains("Track") ? m_outputTableHandler->setupTable()
+                               : buildDummyLine(seriesName);
   m_saveButtonHandler =
       new SaveButtonHandler(m_trainSimulation, chartTitle, &m_simulationType);
   m_staticSimulationChartHandler = new StaticSimulationChartHandler(
       m_trainSimulation, m_chart, chartTitle, &m_simulationType);
   m_dynamicSimulationChartHandler = new DynamicSimulationChartHandler(
       m_trainSimulation, m_chart, chartTitle, &m_simulationType);
-  m_outputTableHandler =
-      new OutputTableHandler(trainSimulation, mainLayout, chartTitle);
 }
 
 void ChartWidget::addSeries(const QString &name, const QColor &color) {
