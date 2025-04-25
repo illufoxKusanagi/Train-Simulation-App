@@ -16,10 +16,10 @@ public slots:
 public:
   enum SimulationType { None, Dynamic, Static };
   explicit SaveButtonHandler(TrainSimulation *trainSimulation,
-                             QString &chartTitle, QString *type);
+                             QString &chartTitle, SimulationType *type);
   TrainSimulation *m_trainSimulation;
   QString m_chartTitle;
-  QString m_simulationType = "";
+  SimulationType *m_simulationType;
 };
 
 #endif // SAVE_BUTTON_HANDLER_H

@@ -137,6 +137,12 @@ set(CONTROLLER_SOURCES
     controllers/train_simulation/current_handler.cpp
     controllers/chart/save_button_handler.h
     controllers/chart/save_button_handler.cpp
+    controllers/chart/static_simulation_chart_handler.h
+    controllers/chart/static_simulation_chart_handler.cpp
+    controllers/chart/dynamic_simulation_chart_handler.h
+    controllers/chart/dynamic_simulation_chart_handler.cpp
+    controllers/chart/output_table_handler.h
+    controllers/chart/output_table_handler.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
