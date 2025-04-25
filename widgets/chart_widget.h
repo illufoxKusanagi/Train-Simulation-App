@@ -59,27 +59,7 @@ private:
 
   void buildDummyLine(QString seriesName);
   void setupChart(QLineSeries *series, QString title);
-  void setupTable();
-  void updateTable();
   void createChartButtons(QChartView *chartView);
-
-  void setupStaticSpeedChart();
-  void setupStaticTractionChart();
-  void setupStaticTrackChart();
-  void setupStaticPowerChart();
-  void setupStaticCurrentChart();
-  void setupStaticEnergyChart();
-
-  void setupDynamicSpeedChart();
-  void setupDynamicTractionChart();
-  void setupDynamicTrackChart();
-  void setupDynamicPowerChart();
-  void setupDynamicCurrentChart();
-  void setupDynamicEnergyChart();
-  void setupDistanceChart();
-
-  void setupStaticAxis();
-  void setupDynamicAxis();
 };
 
 #endif // CHART_WIDGET_H
