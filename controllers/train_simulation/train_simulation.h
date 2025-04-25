@@ -113,5 +113,7 @@ private:
   double setLineVoltageData(int lineVoltageIndex, double speed);
   double setMotorVoltageData(int motorVoltageIndex, double speed);
   void calculateRunningResEachSlope();
+  void addEnergySimulationDatas();
+  void addStationSimulationDatas();
 };
 #endif // TRAIN_SIMULATION_H

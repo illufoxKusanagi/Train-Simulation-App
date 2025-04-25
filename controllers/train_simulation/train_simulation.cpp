@@ -98,7 +98,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   double efficiencyVvvf = efficiencyData->stat_eff_vvvf;
   double efficiencyGear = efficiencyData->stat_eff_gear;
   double efficiencyMotor = efficiencyData->stat_eff_motor;
-  if (stationData->n_station > stationData->x_station.size()) {
+  if (stationData->n_station > stationData->x_station.size() + 1) {
     m_simulationWarnings.insert(
         "Number of stations exceeds the number of station data.");
   }
@@ -117,6 +117,9 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     maxSpeedIndex = setMaxSpeedIndex(maxSpeedIndex, movingData->x_total);
     effVvvfIndex = setEffVvvfIndex(effVvvfIndex, movingData->v);
     effGearIndex = setEffGearIndex(effGearIndex, movingData->v);
+    simulationDatas.slopes.append(slope);
+    simulationDatas.radiuses.append(radius);
+    simulationDatas.speedLimits.append(maxSpeed);
     resistanceData->f_resStart =
         m_resistanceHandler->calculateStartRes(slope, radius);
     resistanceData->f_resRunning =

@@ -39,6 +39,9 @@ void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
       context->resistanceData->f_resRunningTen);
   simulationDatas->motorResistancesTwentyFive.append(
       context->resistanceData->f_resRunningTwentyFive);
+  // simulationDatas->slopes.append(context->stationData->slope[i]);
+  // simulationDatas->radiuses.append(context->stationData->radius[i]);
+  // simulationDatas->speedLimits.append(context->stationData->v_limit[i]);
 }
 
 void UtilityHandler::resetSimulation() {
@@ -78,6 +81,13 @@ void UtilityHandler::resetSimulation() {
   context->resistanceData->f_resRunningTen = 0;
   context->resistanceData->f_resRunningTwentyFive = 0;
   context->resistanceData->f_res = 0;
+  context->stationData->v_limit.clear();
+  context->stationData->x_v_limitEnd.clear();
+  context->stationData->x_slopeEnd.clear();
+  context->stationData->radius.clear();
+  context->stationData->x_radiusEnd.clear();
+  context->stationData->slope.clear();
+  context->stationData->x_station.clear();
 }
 
 void UtilityHandler::clearSimulationDatas() {
@@ -115,4 +125,7 @@ void UtilityHandler::clearSimulationDatas() {
   simulationDatas->motorResistancesFive.clear();
   simulationDatas->motorResistancesTen.clear();
   simulationDatas->motorResistancesTwentyFive.clear();
+  simulationDatas->slopes.clear();
+  simulationDatas->radiuses.clear();
+  simulationDatas->speedLimits.clear();
 }

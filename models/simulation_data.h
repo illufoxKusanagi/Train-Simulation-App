@@ -6,6 +6,7 @@
 #include <QString>
 
 struct SimulationDatas {
+  QList<QString> phase;
   QList<double> trainSpeeds;
   QList<double> trainSpeedsSi;
   QList<double> accelerations;
@@ -19,7 +20,6 @@ struct SimulationDatas {
   QList<double> timeTotal;
   QList<double> distance;
   QList<double> distanceTotal;
-  QList<QString> phase;
   QList<double> motorForce;
   QList<double> motorResistance;
   QList<double> totalResistance;
@@ -42,6 +42,10 @@ struct SimulationDatas {
   QList<double> maxPowTime;
   QList<double> energyCatenaries;
   QList<double> mileages;
+  QList<double> slopes;
+  QList<double> radiuses;
+  QList<double> speedLimits;
+
   QList<double> motorResistancesZero;
   QList<double> motorResistancesFive;
   QList<double> motorResistancesTen;
