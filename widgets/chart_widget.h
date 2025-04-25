@@ -50,11 +50,11 @@ private:
   QList<QString> m_seriesToDisplay;
   QMap<QString, QColor> m_seriesColors;
   QTableWidget *m_table;
-  enum SimulationType { None, Dynamic, Static };
-  SimulationType m_simulationType = None;
+  // enum SimulationType { None, Dynamic, Static };
+  SaveButtonHandler::SimulationType m_simulationType;
+  // SimulationType m_simulationType = None;
   TractiveEffortHandler *m_tractiveEffortHandler;
   SaveButtonHandler *m_saveButtonHandler;
-  // SaveButtonHandler *m_saveButtonHandler ;
 
   void buildDummyLine(QString seriesName);
   void setupChart(QLineSeries *series, QString title);

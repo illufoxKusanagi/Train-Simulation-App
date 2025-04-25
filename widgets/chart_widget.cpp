@@ -4,10 +4,13 @@ ChartWidget::ChartWidget(QWidget *parent, QString chartTitle,
                          QString seriesName, TrainSimulation *trainSimulation)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_chartLayout(nullptr), m_chartWidget(nullptr),
-      m_trainSimulation(trainSimulation), m_chartTitle(chartTitle) {
+      m_trainSimulation(trainSimulation), m_chartTitle(chartTitle),
+      m_simulationType(SaveButtonHandler::None) {
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(16);
   addSeries(seriesName, QColor(0, 114, 206));
+  m_saveButtonHandler =
+      new SaveButtonHandler(m_trainSimulation, chartTitle, &m_simulationType);
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &ChartWidget::onSimulationCompleted);
   connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
@@ -23,14 +26,14 @@ void ChartWidget::addSeries(const QString &name, const QColor &color) {
 }
 
 void ChartWidget::onSimulationCompleted() {
-  m_simulationType = Dynamic;
+  m_simulationType = SaveButtonHandler::Dynamic;
   if (m_chartTitle.contains("Dynamic") || m_chartTitle.contains("Distance")) {
     updateChart();
   }
 }
 
 void ChartWidget::onStaticSimulationCompleted() {
-  m_simulationType = Static;
+  m_simulationType = SaveButtonHandler::Static;
   if (m_chartTitle.contains("Static")) {
     m_chartTitle.contains("Track") ? updateTable() : updateStaticChart();
   }
@@ -214,8 +217,9 @@ void ChartWidget::createChartButtons(QChartView *chartView) {
   ButtonAction *saveButton = new ButtonAction(this, "Save Chart");
   ButtonAction *saveCurrentData = new ButtonAction(this, "Save this data");
   ButtonAction *saveAllData = new ButtonAction(this, "Save all data");
-  connect(saveButton, &QPushButton::clicked, this,
-          [this, chartView]() { onSaveButtonClicked(chartView); });
+  connect(saveButton, &QPushButton::clicked, this, [this, chartView]() {
+    m_saveButtonHandler->onSaveButtonClicked(chartView);
+  });
   connect(saveCurrentData, &QPushButton::clicked, this,
           [this]() { onSaveCurrentDataClicked(); });
   connect(saveAllData, &QPushButton::clicked, this,
@@ -490,7 +494,7 @@ void ChartWidget::setupStaticAxis() {
   double roundedMaxValue;
   if (m_chart->series().isEmpty())
     return;
-  if (m_simulationType != Static)
+  if (m_simulationType != SaveButtonHandler::Static)
     return;
   m_chart->createDefaultAxes();
   // Set proper axis labels
@@ -580,7 +584,7 @@ void ChartWidget::setupDynamicAxis() {
   double roundedMinValue;
   if (m_chart->series().isEmpty())
     return;
-  if (m_simulationType != Dynamic)
+  if (m_simulationType != SaveButtonHandler::Dynamic)
     return;
   m_chart->createDefaultAxes();
 
@@ -717,14 +721,16 @@ void ChartWidget::onSaveAllDataClicked() {
       return;
     }
 
-    if (m_chartTitle.contains("Dynamic") && m_simulationType != Dynamic) {
+    if (m_chartTitle.contains("Dynamic") &&
+        m_simulationType != SaveButtonHandler::Dynamic) {
       MessageBoxWidget messageBox("Simulation Type Mismatch",
                                   "This chart shows dynamic data but you have "
                                   "static simulation results. "
                                   "Please run a dynamic simulation first.",
                                   MessageBoxWidget::Warning);
       return;
-    } else if (m_chartTitle.contains("Static") && m_simulationType != Static) {
+    } else if (m_chartTitle.contains("Static") &&
+               m_simulationType != SaveButtonHandler::Static) {
       MessageBoxWidget messageBox("Simulation Type Mismatch",
                                   "This chart shows static data but you have "
                                   "dynamic simulation results. "
@@ -750,14 +756,16 @@ void ChartWidget::onSaveCurrentDataClicked() {
           MessageBoxWidget::Warning);
       return;
     }
-    if (m_chartTitle.contains("Dynamic") && m_simulationType != Dynamic) {
+    if (m_chartTitle.contains("Dynamic") &&
+        m_simulationType != SaveButtonHandler::Dynamic) {
       MessageBoxWidget messageBox("Simulation Type Mismatch",
                                   "This chart shows dynamic data but you have "
                                   "static simulation results. "
                                   "Please run a dynamic simulation first.",
                                   MessageBoxWidget::Warning);
       return;
-    } else if (m_chartTitle.contains("Static") && m_simulationType != Static) {
+    } else if (m_chartTitle.contains("Static") &&
+               m_simulationType != SaveButtonHandler::Static) {
       MessageBoxWidget messageBox("Simulation Type Mismatch",
                                   "This chart shows static data but you have "
                                   "dynamic simulation results. "
