@@ -11,10 +11,9 @@ public slots:
   void resetSimulation();
 
 public:
-  explicit UtilityHandler(AppContext &context,
-                          SimulationDatas &simulationDatas);
-  void addSimulationDatas(int i, double time, QString phase);
+  explicit UtilityHandler(AppContext &context);
   void clearSimulationDatas();
+  void addSimulationDatas(int i, double time, QString phase);
 
 private:
   AppContext *context;
