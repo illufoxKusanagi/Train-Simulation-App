@@ -18,7 +18,7 @@ TrainSimulation::TrainSimulation(AppContext &context, QObject *parent)
   m_outputHandler = new OutputHandler(simulationDatas);
   m_energyHandler = new EnergyHandler(context);
   m_powerHandler = new PowerHandler(context);
-  m_utilityHandler = new UtilityHandler(context, simulationDatas);
+  m_utilityHandler = new UtilityHandler(context);
   m_resistanceHandler = new ResistanceHandler(context);
   m_tractionMotorHandler = new TractionMotorHandler(context);
   m_tractiveEffortHandler = new TractiveEffortHandler(context);
@@ -66,6 +66,7 @@ double TrainSimulation::calculateTotalDistance(int i) {
 }
 
 void TrainSimulation::simulateDynamicTrainMovement() {
+  emit simulationStarted();
   clearWarnings();
   m_utilityHandler->clearSimulationDatas();
   initData();

@@ -36,11 +36,11 @@ void MainWindow::setupPages() {
   setupFixedSizePage(runningParameterPage);
 
   TrackParameterPage *trackParameterPage =
-      new TrackParameterPage(context, this);
+      new TrackParameterPage(context, m_trainSimulation, this);
   setupFixedSizePage(trackParameterPage);
 
   ElectricalParameterPage *electricalParameterPage =
-      new ElectricalParameterPage(context, this);
+      new ElectricalParameterPage(context, m_trainSimulation, this);
   setupFixedSizePage(electricalParameterPage);
 
   // TestPage *testPage = new TestPage(this);

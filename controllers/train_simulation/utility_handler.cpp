@@ -1,8 +1,8 @@
 #include "utility_handler.h"
+#include <qdebug.h>
 
-UtilityHandler::UtilityHandler(AppContext &context,
-                               SimulationDatas &simulationDatas)
-    : context(&context), simulationDatas(&simulationDatas) {}
+UtilityHandler::UtilityHandler(AppContext &context)
+    : context(&context), simulationDatas(context.simulationData.data()) {}
 
 void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
   simulationDatas->tractionEfforts.append(context->resistanceData->f_motor);
@@ -39,12 +39,10 @@ void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
       context->resistanceData->f_resRunningTen);
   simulationDatas->motorResistancesTwentyFive.append(
       context->resistanceData->f_resRunningTwentyFive);
-  // simulationDatas->slopes.append(context->stationData->slope[i]);
-  // simulationDatas->radiuses.append(context->stationData->radius[i]);
-  // simulationDatas->speedLimits.append(context->stationData->v_limit[i]);
 }
 
 void UtilityHandler::resetSimulation() {
+  qDebug() << "Simulation Resetted";
   context->resistanceData->f_resStart = 0;
   context->resistanceData->f_resRunning = 0;
   context->resistanceData->f_motor = 0;

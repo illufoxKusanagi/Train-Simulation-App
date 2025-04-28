@@ -1,18 +1,21 @@
 #include "electrical_parameter_page.h"
 
-ElectricalParameterPage::ElectricalParameterPage(AppContext &context,
-                                                 QWidget *parent)
+ElectricalParameterPage::ElectricalParameterPage(
+    AppContext &context, TrainSimulation *trainSimulation, QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_formContainer(new QWidget(this)),
       m_formLayout(new QGridLayout(m_formContainer)),
       efficiencyData(context.efficiencyData.data()),
       powerData(context.powerData.data()),
-      energyData(context.energyData.data()) {
+      energyData(context.energyData.data()),
+      m_trainSimulation(trainSimulation) {
   mainLayout->setContentsMargins(16, 16, 16, 16);
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setHorizontalSpacing(128);
   m_formLayout->setVerticalSpacing(32);
   createInputs();
+  connect(m_trainSimulation, &TrainSimulation::simulationStarted, this,
+          [this]() { setParameterValue(); });
   mainLayout->addWidget(m_formContainer);
   setLayout(mainLayout);
 }
@@ -47,6 +50,7 @@ ElectricalParameterPage::getParameterValue(const QString &paramName) const {
 }
 
 void ElectricalParameterPage::setParameterValue() {
+  qDebug() << "Setting parameter value for electrical parameters...";
 
   efficiencyData->stat_eff_motor =
       getParameterValue("Efficiency of Traction Motor");
