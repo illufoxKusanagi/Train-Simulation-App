@@ -100,7 +100,13 @@ void TrainSimulation::simulateDynamicTrainMovement() {
         m_resistanceHandler->calculateStartRes(m_slope, m_radius);
     resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
         movingData->v, m_slope, m_radius);
-    mileage = m_simulationTrackHandler->calculateMileage();
+    if (!stationData->v_limit.empty()) {
+      mileage =
+          m_simulationTrackHandler->calculateMileage(stationData->v_limit[i]);
+    } else {
+      // m_simulationWarnings.insert("Speed limit data set to default value!");
+      mileage = m_simulationTrackHandler->calculateMileage(movingData->v_limit);
+    }
     if (isAtStation) {
       phase = "At Station";
       movingData->v = 0;

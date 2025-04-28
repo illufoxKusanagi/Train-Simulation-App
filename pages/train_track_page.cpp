@@ -1,9 +1,10 @@
 #include "train_track_page.h"
 
 TrainTrackPage::TrainTrackPage(QWidget *parent,
-                               TrainSimulation *trainSimulation)
+                               TrainSimulation *trainSimulation,
+                               AppContext *context)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
-      m_trainSimulation(trainSimulation) {
+      m_trainSimulation(trainSimulation), context(context) {
   mainLayout->setAlignment(Qt::AlignCenter);
   stackedWidget = new QStackedWidget(this);
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
@@ -38,7 +39,7 @@ void TrainTrackPage::setupSecondPage() {
 
 void TrainTrackPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle) {
   ChartWidget *chartWidget =
-      new ChartWidget(this, chartTitle, "Distance", m_trainSimulation);
+      new ChartWidget(this, chartTitle, "Distance", m_trainSimulation, context);
   pageLayout->addWidget(chartWidget);
 }
 
@@ -108,7 +109,8 @@ void TrainTrackPage::setStaticParameterValue() {
       m_trainSimulation->getDistanceTravelled());
   m_inputWidgets["Distance on Braking"]->setValue(0);
   m_inputWidgets["Distance on Braking"]->setValue(
-      m_trainSimulation->m_simulationTrackHandler->calculateBrakingTrack());
+      m_trainSimulation->m_simulationTrackHandler->calculateBrakingTrack(
+          context->movingData->v_limit));
   m_inputWidgets["Distance on Emergency Braking"]->setValue(0);
   m_inputWidgets["Distance on Emergency Braking"]->setValue(
       m_trainSimulation->m_simulationTrackHandler

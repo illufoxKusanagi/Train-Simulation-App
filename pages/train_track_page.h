@@ -1,6 +1,7 @@
 #ifndef TRAIN_TRACK_PAGE_H
 #define TRAIN_TRACK_PAGE_H
 
+#include "core/appcontext.h"
 #include "resources/input_type.h"
 #include "widgets/button_action.h"
 #include "widgets/chart_widget.h"
@@ -13,7 +14,8 @@ class TrainTrackPage : public QWidget {
   Q_OBJECT
 public:
   explicit TrainTrackPage(QWidget *parent = nullptr,
-                          TrainSimulation *trainSimulation = nullptr);
+                          TrainSimulation *trainSimulation = nullptr,
+                          AppContext *context = nullptr);
 
 private:
   QVBoxLayout *mainLayout;
@@ -23,6 +25,7 @@ private:
   ButtonAction *m_nextButton;
   QStackedWidget *stackedWidget;
   QMap<QString, InputWidget *> m_inputWidgets;
+  AppContext *context;
 
   void setupFirstPage();
   void setupSecondPage();
