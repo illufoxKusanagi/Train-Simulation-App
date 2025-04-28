@@ -17,6 +17,7 @@ const QColor Danger700(143, 41, 38);
 const QColor Danger800(95, 27, 25);
 const QColor Danger900(48, 14, 13);
 
+const QColor Grey50(249, 244, 246);
 const QColor Grey100(226, 227, 226);
 const QColor Grey200(197, 198, 204);
 const QColor Grey300(167, 170, 178);
