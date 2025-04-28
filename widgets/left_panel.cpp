@@ -178,14 +178,29 @@ void LeftPanel::updateButtonState(QFuture<void> future, ButtonAction *runButton,
             [this, watcher, runStaticButton, runButton]() {
               runStaticButton->setEnabled(true);
               runButton->setEnabled(true);
+              QSet<QString> warnings =
+                  m_trainSimulation->getSimulationWarnings();
+              showSimMessageBox(warnings);
               watcher->deleteLater();
-              showSimMessageBox();
             });
     watcher->setFuture(future);
   });
 }
 
-void LeftPanel::showSimMessageBox() {
-  MessageBoxWidget messageBox("Simulation", "Simulation completed.",
-                              MessageBoxWidget::Information);
+void LeftPanel::showSimMessageBox(const QSet<QString> &warnings) {
+  QString title = "Simulation Completed";
+  QString message;
+  bool isWarning = false;
+  if (warnings.isEmpty()) {
+    message = "Simulation completed!";
+  } else {
+    isWarning = true;
+    message = "Simulation completed with warnings:\n";
+    for (const QString &warning : warnings) {
+      message += "- " + warning + "\n";
+    }
+  }
+  MessageBoxWidget messageBox(title, message,
+                              isWarning ? MessageBoxWidget::Warning
+                                        : MessageBoxWidget::Information);
 }

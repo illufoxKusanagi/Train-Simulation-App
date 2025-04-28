@@ -9,9 +9,9 @@ class PowerHandler : public QObject {
 public:
   explicit PowerHandler(AppContext &context);
   double calculatePowerWheel();
-  double calculateOutputTractionMotor();
-  double calculateInputTractionMotor();
-  double calculatePowerInputOfVvvf();
+  double calculateOutputTractionMotor(double eff_gear);
+  double calculateInputTractionMotor(double eff_motor);
+  double calculatePowerInputOfVvvf(double eff_vvvf);
   double calculatePowerOfCatenary();
 
 private:
