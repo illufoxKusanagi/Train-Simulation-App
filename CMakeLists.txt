@@ -143,6 +143,8 @@ set(CONTROLLER_SOURCES
     controllers/chart/dynamic_simulation_chart_handler.cpp
     controllers/chart/output_table_handler.h
     controllers/chart/output_table_handler.cpp
+    controllers/train_simulation/csv_variables_handler.h
+    controllers/train_simulation/csv_variables_handler.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

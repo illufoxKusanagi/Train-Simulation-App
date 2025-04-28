@@ -24,6 +24,7 @@ TrainSimulation::TrainSimulation(AppContext &context, QObject *parent)
   m_tractiveEffortHandler = new TractiveEffortHandler(context);
   m_simulationTrackHandler = new SimulationTrackHandler(context);
   m_currentHandler = new CurrentHandler(context);
+  m_csvVariableHandler = new CsvVariableHandler(context, m_simulationWarnings);
   initData();
   connect(this, &TrainSimulation::simulationCompleted, m_utilityHandler,
           &UtilityHandler::resetSimulation);
@@ -82,48 +83,22 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   double stationDistance = 0;
   double trainStopTime = 0;
   const double WAIT_TIME = 10.0;
-  int slopeIndex = 0;
-  int radiusIndex = 0;
-  int maxSpeedIndex = 0;
-  int effVvvfIndex = 0;
-  int effGearIndex = 0;
-  int effMotorIndex = 0;
-  int lineVoltageIndex = 0;
-  int motorVoltageIndex = 0;
-  double slope = stationData->stat_slope;
-  double radius = stationData->stat_radius;
-  double maxSpeed = stationData->stat_v_limit;
-  double lineVoltage = energyData->stat_vol_line;
-  double motorVoltage = energyData->stat_vol_motor;
-  double efficiencyVvvf = efficiencyData->stat_eff_vvvf;
-  double efficiencyGear = efficiencyData->stat_eff_gear;
-  double efficiencyMotor = efficiencyData->stat_eff_motor;
+
   if (stationData->n_station > stationData->x_station.size() + 1) {
     m_simulationWarnings.insert(
         "Number of stations exceeds the number of station data.");
   }
   while (movingData->v >= 0 || (stationIndex + 2 < stationData->n_station &&
                                 stationIndex < stationData->x_station.size())) {
-    slope = setSlopeData(slopeIndex, movingData->x_total);
-    radius = setRadiusData(radiusIndex, movingData->x_total);
-    maxSpeed = setMaxSpeedData(maxSpeedIndex, movingData->x_total);
-    efficiencyVvvf = setEffVvvfData(effVvvfIndex, movingData->v);
-    efficiencyGear = setEffGearData(effGearIndex, movingData->v);
-    efficiencyMotor = setEffMotorData(effMotorIndex, movingData->v);
-    lineVoltage = setLineVoltageData(lineVoltageIndex, movingData->v);
-    motorVoltage = setMotorVoltageData(motorVoltageIndex, movingData->v);
-    slopeIndex = setSlopeIndex(slopeIndex, movingData->x_total);
-    radiusIndex = setRadiusIndex(radiusIndex, movingData->x_total);
-    maxSpeedIndex = setMaxSpeedIndex(maxSpeedIndex, movingData->x_total);
-    effVvvfIndex = setEffVvvfIndex(effVvvfIndex, movingData->v);
-    effGearIndex = setEffGearIndex(effGearIndex, movingData->v);
-    simulationDatas.slopes.append(slope);
-    simulationDatas.radiuses.append(radius);
-    simulationDatas.speedLimits.append(maxSpeed);
+    addStationSimulationDatas();
+    addEnergySimulationDatas();
+    simulationDatas.slopes.append(m_slope);
+    simulationDatas.radiuses.append(m_radius);
+    simulationDatas.speedLimits.append(m_maxSpeed);
     resistanceData->f_resStart =
-        m_resistanceHandler->calculateStartRes(slope, radius);
-    resistanceData->f_resRunning =
-        m_resistanceHandler->calculateRunningRes(movingData->v, slope, radius);
+        m_resistanceHandler->calculateStartRes(m_slope, m_radius);
+    resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
+        movingData->v, m_slope, m_radius);
     mileage = m_simulationTrackHandler->calculateMileage();
     if (isAtStation) {
       phase = "At Station";
@@ -149,7 +124,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       simulationDatas.trainSpeedsSi.append(movingData->v_si);
     } else if (mileage < stationData->x_station[stationIndex]) {
       if (isAccelerating) {
-        if (movingData->v >= maxSpeed && resistanceData->f_total > 0) {
+        if (movingData->v >= m_maxSpeed && resistanceData->f_total > 0) {
           isAccelerating = false;
           isCoasting = true;
           phase = "Coasting";
@@ -162,7 +137,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
         movingData->acc_si =
             (resistanceData->f_total / massData->mass_totalInertial);
         movingData->acc = constantData->cV * movingData->acc_si;
-        calculatePowers(efficiencyGear, efficiencyMotor, efficiencyVvvf);
+        calculatePowers(m_efficiencyGear, m_efficiencyMotor, m_efficiencyVvvf);
         movingData->v_si += movingData->acc_si * constantData->dt;
         movingData->v += movingData->acc * constantData->dt;
         simulationDatas.accelerations.append(movingData->acc);
@@ -173,7 +148,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
         simulationDatas.time.append(constantData->dt);
         energyData->e_pow += m_energyHandler->calculateEnergyOfPowering(i);
       } else if (isCoasting) {
-        if (movingData->v <= (maxSpeed - movingData->v_diffCoast)) {
+        if (movingData->v <= (m_maxSpeed - movingData->v_diffCoast)) {
           isCoasting = false;
           isAccelerating = true;
           coastingCount++;
@@ -184,7 +159,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
         movingData->acc_si =
             (resistanceData->f_total / massData->mass_totalInertial);
         movingData->acc = constantData->cV * movingData->acc_si;
-        calculatePowers(efficiencyGear, efficiencyMotor, efficiencyVvvf);
+        calculatePowers(m_efficiencyGear, m_efficiencyMotor, m_efficiencyVvvf);
         movingData->v_si += movingData->acc_si * constantData->dt;
         movingData->v += movingData->acc * constantData->dt;
         simulationDatas.accelerations.append(movingData->acc);
@@ -203,7 +178,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       movingData->decc_si =
           resistanceData->f_brake / massData->mass_totalInertial;
       movingData->decc = constantData->cV * movingData->decc_si;
-      calculatePowers(efficiencyGear, efficiencyMotor, efficiencyVvvf);
+      calculatePowers(m_efficiencyGear, m_efficiencyMotor, m_efficiencyVvvf);
       movingData->v_si += movingData->decc_si * constantData->dt;
       movingData->v += movingData->decc * constantData->dt;
       simulationDatas.accelerations.append(movingData->decc);
@@ -243,8 +218,9 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     trainMotorData->tm_rpm = m_tractionMotorHandler->calculateRpm();
 
     energyData->curr_catenary =
-        m_currentHandler->calculateCatenaryCurrent(lineVoltage);
-    energyData->curr_vvvf = m_currentHandler->calculateVvvfCurrent(lineVoltage);
+        m_currentHandler->calculateCatenaryCurrent(m_lineVoltage);
+    energyData->curr_vvvf =
+        m_currentHandler->calculateVvvfCurrent(m_lineVoltage);
 
     m_utilityHandler->addSimulationDatas(i, time, phase);
     if (i == 0) {
@@ -265,6 +241,8 @@ void TrainSimulation::simulateStaticTrainMovement() {
   QString phase = "Starting";
   int CoastingCount = 0;
   float time = 0.0;
+  double maxVvvfCurrent = 0.0;
+  double maxVvvfPower = 0.0;
   while (movingData->v <= stationData->stat_v_limit &&
          movingData->x_total < stationData->stat_x_station) {
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes(
@@ -311,11 +289,11 @@ void TrainSimulation::simulateStaticTrainMovement() {
     if (i == 0) {
       trainMotorData->tm_adh = m_tractiveEffortHandler->calculateAdhesion();
     }
-    if (energyData->curr_vvvf > m_maxVvvfCurrent) {
-      m_maxVvvfCurrent = energyData->curr_vvvf;
+    if (energyData->curr_vvvf > maxVvvfCurrent) {
+      maxVvvfCurrent = energyData->curr_vvvf;
     }
-    if (powerData->p_motorOut > m_maxVvvfPower) {
-      m_maxVvvfPower = powerData->p_vvvfIn;
+    if (powerData->p_motorOut > maxVvvfPower) {
+      maxVvvfPower = powerData->p_vvvfIn;
     }
     i++;
   }
@@ -451,258 +429,44 @@ void TrainSimulation::calculateEnergies(int i) {
   energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
 }
 
-int TrainSimulation::setSlopeIndex(int slopeIndex, double distanceTravelled) {
-  if (!stationData->slope.empty()) {
-    if (distanceTravelled >= stationData->x_slopeEnd[slopeIndex]) {
-      slopeIndex++;
-    }
-    return slopeIndex;
-  } else if (slopeIndex >= stationData->slope.size()) {
-    return slopeIndex - 1;
-  }
-  return 0;
+void TrainSimulation::addEnergySimulationDatas() {
+
+  m_efficiencyVvvf =
+      m_csvVariableHandler->setEffVvvfData(m_effVvvfIndex, movingData->v);
+  m_efficiencyGear =
+      m_csvVariableHandler->setEffGearData(m_effGearIndex, movingData->v);
+  m_efficiencyMotor =
+      m_csvVariableHandler->setEffMotorData(m_effMotorIndex, movingData->v);
+  m_lineVoltage = m_csvVariableHandler->setLineVoltageData(m_lineVoltageIndex,
+                                                           movingData->v);
+  m_motorVoltage = m_csvVariableHandler->setMotorVoltageData(
+      m_motorVoltageIndex, movingData->v);
+
+  m_effVvvfIndex =
+      m_csvVariableHandler->setEffVvvfIndex(m_effVvvfIndex, movingData->v);
+  m_effGearIndex =
+      m_csvVariableHandler->setEffGearIndex(m_effGearIndex, movingData->v);
+  m_effMotorIndex =
+      m_csvVariableHandler->setEffMotorIndex(m_efficiencyMotor, movingData->v);
+  m_lineVoltageIndex = m_csvVariableHandler->setLineVoltageIndex(
+      m_lineVoltageIndex, movingData->v);
+  m_motorVoltageIndex = m_csvVariableHandler->setMotorVoltageIndex(
+      m_motorVoltageIndex, movingData->v);
 }
 
-int TrainSimulation::setRadiusIndex(int radiusIndex, double distanceTravelled) {
-  if (!stationData->radius.empty()) {
-    if (distanceTravelled >= stationData->x_radiusEnd[radiusIndex]) {
-      radiusIndex++;
-    }
-    return radiusIndex;
-  } else if (radiusIndex >= stationData->radius.size()) {
-    return radiusIndex - 1;
-  }
-  return 0;
-}
-
-int TrainSimulation::setMaxSpeedIndex(int maxSpeedIndex,
-                                      double distanceTravelled) {
-  if (!stationData->v_limit.empty()) {
-    if (distanceTravelled >= stationData->x_v_limitEnd[maxSpeedIndex]) {
-      maxSpeedIndex++;
-    }
-    return maxSpeedIndex;
-  } else if (maxSpeedIndex >= stationData->v_limit.size()) {
-    return maxSpeedIndex - 1;
-  }
-  return 0;
-}
-
-int TrainSimulation::setEffGearIndex(int effGearIndex, double speed) {
-  if (!efficiencyData->eff_gear.empty()) {
-    if (speed >= efficiencyData->v_eff_gear[effGearIndex]) {
-      effGearIndex++;
-    } else if (speed < efficiencyData->v_eff_gear[effGearIndex] &&
-               effGearIndex > 0) {
-      return effGearIndex - 1;
-    }
-    return effGearIndex;
-  }
-  return 0;
-}
-
-int TrainSimulation::setEffVvvfIndex(int effVvvfIndex, double speed) {
-  if (!efficiencyData->eff_vvvf.empty()) {
-    if (speed >= efficiencyData->v_eff_vvvf[effVvvfIndex]) {
-      effVvvfIndex++;
-    } else if (speed < efficiencyData->v_eff_vvvf[effVvvfIndex] &&
-               effVvvfIndex > 0) {
-      return effVvvfIndex - 1;
-    }
-    return effVvvfIndex;
-  }
-  return 0;
-}
-
-int TrainSimulation::setEffMotorIndex(int effMotorIndex, double speed) {
-  if (!efficiencyData->eff_motor.empty()) {
-    if (speed >= efficiencyData->v_eff_motor[effMotorIndex]) {
-      effMotorIndex++;
-    } else if (speed < efficiencyData->v_eff_motor[effMotorIndex] &&
-               effMotorIndex > 0) {
-      return effMotorIndex - 1;
-    }
-    return effMotorIndex;
-  }
-  return 0;
-}
-
-int TrainSimulation::setLineVoltageIndex(int lineVoltageIndex, double speed) {
-  if (!energyData->vol_line.empty()) {
-    if (speed >= energyData->v_vol_line[lineVoltageIndex]) {
-      lineVoltageIndex++;
-    } else if (speed < energyData->v_vol_line[lineVoltageIndex] &&
-               lineVoltageIndex > 0) {
-      return lineVoltageIndex - 1;
-    }
-    return lineVoltageIndex;
-  }
-  return 0;
-}
-
-int TrainSimulation::setMotorVoltageIndex(int motorVoltageIndex, double speed) {
-  if (!energyData->vol_motor.empty()) {
-    if (speed >= energyData->v_vol_motor[motorVoltageIndex]) {
-      motorVoltageIndex++;
-    } else if (speed < energyData->v_vol_motor[motorVoltageIndex] &&
-               motorVoltageIndex > 0) {
-      return motorVoltageIndex - 1;
-    }
-    return motorVoltageIndex;
-  }
-  return 0;
-}
-
-double TrainSimulation::setSlopeData(int slopeIndex, double distanceTravelled) {
-  if (!stationData->slope.empty() && slopeIndex < stationData->slope.size()) {
-    if (distanceTravelled >= stationData->x_slopeEnd[slopeIndex]) {
-      return stationData->slope[slopeIndex++];
-    } else {
-      return stationData->slope[slopeIndex];
-    }
-  } else if (stationData->slope.empty()) {
-    m_simulationWarnings.insert("Slope csv data is empty.");
-  } else {
-    m_simulationWarnings.insert("Attempted to access slope data beyond range.");
-  }
-  return stationData->stat_slope;
-}
-
-double TrainSimulation::setRadiusData(int radiusIndex,
-                                      double distanceTravelled) {
-  if (!stationData->radius.empty() &&
-      radiusIndex < stationData->radius.size()) {
-    if (distanceTravelled >= stationData->x_radiusEnd[radiusIndex]) {
-      return stationData->radius[radiusIndex++];
-    } else {
-      return stationData->radius[radiusIndex];
-    }
-  } else if (stationData->radius.empty()) {
-    m_simulationWarnings.insert("Radius csv data is empty.");
-  } else {
-    m_simulationWarnings.insert(
-        "Attempted to access radius data beyond range.");
-  }
-  return stationData->stat_radius;
-}
-
-double TrainSimulation::setMaxSpeedData(int maxSpeedIndex,
-                                        double distanceTravelled) {
-  if (!stationData->v_limit.empty() &&
-      maxSpeedIndex < stationData->v_limit.size()) {
-    if (distanceTravelled >= stationData->x_v_limitEnd[maxSpeedIndex]) {
-      return stationData->v_limit[maxSpeedIndex++];
-    } else {
-      return stationData->v_limit[maxSpeedIndex];
-    }
-  } else if (stationData->v_limit.empty()) {
-    m_simulationWarnings.insert("Speed limit csv data is empty.");
-  } else {
-    m_simulationWarnings.insert(
-        "Attempted to access max speed data beyond range.");
-  }
-  return stationData->stat_v_limit;
-}
-
-double TrainSimulation::setEffVvvfData(int effVvvfIndex, double speed) {
-  if (!efficiencyData->eff_vvvf.empty() &&
-      effVvvfIndex < efficiencyData->eff_vvvf.size()) {
-    if (speed >= efficiencyData->v_eff_vvvf[effVvvfIndex]) {
-      return efficiencyData->eff_vvvf[effVvvfIndex++];
-    } else if (speed < efficiencyData->v_eff_vvvf[effVvvfIndex] &&
-               effVvvfIndex > 0) {
-      return efficiencyData->eff_vvvf[effVvvfIndex - 1];
-    } else {
-      return efficiencyData->eff_vvvf[effVvvfIndex];
-    }
-  } else if (efficiencyData->eff_vvvf.empty()) {
-    m_simulationWarnings.insert("VVVF efficiency csv data is empty.");
-  } else {
-    m_simulationWarnings.insert(
-        "Attempted to access VVVF efficiency data beyond range.");
-  }
-  return efficiencyData->stat_eff_vvvf;
-}
-
-double TrainSimulation::setEffGearData(int effGearIndex, double speed) {
-  if (!efficiencyData->eff_gear.empty() &&
-      effGearIndex < efficiencyData->eff_gear.size()) {
-    if (speed >= efficiencyData->v_eff_gear[effGearIndex]) {
-      return efficiencyData->eff_gear[effGearIndex++];
-    } else if (speed < efficiencyData->v_eff_gear[effGearIndex] &&
-               effGearIndex > 0) {
-      return efficiencyData->eff_gear[effGearIndex - 1];
-    } else {
-      return efficiencyData->eff_gear[effGearIndex];
-    }
-  } else if (efficiencyData->eff_gear.empty()) {
-    m_simulationWarnings.insert("Gear efficiency csv data is empty.");
-  } else {
-    m_simulationWarnings.insert(
-        "Attempted to access gear efficiency data beyond range.");
-  }
-  return efficiencyData->stat_eff_gear;
-}
-
-double TrainSimulation::setEffMotorData(int effMotorIndex, double speed) {
-  if (!efficiencyData->eff_motor.empty() &&
-      effMotorIndex < efficiencyData->eff_motor.size()) {
-    if (speed >= efficiencyData->v_eff_motor[effMotorIndex]) {
-      return efficiencyData->eff_motor[effMotorIndex++];
-    } else if (speed < efficiencyData->v_eff_motor[effMotorIndex] &&
-               effMotorIndex > 0) {
-      return efficiencyData->eff_motor[effMotorIndex - 1];
-    } else {
-      return efficiencyData->eff_motor[effMotorIndex];
-    }
-  } else if (efficiencyData->eff_motor.empty()) {
-    m_simulationWarnings.insert("Motor efficiency csv data is empty.");
-  } else {
-    m_simulationWarnings.insert(
-        "Attempted to access motor efficiency data beyond range.");
-  }
-  return efficiencyData->stat_eff_motor;
-}
-
-double TrainSimulation::setLineVoltageData(int lineVoltageIndex, double speed) {
-  if (!energyData->vol_line.empty() &&
-      lineVoltageIndex < energyData->vol_line.size()) {
-    if (speed >= energyData->v_vol_line[lineVoltageIndex]) {
-      return energyData->vol_line[lineVoltageIndex++];
-    } else if (speed < energyData->v_vol_line[lineVoltageIndex] &&
-               lineVoltageIndex > 0) {
-      return energyData->vol_line[lineVoltageIndex - 1];
-    } else {
-      return energyData->vol_line[lineVoltageIndex];
-    }
-  } else if (energyData->vol_line.empty()) {
-    m_simulationWarnings.insert("Line voltage csv data is empty.");
-  } else {
-    m_simulationWarnings.insert(
-        "Attempted to access line voltage data beyond range.");
-  }
-  return energyData->stat_vol_line;
-}
-
-double TrainSimulation::setMotorVoltageData(int motorVoltageIndex,
-                                            double speed) {
-  if (!energyData->vol_motor.empty() &&
-      motorVoltageIndex < energyData->vol_motor.size()) {
-    if (speed >= energyData->v_vol_motor[motorVoltageIndex]) {
-      return energyData->vol_motor[motorVoltageIndex++];
-    } else if (speed < energyData->v_vol_motor[motorVoltageIndex] &&
-               motorVoltageIndex > 0) {
-      return energyData->vol_motor[motorVoltageIndex - 1];
-    } else {
-      return energyData->vol_motor[motorVoltageIndex];
-    }
-  } else if (energyData->vol_motor.empty()) {
-    m_simulationWarnings.insert("Motor voltage csv data is empty.");
-  } else {
-    m_simulationWarnings.insert(
-        "Attempted to access motor voltage data beyond range.");
-  }
-  return energyData->stat_vol_motor;
+void TrainSimulation::addStationSimulationDatas() {
+  m_slope =
+      m_csvVariableHandler->setSlopeData(m_slopeIndex, movingData->x_total);
+  m_radius =
+      m_csvVariableHandler->setRadiusData(m_radiusIndex, movingData->x_total);
+  m_maxSpeed = m_csvVariableHandler->setMaxSpeedData(m_maxSpeedIndex,
+                                                     movingData->x_total);
+  m_slopeIndex =
+      m_csvVariableHandler->setSlopeIndex(m_slopeIndex, movingData->x_total);
+  m_radiusIndex =
+      m_csvVariableHandler->setRadiusIndex(m_radiusIndex, movingData->x_total);
+  m_maxSpeedIndex = m_csvVariableHandler->setMaxSpeedIndex(m_maxSpeedIndex,
+                                                           movingData->x_total);
 }
 
 void TrainSimulation::calculateRunningResEachSlope() {
