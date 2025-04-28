@@ -1,9 +1,10 @@
 #include "train_power_page.h"
 
 TrainPowerPage::TrainPowerPage(QWidget *parent,
-                               TrainSimulation *trainSimulation)
+                               TrainSimulation *trainSimulation,
+                               AppContext *context)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
-      m_trainSimulation(trainSimulation) {
+      m_trainSimulation(trainSimulation), context(context) {
   mainLayout->setAlignment(Qt::AlignCenter);
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &TrainPowerPage::setParameterValue);
@@ -67,8 +68,8 @@ void TrainPowerPage::setupFourthPage() {
 
 void TrainPowerPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle,
                                 QString chartSeries) {
-  ChartWidget *chartWidget =
-      new ChartWidget(this, chartTitle, chartSeries, m_trainSimulation);
+  ChartWidget *chartWidget = new ChartWidget(this, chartTitle, chartSeries,
+                                             m_trainSimulation, context);
   m_chartWidgets[chartTitle] = chartWidget;
   pageLayout->addWidget(chartWidget);
 }

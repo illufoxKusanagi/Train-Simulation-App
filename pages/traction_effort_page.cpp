@@ -1,9 +1,10 @@
 #include "traction_effort_page.h"
 
 TractionEffortPage::TractionEffortPage(QWidget *parent,
-                                       TrainSimulation *trainSimulation)
+                                       TrainSimulation *trainSimulation,
+                                       AppContext *context)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
-      m_trainSimulation(trainSimulation) {
+      m_trainSimulation(trainSimulation), context(context) {
   mainLayout->setAlignment(Qt::AlignCenter);
   connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
           &TractionEffortPage::setParameterValue);
@@ -37,8 +38,8 @@ void TractionEffortPage::setupSecondPage() {
 
 void TractionEffortPage::setupChart(QVBoxLayout *pageLayout, QString chartTitle,
                                     QString chartSeries) {
-  ChartWidget *chartWidget =
-      new ChartWidget(this, chartTitle, chartSeries, m_trainSimulation);
+  ChartWidget *chartWidget = new ChartWidget(this, chartTitle, chartSeries,
+                                             m_trainSimulation, context);
   m_chartWidget[chartTitle] = chartWidget;
   pageLayout->addWidget(chartWidget);
 }

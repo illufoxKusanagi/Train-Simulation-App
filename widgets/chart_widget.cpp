@@ -1,11 +1,12 @@
 #include "chart_widget.h"
 
 ChartWidget::ChartWidget(QWidget *parent, QString chartTitle,
-                         QString seriesName, TrainSimulation *trainSimulation)
+                         QString seriesName, TrainSimulation *trainSimulation,
+                         AppContext *context)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_chartLayout(nullptr), m_chartWidget(nullptr),
       m_trainSimulation(trainSimulation), m_chartTitle(chartTitle),
-      m_simulationType(SaveButtonHandler::None) {
+      m_simulationType(SaveButtonHandler::None), context(context) {
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(16);
   addSeries(seriesName, QColor(0, 114, 206));
@@ -14,7 +15,7 @@ ChartWidget::ChartWidget(QWidget *parent, QString chartTitle,
   connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
           &ChartWidget::onStaticSimulationCompleted);
   m_outputTableHandler =
-      new OutputTableHandler(trainSimulation, mainLayout, chartTitle);
+      new OutputTableHandler(trainSimulation, mainLayout, chartTitle, context);
   chartTitle.contains("Track") ? m_outputTableHandler->setupTable()
                                : buildDummyLine(seriesName);
   m_saveButtonHandler =
