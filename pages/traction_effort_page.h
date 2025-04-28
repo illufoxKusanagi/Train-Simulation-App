@@ -2,6 +2,7 @@
 #define TRACTION_EFFORT_PAGE_H
 
 #include "controllers/train_simulation/train_simulation.h"
+#include "core/appcontext.h"
 #include "resources/input_type.h"
 #include "widgets/button_action.h"
 #include "widgets/chart_widget.h"
@@ -16,7 +17,8 @@ class TractionEffortPage : public QWidget {
   Q_OBJECT
 public:
   explicit TractionEffortPage(QWidget *parent = nullptr,
-                              TrainSimulation *trainSimulation = nullptr);
+                              TrainSimulation *trainSimulation = nullptr,
+                              AppContext *context = nullptr);
 
 private:
   QVBoxLayout *mainLayout;
@@ -27,6 +29,7 @@ private:
   ButtonAction *m_nextButton;
   QMap<QString, InputWidget *> m_inputWidgets;
   QMap<QString, ChartWidget *> m_chartWidget;
+  AppContext *context;
 
   void setupFirstPage();
   void setupSecondPage();

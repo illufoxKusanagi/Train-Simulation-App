@@ -36,31 +36,31 @@ void MainWindow::setupPages() {
   setupFixedSizePage(runningParameterPage);
 
   TrackParameterPage *trackParameterPage =
-      new TrackParameterPage(context, this);
+      new TrackParameterPage(context, m_trainSimulation, this);
   setupFixedSizePage(trackParameterPage);
 
   ElectricalParameterPage *electricalParameterPage =
-      new ElectricalParameterPage(context, this);
+      new ElectricalParameterPage(context, m_trainSimulation, this);
   setupFixedSizePage(electricalParameterPage);
 
-  // TestPage *testPage = new TestPage(this);
-  // setupFixedSizePage(testPage);
-
-  TrainSpeedPage *trainSpeedPage = new TrainSpeedPage(this, m_trainSimulation);
+  TrainSpeedPage *trainSpeedPage =
+      new TrainSpeedPage(this, m_trainSimulation, &context);
   setupFixedSizePage(trainSpeedPage);
 
   TractionEffortPage *tractionEffortPage =
-      new TractionEffortPage(this, m_trainSimulation);
+      new TractionEffortPage(this, m_trainSimulation, &context);
   setupFixedSizePage(tractionEffortPage);
 
-  TrainPowerPage *trainPowerPage = new TrainPowerPage(this, m_trainSimulation);
+  TrainPowerPage *trainPowerPage =
+      new TrainPowerPage(this, m_trainSimulation, &context);
   setupFixedSizePage(trainPowerPage);
 
-  TrainTrackPage *trainTrackPage = new TrainTrackPage(this, m_trainSimulation);
+  TrainTrackPage *trainTrackPage =
+      new TrainTrackPage(this, m_trainSimulation, &context);
   setupFixedSizePage(trainTrackPage);
 
   TrainConsumptionPage *trainConsumptionPage =
-      new TrainConsumptionPage(this, m_trainSimulation);
+      new TrainConsumptionPage(this, m_trainSimulation, &context);
   setupFixedSizePage(trainConsumptionPage);
 
   connect(trainParameterPage, &TrainParameterPage::awDataChanged, this,

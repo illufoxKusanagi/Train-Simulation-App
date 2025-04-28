@@ -1,8 +1,8 @@
 #include "utility_handler.h"
+#include <qdebug.h>
 
-UtilityHandler::UtilityHandler(AppContext &context,
-                               SimulationDatas &simulationDatas)
-    : context(&context), simulationDatas(&simulationDatas) {}
+UtilityHandler::UtilityHandler(AppContext &context)
+    : context(&context), simulationDatas(context.simulationData.data()) {}
 
 void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
   simulationDatas->tractionEfforts.append(context->resistanceData->f_motor);
@@ -42,6 +42,7 @@ void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
 }
 
 void UtilityHandler::resetSimulation() {
+  qDebug() << "Simulation Resetted";
   context->resistanceData->f_resStart = 0;
   context->resistanceData->f_resRunning = 0;
   context->resistanceData->f_motor = 0;
@@ -78,6 +79,13 @@ void UtilityHandler::resetSimulation() {
   context->resistanceData->f_resRunningTen = 0;
   context->resistanceData->f_resRunningTwentyFive = 0;
   context->resistanceData->f_res = 0;
+  context->stationData->v_limit.clear();
+  context->stationData->x_v_limitEnd.clear();
+  context->stationData->x_slopeEnd.clear();
+  context->stationData->radius.clear();
+  context->stationData->x_radiusEnd.clear();
+  context->stationData->slope.clear();
+  context->stationData->x_station.clear();
 }
 
 void UtilityHandler::clearSimulationDatas() {
@@ -115,4 +123,7 @@ void UtilityHandler::clearSimulationDatas() {
   simulationDatas->motorResistancesFive.clear();
   simulationDatas->motorResistancesTen.clear();
   simulationDatas->motorResistancesTwentyFive.clear();
+  simulationDatas->slopes.clear();
+  simulationDatas->radiuses.clear();
+  simulationDatas->speedLimits.clear();
 }

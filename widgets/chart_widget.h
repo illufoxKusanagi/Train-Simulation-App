@@ -7,6 +7,7 @@
 #include "controllers/chart/static_simulation_chart_handler.h"
 #include "controllers/train_simulation//tractive_effort_handler.h"
 #include "controllers/train_simulation//train_simulation.h"
+#include "core/appcontext.h"
 #include "styles/colors.h"
 #include "styles/text_style.h"
 #include "widgets/button_action.h"
@@ -31,7 +32,8 @@ class ChartWidget : public QWidget {
 public:
   explicit ChartWidget(QWidget *parent = nullptr, QString chartTitle = "",
                        QString seriesName = "",
-                       TrainSimulation *trainSimulation = nullptr);
+                       TrainSimulation *trainSimulation = nullptr,
+                       AppContext *context = nullptr);
   void addSeries(const QString &name, const QColor &color);
   void updateChart();
   void updateStaticChart();
@@ -56,30 +58,11 @@ private:
   StaticSimulationChartHandler *m_staticSimulationChartHandler;
   DynamicSimulationChartHandler *m_dynamicSimulationChartHandler;
   OutputTableHandler *m_outputTableHandler;
+  AppContext *context;
 
   void buildDummyLine(QString seriesName);
   void setupChart(QLineSeries *series, QString title);
-  void setupTable();
-  void updateTable();
   void createChartButtons(QChartView *chartView);
-
-  void setupStaticSpeedChart();
-  void setupStaticTractionChart();
-  void setupStaticTrackChart();
-  void setupStaticPowerChart();
-  void setupStaticCurrentChart();
-  void setupStaticEnergyChart();
-
-  void setupDynamicSpeedChart();
-  void setupDynamicTractionChart();
-  void setupDynamicTrackChart();
-  void setupDynamicPowerChart();
-  void setupDynamicCurrentChart();
-  void setupDynamicEnergyChart();
-  void setupDistanceChart();
-
-  void setupStaticAxis();
-  void setupDynamicAxis();
 };
 
 #endif // CHART_WIDGET_H

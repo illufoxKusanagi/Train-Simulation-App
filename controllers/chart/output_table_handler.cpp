@@ -1,9 +1,10 @@
 #include "output_table_handler.h"
 
 OutputTableHandler::OutputTableHandler(TrainSimulation *trainSimulation,
-                                       QVBoxLayout *layout, QString chartTitle)
+                                       QVBoxLayout *layout, QString chartTitle,
+                                       AppContext *context)
     : m_trainSimulation(trainSimulation), mainLayout(layout),
-      m_chartTitle(chartTitle) {}
+      m_chartTitle(chartTitle), context(context) {}
 
 void OutputTableHandler::setupTable() {
   QStringList dummyHeaders = {"Track distance", "Track distance on EB"};
@@ -40,12 +41,15 @@ void OutputTableHandler::setupTable() {
 }
 
 void OutputTableHandler::updateTable() {
-  double normalTrackLength = m_trainSimulation->m_simulationTrackHandler
-                                 ->calculateNormalSimulationTrack();
-  double delayTrackLength = m_trainSimulation->m_simulationTrackHandler
-                                ->calculateDelaySimulationTrack();
-  double safetyTrackLength = m_trainSimulation->m_simulationTrackHandler
-                                 ->calculateSafetySimulationTrack();
+  double normalTrackLength =
+      m_trainSimulation->m_simulationTrackHandler
+          ->calculateNormalSimulationTrack(context->movingData->v_limit);
+  double delayTrackLength =
+      m_trainSimulation->m_simulationTrackHandler
+          ->calculateDelaySimulationTrack(context->movingData->v_limit);
+  double safetyTrackLength =
+      m_trainSimulation->m_simulationTrackHandler
+          ->calculateSafetySimulationTrack(context->movingData->v_limit);
   double normalEmergencyTrackLength =
       m_trainSimulation->m_simulationTrackHandler
           ->calculateEmergencyNormalSimulationTrack();

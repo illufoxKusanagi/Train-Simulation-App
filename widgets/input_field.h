@@ -27,6 +27,7 @@ public:
 private:
   QLineEdit *m_input;
   QLabel *m_unitLabel;
+  static const QString s_styleSheet;
 };
 
 #endif

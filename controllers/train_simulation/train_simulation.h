@@ -3,6 +3,7 @@
 
 #define _USE_MATH_DEFINES
 #include "core/appcontext.h"
+#include "csv_variables_handler.h"
 #include "current_handler.h"
 #include "energy_handler.h"
 #include "mass_handler.h"
@@ -35,6 +36,8 @@ signals:
   void staticSimulationCompleted();
   void powerValuesChanged(double vvvfPower, double catenaryPower,
                           double vvvfCurrent, double catenaryCurrent);
+  void simulationStarted();
+  void staticSimulationStarted();
 
 public slots:
   void simulateStaticTrainMovement();
@@ -53,6 +56,7 @@ public:
   UtilityHandler *m_utilityHandler;
   OutputHandler *m_outputHandler;
   CurrentHandler *m_currentHandler;
+  CsvVariableHandler *m_csvVariableHandler;
 
   double getMaxSpeed();
   double getMaxVvvfPower();
@@ -86,8 +90,24 @@ private:
   EnergyData *energyData;
   StationData *stationData;
   QSet<QString> m_simulationWarnings;
-  double m_maxVvvfCurrent = 0;
-  double m_maxVvvfPower = 0;
+
+  int m_slopeIndex = 0;
+  int m_radiusIndex = 0;
+  int m_maxSpeedIndex = 0;
+  int m_effVvvfIndex = 0;
+  int m_effGearIndex = 0;
+  int m_effMotorIndex = 0;
+  int m_lineVoltageIndex = 0;
+  int m_motorVoltageIndex = 0;
+
+  double m_slope;
+  double m_radius;
+  double m_maxSpeed;
+  double m_lineVoltage;
+  double m_motorVoltage;
+  double m_efficiencyVvvf;
+  double m_efficiencyGear;
+  double m_efficiencyMotor;
 
   void initTrainMassData();
   void initData();
@@ -113,5 +133,8 @@ private:
   double setLineVoltageData(int lineVoltageIndex, double speed);
   double setMotorVoltageData(int motorVoltageIndex, double speed);
   void calculateRunningResEachSlope();
+  void setCsvVariablesData();
+  void addEnergySimulationDatas();
+  void addStationSimulationDatas();
 };
 #endif // TRAIN_SIMULATION_H

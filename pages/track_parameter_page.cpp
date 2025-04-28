@@ -1,17 +1,22 @@
 #include "track_parameter_page.h"
 
-TrackParameterPage::TrackParameterPage(AppContext &context, QWidget *parent)
+TrackParameterPage::TrackParameterPage(AppContext &context,
+                                       TrainSimulation *trainSimulation,
+                                       QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_formContainer(new QWidget(this)),
       m_formLayout(new QGridLayout(m_formContainer)),
       resistanceData(context.resistanceData.data()),
       movingData(context.movingData.data()),
-      stationData(context.stationData.data()) {
+      stationData(context.stationData.data()),
+      m_trainSimulation(trainSimulation) {
   mainLayout->setContentsMargins(16, 16, 16, 16);
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setHorizontalSpacing(128);
   m_formLayout->setVerticalSpacing(32);
   createInputs();
+  connect(m_trainSimulation, &TrainSimulation::simulationStarted, this,
+          [this]() { setParameterValue(); });
   mainLayout->addWidget(m_formContainer);
   setLayout(mainLayout);
 }
@@ -52,6 +57,7 @@ TrackParameterPage::getCsvParamValue(const QString &paramName,
 }
 
 void TrackParameterPage::setParameterValue() {
+  qDebug() << "Setting parameter value for track parameters...";
   movingData->v_limit = getParameterValue("Speed Limit");
   resistanceData->radius = getParameterValue("Radius per Section");
   resistanceData->slope = getParameterValue("Slope per Section");
