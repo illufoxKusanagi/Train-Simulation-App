@@ -122,8 +122,14 @@ void TrainParameterPage::setupSecondPage(QVBoxLayout *layout) {
 QGroupBox *TrainParameterPage::createTypeLayout(const QStringList &labels,
                                                 QList<double> values) {
   QGroupBox *typeLayout = new QGroupBox("Type");
-  QVBoxLayout *typeFormLayout = new QVBoxLayout(typeLayout);
-  typeFormLayout->setAlignment(Qt::AlignTop);
+  QVBoxLayout *groupBoxMainLayout = new QVBoxLayout(typeLayout);
+  QScrollArea *scrollArea = new QScrollArea(typeLayout);
+  scrollArea->setWidgetResizable(false);
+  scrollArea->setFrameShape(QFrame::NoFrame);
+  scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  QWidget *scrollWidget = new QWidget();
+  QVBoxLayout *typeFormLayout = new QVBoxLayout(scrollWidget);
   for (const QString &label : labels) {
     InputWidget *typeInputWidget =
         new InputWidget(this, InputType("field", label, ""));
@@ -131,6 +137,8 @@ QGroupBox *TrainParameterPage::createTypeLayout(const QStringList &labels,
     typeFormLayout->addWidget(typeInputWidget);
     m_typeInputWidgets[label] = typeInputWidget;
   }
+  scrollArea->setWidget(scrollWidget);
+  groupBoxMainLayout->addWidget(scrollArea);
   setTypeValue();
   typeLayout->setStyleSheet(groupBoxStyle);
   return typeLayout;
@@ -139,7 +147,14 @@ QGroupBox *TrainParameterPage::createTypeLayout(const QStringList &labels,
 QGroupBox *TrainParameterPage::createMassLayout(const QStringList &labels,
                                                 QList<double> values) {
   QGroupBox *massLayout = new QGroupBox("Mass");
-  QVBoxLayout *massFormLayout = new QVBoxLayout(massLayout);
+  QVBoxLayout *mainMassFormLayout = new QVBoxLayout(massLayout);
+  QScrollArea *scrollArea = new QScrollArea(massLayout);
+  scrollArea->setWidgetResizable(false);
+  scrollArea->setFrameShape(QFrame::NoFrame);
+  scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  QWidget *scrollWidget = new QWidget();
+  QVBoxLayout *massFormLayout = new QVBoxLayout(scrollWidget);
   massFormLayout->setAlignment(Qt::AlignTop);
   for (const QString &label : labels) {
     InputWidget *massInputWidget =
@@ -148,6 +163,8 @@ QGroupBox *TrainParameterPage::createMassLayout(const QStringList &labels,
     m_massInputWidgets[label] = massInputWidget;
     massFormLayout->addWidget(massInputWidget);
   }
+  scrollArea->setWidget(scrollWidget);
+  mainMassFormLayout->addWidget(scrollArea);
   setMassValue();
   massLayout->setStyleSheet(groupBoxStyle);
   return massLayout;
@@ -156,8 +173,14 @@ QGroupBox *TrainParameterPage::createMassLayout(const QStringList &labels,
 QGroupBox *TrainParameterPage::createPassengerLayout(const QStringList &labels,
                                                      QList<double> values) {
   QGroupBox *passengerLayout = new QGroupBox("Passenger");
-  QVBoxLayout *passengerFormLayout = new QVBoxLayout(passengerLayout);
-  passengerFormLayout->setAlignment(Qt::AlignBottom);
+  QVBoxLayout *mainPassengerFormLayout = new QVBoxLayout(passengerLayout);
+  QScrollArea *scrollArea = new QScrollArea(passengerLayout);
+  scrollArea->setWidgetResizable(false);
+  scrollArea->setFrameShape(QFrame::NoFrame);
+  scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  QWidget *scrollWidget = new QWidget();
+  QVBoxLayout *passengerFormLayout = new QVBoxLayout(scrollWidget);
   for (const QString &label : labels) {
     InputWidget *passengerInputWidget =
         new InputWidget(this, InputType("field", label, "person"));
@@ -165,6 +188,8 @@ QGroupBox *TrainParameterPage::createPassengerLayout(const QStringList &labels,
     passengerFormLayout->addWidget(passengerInputWidget);
     m_passengerInputWidgets[label] = passengerInputWidget;
   }
+  scrollArea->setWidget(scrollWidget);
+  mainPassengerFormLayout->addWidget(scrollArea);
   setPassengerValue();
   passengerLayout->setStyleSheet(groupBoxStyle);
   return passengerLayout;
