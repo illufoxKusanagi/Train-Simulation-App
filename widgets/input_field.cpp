@@ -10,10 +10,7 @@ InputField::InputField(const QString &unitText, QWidget *parent)
   layout->addWidget(m_input);
   layout->addWidget(m_unitLabel);
 
-  m_input->setStyleSheet("padding: 4px 12px; border: 1px solid " +
-                         Colors::Secondary400.name() + "; border-radius: 8px;" +
-                         TextStyle::BodySmallRegular() +
-                         "color: " + Colors::Secondary400.name() + ";");
+  m_input->setStyleSheet(s_styleSheet);
   m_input->setFixedSize(128, 32);
   m_unitLabel->setStyleSheet(TextStyle::BodySmallRegular() +
                              "color: " + Colors::Secondary700.name() + ";");
@@ -34,6 +31,10 @@ void InputField::setPlaceholder() {
 }
 
 void InputField::setReadOnly(bool isReadOnly) {
+  m_input->setStyleSheet(
+      isReadOnly ? s_styleSheet +
+                       ("background-color: " + Colors::Primary50.name() + ";")
+                 : s_styleSheet);
   m_input->setReadOnly(isReadOnly);
 }
 
@@ -47,3 +48,8 @@ void InputField::connectTextChanged() {
 bool InputField::isModified() const { return m_input->isModified(); }
 
 void InputField::setModified(bool modified) { m_input->setModified(modified); }
+
+const QString InputField::s_styleSheet =
+    "padding: 4px 12px; border: 1px solid " + Colors::Secondary400.name() +
+    "; border-radius: 8px;" + TextStyle::BodySmallRegular() +
+    "color: " + Colors::Secondary400.name() + ";";
