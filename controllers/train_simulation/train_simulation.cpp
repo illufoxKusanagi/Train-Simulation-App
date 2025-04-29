@@ -84,6 +84,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   double stationDistance = 0;
   double trainStopTime = 0;
   const double WAIT_TIME = 10.0;
+  double brakeDistance = 0.0;
 
   if (stationData->n_station > stationData->x_station.size() + 1) {
     m_simulationWarnings.insert(
@@ -96,17 +97,19 @@ void TrainSimulation::simulateDynamicTrainMovement() {
     simulationDatas.slopes.append(m_slope);
     simulationDatas.radiuses.append(m_radius);
     simulationDatas.speedLimits.append(m_maxSpeed);
+    simulationDatas.mileages.append(mileage);
     resistanceData->f_resStart =
         m_resistanceHandler->calculateStartRes(m_slope, m_radius);
     resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
         movingData->v, m_slope, m_radius);
     if (!stationData->v_limit.empty()) {
-      mileage =
-          m_simulationTrackHandler->calculateMileage(stationData->v_limit[i]);
+      mileage = m_simulationTrackHandler->calculateMileage(movingData->v);
     } else {
-      // m_simulationWarnings.insert("Speed limit data set to default value!");
-      mileage = m_simulationTrackHandler->calculateMileage(movingData->v_limit);
+      mileage = m_simulationTrackHandler->calculateMileage(movingData->v);
     }
+    brakeDistance =
+        m_simulationTrackHandler->calculateBrakingTrack(movingData->v);
+    simulationDatas.brakingDistances.append(brakeDistance);
     if (isAtStation) {
       phase = "At Station";
       movingData->v = 0;
@@ -207,7 +210,6 @@ void TrainSimulation::simulateDynamicTrainMovement() {
         break;
       }
     }
-    simulationDatas.mileages.append(mileage);
     energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
     energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
     phase == "Braking" ? energyData->e_catenary +=
