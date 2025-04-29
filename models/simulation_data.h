@@ -50,6 +50,8 @@ struct SimulationDatas {
   QList<double> motorResistancesFive;
   QList<double> motorResistancesTen;
   QList<double> motorResistancesTwentyFive;
+
+  QList<double> brakingDistances;
 };
 
 #endif // SIMULATIONDATA_H
