@@ -21,7 +21,7 @@ void OutputHandler::printSimulationDatas() {
   }
   ofstream outFile(filepath.toStdString(), ios::out);
   outFile << "Phase,Iteration,Time (s),Total "
-             "time (s),Distance (m),TotalDistance (m),Mileage (m),Braking "
+             "time (s),Distance (m),TotalDistance (m),Odo (m),Braking "
              "Distance,Speed "
              "(km/h),Speed (m/s),Slope,Radius,Speed Limit,Acceleration "
              "(km/h/s),Acceleration (m/s2),F Motor,F Res, F Total, F Motor / "
@@ -34,9 +34,8 @@ void OutputHandler::printSimulationDatas() {
             << simulationDatas->time[i] << "," << simulationDatas->timeTotal[i]
             << "," << simulationDatas->distance[i] << ","
             << simulationDatas->distanceTotal[i] << ","
-            << (simulationDatas->mileages.isEmpty()
-                    ? 0
-                    : simulationDatas->mileages[i])
+            << (simulationDatas->mileages.isEmpty() ? 0
+                                                    : simulationDatas->odos[i])
             << "," << simulationDatas->brakingDistances[i] << ","
             << simulationDatas->trainSpeeds[i] << ","
             << simulationDatas->trainSpeedsSi[i] << ","

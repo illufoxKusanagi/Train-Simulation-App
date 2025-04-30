@@ -5,6 +5,7 @@ UtilityHandler::UtilityHandler(AppContext &context)
     : context(&context), simulationDatas(context.simulationData.data()) {}
 
 void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
+  simulationDatas->odos.append(context->stationData->x_odo);
   simulationDatas->tractionEfforts.append(context->resistanceData->f_motor);
   simulationDatas->vvvfPowers.append(context->powerData->p_vvvfIn);
   simulationDatas->catenaryPowers.append(context->powerData->p_catenary);

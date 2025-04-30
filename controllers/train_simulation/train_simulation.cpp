@@ -89,9 +89,14 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   if (stationData->n_station > stationData->x_station.size() + 1) {
     m_simulationWarnings.insert(
         "Number of stations exceeds the number of station data.");
+  } else if (stationData->n_station < 2) {
+    MessageBoxWidget messageBox("Error!", "Number of station is invalid",
+                                MessageBoxWidget::Warning);
+    return;
   }
-  while (movingData->v >= 0 || (stationIndex + 2 < stationData->n_station &&
-                                stationIndex < stationData->x_station.size())) {
+  while ((movingData->v >= 0 && isAtStation) ||
+         (stationIndex + 1 < stationData->n_station &&
+          stationIndex < stationData->x_station.size())) {
     addStationSimulationDatas();
     addEnergySimulationDatas();
     simulationDatas.slopes.append(m_slope);
@@ -118,6 +123,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       time += constantData->dt;
       isBraking = false;
       simulationDatas.time.append(constantData->dt);
+      stationData->x_odo = 0.0;
       if (trainStopTime >= WAIT_TIME) {
         isAtStation = false;
         trainStopTime = 0;
@@ -217,6 +223,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
                        : energyData->e_catenary +=
                          m_energyHandler->calculateEnergyOfPowering(i);
     movingData->x = abs(calculateTotalDistance(i));
+    stationData->x_odo = isAtStation ? 0 : stationData->x_odo + movingData->x;
     movingData->x_total += movingData->x;
     trainMotorData->tm_f_res =
         m_tractionMotorHandler->calculateResistanceForcePerMotor(

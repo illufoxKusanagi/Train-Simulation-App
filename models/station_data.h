@@ -8,7 +8,8 @@ struct StationData {
   double stat_v_limit;
   double stat_slope;
   double stat_radius;
-  int n_station;
+  double x_odo;
+  int n_station = 2;
   std::vector<double> x_station;
   std::vector<double> v_limit;
   std::vector<double> x_v_limitStart;
