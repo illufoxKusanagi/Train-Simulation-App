@@ -166,8 +166,7 @@ double CsvVariableHandler::setMaxSpeedData(int maxSpeedIndex,
 }
 
 double CsvVariableHandler::setEffVvvfData(int effVvvfIndex, double speed) {
-  if (!efficiencyData->eff_vvvf.empty() &&
-      effVvvfIndex < efficiencyData->eff_vvvf.size()) {
+  if (effVvvfIndex < efficiencyData->eff_vvvf.size()) {
     if (speed >= efficiencyData->v_eff_vvvf[effVvvfIndex]) {
       return efficiencyData->eff_vvvf[effVvvfIndex++];
     } else if (speed < efficiencyData->v_eff_vvvf[effVvvfIndex] &&

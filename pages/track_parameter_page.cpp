@@ -57,7 +57,6 @@ TrackParameterPage::getCsvParamValue(const QString &paramName,
 }
 
 void TrackParameterPage::setParameterValue() {
-  qDebug() << "Setting parameter value for track parameters...";
   movingData->v_limit = getParameterValue("Speed Limit");
   resistanceData->radius = getParameterValue("Radius per Section");
   resistanceData->slope = getParameterValue("Slope per Section");

@@ -198,6 +198,39 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       simulationDatas.time.append(constantData->dt);
       energyData->e_reg += m_energyHandler->calculateEnergyRegeneration(i);
       if (movingData->v <= 0) {
+        // Explicitly set speed to zero (in case it went negative)
+        movingData->v = 0;
+        movingData->v_si = 0;
+
+        // Record all data for this final braking iteration
+        energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
+        energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
+        phase == "Braking" ? energyData->e_catenary +=
+                             m_energyHandler->calculateEnergyRegeneration(i)
+                           : energyData->e_catenary +=
+                             m_energyHandler->calculateEnergyOfPowering(i);
+
+        movingData->x = abs(calculateTotalDistance(i));
+        stationData->x_odo = 0; // We're at the station
+        movingData->x_total += movingData->x;
+
+        // Calculate all other required values
+        trainMotorData->tm_f_res =
+            m_tractionMotorHandler->calculateResistanceForcePerMotor(
+                resistanceData->f_resStart);
+        trainMotorData->tm_f = m_tractionMotorHandler->calculateTractionForce();
+        trainMotorData->tm_t = m_tractionMotorHandler->calculateTorque();
+        trainMotorData->tm_rpm = m_tractionMotorHandler->calculateRpm();
+
+        energyData->curr_catenary =
+            m_currentHandler->calculateCatenaryCurrent(m_lineVoltage);
+        energyData->curr_vvvf =
+            m_currentHandler->calculateVvvfCurrent(m_lineVoltage);
+
+        // Record the data point with the final braking state
+        m_utilityHandler->addSimulationDatas(i, time, phase);
+        i++; // Important - increment i before continuing
+
         notch = AtStation;
         trainStopTime = 0;
         continue;
