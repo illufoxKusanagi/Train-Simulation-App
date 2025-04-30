@@ -57,7 +57,6 @@ TrackParameterPage::getCsvParamValue(const QString &paramName,
 }
 
 void TrackParameterPage::setParameterValue() {
-  qDebug() << "Setting parameter value for track parameters...";
   movingData->v_limit = getParameterValue("Speed Limit");
   resistanceData->radius = getParameterValue("Radius per Section");
   resistanceData->slope = getParameterValue("Slope per Section");
@@ -82,8 +81,11 @@ void TrackParameterPage::connectInputSignals() {
 
 void TrackParameterPage::setStationDistanceValue() {
   stationData->stat_x_station = getParameterValue("Station Distance");
-  QList<double> stationDistances = getCsvParamValue("Station Distance", 1);
+  QList<double> stationDistances = getCsvParamValue("Station Distance", 2);
   stationData->x_station =
+      std::vector<double>(stationDistances.begin(), stationDistances.end());
+  QList<double> totalStationDistances = getCsvParamValue("Station Distance", 1);
+  stationData->tot_x_station =
       std::vector<double>(stationDistances.begin(), stationDistances.end());
 }
 

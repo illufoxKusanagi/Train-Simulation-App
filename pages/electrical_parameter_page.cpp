@@ -27,7 +27,7 @@ void ElectricalParameterPage::createInputs() {
       "Efficiency of VVVF", "The Efficiency of Traction Motor",
       "Auxiliary Power"};
   QStringList units = {"V", "%", "V", "%", "%", "%", "kW"};
-  QList<double> values = {1500, 0, 0, 0.98, 0.96, 30, 0.89};
+  QList<double> values = {1500, 0, 1200, 0.98, 0.96, 30, 0.89};
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
         new InputWidget(this, InputType(i == 6 ? "field" : "field upload",
@@ -50,8 +50,6 @@ ElectricalParameterPage::getParameterValue(const QString &paramName) const {
 }
 
 void ElectricalParameterPage::setParameterValue() {
-  qDebug() << "Setting parameter value for electrical parameters...";
-
   efficiencyData->stat_eff_motor =
       getParameterValue("Efficiency of Traction Motor");
   efficiencyData->stat_eff_vvvf = getParameterValue("Efficiency of VVVF");

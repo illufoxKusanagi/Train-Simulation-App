@@ -43,7 +43,6 @@ void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
 }
 
 void UtilityHandler::resetSimulation() {
-  qDebug() << "Simulation Resetted";
   context->resistanceData->f_resStart = 0;
   context->resistanceData->f_resRunning = 0;
   context->resistanceData->f_motor = 0;

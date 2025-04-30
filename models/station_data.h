@@ -11,6 +11,7 @@ struct StationData {
   double x_odo;
   int n_station = 2;
   std::vector<double> x_station;
+  std::vector<double> tot_x_station;
   std::vector<double> v_limit;
   std::vector<double> x_v_limitStart;
   std::vector<double> x_v_limitEnd;

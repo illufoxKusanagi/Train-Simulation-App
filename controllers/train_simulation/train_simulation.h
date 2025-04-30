@@ -78,6 +78,7 @@ public:
   QSet<QString> getSimulationWarnings() const { return m_simulationWarnings; }
 
 private:
+  enum Notch { AtStation, Accelerating, Coasting, Braking, None };
   ConstantData *constantData;
   TrainData *trainData;
   MassData *massData;
