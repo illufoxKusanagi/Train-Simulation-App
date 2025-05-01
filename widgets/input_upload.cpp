@@ -1,9 +1,9 @@
 #include "input_upload.h"
 
-InputUpload::InputUpload(QWidget *parent)
+InputUpload::InputUpload(const QString &inputLabel, QWidget *parent)
     : QWidget(parent), m_uploadButton(new QPushButton("Choose csv File", this)),
       m_uploadLabel(new QLabel("No file selected", this)),
-      m_requiredColumnCount(0) {
+      m_requiredColumnCount(0), m_inputLabel(inputLabel) {
   QHBoxLayout *layout = new QHBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
   m_uploadButton->setIcon(QIcon(":/icons/icons/upload.svg"));
@@ -55,9 +55,9 @@ bool InputUpload::isFileLoaded() const { return !m_filePath.isEmpty(); }
 QList<QList<double>> InputUpload::getAllData() const { return m_data; }
 
 void InputUpload::onUploadButtonClicked() {
-  QString filePath =
-      QFileDialog::getOpenFileName(this, tr("Open CSV File"), QDir::homePath(),
-                                   tr("CSV Files (*.csv);;All Files (*)"));
+  QString filePath = QFileDialog::getOpenFileName(
+      this, QString("Select " + m_inputLabel + " CSV File"), QDir::homePath(),
+      tr("CSV Files (*.csv);;All Files (*)"));
 
   if (filePath.isEmpty()) {
     MessageBoxWidget messageBox("Error", "No file selected",

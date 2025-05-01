@@ -101,7 +101,7 @@ void InputWidget::setModified(bool modified) {
 }
 
 void InputWidget::buildInputUpload(InputType inputType) {
-  m_inputUpload = new InputUpload(this);
+  m_inputUpload = new InputUpload(inputType.label, this);
   m_inputUpload->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   connect(m_inputUpload, &InputUpload::fileLoaded, this,
           [this]() { emit valueChanged(); });
@@ -126,7 +126,8 @@ void InputWidget::buildInputFieldUpload(InputType inputType) {
   inputField->setReadOnly(inputType.isReadOnly);
   inputField->setValue(inputType.value);
 
-  InputUpload *inputUpload = new InputUpload(m_inputFieldUpload);
+  InputUpload *inputUpload =
+      new InputUpload(inputType.label, m_inputFieldUpload);
   inputUpload->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   connect(inputField->findChild<QLineEdit *>(), &QLineEdit::textChanged, this,
           [this, inputField]() {
