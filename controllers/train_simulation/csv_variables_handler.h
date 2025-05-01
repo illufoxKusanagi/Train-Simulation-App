@@ -9,7 +9,7 @@ class CsvVariableHandler : public QObject {
   Q_OBJECT
 public:
   explicit CsvVariableHandler(AppContext &context,
-                              QSet<QString> simulationWarnings);
+                              QSet<QString> *simulationWarnings = nullptr);
 
   int setSlopeIndex(int slopeIndex, double distanceTravelled);
   int setRadiusIndex(int radiusIndex, double distanceTravelled);
@@ -32,7 +32,7 @@ private:
   StationData *stationData;
   EfficiencyData *efficiencyData;
   EnergyData *energyData;
-  QSet<QString> m_simulationWarnings;
+  QSet<QString> *m_simulationWarnings;
 };
 
 #endif // CSV_VARIABLES_HANDLER_H
