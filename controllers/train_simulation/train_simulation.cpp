@@ -24,7 +24,7 @@ TrainSimulation::TrainSimulation(AppContext &context, QObject *parent)
   m_tractiveEffortHandler = new TractiveEffortHandler(context);
   m_simulationTrackHandler = new SimulationTrackHandler(context);
   m_currentHandler = new CurrentHandler(context);
-  m_csvVariableHandler = new CsvVariableHandler(context, m_simulationWarnings);
+  m_csvVariableHandler = new CsvVariableHandler(context, &m_simulationWarnings);
   initData();
   connect(this, &TrainSimulation::simulationCompleted, m_utilityHandler,
           &UtilityHandler::resetSimulation);
@@ -198,11 +198,8 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       simulationDatas.time.append(constantData->dt);
       energyData->e_reg += m_energyHandler->calculateEnergyRegeneration(i);
       if (movingData->v <= 0) {
-        // Explicitly set speed to zero (in case it went negative)
         movingData->v = 0;
         movingData->v_si = 0;
-
-        // Record all data for this final braking iteration
         energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
         energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
         phase == "Braking" ? energyData->e_catenary +=
@@ -211,10 +208,8 @@ void TrainSimulation::simulateDynamicTrainMovement() {
                              m_energyHandler->calculateEnergyOfPowering(i);
 
         movingData->x = abs(calculateTotalDistance(i));
-        stationData->x_odo = 0; // We're at the station
+        stationData->x_odo = 0;
         movingData->x_total += movingData->x;
-
-        // Calculate all other required values
         trainMotorData->tm_f_res =
             m_tractionMotorHandler->calculateResistanceForcePerMotor(
                 resistanceData->f_resStart);
@@ -227,9 +222,8 @@ void TrainSimulation::simulateDynamicTrainMovement() {
         energyData->curr_vvvf =
             m_currentHandler->calculateVvvfCurrent(m_lineVoltage);
 
-        // Record the data point with the final braking state
         m_utilityHandler->addSimulationDatas(i, time, phase);
-        i++; // Important - increment i before continuing
+        i++;
 
         notch = AtStation;
         trainStopTime = 0;
