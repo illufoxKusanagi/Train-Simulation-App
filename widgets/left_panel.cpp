@@ -115,8 +115,10 @@ void LeftPanel::createRunButton() {
             MessageBoxWidget::Warning);
         return;
       }
-      QFuture<void> future = QtConcurrent::run(
-          [this]() { m_trainSimulation->simulateDynamicTrainMovement(); });
+      QFuture<void> future = QtConcurrent::run([this]() {
+        m_isSimulationError = false;
+        m_trainSimulation->simulateDynamicTrainMovement();
+      });
       updateButtonState(future, runBtn, staticBtn);
     };
   };
@@ -124,8 +126,10 @@ void LeftPanel::createRunButton() {
   auto setupStaticRunHandler = [this](ButtonAction *runBtn,
                                       ButtonAction *staticBtn) {
     return [this, runBtn, staticBtn]() {
-      QFuture<void> future = QtConcurrent::run(
-          [this]() { m_trainSimulation->simulateStaticTrainMovement(); });
+      QFuture<void> future = QtConcurrent::run([this]() {
+        m_isSimulationError = false;
+        m_trainSimulation->simulateStaticTrainMovement();
+      });
       updateButtonState(future, runBtn, staticBtn);
     };
   };
@@ -174,15 +178,22 @@ void LeftPanel::updateButtonState(QFuture<void> future, ButtonAction *runButton,
   runStaticButton->setEnabled(false);
   QTimer::singleShot(200, this, [this, runButton, runStaticButton, future]() {
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
-    connect(watcher, &QFutureWatcher<void>::finished, this,
-            [this, watcher, runStaticButton, runButton]() {
-              runStaticButton->setEnabled(true);
-              runButton->setEnabled(true);
-              QSet<QString> warnings =
-                  m_trainSimulation->getSimulationWarnings();
-              showSimMessageBox(warnings);
-              watcher->deleteLater();
-            });
+    connect(
+        watcher, &QFutureWatcher<void>::finished, this,
+        [this, watcher, runStaticButton, runButton]() {
+          runStaticButton->setEnabled(true);
+          runButton->setEnabled(true);
+          connect(m_trainSimulation, &TrainSimulation::simulationError, this,
+                  [this]() { m_isSimulationError = true; });
+          if (!m_isSimulationError) {
+            QSet<QString> warnings = m_trainSimulation->getSimulationWarnings();
+            showSimMessageBox(warnings);
+          } else {
+            MessageBoxWidget messageBox("Error!", "Simulation ended with error",
+                                        MessageBoxWidget::Critical);
+          }
+          watcher->deleteLater();
+        });
     watcher->setFuture(future);
   });
 }

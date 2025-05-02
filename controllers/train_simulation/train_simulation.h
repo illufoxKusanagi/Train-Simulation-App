@@ -38,6 +38,7 @@ signals:
                           double vvvfCurrent, double catenaryCurrent);
   void simulationStarted();
   void staticSimulationStarted();
+  void simulationError();
 
 public slots:
   void simulateStaticTrainMovement();

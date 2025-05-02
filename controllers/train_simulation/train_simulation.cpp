@@ -33,6 +33,14 @@ TrainSimulation::TrainSimulation(AppContext &context, QObject *parent)
 }
 
 void TrainSimulation::initData() {
+  m_slopeIndex = 0;
+  m_radiusIndex = 0;
+  m_maxSpeedIndex = 0;
+  m_effVvvfIndex = 0;
+  m_effGearIndex = 0;
+  m_effMotorIndex = 0;
+  m_lineVoltageIndex = 0;
+  m_motorVoltageIndex = 0;
   massData->mass_totalEmpty = m_massHandler->countMassEmptyCar();
   if (loadData->load > 0) {
     massData->mass_totalLoad = m_massHandler->countMassLoadInput();
@@ -66,13 +74,12 @@ double TrainSimulation::calculateTotalDistance(int i) {
 }
 
 void TrainSimulation::simulateDynamicTrainMovement() {
-  emit simulationStarted();
   clearWarnings();
+  emit simulationStarted();
   m_utilityHandler->clearSimulationDatas();
   initData();
   QString phase = "Starting";
   int i = 0;
-  // int notch = -2;
   Notch notch = Accelerating;
   int stationIndex = 0;
   float time = 0;
@@ -83,194 +90,202 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   double trainStopTime = 0;
   const double WAIT_TIME = 10.0;
   double brakingDistance = 0.0;
+  bool isError = false;
 
   if (stationData->n_station > stationData->x_station.size() + 1) {
     m_simulationWarnings.insert(
         "Number of stations exceeds the number of station data.");
   } else if (stationData->n_station < 2) {
-    MessageBoxWidget messageBox("Error!", "Number of station is invalid",
-                                MessageBoxWidget::Warning);
-    return;
+    isError = true;
   }
-  while ((movingData->v >= 0 && notch == AtStation) ||
-         (stationIndex + 1 < stationData->n_station &&
-          stationIndex < stationData->x_station.size())) {
-    addStationSimulationDatas();
-    addEnergySimulationDatas();
-    simulationDatas.slopes.append(m_slope);
-    simulationDatas.radiuses.append(m_radius);
-    simulationDatas.speedLimits.append(m_maxSpeed);
-    simulationDatas.mileages.append(mileage);
-    resistanceData->f_resStart =
-        m_resistanceHandler->calculateStartRes(m_slope, m_radius);
-    resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
-        movingData->v, m_slope, m_radius);
-    mileage = m_simulationTrackHandler->calculateMileage(movingData->v);
-    brakingDistance =
-        m_simulationTrackHandler->calculateBrakingTrack(movingData->v);
-    simulationDatas.brakingDistances.append(brakingDistance);
-    if (notch == AtStation) {
-      phase = "At Station";
-      notch = AtStation;
-      movingData->v = 0;
-      movingData->v_si = 0;
-      movingData->acc = 0;
-      movingData->acc_si = 0;
-      energyData->e_aps = 0;
-      energyData->e_motor = 0;
-      trainStopTime += constantData->dt;
-      time += constantData->dt;
-      simulationDatas.time.append(constantData->dt);
-      stationData->x_odo = 0.0;
-      if (trainStopTime >= WAIT_TIME) {
-        trainStopTime = 0;
-        stationIndex++;
-        notch = Accelerating;
-      }
-      simulationDatas.accelerations.append(movingData->acc);
-      simulationDatas.accelerationsSi.append(movingData->acc_si);
-      simulationDatas.trainSpeeds.append(movingData->v);
-      simulationDatas.trainSpeedsSi.append(movingData->v_si);
-    } else if (mileage < stationData->x_station[stationIndex] &&
-               notch != Braking) {
-      if (notch == Accelerating) {
-        if (movingData->v >= m_maxSpeed && resistanceData->f_total > 0) {
-          phase = "Coasting";
-          notch = Coasting;
-          continue;
-        }
-        phase = "Accelerating";
-        m_tractiveEffortHandler->calculatePoweringForce(movingData->acc,
-                                                        movingData->v);
-        m_tractiveEffortHandler->calculateTotalForce(movingData->v);
-        movingData->acc_si =
-            (resistanceData->f_total / massData->mass_totalInertial);
-        movingData->acc = constantData->cV * movingData->acc_si;
-        calculatePowers(m_efficiencyGear, m_efficiencyMotor, m_efficiencyVvvf);
-        movingData->v_si += movingData->acc_si * constantData->dt;
-        movingData->v += movingData->acc * constantData->dt;
-        simulationDatas.accelerations.append(movingData->acc);
-        simulationDatas.accelerationsSi.append(movingData->acc_si);
-        simulationDatas.trainSpeeds.append(movingData->v);
-        simulationDatas.trainSpeedsSi.append(movingData->v_si);
-        time += constantData->dt;
-        simulationDatas.time.append(constantData->dt);
-        energyData->e_pow += m_energyHandler->calculateEnergyOfPowering(i);
-      } else if (notch == Coasting) {
-        if (movingData->v <= (m_maxSpeed - movingData->v_diffCoast)) {
-          coastingCount++;
-          notch = Accelerating;
-        }
-        phase = "Coasting";
-        resistanceData->f_motor = 0;
-        resistanceData->f_total = -resistanceData->f_resRunning;
-        movingData->acc_si =
-            (resistanceData->f_total / massData->mass_totalInertial);
-        movingData->acc = constantData->cV * movingData->acc_si;
-        calculatePowers(m_efficiencyGear, m_efficiencyMotor, m_efficiencyVvvf);
-        movingData->v_si += movingData->acc_si * constantData->dt;
-        movingData->v += movingData->acc * constantData->dt;
-        simulationDatas.accelerations.append(movingData->acc);
-        simulationDatas.accelerationsSi.append(movingData->acc_si);
-        simulationDatas.trainSpeeds.append(movingData->v);
-        simulationDatas.trainSpeedsSi.append(movingData->v_si);
-        time += constantData->dt;
-        simulationDatas.time.append(constantData->dt);
-        energyData->e_pow += m_energyHandler->calculateEnergyOfPowering(i);
-      }
-    } else {
-      phase = "Braking";
-      notch = Braking;
-      m_tractiveEffortHandler->calculateBrakingForce();
-      resistanceData->f_brake =
-          m_tractiveEffortHandler->calculateTotalBrakeForce();
-      movingData->decc_si =
-          resistanceData->f_brake / massData->mass_totalInertial;
-      movingData->decc = constantData->cV * movingData->decc_si;
-      calculatePowers(m_efficiencyGear, m_efficiencyMotor, m_efficiencyVvvf);
-      movingData->v_si += movingData->decc_si * constantData->dt;
-      movingData->v += movingData->decc * constantData->dt;
-      simulationDatas.accelerations.append(movingData->decc);
-      simulationDatas.accelerationsSi.append(movingData->decc_si);
-      simulationDatas.trainSpeeds.append(movingData->v);
-      simulationDatas.trainSpeedsSi.append(movingData->v_si);
-      time += constantData->dt;
-      simulationDatas.time.append(constantData->dt);
-      energyData->e_reg += m_energyHandler->calculateEnergyRegeneration(i);
-      if (movingData->v <= 0) {
+  if (isError) {
+    emit simulationError();
+  } else {
+
+    while (((movingData->v >= 0 && notch == AtStation) ||
+            (stationIndex + 1 < stationData->n_station &&
+             stationIndex < stationData->x_station.size()))) {
+      addStationSimulationDatas();
+      addEnergySimulationDatas();
+      simulationDatas.slopes.append(m_slope);
+      simulationDatas.radiuses.append(m_radius);
+      simulationDatas.speedLimits.append(m_maxSpeed);
+      simulationDatas.mileages.append(mileage);
+      resistanceData->f_resStart =
+          m_resistanceHandler->calculateStartRes(m_slope, m_radius);
+      resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
+          movingData->v, m_slope, m_radius);
+      mileage = m_simulationTrackHandler->calculateMileage(movingData->v);
+      brakingDistance =
+          m_simulationTrackHandler->calculateBrakingTrack(movingData->v);
+      simulationDatas.brakingDistances.append(brakingDistance);
+      if (notch == AtStation) {
+        phase = "At Station";
+        notch = AtStation;
         movingData->v = 0;
         movingData->v_si = 0;
-        energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
-        energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
-        phase == "Braking" ? energyData->e_catenary +=
-                             m_energyHandler->calculateEnergyRegeneration(i)
-                           : energyData->e_catenary +=
-                             m_energyHandler->calculateEnergyOfPowering(i);
+        movingData->acc = 0;
+        movingData->acc_si = 0;
+        energyData->e_aps = 0;
+        energyData->e_motor = 0;
+        trainStopTime += constantData->dt;
+        time += constantData->dt;
+        simulationDatas.time.append(constantData->dt);
+        stationData->x_odo = 0.0;
+        if (trainStopTime >= WAIT_TIME) {
+          trainStopTime = 0;
+          stationIndex++;
+          notch = Accelerating;
+        }
+        simulationDatas.accelerations.append(movingData->acc);
+        simulationDatas.accelerationsSi.append(movingData->acc_si);
+        simulationDatas.trainSpeeds.append(movingData->v);
+        simulationDatas.trainSpeedsSi.append(movingData->v_si);
+      } else if (mileage < stationData->x_station[stationIndex] &&
+                 notch != Braking) {
+        if (notch == Accelerating) {
+          if (movingData->v >= m_maxSpeed && resistanceData->f_total > 0) {
+            phase = "Coasting";
+            notch = Coasting;
+            continue;
+          }
+          phase = "Accelerating";
+          m_tractiveEffortHandler->calculatePoweringForce(movingData->acc,
+                                                          movingData->v);
+          m_tractiveEffortHandler->calculateTotalForce(movingData->v);
+          movingData->acc_si =
+              (resistanceData->f_total / massData->mass_totalInertial);
+          movingData->acc = constantData->cV * movingData->acc_si;
+          calculatePowers(m_efficiencyGear, m_efficiencyMotor,
+                          m_efficiencyVvvf);
+          movingData->v_si += movingData->acc_si * constantData->dt;
+          movingData->v += movingData->acc * constantData->dt;
+          simulationDatas.accelerations.append(movingData->acc);
+          simulationDatas.accelerationsSi.append(movingData->acc_si);
+          simulationDatas.trainSpeeds.append(movingData->v);
+          simulationDatas.trainSpeedsSi.append(movingData->v_si);
+          time += constantData->dt;
+          simulationDatas.time.append(constantData->dt);
+          energyData->e_pow += m_energyHandler->calculateEnergyOfPowering(i);
+        } else if (notch == Coasting) {
+          if (movingData->v <= (m_maxSpeed - movingData->v_diffCoast)) {
+            coastingCount++;
+            notch = Accelerating;
+          }
+          phase = "Coasting";
+          resistanceData->f_motor = 0;
+          resistanceData->f_total = -resistanceData->f_resRunning;
+          movingData->acc_si =
+              (resistanceData->f_total / massData->mass_totalInertial);
+          movingData->acc = constantData->cV * movingData->acc_si;
+          calculatePowers(m_efficiencyGear, m_efficiencyMotor,
+                          m_efficiencyVvvf);
+          movingData->v_si += movingData->acc_si * constantData->dt;
+          movingData->v += movingData->acc * constantData->dt;
+          simulationDatas.accelerations.append(movingData->acc);
+          simulationDatas.accelerationsSi.append(movingData->acc_si);
+          simulationDatas.trainSpeeds.append(movingData->v);
+          simulationDatas.trainSpeedsSi.append(movingData->v_si);
+          time += constantData->dt;
+          simulationDatas.time.append(constantData->dt);
+          energyData->e_pow += m_energyHandler->calculateEnergyOfPowering(i);
+        }
+      } else {
+        phase = "Braking";
+        notch = Braking;
+        m_tractiveEffortHandler->calculateBrakingForce();
+        resistanceData->f_brake =
+            m_tractiveEffortHandler->calculateTotalBrakeForce();
+        movingData->decc_si =
+            resistanceData->f_brake / massData->mass_totalInertial;
+        movingData->decc = constantData->cV * movingData->decc_si;
+        calculatePowers(m_efficiencyGear, m_efficiencyMotor, m_efficiencyVvvf);
+        movingData->v_si += movingData->decc_si * constantData->dt;
+        movingData->v += movingData->decc * constantData->dt;
+        simulationDatas.accelerations.append(movingData->decc);
+        simulationDatas.accelerationsSi.append(movingData->decc_si);
+        simulationDatas.trainSpeeds.append(movingData->v);
+        simulationDatas.trainSpeedsSi.append(movingData->v_si);
+        time += constantData->dt;
+        simulationDatas.time.append(constantData->dt);
+        energyData->e_reg += m_energyHandler->calculateEnergyRegeneration(i);
+        if (movingData->v <= 0) {
+          movingData->v = 0;
+          movingData->v_si = 0;
+          energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
+          energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
+          phase == "Braking" ? energyData->e_catenary +=
+                               m_energyHandler->calculateEnergyRegeneration(i)
+                             : energyData->e_catenary +=
+                               m_energyHandler->calculateEnergyOfPowering(i);
 
-        movingData->x = abs(calculateTotalDistance(i));
-        stationData->x_odo = 0;
-        movingData->x_total += movingData->x;
-        trainMotorData->tm_f_res =
-            m_tractionMotorHandler->calculateResistanceForcePerMotor(
-                resistanceData->f_resStart);
-        trainMotorData->tm_f = m_tractionMotorHandler->calculateTractionForce();
-        trainMotorData->tm_t = m_tractionMotorHandler->calculateTorque();
-        trainMotorData->tm_rpm = m_tractionMotorHandler->calculateRpm();
+          movingData->x = abs(calculateTotalDistance(i));
+          stationData->x_odo = 0;
+          movingData->x_total += movingData->x;
+          trainMotorData->tm_f_res =
+              m_tractionMotorHandler->calculateResistanceForcePerMotor(
+                  resistanceData->f_resStart);
+          trainMotorData->tm_f =
+              m_tractionMotorHandler->calculateTractionForce();
+          trainMotorData->tm_t = m_tractionMotorHandler->calculateTorque();
+          trainMotorData->tm_rpm = m_tractionMotorHandler->calculateRpm();
 
-        energyData->curr_catenary =
-            m_currentHandler->calculateCatenaryCurrent(m_lineVoltage);
-        energyData->curr_vvvf =
-            m_currentHandler->calculateVvvfCurrent(m_lineVoltage);
+          energyData->curr_catenary =
+              m_currentHandler->calculateCatenaryCurrent(m_lineVoltage);
+          energyData->curr_vvvf =
+              m_currentHandler->calculateVvvfCurrent(m_lineVoltage);
 
-        m_utilityHandler->addSimulationDatas(i, time, phase);
-        i++;
+          m_utilityHandler->addSimulationDatas(i, time, phase);
+          i++;
 
-        notch = AtStation;
-        trainStopTime = 0;
-        continue;
+          notch = AtStation;
+          trainStopTime = 0;
+          continue;
+        }
+        if (resistanceData->f_total == 0) {
+          MessageBoxWidget messageBox(
+              "Error", "Total force is unable to move the train.",
+              MessageBoxWidget::Warning);
+          break;
+        }
       }
-      if (resistanceData->f_total == 0) {
-        MessageBoxWidget messageBox("Error",
-                                    "Total force is unable to move the train.",
-                                    MessageBoxWidget::Warning);
-        break;
+      energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
+      energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
+      phase == "Braking" ? energyData->e_catenary +=
+                           m_energyHandler->calculateEnergyRegeneration(i)
+                         : energyData->e_catenary +=
+                           m_energyHandler->calculateEnergyOfPowering(i);
+      movingData->x = abs(calculateTotalDistance(i));
+      stationData->x_odo =
+          notch == AtStation ? 0 : stationData->x_odo + movingData->x;
+      movingData->x_total += movingData->x;
+      trainMotorData->tm_f_res =
+          m_tractionMotorHandler->calculateResistanceForcePerMotor(
+              movingData->v > 0 ? resistanceData->f_resRunning
+                                : resistanceData->f_resStart);
+      trainMotorData->tm_f = m_tractionMotorHandler->calculateTractionForce();
+      trainMotorData->tm_t = m_tractionMotorHandler->calculateTorque();
+      trainMotorData->tm_rpm = m_tractionMotorHandler->calculateRpm();
+
+      energyData->curr_catenary =
+          m_currentHandler->calculateCatenaryCurrent(m_lineVoltage);
+      energyData->curr_vvvf =
+          m_currentHandler->calculateVvvfCurrent(m_lineVoltage);
+
+      m_utilityHandler->addSimulationDatas(i, time, phase);
+      if (i == 0) {
+        trainMotorData->tm_adh = m_tractiveEffortHandler->calculateAdhesion();
       }
+      i++;
     }
-    energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
-    energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
-    phase == "Braking" ? energyData->e_catenary +=
-                         m_energyHandler->calculateEnergyRegeneration(i)
-                       : energyData->e_catenary +=
-                         m_energyHandler->calculateEnergyOfPowering(i);
-    movingData->x = abs(calculateTotalDistance(i));
-    stationData->x_odo =
-        notch == AtStation ? 0 : stationData->x_odo + movingData->x;
-    movingData->x_total += movingData->x;
-    trainMotorData->tm_f_res =
-        m_tractionMotorHandler->calculateResistanceForcePerMotor(
-            movingData->v > 0 ? resistanceData->f_resRunning
-                              : resistanceData->f_resStart);
-    trainMotorData->tm_f = m_tractionMotorHandler->calculateTractionForce();
-    trainMotorData->tm_t = m_tractionMotorHandler->calculateTorque();
-    trainMotorData->tm_rpm = m_tractionMotorHandler->calculateRpm();
-
-    energyData->curr_catenary =
-        m_currentHandler->calculateCatenaryCurrent(m_lineVoltage);
-    energyData->curr_vvvf =
-        m_currentHandler->calculateVvvfCurrent(m_lineVoltage);
-
-    m_utilityHandler->addSimulationDatas(i, time, phase);
-    if (i == 0) {
-      trainMotorData->tm_adh = m_tractiveEffortHandler->calculateAdhesion();
-    }
-    i++;
+    emit simulationCompleted();
   }
-  emit simulationCompleted();
 }
 
 void TrainSimulation::simulateStaticTrainMovement() {
   m_utilityHandler->clearSimulationDatas();
   initData();
+  clearWarnings();
   double v_limit = 130;
   int i = 0;
   bool isAccelerating = true;
