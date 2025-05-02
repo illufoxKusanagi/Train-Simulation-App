@@ -79,13 +79,6 @@ void UtilityHandler::resetSimulation() {
   context->resistanceData->f_resRunningTen = 0;
   context->resistanceData->f_resRunningTwentyFive = 0;
   context->resistanceData->f_res = 0;
-  context->stationData->v_limit.clear();
-  context->stationData->x_v_limitEnd.clear();
-  context->stationData->x_slopeEnd.clear();
-  context->stationData->radius.clear();
-  context->stationData->x_radiusEnd.clear();
-  context->stationData->slope.clear();
-  context->stationData->x_station.clear();
 }
 
 void UtilityHandler::clearSimulationDatas() {

@@ -50,11 +50,7 @@ ElectricalParameterPage::getParameterValue(const QString &paramName) const {
 }
 
 void ElectricalParameterPage::setParameterValue() {
-  efficiencyData->stat_eff_motor =
-      getParameterValue("Efficiency of Traction Motor");
-  efficiencyData->stat_eff_vvvf = getParameterValue("Efficiency of VVVF");
   powerData->p_aps = getParameterValue("Auxiliary Power");
-  energyData->stat_vol_line = getParameterValue("Line Voltage");
   setGearboxEfficiencyValue();
   setVvvfEfficiencyValue();
   setTractionMotorValue();
