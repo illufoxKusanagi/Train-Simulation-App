@@ -6,10 +6,10 @@ SimulationTrackHandler::SimulationTrackHandler(AppContext &context)
       movingData(context.movingData.data()),
       simulationDatas(context.simulationData.data()) {}
 
-double SimulationTrackHandler::calculateBrakingTrack(double speedLimit) {
-  double speed = speedLimit / constantData->cV;
-  double brakingTrack = (speed * constantData->t_reaction) +
-                        (pow(speed, 2) / (2 * movingData->decc_start));
+double SimulationTrackHandler::calculateBrakingTrack(double speed) {
+  double m_speed = speed / constantData->cV;
+  double brakingTrack = (m_speed * constantData->t_reaction) +
+                        (pow(m_speed, 2) / (2 * movingData->decc_start));
   return brakingTrack;
 }
 
@@ -20,11 +20,10 @@ double SimulationTrackHandler::calculateBrakingEmergencyTrack() {
   return brakingTrack;
 }
 
-double
-SimulationTrackHandler::calculateNormalSimulationTrack(double speedLimit) {
+double SimulationTrackHandler::calculateNormalSimulationTrack(double speed) {
   double poweringDistance = simulationDatas->distanceTotal.last();
   double trainLength = trainData->trainsetLength;
-  double brakingDistance = calculateBrakingTrack(speedLimit);
+  double brakingDistance = calculateBrakingTrack(speed);
   return poweringDistance + trainLength + brakingDistance;
 }
 
@@ -35,11 +34,10 @@ double SimulationTrackHandler::calculateEmergencyNormalSimulationTrack() {
   return poweringDistance + trainLength + brakingDistance;
 }
 
-double
-SimulationTrackHandler::calculateDelaySimulationTrack(double speedLimit) {
+double SimulationTrackHandler::calculateDelaySimulationTrack(double speed) {
   double poweringDistance = simulationDatas->distanceTotal.last();
   double trainLength = trainData->trainsetLength;
-  double brakingDistance = calculateBrakingTrack(speedLimit);
+  double brakingDistance = calculateBrakingTrack(speed);
   return poweringDistance + brakingDistance + trainLength +
          (simulationDatas->trainSpeedsSi.last() * constantData->t_delay) +
          (0.5 * simulationDatas->accelerationsSi.last() *
@@ -56,19 +54,17 @@ double SimulationTrackHandler::calculateEmergencyDelaySimulationTrack() {
           pow(constantData->t_delay, 2));
 }
 
-double
-SimulationTrackHandler::calculateSafetySimulationTrack(double speedLimit) {
-  return 1.2 * calculateDelaySimulationTrack(speedLimit);
+double SimulationTrackHandler::calculateSafetySimulationTrack(double speed) {
+  return 1.2 * calculateDelaySimulationTrack(speed);
 }
 
 double SimulationTrackHandler::calculateEmergencySafetySimulationTrack() {
   return 1.2 * calculateEmergencyDelaySimulationTrack();
 }
 
-double SimulationTrackHandler::calculateMileage(double speedLimit) {
-  double distance = simulationDatas->distanceTotal.isEmpty()
-                        ? 0
-                        : simulationDatas->distanceTotal.last();
-  double brakingDistance = calculateBrakingTrack(speedLimit);
+double SimulationTrackHandler::calculateMileage(double speed) {
+  double distance =
+      simulationDatas->odos.isEmpty() ? 0 : simulationDatas->odos.last();
+  double brakingDistance = calculateBrakingTrack(speed);
   return distance + brakingDistance;
 }

@@ -9,24 +9,18 @@
 #include <QLabel>
 #include <QPushButton>
 
-
 class InputUpload : public QWidget {
   Q_OBJECT
 
 public:
-  explicit InputUpload(QWidget *parent = nullptr);
-  // Set minimum number of required columns
+  explicit InputUpload(const QString &inputLabel, QWidget *parent = nullptr);
   void setRequiredColumnCount(int count);
-  // Set which specific columns to extract (by index)
   void setTargetColumns(const QList<int> &columnIndices);
-  // Get data from a specific column index
   QList<double> getColumnData(int columnIndex) const;
-  // Check if file has minimum columns
   bool hasRequiredColumns() const;
   bool validateColumnCount(const QStringList &values);
   QString getFilePath() const;
   bool isFileLoaded() const;
-  // Get all parsed data as a list of row data
   QList<QList<double>> getAllData() const;
 
 signals:
@@ -44,6 +38,7 @@ private:
   int m_requiredColumnCount;
   QList<int> m_targetColumns;
   QList<QList<double>> m_data;
+  QString m_inputLabel;
 
   bool readCsvFile(const QString &filePath);
   bool validateColumns(const QStringList &values);

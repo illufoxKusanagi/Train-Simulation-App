@@ -8,15 +8,15 @@ class SimulationTrackHandler : public QObject {
   Q_OBJECT
 public:
   explicit SimulationTrackHandler(AppContext &context);
-  double calculateBrakingTrack(double speedLimit);
+  double calculateBrakingTrack(double speed);
   double calculateBrakingEmergencyTrack();
-  double calculateNormalSimulationTrack(double speedLimit);
+  double calculateNormalSimulationTrack(double speed);
   double calculateEmergencyNormalSimulationTrack();
-  double calculateDelaySimulationTrack(double speedLimit);
+  double calculateDelaySimulationTrack(double speed);
   double calculateEmergencyDelaySimulationTrack();
-  double calculateSafetySimulationTrack(double speedLimit);
+  double calculateSafetySimulationTrack(double speed);
   double calculateEmergencySafetySimulationTrack();
-  double calculateMileage(double speedLimit);
+  double calculateMileage(double speed);
 
 private:
   ConstantData *constantData;

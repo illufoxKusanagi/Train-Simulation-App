@@ -24,7 +24,7 @@ TrainSimulation::TrainSimulation(AppContext &context, QObject *parent)
   m_tractiveEffortHandler = new TractiveEffortHandler(context);
   m_simulationTrackHandler = new SimulationTrackHandler(context);
   m_currentHandler = new CurrentHandler(context);
-  m_csvVariableHandler = new CsvVariableHandler(context, m_simulationWarnings);
+  m_csvVariableHandler = new CsvVariableHandler(context, &m_simulationWarnings);
   initData();
   connect(this, &TrainSimulation::simulationCompleted, m_utilityHandler,
           &UtilityHandler::resetSimulation);
@@ -72,11 +72,9 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   initData();
   QString phase = "Starting";
   int i = 0;
+  // int notch = -2;
+  Notch notch = Accelerating;
   int stationIndex = 0;
-  bool isAccelerating = true;
-  bool isCoasting = false;
-  bool isAtStation = false;
-  bool isBraking = false;
   float time = 0;
   int coastingCount = 0;
   double previousSpeed;
@@ -84,14 +82,19 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   double stationDistance = 0;
   double trainStopTime = 0;
   const double WAIT_TIME = 10.0;
-  double brakeDistance = 0.0;
+  double brakingDistance = 0.0;
 
   if (stationData->n_station > stationData->x_station.size() + 1) {
     m_simulationWarnings.insert(
         "Number of stations exceeds the number of station data.");
+  } else if (stationData->n_station < 2) {
+    MessageBoxWidget messageBox("Error!", "Number of station is invalid",
+                                MessageBoxWidget::Warning);
+    return;
   }
-  while (movingData->v >= 0 || (stationIndex + 2 < stationData->n_station &&
-                                stationIndex < stationData->x_station.size())) {
+  while ((movingData->v >= 0 && notch == AtStation) ||
+         (stationIndex + 1 < stationData->n_station &&
+          stationIndex < stationData->x_station.size())) {
     addStationSimulationDatas();
     addEnergySimulationDatas();
     simulationDatas.slopes.append(m_slope);
@@ -102,16 +105,13 @@ void TrainSimulation::simulateDynamicTrainMovement() {
         m_resistanceHandler->calculateStartRes(m_slope, m_radius);
     resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
         movingData->v, m_slope, m_radius);
-    if (!stationData->v_limit.empty()) {
-      mileage = m_simulationTrackHandler->calculateMileage(movingData->v);
-    } else {
-      mileage = m_simulationTrackHandler->calculateMileage(movingData->v);
-    }
-    brakeDistance =
+    mileage = m_simulationTrackHandler->calculateMileage(movingData->v);
+    brakingDistance =
         m_simulationTrackHandler->calculateBrakingTrack(movingData->v);
-    simulationDatas.brakingDistances.append(brakeDistance);
-    if (isAtStation) {
+    simulationDatas.brakingDistances.append(brakingDistance);
+    if (notch == AtStation) {
       phase = "At Station";
+      notch = AtStation;
       movingData->v = 0;
       movingData->v_si = 0;
       movingData->acc = 0;
@@ -121,23 +121,22 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       trainStopTime += constantData->dt;
       time += constantData->dt;
       simulationDatas.time.append(constantData->dt);
+      stationData->x_odo = 0.0;
       if (trainStopTime >= WAIT_TIME) {
-        isAtStation = false;
         trainStopTime = 0;
         stationIndex++;
-        isAccelerating = true;
-        isCoasting = false;
+        notch = Accelerating;
       }
       simulationDatas.accelerations.append(movingData->acc);
       simulationDatas.accelerationsSi.append(movingData->acc_si);
       simulationDatas.trainSpeeds.append(movingData->v);
       simulationDatas.trainSpeedsSi.append(movingData->v_si);
-    } else if (mileage < stationData->x_station[stationIndex]) {
-      if (isAccelerating) {
+    } else if (mileage < stationData->x_station[stationIndex] &&
+               notch != Braking) {
+      if (notch == Accelerating) {
         if (movingData->v >= m_maxSpeed && resistanceData->f_total > 0) {
-          isAccelerating = false;
-          isCoasting = true;
           phase = "Coasting";
+          notch = Coasting;
           continue;
         }
         phase = "Accelerating";
@@ -157,11 +156,10 @@ void TrainSimulation::simulateDynamicTrainMovement() {
         time += constantData->dt;
         simulationDatas.time.append(constantData->dt);
         energyData->e_pow += m_energyHandler->calculateEnergyOfPowering(i);
-      } else if (isCoasting) {
+      } else if (notch == Coasting) {
         if (movingData->v <= (m_maxSpeed - movingData->v_diffCoast)) {
-          isCoasting = false;
-          isAccelerating = true;
           coastingCount++;
+          notch = Accelerating;
         }
         phase = "Coasting";
         resistanceData->f_motor = 0;
@@ -182,6 +180,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       }
     } else {
       phase = "Braking";
+      notch = Braking;
       m_tractiveEffortHandler->calculateBrakingForce();
       resistanceData->f_brake =
           m_tractiveEffortHandler->calculateTotalBrakeForce();
@@ -199,7 +198,34 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       simulationDatas.time.append(constantData->dt);
       energyData->e_reg += m_energyHandler->calculateEnergyRegeneration(i);
       if (movingData->v <= 0) {
-        isAtStation = true;
+        movingData->v = 0;
+        movingData->v_si = 0;
+        energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
+        energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
+        phase == "Braking" ? energyData->e_catenary +=
+                             m_energyHandler->calculateEnergyRegeneration(i)
+                           : energyData->e_catenary +=
+                             m_energyHandler->calculateEnergyOfPowering(i);
+
+        movingData->x = abs(calculateTotalDistance(i));
+        stationData->x_odo = 0;
+        movingData->x_total += movingData->x;
+        trainMotorData->tm_f_res =
+            m_tractionMotorHandler->calculateResistanceForcePerMotor(
+                resistanceData->f_resStart);
+        trainMotorData->tm_f = m_tractionMotorHandler->calculateTractionForce();
+        trainMotorData->tm_t = m_tractionMotorHandler->calculateTorque();
+        trainMotorData->tm_rpm = m_tractionMotorHandler->calculateRpm();
+
+        energyData->curr_catenary =
+            m_currentHandler->calculateCatenaryCurrent(m_lineVoltage);
+        energyData->curr_vvvf =
+            m_currentHandler->calculateVvvfCurrent(m_lineVoltage);
+
+        m_utilityHandler->addSimulationDatas(i, time, phase);
+        i++;
+
+        notch = AtStation;
         trainStopTime = 0;
         continue;
       }
@@ -217,6 +243,8 @@ void TrainSimulation::simulateDynamicTrainMovement() {
                        : energyData->e_catenary +=
                          m_energyHandler->calculateEnergyOfPowering(i);
     movingData->x = abs(calculateTotalDistance(i));
+    stationData->x_odo =
+        notch == AtStation ? 0 : stationData->x_odo + movingData->x;
     movingData->x_total += movingData->x;
     trainMotorData->tm_f_res =
         m_tractionMotorHandler->calculateResistanceForcePerMotor(
