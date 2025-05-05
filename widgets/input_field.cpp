@@ -57,6 +57,8 @@ bool InputField::isModified() const { return m_input->isModified(); }
 
 void InputField::setModified(bool modified) { m_input->setModified(modified); }
 
+QString InputField::getTextValue() { return m_input->text(); }
+
 const QString InputField::s_styleSheet =
     "padding: 4px 12px; border: 1px solid " + Colors::Secondary400.name() +
     "; border-radius: 8px;" + TextStyle::BodySmallRegular() +

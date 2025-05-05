@@ -51,11 +51,8 @@ LoginDialogWidget::LoginDialogWidget(QObject *parent) {
 }
 
 void LoginDialogWidget::onLoginButtonClicked() {
-  QString username;
-  QString password;
-  username = "admin";
-  password = "admin";
-  // Emit signal with login credentials
+  QString username = m_usernameInput->getTextValue();
+  QString password = m_passwordInput->getTextValue();
   emit loginAttempt(username, password);
 }
 

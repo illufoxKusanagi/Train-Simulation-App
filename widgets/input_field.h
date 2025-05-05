@@ -21,6 +21,7 @@ public:
   void setReadOnly(bool isReadOnly);
   void connectTextChanged();
   double getValue();
+  QString getTextValue();
   bool isModified() const;
   void setModified(bool modified);
   void setEchoMode(QLineEdit::EchoMode mode);

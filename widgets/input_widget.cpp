@@ -158,3 +158,5 @@ void InputWidget::setPlaceholderText(const QString &placeholder) {
     m_inputField->setPlaceholderText(placeholder);
   }
 }
+
+QString InputWidget::getTextValue() { return m_inputField->getTextValue(); }

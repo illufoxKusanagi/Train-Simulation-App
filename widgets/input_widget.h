@@ -24,6 +24,7 @@ public:
                        QStringList options = {});
   void setValue(double value);
   double getValue();
+  QString getTextValue();
   bool isModified() const;
   void setModified(bool modified);
   QList<double> getCsvValue(const int requiredColumn);
