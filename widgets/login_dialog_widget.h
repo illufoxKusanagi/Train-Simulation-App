@@ -18,8 +18,6 @@ signals:
 
 private slots:
   void onLoginButtonClicked();
-  void onUsernameChanged(const QString &username);
-  void onPasswordChanged(const QString &password);
 
 public:
   explicit LoginDialogWidget(QObject *parent = nullptr);
