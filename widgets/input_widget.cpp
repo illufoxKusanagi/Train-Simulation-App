@@ -159,4 +159,10 @@ void InputWidget::setPlaceholderText(const QString &placeholder) {
   }
 }
 
+void InputWidget::setSize(int width, int height) {
+  if (m_inputField) {
+    m_inputField->setSize(width, height);
+  }
+}
+
 QString InputWidget::getTextValue() { return m_inputField->getTextValue(); }
