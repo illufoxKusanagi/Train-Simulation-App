@@ -1,3 +1,9 @@
+ENCRIPTING PASSWORD USING SHA256
+  QString hashed = QString(QCryptographicHash::hash("INKA_EES @2025 Magang",
+                                                    QCryptographicHash::Sha256)
+                               .toHex());
+  qDebug() << hashed;
+
 #include "train_simulation.h"
 
 using namespace std;

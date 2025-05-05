@@ -9,6 +9,8 @@
 /.trunk
 /formulas
 dummy.txt
+.auth
+.env
 
 # C++ objects and libs
 *.slo
