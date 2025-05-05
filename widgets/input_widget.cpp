@@ -146,3 +146,15 @@ void InputWidget::buildInputFieldUpload(InputType inputType) {
   layout->addWidget(m_inputFieldUpload);
   layout->setAlignment(m_inputFieldUpload, Qt::AlignLeft);
 }
+
+void InputWidget::setEchoMode(QLineEdit::EchoMode mode) {
+  if (m_inputField) {
+    m_inputField->setEchoMode(mode);
+  }
+}
+
+void InputWidget::setPlaceholderText(const QString &placeholder) {
+  if (m_inputField) {
+    m_inputField->setPlaceholderText(placeholder);
+  }
+}

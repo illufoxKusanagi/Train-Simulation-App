@@ -45,6 +45,14 @@ void InputField::connectTextChanged() {
   });
 }
 
+void InputField::setEchoMode(QLineEdit::EchoMode mode) {
+  m_input->setEchoMode(mode);
+}
+
+void InputField::setPlaceholderText(const QString &placeholder) {
+  m_input->setPlaceholderText(placeholder);
+}
+
 bool InputField::isModified() const { return m_input->isModified(); }
 
 void InputField::setModified(bool modified) { m_input->setModified(modified); }

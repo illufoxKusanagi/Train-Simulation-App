@@ -23,6 +23,8 @@ public:
   double getValue();
   bool isModified() const;
   void setModified(bool modified);
+  void setEchoMode(QLineEdit::EchoMode mode);
+  void setPlaceholderText(const QString &placeholder);
 
 private:
   QLineEdit *m_input;
