@@ -11,6 +11,7 @@
 dummy.txt
 .auth
 .env
+CMakeLists.txt.user
 
 # C++ objects and libs
 *.slo
