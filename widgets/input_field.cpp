@@ -11,7 +11,8 @@ InputField::InputField(const QString &unitText, QWidget *parent)
   layout->addWidget(m_unitLabel);
 
   m_input->setStyleSheet(s_styleSheet);
-  m_input->setFixedSize(128, 32);
+  m_input->setBaseSize(128, 32);
+  m_input->setMinimumHeight(32);
   m_unitLabel->setStyleSheet(TextStyle::BodySmallRegular() +
                              "color: " + Colors::Secondary700.name() + ";");
 }
@@ -45,9 +46,23 @@ void InputField::connectTextChanged() {
   });
 }
 
+void InputField::setEchoMode(QLineEdit::EchoMode mode) {
+  m_input->setEchoMode(mode);
+}
+
+void InputField::setPlaceholderText(const QString &placeholder) {
+  m_input->setPlaceholderText(placeholder);
+}
+
+void InputField::setSize(int width, int height) {
+  m_input->setFixedSize(width, height);
+}
+
 bool InputField::isModified() const { return m_input->isModified(); }
 
 void InputField::setModified(bool modified) { m_input->setModified(modified); }
+
+QString InputField::getTextValue() { return m_input->text(); }
 
 const QString InputField::s_styleSheet =
     "padding: 4px 12px; border: 1px solid " + Colors::Secondary400.name() +

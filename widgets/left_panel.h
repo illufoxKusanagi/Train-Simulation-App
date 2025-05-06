@@ -30,6 +30,7 @@ signals:
 
 private:
   bool m_isCollapsed = false;
+  bool m_isSimulationError = false;
   int m_currentIndex = -1;
   ButtonToggle *m_buttonToggle;
   QVBoxLayout *m_buttonLayout;

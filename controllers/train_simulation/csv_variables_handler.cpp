@@ -1,7 +1,5 @@
 #include "csv_variables_handler.h"
 
-#include <QDebug>
-
 CsvVariableHandler::CsvVariableHandler(AppContext &context,
                                        QSet<QString> *simulationWarnings)
     : stationData(context.stationData.data()),
@@ -125,7 +123,6 @@ double CsvVariableHandler::setSlopeData(int slopeIndex,
     }
   } else if (stationData->slope.empty()) {
     m_simulationWarnings->insert("Slope csv data is empty.");
-    qDebug() << "Slope data is empty";
   } else {
     m_simulationWarnings->insert(
         "Attempted to access slope data beyond range.");
@@ -144,7 +141,6 @@ double CsvVariableHandler::setRadiusData(int radiusIndex,
     }
   } else if (stationData->radius.empty()) {
     m_simulationWarnings->insert("Radius csv data is empty.");
-    qDebug() << "Radius data is empty";
   } else {
     m_simulationWarnings->insert(
         "Attempted to access radius data beyond range.");
@@ -163,7 +159,6 @@ double CsvVariableHandler::setMaxSpeedData(int maxSpeedIndex,
     }
   } else if (stationData->v_limit.empty()) {
     m_simulationWarnings->insert("Speed limit csv data is empty.");
-    qDebug() << "Speed limit data is empty";
   } else {
     m_simulationWarnings->insert(
         "Attempted to access max speed data beyond range.");
@@ -182,7 +177,6 @@ double CsvVariableHandler::setEffVvvfData(int effVvvfIndex, double speed) {
       return efficiencyData->eff_vvvf[effVvvfIndex];
     }
   } else if (efficiencyData->eff_vvvf.empty()) {
-    qDebug() << "Efficency VVVF data is empty";
     m_simulationWarnings->insert("VVVF efficiency csv data is empty.");
   } else {
     m_simulationWarnings->insert(
@@ -204,7 +198,6 @@ double CsvVariableHandler::setEffGearData(int effGearIndex, double speed) {
     }
   } else if (efficiencyData->eff_gear.empty()) {
     m_simulationWarnings->insert("Gear efficiency csv data is empty.");
-    qDebug() << "Efficency gear data is empty";
   } else {
     m_simulationWarnings->insert(
         "Attempted to access gear efficiency data beyond range.");
@@ -225,7 +218,6 @@ double CsvVariableHandler::setEffMotorData(int effMotorIndex, double speed) {
     }
   } else if (efficiencyData->eff_motor.empty()) {
     m_simulationWarnings->insert("Motor efficiency csv data is empty.");
-    qDebug() << "Efficency motor data is empty";
   } else {
     m_simulationWarnings->insert(
         "Attempted to access motor efficiency data beyond range.");
@@ -247,7 +239,6 @@ double CsvVariableHandler::setLineVoltageData(int lineVoltageIndex,
     }
   } else if (energyData->vol_line.empty()) {
     m_simulationWarnings->insert("Line voltage csv data is empty.");
-    qDebug() << "voltage line data is empty";
   } else {
     m_simulationWarnings->insert(
         "Attempted to access line voltage data beyond range.");
@@ -269,7 +260,6 @@ double CsvVariableHandler::setMotorVoltageData(int motorVoltageIndex,
     }
   } else if (energyData->vol_motor.empty()) {
     m_simulationWarnings->insert("Motor voltage csv data is empty.");
-    qDebug() << "Motor voltage data is empty";
   } else {
     m_simulationWarnings->insert(
         "Attempted to access motor voltage data beyond range.");

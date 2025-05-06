@@ -1,6 +1,8 @@
 #ifndef APPCONTEXT_H
 #define APPCONTEXT_H
 
+#include "core/auth/auth_manager.h"
+#include "core/auth/user_manager.h"
 #include "models/constant_data.h"
 #include "models/efficiency_data.h"
 #include "models/energy_data.h"
@@ -13,11 +15,14 @@
 #include "models/station_data.h"
 #include "models/train_data.h"
 #include "models/train_motor_data.h"
+#include <QFile>
+#include <QIODevice>
 #include <QSharedPointer>
 
-class AppContext {
+class AppContext : public QObject {
+  Q_OBJECT
 public:
-  AppContext();
+  AppContext(QObject *parent = nullptr);
   QSharedPointer<ConstantData> constantData;
   QSharedPointer<LoadData> loadData;
   QSharedPointer<MassData> massData;
@@ -30,6 +35,8 @@ public:
   QSharedPointer<EfficiencyData> efficiencyData;
   QSharedPointer<StationData> stationData;
   QSharedPointer<SimulationDatas> simulationData;
+  UserManager *userManager;
+  AuthManager *authManager;
 };
 
 #endif // APPCONTEXT_H

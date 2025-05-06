@@ -90,6 +90,13 @@ set(RESOURCE_SOURCES
     resources/input_type.h
     resources/icon_paths.h
     resources/icons.qrc
+    core/auth/auth_data.h
+    core/auth/auth_manager.h
+    core/auth/auth_manager.cpp
+    core/auth/user_manager.cpp
+    core/auth/user_manager.h
+    widgets/login_dialog_widget.h
+    widgets/login_dialog_widget.cpp
 )
 
 # Styles and Resources

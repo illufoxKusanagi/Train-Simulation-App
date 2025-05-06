@@ -1,6 +1,7 @@
 #include "appcontext.h"
+#include <qdebug.h>
 
-AppContext::AppContext() {
+AppContext::AppContext(QObject *parent) : QObject(parent) {
   trainData = QSharedPointer<TrainData>::create();
   massData = QSharedPointer<MassData>::create();
   loadData = QSharedPointer<LoadData>::create();
@@ -13,4 +14,6 @@ AppContext::AppContext() {
   stationData = QSharedPointer<StationData>::create();
   constantData = QSharedPointer<ConstantData>::create();
   simulationData = QSharedPointer<SimulationDatas>::create();
+  userManager = new UserManager(this);
+  authManager = new AuthManager(userManager, this);
 }

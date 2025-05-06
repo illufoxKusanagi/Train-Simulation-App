@@ -23,10 +23,14 @@ public:
                        const InputType &inputType = InputType(),
                        QStringList options = {});
   void setValue(double value);
+  void setSize(int width, int height);
   double getValue();
+  QString getTextValue();
   bool isModified() const;
   void setModified(bool modified);
   QList<double> getCsvValue(const int requiredColumn);
+  void setEchoMode(QLineEdit::EchoMode mode);
+  void setPlaceholderText(const QString &placeholder);
 
 signals:
   void valueChanged();
@@ -40,7 +44,6 @@ private:
   QWidget *m_inputFieldUpload;
   QVBoxLayout *layout;
   double m_inputValue;
-  void setPlaceholder(const QString &placeholder);
   void buildInputField(InputType inputType);
   void buildInputUpload(InputType inputType);
   void buildInputFieldUpload(InputType inputType);

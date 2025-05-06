@@ -52,10 +52,6 @@ void TractiveEffortHandler::calculateBrakingForce() {
         -((resistanceData->f_brake * movingData->v_b1 * movingData->v_b2) /
           (movingData->v * movingData->v));
   }
-  // else {
-  //   MessageBoxWidget messagebox("Error", "Braking point is invalid",
-  //                               MessageBoxWidget::Warning);
-  // }
 }
 
 double TractiveEffortHandler::calculateAdhesion() {

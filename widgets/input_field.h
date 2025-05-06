@@ -21,8 +21,12 @@ public:
   void setReadOnly(bool isReadOnly);
   void connectTextChanged();
   double getValue();
+  QString getTextValue();
   bool isModified() const;
   void setModified(bool modified);
+  void setEchoMode(QLineEdit::EchoMode mode);
+  void setPlaceholderText(const QString &placeholder);
+  void setSize(int width, int height);
 
 private:
   QLineEdit *m_input;
