@@ -23,6 +23,7 @@ public:
                        const InputType &inputType = InputType(),
                        QStringList options = {});
   void setValue(double value);
+  void setSize(int width, int height);
   double getValue();
   QString getTextValue();
   bool isModified() const;

@@ -33,7 +33,6 @@ bool AuthManager::processLogin() {
   QString username = QInputDialog::getText(
       nullptr, "Login", "Username:", QLineEdit::Normal, QString(), &okUsername);
   if (!okUsername) {
-    qDebug() << "Login cancelled by user (username input).";
     return 0;
   }
 
@@ -41,7 +40,6 @@ bool AuthManager::processLogin() {
       QInputDialog::getText(nullptr, "Login", "Password:", QLineEdit::Password,
                             QString(), &okPassword);
   if (!okPassword) {
-    qDebug() << "Login cancelled by user (password input).";
     return 0;
   }
 

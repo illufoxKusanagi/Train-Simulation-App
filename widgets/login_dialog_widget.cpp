@@ -15,9 +15,11 @@ LoginDialogWidget::LoginDialogWidget(QObject *parent) {
 
   m_usernameInput = new InputWidget(this, InputType("field", "Username"));
   m_passwordInput = new InputWidget(this, InputType("field", "Password"));
+  m_passwordInput->setEchoMode(QLineEdit::Password);
   m_usernameInput->setPlaceholderText("Enter username...");
   m_passwordInput->setPlaceholderText("Enter password...");
-  m_passwordInput->setEchoMode(QLineEdit::Password);
+  m_usernameInput->setSize(300, 32);
+  m_passwordInput->setSize(300, 32);
 
   layout->addWidget(m_usernameInput);
   layout->addWidget(m_passwordInput);
