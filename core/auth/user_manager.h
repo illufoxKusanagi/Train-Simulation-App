@@ -2,10 +2,12 @@
 #define USER_MANAGER_H
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QFile>
 #include <QStandardPaths>
 #include <QString>
 #include <QTextStream>
+
 
 class UserManager : public QObject {
   Q_OBJECT
