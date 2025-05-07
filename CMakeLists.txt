@@ -13,7 +13,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt6 REQUIRED COMPONENTS Widgets Charts)
 find_package(Qt6 REQUIRED COMPONENTS Concurrent)
 
-# Main sources
 set(PROJECT_SOURCES
     main.cpp
     mainwindow/mainwindow.cpp
@@ -23,7 +22,6 @@ set(PROJECT_SOURCES
     core/appcontext.cpp
 )
 
-# Pages
 set(PAGE_SOURCES
     pages/train_parameter_page.cpp
     pages/train_parameter_page.h
@@ -49,7 +47,6 @@ set(PAGE_SOURCES
     pages/train_consumption_page.cpp
 )
 
-# Widgets
 set(WIDGET_SOURCES
     widgets/input_field.cpp
     widgets/input_field.h
@@ -81,25 +78,24 @@ set(WIDGET_SOURCES
     widgets/chart_widget.cpp
     widgets/message_box_widget.h
     widgets/message_box_widget.cpp
+    widgets/login_dialog_widget.h
+    widgets/login_dialog_widget.cpp
 )
 
-# Models
 set(RESOURCE_SOURCES
     styles/colors.h
     styles/text_style.h
     resources/input_type.h
     resources/icon_paths.h
     resources/icons.qrc
+    core/auth/auth.qrc
     core/auth/auth_data.h
     core/auth/auth_manager.h
     core/auth/auth_manager.cpp
     core/auth/user_manager.cpp
     core/auth/user_manager.h
-    widgets/login_dialog_widget.h
-    widgets/login_dialog_widget.cpp
 )
 
-# Styles and Resources
 set(MODEL_SOURCES
     models/train_data.h
     models/simulation_data.h

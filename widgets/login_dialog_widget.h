@@ -4,6 +4,8 @@
 #include "button_action.h"
 #include "input_widget.h"
 #include "message_box_widget.h"
+#include "styles/colors.h"
+#include "styles/text_style.h"
 #include <QDialog>
 #include <QLabel>
 #include <QLineEdit>

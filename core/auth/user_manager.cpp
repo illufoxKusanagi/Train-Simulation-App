@@ -2,12 +2,9 @@
 
 #include <QDebug>
 UserManager::UserManager(QObject *parent) : QObject(parent) {
-  QString configPath =
-      QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-  QDir().mkpath(configPath);
-  QFile file(configPath + "/.auth");
-  // QString filePath = "F:/matkul/sem_6/AppProject/TrainAppSimulation/.auth";
-  // QFile file(filePath);
+  QString filePath = "F:/matkul/sem_6/AppProject/TrainAppSimulation/.auth";
+  QFile file(filePath);
+  // QFile file(":/auth/.auth");
   if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     QTextStream in(&file);
     while (!in.atEnd()) {
