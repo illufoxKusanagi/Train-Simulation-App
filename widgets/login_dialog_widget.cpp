@@ -3,14 +3,14 @@
 LoginDialogWidget::LoginDialogWidget(QObject *parent) {
   QVBoxLayout *layout = new QVBoxLayout(this);
   layout->setContentsMargins(20, 20, 20, 20);
-  layout->setSpacing(15);
+  layout->setSpacing(16);
 
   QLabel *titleLabel = new QLabel("Train Simulation Login", this);
   titleLabel->setAlignment(Qt::AlignCenter);
-  QFont titleFont = titleLabel->font();
-  titleFont.setPointSize(14);
-  titleFont.setBold(true);
-  titleLabel->setFont(titleFont);
+  titleLabel->setStyleSheet("QLabel{" + TextStyle::BodyBigBold() +
+                            "colors: " + Colors::StandardBlack.name() +
+                            ";"
+                            "}");
   layout->addWidget(titleLabel);
 
   m_usernameInput = new InputWidget(this, InputType("field", "Username"));
@@ -23,21 +23,17 @@ LoginDialogWidget::LoginDialogWidget(QObject *parent) {
 
   layout->addWidget(m_usernameInput);
   layout->addWidget(m_passwordInput);
-  QHBoxLayout *buttonLayout = new QHBoxLayout();
+
   m_loginButton = new ButtonAction(this, "Login", "no");
   m_loginButton->setEnabled(true);
-  m_cancelButton = new ButtonAction(this, "Cancel", "no");
-  m_cancelButton->setEnabled(true);
-
-  buttonLayout->addWidget(m_loginButton);
-  buttonLayout->addWidget(m_cancelButton);
-  layout->addLayout(buttonLayout);
-
+  m_loginButton->setSize(300, 44);
+  layout->addWidget(m_loginButton);
   connect(m_loginButton, &QPushButton::clicked, this,
           &LoginDialogWidget::onLoginButtonClicked);
-  connect(m_cancelButton, &QPushButton::clicked, this, &QDialog::reject);
   setFixedSize(350, 250);
   setWindowTitle("Login");
+  setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::CustomizeWindowHint |
+                 Qt::WindowCloseButtonHint);
 }
 
 void LoginDialogWidget::onLoginButtonClicked() {

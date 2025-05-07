@@ -2,8 +2,9 @@
 
 #include <QDebug>
 UserManager::UserManager(QObject *parent) : QObject(parent) {
-  // QString filePath = "F:/matkul/sem_6/AppProject/TrainAppSimulation/.auth";
-  QFile file(":/auth/.auth"); // ← baca dari QRC
+  QString filePath = "F:/matkul/sem_6/AppProject/TrainAppSimulation/.auth";
+  QFile file(filePath);
+  // QFile file(":/auth/.auth");
   if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     QTextStream in(&file);
     while (!in.atEnd()) {
