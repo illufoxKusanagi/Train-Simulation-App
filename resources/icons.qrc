@@ -40,5 +40,6 @@
         <file>icons/energy.svg</file>
         <file>icons/energy-disabled.svg</file>
         <file>icons/14-train.png</file>
+        <file>icons/trainSimulationAppLogo.png</file>
     </qresource>
 </RCC>

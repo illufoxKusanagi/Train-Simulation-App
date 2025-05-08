@@ -5,12 +5,17 @@
 #include "widgets/message_box_widget.h"
 #include <QApplication>
 #include <QDebug>
+#include <QIcon>
 #include <QInputDialog>
+#include <QSize>
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
   QCoreApplication::setOrganizationName("PT INKA Persero");
   QCoreApplication::setApplicationName("Train Simulation App");
+  QIcon appIcon;
+  appIcon.addFile(":/icons/icons/trainSimulationAppLogo.png", QSize(64, 64));
+  app.setWindowIcon(appIcon);
   app.setStyleSheet("QWidget { background-color: white; color: black; }");
   AppContext context;
   bool loggedIn = false;
