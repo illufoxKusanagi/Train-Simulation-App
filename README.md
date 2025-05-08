@@ -1,4 +1,8 @@
 # Train Simulation App
+[![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](https://opensource.org/licenses/MIT)
+[![Release](https://img.shields.io/github/v/release/illufoxKusanagi/Train-Simulation-App?display_name=tag&sort=semver)](https://github.com/illufoxKusanagi/Train-Simulation-App/releases)
+[![Platform](https://img.shields.io/badge/platform-Windows-blue)](#)
+[![Qt](https://img.shields.io/badge/Qt-6.x-green)](https://www.qt.io/)
 
 ## Overview
 ![trainSimulationAppLogo](https://github.com/user-attachments/assets/c8c9747c-b962-458f-bf7a-166f7b57ff48)
@@ -97,9 +101,3 @@ Contributions are welcome! If you would like to contribute to the Train Simulati
 ---
 
 *This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).*
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](https://opensource.org/licenses/MIT)
-[![Release](https://img.shields.io/github/v/release/illufoxKusanagi/Train-Simulation-App?display_name=tag&sort=semver)](https://github.com/illufoxKusanagi/Train-Simulation-App/releases)
-[![Last Commit](https://img.shields.io/github/last-commit/illufoxKusanagi/Train-Simulation-App)](https://github.com/illufoxKusanagi/Train-Simulation-App/commits/main)
-[![Platform](https://img.shields.io/badge/platform-Windows-blue)](#)
-[![Qt](https://img.shields.io/badge/Qt-6.x-green)](https://www.qt.io/)
