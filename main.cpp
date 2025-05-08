@@ -2,14 +2,20 @@
 #include "mainwindow/mainwindow.h"
 #include "widgets/login_dialog_widget.h"
 
+#include "widgets/message_box_widget.h"
 #include <QApplication>
 #include <QDebug>
+#include <QIcon>
 #include <QInputDialog>
+#include <QSize>
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
   QCoreApplication::setOrganizationName("PT INKA Persero");
   QCoreApplication::setApplicationName("Train Simulation App");
+  QIcon appIcon;
+  appIcon.addFile(":/icons/icons/trainSimulationAppLogo.png", QSize(64, 64));
+  app.setWindowIcon(appIcon);
   app.setStyleSheet("QWidget { background-color: white; color: black; }");
   AppContext context;
   bool loggedIn = false;
@@ -20,13 +26,14 @@ int main(int argc, char *argv[]) {
                                           const QString &password) {
         if (context.authManager->login(username, password)) {
           loggedIn = true;
-          QMessageBox::information(nullptr, "Login Successful",
-                                   "Welcome to the Train Simulation App!");
+          MessageBoxWidget messageBox("Login Successful",
+                                      "Welcome to the Train Simulation App!",
+                                      MessageBoxWidget::Information);
           loginDialog.accept();
         } else {
-          QMessageBox::critical(
-              nullptr, "Login Failed",
-              "Invalid username or password. Please try again.");
+          MessageBoxWidget messageBox(
+              "Login Failed", "Invalid username or password. Please try again.",
+              MessageBoxWidget::Critical);
         }
       });
   int result = loginDialog.exec();

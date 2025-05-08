@@ -3,15 +3,16 @@
 LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
     : QWidget(parent), m_buttonLayout(nullptr), m_inputPanel(nullptr),
       m_trainSimulation(trainSimulation) {
-  QVBoxLayout *mainLayout = new QVBoxLayout(this);
-  mainLayout->setContentsMargins(0, 0, 0, 0);
-  m_buttonToggle = new ButtonToggle(m_isCollapsed, this);
+  m_mainLayout = new QVBoxLayout(this);
+  m_mainLayout->setContentsMargins(0, 0, 0, 0);
+  m_mainLayout->setSpacing(0);
+  setupHeader();
+
   QWidget *buttonContainer = new QWidget(this);
   m_buttonLayout = new QVBoxLayout(buttonContainer);
-  m_buttonLayout->setContentsMargins(8, 8, 8, 8);
+  m_buttonLayout->setContentsMargins(8, 0, 8, 8);
   m_buttonLayout->setSpacing(8);
   m_buttonLayout->setAlignment(Qt::AlignCenter);
-  m_buttonLayout->addWidget(m_buttonToggle);
 
   setupInputPageButtons();
   createRunButton();
@@ -23,9 +24,9 @@ LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
   scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   scrollArea->setFrameShape(QFrame::NoFrame);
 
-  mainLayout->addWidget(scrollArea);
+  m_mainLayout->addWidget(scrollArea);
   setFixedWidth(320);
-  setLayout(mainLayout);
+  setLayout(m_mainLayout);
 
   setStyleSheet("QWidget {"
                 "    background-color: " +
@@ -214,4 +215,23 @@ void LeftPanel::showSimMessageBox(const QSet<QString> &warnings) {
   MessageBoxWidget messageBox(title, message,
                               isWarning ? MessageBoxWidget::Warning
                                         : MessageBoxWidget::Information);
+}
+
+void LeftPanel::setupHeader() {
+
+  QWidget *headerWidget = new QWidget(this);
+  QHBoxLayout *headerLayout = new QHBoxLayout(headerWidget);
+  headerLayout->setContentsMargins(12, 12, 12, 12);
+  headerLayout->setSpacing(16);
+  headerLayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
+  QLabel *iconLabel = new QLabel(this);
+  QPixmap pixmap(":/icons/icons/trainSimulationAppLogo.png");
+  iconLabel->setPixmap(
+      pixmap.scaled(40, 40, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+  iconLabel->setFixedSize(40, 40);
+  m_buttonToggle = new ButtonToggle(m_isCollapsed, this);
+  headerLayout->addWidget(m_buttonToggle);
+  headerLayout->addWidget(iconLabel);
+  m_mainLayout->addWidget(headerWidget);
 }

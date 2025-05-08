@@ -32,6 +32,7 @@ private:
   bool m_isCollapsed = false;
   bool m_isSimulationError = false;
   int m_currentIndex = -1;
+  QVBoxLayout *m_mainLayout;
   ButtonToggle *m_buttonToggle;
   QVBoxLayout *m_buttonLayout;
   LeftPanelInputs *m_inputPanel;
@@ -43,6 +44,7 @@ private:
   int getCurrentIndex() const { return m_currentIndex; }
   void setCurrentIndex(int index) { m_currentIndex = index; }
   void createRunButton();
+  void setupHeader();
   void setupInputPageButtons();
   void setupOutputPageButtons();
   void updateButtonState(QFuture<void> future, ButtonAction *runButton,

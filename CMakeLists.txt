@@ -78,6 +78,8 @@ set(WIDGET_SOURCES
     widgets/chart_widget.cpp
     widgets/message_box_widget.h
     widgets/message_box_widget.cpp
+    widgets/login_dialog_widget.h
+    widgets/login_dialog_widget.cpp
 )
 
 set(RESOURCE_SOURCES
@@ -92,8 +94,6 @@ set(RESOURCE_SOURCES
     core/auth/auth_manager.cpp
     core/auth/user_manager.cpp
     core/auth/user_manager.h
-    widgets/login_dialog_widget.h
-    widgets/login_dialog_widget.cpp
 )
 
 set(MODEL_SOURCES
