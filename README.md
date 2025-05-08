@@ -1,13 +1,14 @@
 # Train Simulation App
 
 ## Overview
+<img width="32" alt="trainSimulationAppLogo" src="https://github.com/user-attachments/assets/98b11f34-c0d2-4d78-ad0c-4096b505613f" />
 
 The Train Simulation App is a graphical user interface (GUI) application designed to simulate various parameters related to train operations. This application allows users to input and visualize different train parameters, making it a useful tool for educational purposes and engineering simulations.
-![App Interface](https://github.com/user-attachments/assets/ca5ffba9-289b-42ce-9954-1a4615c68e1a)
+![image](https://github.com/user-attachments/assets/4c365f79-ba6d-44a6-a12c-6dbe0bf1c197)
 
 ## Features
 
-- **User -Friendly Interface**: Intuitive layout with easy navigation between different parameter settings
+- **User-Friendly Interface**: Intuitive layout with easy navigation between different parameter settings
 - **Parameter Input Forms**: Users can input various train parameters such as inertial coefficients, axle numbers, and more
 - **Dynamic Visualization**: The app provides real-time feedback and visualization of the input parameters
 - **Multiple Parameter Categories**: Organizes parameters into categories for better usability
@@ -18,8 +19,7 @@ The Train Simulation App is a graphical user interface (GUI) application designe
 
 - **Qt Framework**: The application is built using the Qt framework for C++
 - **C++**: The primary programming language used for the application logic
-- **QWidgets**: Utilizes Qt's widget toolkit for creating the GUI
-- **QCharts**: Utilizes Qt's chart widget for showing data output
+- **CMake**: The primary environment to build this app
 
 ## Running Project
 
