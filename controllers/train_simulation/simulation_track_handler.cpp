@@ -8,8 +8,7 @@ SimulationTrackHandler::SimulationTrackHandler(AppContext &context)
 
 double SimulationTrackHandler::calculateBrakingTrack(double speed) {
   double m_speed = speed / constantData->cV;
-  double brakingTrack = (m_speed * constantData->t_reaction) +
-                        (pow(m_speed, 2) / (2 * movingData->decc_start));
+  double brakingTrack = (pow(m_speed, 2) / (2 * movingData->decc_start));
   return brakingTrack;
 }
 
@@ -68,3 +67,9 @@ double SimulationTrackHandler::calculateMileage(double speed) {
   double brakingDistance = calculateBrakingTrack(speed);
   return distance + brakingDistance;
 }
+
+// double SimulationTrackHandler::calculateMileage(double speed,
+//                                                 double odoSinceLastStation) {
+//   double brakingDistance = calculateBrakingTrack(speed);
+//   return odoSinceLastStation + brakingDistance;
+// }
