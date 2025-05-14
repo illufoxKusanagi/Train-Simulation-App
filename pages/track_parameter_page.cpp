@@ -85,8 +85,8 @@ void TrackParameterPage::setStationDistanceValue() {
   stationData->x_station =
       std::vector<double>(stationDistances.begin(), stationDistances.end());
   QList<double> totalStationDistances = getCsvParamValue("Station Distance", 1);
-  stationData->tot_x_station =
-      std::vector<double>(stationDistances.begin(), stationDistances.end());
+  stationData->tot_x_station = std::vector<double>(
+      totalStationDistances.begin(), totalStationDistances.end());
 }
 
 void TrackParameterPage::setSlopeValue() {

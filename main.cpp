@@ -1,7 +1,6 @@
 #include "core/appcontext.h"
 #include "mainwindow/mainwindow.h"
 #include "widgets/login_dialog_widget.h"
-
 #include "widgets/message_box_widget.h"
 #include <QApplication>
 #include <QDebug>

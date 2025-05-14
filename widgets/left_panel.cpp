@@ -179,42 +179,48 @@ void LeftPanel::updateButtonState(QFuture<void> future, ButtonAction *runButton,
   runStaticButton->setEnabled(false);
   QTimer::singleShot(200, this, [this, runButton, runStaticButton, future]() {
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
-    connect(
-        watcher, &QFutureWatcher<void>::finished, this,
-        [this, watcher, runStaticButton, runButton]() {
-          runStaticButton->setEnabled(true);
-          runButton->setEnabled(true);
-          connect(m_trainSimulation, &TrainSimulation::simulationError, this,
-                  [this]() { m_isSimulationError = true; });
-          if (!m_isSimulationError) {
-            QSet<QString> warnings = m_trainSimulation->getSimulationWarnings();
-            showSimMessageBox(warnings);
-          } else {
-            MessageBoxWidget messageBox("Error!", "Simulation ended with error",
-                                        MessageBoxWidget::Critical);
-          }
-          watcher->deleteLater();
-        });
+    connect(watcher, &QFutureWatcher<void>::finished, this,
+            [this, watcher, runStaticButton, runButton]() {
+              runStaticButton->setEnabled(true);
+              runButton->setEnabled(true);
+              connect(m_trainSimulation, &TrainSimulation::simulationError,
+                      this, [this]() { m_isSimulationError = true; });
+              if (!m_isSimulationError) {
+                QSet<QString> warnings =
+                    m_trainSimulation->getSimulationWarnings();
+                showSimMessageBox(warnings, false);
+              } else {
+                QSet<QString> errors = m_trainSimulation->getSimulationErrors();
+                showSimMessageBox(errors, true);
+              }
+              watcher->deleteLater();
+            });
     watcher->setFuture(future);
   });
 }
 
-void LeftPanel::showSimMessageBox(const QSet<QString> &warnings) {
+void LeftPanel::showSimMessageBox(const QSet<QString> &warnings, bool isError) {
   QString title = "Simulation Completed";
   QString message;
+  MessageBoxWidget::IconType iconType;
   bool isWarning = false;
-  if (warnings.isEmpty()) {
+  if (warnings.isEmpty() && !isError) {
+    iconType = MessageBoxWidget::Information;
     message = "Simulation completed!";
+  } else if (isError) {
+    iconType = MessageBoxWidget::Critical;
+    message = "Simulation completed with errors:\n";
+    for (const QString &error : warnings) {
+      message += "- " + error + "\n";
+    }
   } else {
-    isWarning = true;
+    iconType = MessageBoxWidget::Warning;
     message = "Simulation completed with warnings:\n";
     for (const QString &warning : warnings) {
       message += "- " + warning + "\n";
     }
   }
-  MessageBoxWidget messageBox(title, message,
-                              isWarning ? MessageBoxWidget::Warning
-                                        : MessageBoxWidget::Information);
+  MessageBoxWidget messageBox(title, message, iconType);
 }
 
 void LeftPanel::setupHeader() {
@@ -224,7 +230,6 @@ void LeftPanel::setupHeader() {
   headerLayout->setContentsMargins(12, 12, 12, 12);
   headerLayout->setSpacing(16);
   headerLayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-
   QLabel *iconLabel = new QLabel(this);
   QPixmap pixmap(":/icons/icons/trainSimulationAppLogo.png");
   iconLabel->setPixmap(

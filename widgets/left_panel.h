@@ -49,7 +49,7 @@ private:
   void setupOutputPageButtons();
   void updateButtonState(QFuture<void> future, ButtonAction *runButton,
                          ButtonAction *staticRunButton);
-  void showSimMessageBox(const QSet<QString> &warnings);
+  void showSimMessageBox(const QSet<QString> &warnings, bool isError = false);
 };
 
 #endif // LEFT_PANEL_H
