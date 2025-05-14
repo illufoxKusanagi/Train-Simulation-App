@@ -17,7 +17,6 @@ public:
   double calculateSafetySimulationTrack(double speed);
   double calculateEmergencySafetySimulationTrack();
   double calculateMileage(double speed);
-  // double calculateMileage(double speed, double odoSinceLastStation);
 
 private:
   ConstantData *constantData;

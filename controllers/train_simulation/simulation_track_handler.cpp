@@ -65,11 +65,8 @@ double SimulationTrackHandler::calculateMileage(double speed) {
   double distance =
       simulationDatas->odos.isEmpty() ? 0 : simulationDatas->odos.last();
   double brakingDistance = calculateBrakingTrack(speed);
-  return distance + brakingDistance;
+  double calculatedDistance = simulationDatas->distance.isEmpty()
+                                  ? 0
+                                  : simulationDatas->distance.last();
+  return distance + brakingDistance + calculatedDistance;
 }
-
-// double SimulationTrackHandler::calculateMileage(double speed,
-//                                                 double odoSinceLastStation) {
-//   double brakingDistance = calculateBrakingTrack(speed);
-//   return odoSinceLastStation + brakingDistance;
-// }

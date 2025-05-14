@@ -127,11 +127,6 @@ void TrainSimulation::simulateDynamicTrainMovement() {
         phase = "At Station";
 
         movingData->x_total -= trainStopTime == 0 ? distanceDifference : 0;
-        // if (trainStopTime == 0) {
-        //   distanceDifference =
-        //       stationData->x_station[stationIndex] - stationData->x_odo;
-        //   qDebug() << "Distance difference: " << distanceDifference;
-        // }
         movingData->v = 0;
         movingData->v_si = 0;
         movingData->acc = 0;
@@ -222,47 +217,13 @@ void TrainSimulation::simulateDynamicTrainMovement() {
         if (movingData->v <= 0) {
           movingData->v = 0;
           movingData->v_si = 0;
-          // energyData->e_motor +=
-          // m_energyHandler->calculateEnergyConsumption(i); energyData->e_aps
-          // += m_energyHandler->calculateEnergyOfAps(i); phase == "Braking" ?
-          // energyData->e_catenary +=
-          //                      m_energyHandler->calculateEnergyRegeneration(i)
-          //                    : energyData->e_catenary +=
-          //                      m_energyHandler->calculateEnergyOfPowering(i);
-
-          // movingData->x = abs(calculateTotalDistance(i));
-          // stationData->x_odo = 0;
-          // movingData->x_total += movingData->x;
-          // trainMotorData->tm_f_res =
-          //     m_tractionMotorHandler->calculateResistanceForcePerMotor(
-          //         resistanceData->f_resStart);
-          // trainMotorData->tm_f =
-          //     m_tractionMotorHandler->calculateTractionForce();
-          // trainMotorData->tm_t = m_tractionMotorHandler->calculateTorque();
-          // trainMotorData->tm_rpm = m_tractionMotorHandler->calculateRpm();
-
-          // energyData->curr_catenary =
-          //     m_currentHandler->calculateCatenaryCurrent(m_lineVoltage);
-          // energyData->curr_vvvf =
-          //     m_currentHandler->calculateVvvfCurrent(m_lineVoltage);
-
-          // m_utilityHandler->addSimulationDatas(i, time, phase);
-          // i++;
-
           notch = AtStation;
           trainStopTime = 0;
-          // if (stationIndex = 0) {
-          //   stationData->x_station[stationIndex] +
-          //       stationData->x_station[stationIndex - 1];
-          // }
-          distanceDifference =
-              movingData->x_total - stationData->tot_x_station[stationIndex];
-          // continue;
+          distanceDifference = movingData->x_total -
+                               stationData->tot_x_station[stationIndex] + 1;
         }
         if (resistanceData->f_total == 0) {
-          MessageBoxWidget messageBox(
-              "Error", "Total force is unable to move the train.",
-              MessageBoxWidget::Warning);
+          emit simulationError();
           break;
         }
       }
