@@ -17,30 +17,30 @@ int main(int argc, char *argv[]) {
   app.setWindowIcon(appIcon);
   app.setStyleSheet("QWidget { background-color: white; color: black; }");
   AppContext context;
-  bool loggedIn = false;
-  LoginDialogWidget loginDialog;
-  QObject::connect(
-      &loginDialog, &LoginDialogWidget::loginAttempt,
-      [&context, &loggedIn, &loginDialog](const QString &username,
-                                          const QString &password) {
-        if (context.authManager->login(username, password)) {
-          loggedIn = true;
-          MessageBoxWidget messageBox("Login Successful",
-                                      "Welcome to the Train Simulation App!",
-                                      MessageBoxWidget::Information);
-          loginDialog.accept();
-        } else {
-          MessageBoxWidget messageBox(
-              "Login Failed", "Invalid username or password. Please try again.",
-              MessageBoxWidget::Critical);
-        }
-      });
-  int result = loginDialog.exec();
-  if (result == QDialog::Accepted && loggedIn) {
-    MainWindow mainWindow(context);
-    mainWindow.show();
-    return app.exec();
-  } else {
-    return 0;
-  }
+  // bool loggedIn = false;
+  // LoginDialogWidget loginDialog;
+  // QObject::connect(
+  //     &loginDialog, &LoginDialogWidget::loginAttempt,
+  //     [&context, &loggedIn, &loginDialog](const QString &username,
+  //                                         const QString &password) {
+  //       if (context.authManager->login(username, password)) {
+  //         loggedIn = true;
+  //         MessageBoxWidget messageBox("Login Successful",
+  //                                     "Welcome to the Train Simulation App!",
+  //                                     MessageBoxWidget::Information);
+  //         loginDialog.accept();
+  //       } else {
+  //         MessageBoxWidget messageBox(
+  //             "Login Failed", "Invalid username or password. Please try
+  //             again.", MessageBoxWidget::Critical);
+  //       }
+  //     });
+  // int result = loginDialog.exec();
+  // if (result == QDialog::Accepted && loggedIn) {
+  MainWindow mainWindow(context);
+  mainWindow.show();
+  return app.exec();
+  // } else {
+  //   return 0;
+  // }
 }

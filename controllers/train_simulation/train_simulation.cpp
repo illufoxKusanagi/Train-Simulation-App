@@ -75,35 +75,35 @@ double TrainSimulation::calculateTotalDistance(int i) {
 
 void TrainSimulation::simulateDynamicTrainMovement() {
   clearWarnings();
+  clearErrors();
   emit simulationStarted();
   m_utilityHandler->clearSimulationDatas();
   initData();
   QString phase = "Starting";
+  const double WAIT_TIME = 10.0;
+  const double ROUNDING_COEFFICIENT = 1.0;
   int i = 0;
   Notch notch = Accelerating;
   int stationIndex = 0;
   float time = 0;
   int coastingCount = 0;
   double previousSpeed;
-  double mileage = 0;
+  double odo = 0;
   double stationDistance = 0;
   double trainStopTime = 0;
-  const double WAIT_TIME = 10.0;
   double brakingDistance = 0.0;
   bool isError = false;
   double distanceDifference = 0.0;
-  int stationCount = 0;
 
   if (stationData->n_station > stationData->x_station.size() + 1) {
     m_simulationWarnings.insert(
         "Number of stations exceeds the number of station data.");
   } else if (stationData->n_station < 2) {
+    m_simulationErrors.insert(
+        "Number of stations is less than 2. Please check the station data.");
     isError = true;
   }
-  if (isError) {
-    emit simulationError();
-  } else {
-
+  if (!isError) {
     while (((movingData->v >= 0 && notch == AtStation) ||
             (stationIndex + 1 < stationData->n_station &&
              stationIndex < stationData->x_station.size()))) {
@@ -112,10 +112,10 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       simulationDatas.slopes.append(m_slope);
       simulationDatas.radiuses.append(m_radius);
       simulationDatas.speedLimits.append(m_maxSpeed);
-      mileage = m_simulationTrackHandler->calculateMileage(movingData->v);
+      odo = m_simulationTrackHandler->calculateOdo(movingData->v);
       brakingDistance =
           m_simulationTrackHandler->calculateBrakingTrack(movingData->v);
-      simulationDatas.mileages.append(mileage);
+      simulationDatas.odos.append(odo);
       simulationDatas.brakingDistances.append(brakingDistance);
 
       resistanceData->f_resStart =
@@ -147,7 +147,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
         simulationDatas.trainSpeeds.append(movingData->v);
         simulationDatas.trainSpeedsSi.append(movingData->v_si);
       } else if (stationIndex < stationData->x_station.size() &&
-                 mileage < stationData->x_station[stationIndex] &&
+                 odo < stationData->x_station[stationIndex] &&
                  notch != Braking) {
         if (notch == Accelerating) {
           if (movingData->v >= m_maxSpeed && resistanceData->f_total > 0) {
@@ -220,10 +220,13 @@ void TrainSimulation::simulateDynamicTrainMovement() {
           notch = AtStation;
           trainStopTime = 0;
           distanceDifference = movingData->x_total -
-                               stationData->tot_x_station[stationIndex] + 1;
+                               stationData->tot_x_station[stationIndex] +
+                               ROUNDING_COEFFICIENT;
         }
         if (resistanceData->f_total == 0) {
-          emit simulationError();
+          isError = true;
+          m_simulationErrors.insert(
+              "Total force is less than zero. Please check the train mass");
           break;
         }
       }
@@ -257,6 +260,8 @@ void TrainSimulation::simulateDynamicTrainMovement() {
       i++;
     }
     emit simulationCompleted();
+  } else {
+    emit simulationError();
   }
 }
 

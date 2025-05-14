@@ -61,7 +61,7 @@ double SimulationTrackHandler::calculateEmergencySafetySimulationTrack() {
   return 1.2 * calculateEmergencyDelaySimulationTrack();
 }
 
-double SimulationTrackHandler::calculateMileage(double speed) {
+double SimulationTrackHandler::calculateOdo(double speed) {
   double distance =
       simulationDatas->odos.isEmpty() ? 0 : simulationDatas->odos.last();
   double brakingDistance = calculateBrakingTrack(speed);

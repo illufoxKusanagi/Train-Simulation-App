@@ -77,6 +77,8 @@ public:
   bool validateCsvVariables();
   void clearWarnings() { m_simulationWarnings.clear(); }
   QSet<QString> getSimulationWarnings() const { return m_simulationWarnings; }
+  void clearErrors() { m_simulationErrors.clear(); }
+  QSet<QString> getSimulationErrors() const { return m_simulationErrors; }
 
 private:
   enum Notch { AtStation, Accelerating, Coasting, Braking, None };
@@ -92,6 +94,7 @@ private:
   EnergyData *energyData;
   StationData *stationData;
   QSet<QString> m_simulationWarnings;
+  QSet<QString> m_simulationErrors;
 
   int m_slopeIndex = 0;
   int m_radiusIndex = 0;
