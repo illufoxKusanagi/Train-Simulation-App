@@ -88,12 +88,12 @@ set(RESOURCE_SOURCES
     resources/input_type.h
     resources/icon_paths.h
     resources/icons.qrc
-    core/auth/auth.qrc
-    core/auth/auth_data.h
-    core/auth/auth_manager.h
-    core/auth/auth_manager.cpp
-    core/auth/user_manager.cpp
-    core/auth/user_manager.h
+    auth/auth.qrc
+    auth/auth_data.h
+    auth/auth_manager.h
+    auth/auth_manager.cpp
+    auth/user_manager.cpp
+    auth/user_manager.h
 )
 
 set(MODEL_SOURCES
