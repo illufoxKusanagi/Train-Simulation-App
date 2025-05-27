@@ -1,6 +1,7 @@
 #ifndef ELECTRICAL_PARAMETER_PAGE_H
 #define ELECTRICAL_PARAMETER_PAGE_H
 
+#include "controllers/data/electrical_data_handler.h"
 #include "controllers/simulation/train_simulation_handler.h"
 #include "core/appcontext.h"
 #include "models/efficiency_data.h"
@@ -28,19 +29,14 @@ private:
   PowerData *powerData;
   EnergyData *energyData;
   TrainSimulationHandler *m_trainSimulation;
+  ElectricalDataHandler *m_electricalDataHandler;
 
   void createInputs();
-  double getParameterValue(const QString &paramName) const;
+  // double getParameterValue(const QString &paramName) const;
+  // QList<double> getCsvParamValue(const QString &paramName,
+  //                                const int requiredColumn) const;
   void setParameterValue();
   void connectInputSignals();
-  QList<double> getCsvParamValue(const QString &paramName,
-                                 const int requiredColumn) const;
-  void setGearboxEfficiencyValue();
-  void setVvvfEfficiencyValue();
-  void setTractionMotorValue();
-  void setLineVoltageValue();
-  void setMotorVoltageValue();
-  void setPowerFactorValue();
 };
 
 #endif // ELECTRICAL_PARAMETER_PAGE_H

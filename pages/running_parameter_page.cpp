@@ -14,6 +14,7 @@ RunningParameterPage::RunningParameterPage(
   m_formLayout->setContentsMargins(16, 16, 16, 16);
   m_inputsLayout->setHorizontalSpacing(64);
   m_inputsLayout->setVerticalSpacing(32);
+  m_runningDataHandler = new RunningDataHandler(&context, this);
   createInputs();
   connectInputSignals();
   mainLayout->addWidget(m_formLayout);
@@ -66,14 +67,7 @@ double RunningParameterPage::getParameterValue(const QString &paramName) const {
 }
 
 void RunningParameterPage::setParameterValue() {
-  resistanceData->startRes = getParameterValue("Starting Resistance");
-  movingData->v_p1 = getParameterValue("Weakening Point 1 (Powering)");
-  movingData->v_p2 = getParameterValue("Weakening Point 2 (Powering)");
-  movingData->v_b1 = getParameterValue("Weakening Point 3 (Braking)");
-  movingData->v_diffCoast = getParameterValue("Difference Coasting Speed");
-  movingData->v_b2 = getParameterValue("Weakening Point 4 (Braking)");
-  movingData->decc_emergency =
-      getParameterValue("Emergency Brake Deceleration");
+  m_runningDataHandler->storeFormInputs(m_inputWidgets);
   setAccelerationValue();
   setDecelerationValue();
 }
@@ -101,7 +95,7 @@ void RunningParameterPage::setAccelerationValue() {
   double newAcceleration = originalAcceleration *
                            ((7 - accelerationIndex) / 7) * (motorCarNumber / 6);
   m_inputWidgets["Final Acceleration"]->setValue(newAcceleration);
-  movingData->acc_start = newAcceleration;
+  m_runningDataHandler->setAccelerationValue(newAcceleration);
 }
 
 void RunningParameterPage::setDecelerationValue() {
@@ -112,7 +106,7 @@ void RunningParameterPage::setDecelerationValue() {
                             ((7 - decelerationIndex) / 7) *
                             (motorCarNumber / 6);
   m_inputWidgets["Final Deceleration"]->setValue(newDecceleration);
-  movingData->decc_start = newDecceleration;
+  m_runningDataHandler->setDecelerationValue(newDecceleration);
 }
 
 void RunningParameterPage::onAwChanged(double awIndex) {

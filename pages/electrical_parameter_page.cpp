@@ -14,6 +14,7 @@ ElectricalParameterPage::ElectricalParameterPage(
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setHorizontalSpacing(128);
   m_formLayout->setVerticalSpacing(32);
+  m_electricalDataHandler = new ElectricalDataHandler(&context, this);
   createInputs();
   connect(m_trainSimulation, &TrainSimulationHandler::simulationStarted, this,
           [this]() { setParameterValue(); });
@@ -42,21 +43,32 @@ void ElectricalParameterPage::createInputs() {
   connectInputSignals();
 }
 
-double
-ElectricalParameterPage::getParameterValue(const QString &paramName) const {
-  if (m_inputWidgets.contains(paramName)) {
-    return m_inputWidgets[paramName]->getValue();
-  }
-  return 0.0;
-}
+// getParameterValue and getCsvParamValue might be removed if no longer used
+// directly by the page For now, keeping them as they are const and don't modify
+// state.
+// double
+// ElectricalParameterPage::getParameterValue(const QString &paramName) const {
+//   if (m_inputWidgets.contains(paramName)) {
+//     return m_inputWidgets[paramName]->getValue();
+//   }
+//   return 0.0;
+// }
+
+// // getParameterValue and getCsvParamValue might be removed if no longer used
+// // directly by the page For now, keeping them as they are const and don't
+// modify
+// // state.
+// QList<double>
+// ElectricalParameterPage::getCsvParamValue(const QString &paramName,
+//                                           const int requiredColumn) const {
+//   if (!m_inputWidgets.isEmpty()) {
+//     return m_inputWidgets[paramName]->getCsvValue(requiredColumn);
+//   }
+//   return QList<double>();
+// }
 
 void ElectricalParameterPage::setParameterValue() {
-  powerData->p_aps = getParameterValue("Auxiliary Power");
-  setGearboxEfficiencyValue();
-  setVvvfEfficiencyValue();
-  setTractionMotorValue();
-  setLineVoltageValue();
-  setMotorVoltageValue();
+  m_electricalDataHandler->storeFormInputs(m_inputWidgets);
 }
 
 void ElectricalParameterPage::connectInputSignals() {
@@ -67,68 +79,4 @@ void ElectricalParameterPage::connectInputSignals() {
     connect(it.value(), &InputWidget::valueChanged, this,
             [this, paramName]() { setParameterValue(); });
   }
-}
-
-QList<double>
-ElectricalParameterPage::getCsvParamValue(const QString &paramName,
-                                          const int requiredColumn) const {
-  if (!m_inputWidgets.isEmpty()) {
-    return m_inputWidgets[paramName]->getCsvValue(requiredColumn);
-  }
-  return QList<double>();
-}
-
-void ElectricalParameterPage::setGearboxEfficiencyValue() {
-  QString paramName = "Efficiency of Gearbox";
-  efficiencyData->stat_eff_gear = getParameterValue(paramName);
-  QList<double> efficencyGearbox = getCsvParamValue(paramName, 1);
-  efficiencyData->eff_gear =
-      std::vector<double>(efficencyGearbox.begin(), efficencyGearbox.end());
-  QList<double> efficencyGearboxSpeed = getCsvParamValue(paramName, 0);
-  efficiencyData->v_eff_gear = std::vector<double>(
-      efficencyGearboxSpeed.begin(), efficencyGearboxSpeed.end());
-}
-
-void ElectricalParameterPage::setVvvfEfficiencyValue() {
-  QString paramName = "Efficiency of VVVF";
-  efficiencyData->stat_eff_vvvf = getParameterValue(paramName);
-  QList<double> efficencyVvvf = getCsvParamValue(paramName, 1);
-  efficiencyData->eff_vvvf =
-      std::vector<double>(efficencyVvvf.begin(), efficencyVvvf.end());
-  QList<double> efficencyVvvfSpeed = getCsvParamValue(paramName, 0);
-  efficiencyData->v_eff_vvvf =
-      std::vector<double>(efficencyVvvfSpeed.begin(), efficencyVvvfSpeed.end());
-}
-
-void ElectricalParameterPage::setTractionMotorValue() {
-  QString paramName = "The Efficiency of Traction Motor";
-  efficiencyData->stat_eff_motor = getParameterValue(paramName);
-  QList<double> efficencyTractionMotor = getCsvParamValue(paramName, 1);
-  efficiencyData->eff_motor = std::vector<double>(
-      efficencyTractionMotor.begin(), efficencyTractionMotor.end());
-  QList<double> efficencyTractionMotorSpeed = getCsvParamValue(paramName, 0);
-  efficiencyData->v_eff_motor = std::vector<double>(
-      efficencyTractionMotorSpeed.begin(), efficencyTractionMotorSpeed.end());
-}
-
-void ElectricalParameterPage::setLineVoltageValue() {
-  QString paramName = "Line Voltage";
-  energyData->stat_vol_line = getParameterValue(paramName);
-  QList<double> lineVoltage = getCsvParamValue(paramName, 1);
-  energyData->vol_line =
-      std::vector<double>(lineVoltage.begin(), lineVoltage.end());
-  QList<double> lineVoltageSpeed = getCsvParamValue(paramName, 0);
-  energyData->v_vol_line =
-      std::vector<double>(lineVoltageSpeed.begin(), lineVoltageSpeed.end());
-}
-
-void ElectricalParameterPage::setMotorVoltageValue() {
-  QString paramName = "Motor Voltage";
-  energyData->stat_vol_motor = getParameterValue(paramName);
-  QList<double> motorVoltage = getCsvParamValue(paramName, 1);
-  energyData->vol_motor =
-      std::vector<double>(motorVoltage.begin(), motorVoltage.end());
-  QList<double> motorVoltageSpeed = getCsvParamValue(paramName, 0);
-  energyData->v_vol_motor =
-      std::vector<double>(motorVoltageSpeed.begin(), motorVoltageSpeed.end());
 }

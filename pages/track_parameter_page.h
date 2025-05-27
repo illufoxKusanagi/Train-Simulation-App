@@ -1,6 +1,7 @@
 #ifndef TRACK_PARAMETER_PAGE_H
 #define TRACK_PARAMETER_PAGE_H
 
+#include "controllers/data/track_data_handler.h"
 #include "controllers/simulation/train_simulation_handler.h"
 #include "core/appcontext.h"
 #include "models/moving_data.h"
@@ -27,6 +28,7 @@ private:
   MovingData *movingData;
   StationData *stationData;
   TrainSimulationHandler *m_trainSimulation;
+  TrackDataHandler *m_trackDataHandler;
 
   void createInputs();
   double getParameterValue(const QString &paramName) const;

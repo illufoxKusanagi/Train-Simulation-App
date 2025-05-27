@@ -14,6 +14,7 @@ TrackParameterPage::TrackParameterPage(AppContext &context,
   mainLayout->setAlignment(Qt::AlignCenter);
   m_formLayout->setHorizontalSpacing(128);
   m_formLayout->setVerticalSpacing(32);
+  m_trackDataHandler = new TrackDataHandler(&context, this);
   createInputs();
   connect(m_trainSimulation, &TrainSimulationHandler::simulationStarted, this,
           [this]() { setParameterValue(); });
@@ -57,14 +58,15 @@ TrackParameterPage::getCsvParamValue(const QString &paramName,
 }
 
 void TrackParameterPage::setParameterValue() {
-  movingData->v_limit = getParameterValue("Speed Limit");
-  resistanceData->radius = getParameterValue("Radius per Section");
-  resistanceData->slope = getParameterValue("Slope per Section");
-  stationData->n_station = getParameterValue("Number of Station");
-  setStationDistanceValue();
-  setSlopeValue();
-  setRadiusValue();
-  setMaxSpeedValue();
+  m_trackDataHandler->storeFormInputs(m_inputWidgets);
+  // movingData->v_limit = getParameterValue("Speed Limit");
+  // resistanceData->radius = getParameterValue("Radius per Section");
+  // resistanceData->slope = getParameterValue("Slope per Section");
+  // stationData->n_station = getParameterValue("Number of Station");
+  // setStationDistanceValue();
+  // setSlopeValue();
+  // setRadiusValue();
+  // setMaxSpeedValue();
 }
 
 void TrackParameterPage::connectInputSignals() {

@@ -1,6 +1,7 @@
 #ifndef TRAINPARAMETERPAGE_H
 #define TRAINPARAMETERPAGE_H
 
+#include "controllers/data/train_data_handler.h"
 #include "controllers/simulation/mass_handler.h"
 #include "controllers/simulation/train_simulation_handler.h"
 #include "core/appcontext.h"
@@ -55,6 +56,7 @@ private:
   InputWidget *massPerTrainsetLoaded;
   InputWidget *massPerTrainsetInertial;
   QList<QList<QList<double>>> m_carData;
+  TrainDataHandler *m_trainDataHandler;
 
   void setupFirstPage(QWidget *firstPageWidget);
   void setupSecondPage(QVBoxLayout *layout);
@@ -86,6 +88,7 @@ private:
   void connectTrainsetLengthInputSignal();
   void setDefaultCarValues();
   void updateTrainsetLengthValue();
+  void setDegradedTrainMotorValues(double numberM1, double numberM2);
 
   QGroupBox *createTypeLayout(const QStringList &labels, QList<double> values);
   QGroupBox *createMassLayout(const QStringList &labels, QList<double> values);
