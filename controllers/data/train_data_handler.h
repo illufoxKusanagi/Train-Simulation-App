@@ -13,6 +13,9 @@ public:
   void setTypeValue(const QMap<QString, InputWidget *> &inputWidgets);
   void setMassValue(const QMap<QString, InputWidget *> &inputWidgets);
   void setPasengerValue(const QMap<QString, InputWidget *> &inputWidgets);
+  void setDegradedTrainMotorValues(double numberM1, double numberM2);
+  void setNumberCarValue(double numberCar);
+  void setTrainsetLengthValue(double trainsetLength);
 
 private:
   TrainData *m_trainData;
@@ -26,8 +29,6 @@ private:
   void setPassengerWeightValue(double passengerWeight);
   void setInertialCoefficientTrailerValue(double inertialCoefficientTrailer);
   void setInertialCoefficientMotorValue(double inertialCoefficientMotor);
-  void setNumberCarValue(double numberCar);
-  void setTrainsetLengthValue(double trainsetLength);
 };
 
 #endif // TRAIN_DATA_HANDLER_H

@@ -64,43 +64,31 @@ void ElectricalDataHandler::setAuxiliaryPower(double p_aps) {
 
 void ElectricalDataHandler::storeFormInputs(
     const QMap<QString, InputWidget *> &inputWidgets) {
-
-  // Auxiliary Power
   if (inputWidgets.contains("Auxiliary Power")) {
     setAuxiliaryPower(inputWidgets["Auxiliary Power"]->getValue());
   }
-
-  // Efficiency of Gearbox
   if (inputWidgets.contains("Efficiency of Gearbox")) {
     InputWidget *widget = inputWidgets["Efficiency of Gearbox"];
     setGearboxEfficiency(widget->getValue(),
                          toStdVector(widget->getCsvValue(1)),
                          toStdVector(widget->getCsvValue(0)));
   }
-
-  // Efficiency of VVVF
   if (inputWidgets.contains("Efficiency of VVVF")) {
     InputWidget *widget = inputWidgets["Efficiency of VVVF"];
     setVvvfEfficiency(widget->getValue(), toStdVector(widget->getCsvValue(1)),
                       toStdVector(widget->getCsvValue(0)));
   }
-
-  // The Efficiency of Traction Motor
   if (inputWidgets.contains("The Efficiency of Traction Motor")) {
     InputWidget *widget = inputWidgets["The Efficiency of Traction Motor"];
     setTractionMotorEfficiency(widget->getValue(),
                                toStdVector(widget->getCsvValue(1)),
                                toStdVector(widget->getCsvValue(0)));
   }
-
-  // Line Voltage
   if (inputWidgets.contains("Line Voltage")) {
     InputWidget *widget = inputWidgets["Line Voltage"];
     setLineVoltage(widget->getValue(), toStdVector(widget->getCsvValue(1)),
                    toStdVector(widget->getCsvValue(0)));
   }
-
-  // Motor Voltage
   if (inputWidgets.contains("Motor Voltage")) {
     InputWidget *widget = inputWidgets["Motor Voltage"];
     setMotorVoltage(widget->getValue(), toStdVector(widget->getCsvValue(1)),
@@ -111,11 +99,9 @@ void ElectricalDataHandler::storeFormInputs(
 std::vector<double>
 ElectricalDataHandler::toStdVector(const QList<double> &list) const {
   std::vector<double> vec;
-  vec.reserve(list.size()); // Optional: reserve space for efficiency
+  vec.reserve(list.size());
   for (double val : list) {
     vec.push_back(val);
   }
-  // Or more concisely:
-  // return std::vector<double>(list.begin(), list.end());
   return vec;
 }

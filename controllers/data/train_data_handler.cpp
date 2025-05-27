@@ -55,6 +55,100 @@ void TrainDataHandler::setInertialCoefficientMotorValue(
   }
 }
 
+void TrainDataHandler::setTypeValue(
+    const QMap<QString, InputWidget *> &inputWidgets) {
+  if (inputWidgets.contains("Tc")) {
+    m_trainData->n_Tc = inputWidgets["Tc"]->getValue();
+  }
+  if (inputWidgets.contains("M1")) {
+    m_trainData->n_M1 = inputWidgets["M1"]->getValue();
+  }
+  if (inputWidgets.contains("M2")) {
+    m_trainData->n_M2 = inputWidgets["M2"]->getValue();
+  }
+  if (inputWidgets.contains("T1")) {
+    m_trainData->n_T1 = inputWidgets["T1"]->getValue();
+  }
+  if (inputWidgets.contains("T2")) {
+    m_trainData->n_T2 = inputWidgets["T2"]->getValue();
+  }
+  if (inputWidgets.contains("T3")) {
+    m_trainData->n_T3 = inputWidgets["T3"]->getValue();
+  }
+  if (inputWidgets.contains("M1-Deg") && inputWidgets["M1-Deg"]) {
+    // Assuming trainData has n_M1_disabled or similar
+    m_trainData->n_M1_disabled = inputWidgets["M1-Deg"]->getValue();
+  }
+  if (inputWidgets.contains("M2-Deg") && inputWidgets["M2-Deg"]) {
+    // Assuming trainData has n_M2_disabled or similar
+    m_trainData->n_M2_disabled = inputWidgets["M2-Deg"]->getValue();
+  }
+}
+
+void TrainDataHandler::setMassValue(
+    const QMap<QString, InputWidget *> &inputWidgets) {
+  if (inputWidgets.contains("Tc")) {
+    m_massData->mass_TC = inputWidgets["Tc"]->getValue();
+  }
+  if (inputWidgets.contains("M1")) {
+    m_massData->mass_M1 = inputWidgets["M1"]->getValue();
+  }
+  if (inputWidgets.contains("M2")) {
+    m_massData->mass_M2 = inputWidgets["M2"]->getValue();
+  }
+  if (inputWidgets.contains("T1")) {
+    m_massData->mass_T1 = inputWidgets["T1"]->getValue();
+  }
+  if (inputWidgets.contains("T2")) {
+    m_massData->mass_T2 = inputWidgets["T2"]->getValue();
+  }
+  if (inputWidgets.contains("T3")) {
+    m_massData->mass_T3 = inputWidgets["T3"]->getValue();
+  }
+}
+
+void TrainDataHandler::setPasengerValue(
+    const QMap<QString, InputWidget *> &inputWidgets) {
+  if (inputWidgets.contains("Tc")) {
+    m_loadData->n_PTc = inputWidgets["Tc"]->getValue();
+  }
+  if (inputWidgets.contains("M1")) {
+    m_loadData->n_PM1 = inputWidgets["M1"]->getValue();
+  }
+  if (inputWidgets.contains("M2")) {
+    m_loadData->n_PM2 = inputWidgets["M2"]->getValue();
+  }
+  if (inputWidgets.contains("T1")) {
+    m_loadData->n_PT1 = inputWidgets["T1"]->getValue();
+  }
+  if (inputWidgets.contains("T2")) {
+    m_loadData->n_PT2 = inputWidgets["T2"]->getValue();
+  }
+  if (inputWidgets.contains("T3")) {
+    m_loadData->n_PT3 = inputWidgets["T3"]->getValue();
+  }
+}
+
+void TrainDataHandler::setNumberCarValue(double numberCar) {
+  if (m_trainData) {
+    m_trainData->n_car = numberCar;
+  }
+}
+
+void TrainDataHandler::setTrainsetLengthValue(double trainsetLength) {
+  if (m_trainData) {
+    m_trainData->trainsetLength = trainsetLength;
+  }
+}
+
+void TrainDataHandler::setDegradedTrainMotorValues(double numberM1,
+                                                   double numberM2) {
+  if (m_trainData) {
+    m_trainData->n_M1_disabled = numberM1;
+    m_trainData->n_M2_disabled = numberM2;
+  }
+}
+
 void TrainDataHandler::storeFormInputs(
     const QMap<QString, InputWidget *> &inputWidgets) {
   if (inputWidgets.contains("Number of Traction Motor")) {
