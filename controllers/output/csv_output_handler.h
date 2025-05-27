@@ -1,16 +1,16 @@
-#ifndef OUTPUT_HANDLER_H
-#define OUTPUT_HANDLER_H
+#ifndef CSV_OUTPUT_HANDLER_H
+#define CSV_OUTPUT_HANDLER_H
 
-#include "utility_handler.h"
+#include "controllers/simulation/utility_handler.h"
 #include "widgets/message_box_widget.h"
 #include <QFileDialog>
 #include <QObject>
 #include <fstream>
 #include <iostream>
 
-class OutputHandler : public QObject {
+class CsvOutputHandler : public QObject {
 public:
-  explicit OutputHandler(SimulationDatas &simulationDatas);
+  explicit CsvOutputHandler(SimulationDatas &simulationDatas);
   void printSimulationDatas();
   bool saveTrainSpeedData();
   bool saveTractionEffortData();
@@ -47,4 +47,4 @@ private:
   UtilityHandler *utilityHandler;
 };
 
-#endif // OUTPUT_HANDLER_H
+#endif // CSV_OUTPUT_HANDLER_H

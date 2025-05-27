@@ -2,13 +2,13 @@
 #define TRAIN_SIMULATION_HANDLER_H
 
 #define _USE_MATH_DEFINES
+#include "controllers/output/csv_output_handler.h"
 #include "core/appcontext.h"
 #include "csv_variables_handler.h"
 #include "current_handler.h"
 #include "energy_handler.h"
 #include "mass_handler.h"
 #include "moving_handler.h"
-#include "output_handler.h"
 #include "power_handler.h"
 #include "resistance_handler.h"
 #include "simulation_track_handler.h"
@@ -56,7 +56,7 @@ public:
   TractionMotorHandler *m_tractionMotorHandler;
   TractiveEffortHandler *m_tractiveEffortHandler;
   UtilityHandler *m_utilityHandler;
-  OutputHandler *m_outputHandler;
+  CsvOutputHandler *m_outputHandler;
   CurrentHandler *m_currentHandler;
   CsvVariableHandler *m_csvVariableHandler;
 
