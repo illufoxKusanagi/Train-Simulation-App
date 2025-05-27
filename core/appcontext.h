@@ -1,8 +1,8 @@
 #ifndef APPCONTEXT_H
 #define APPCONTEXT_H
 
-#include "core/auth/auth_manager.h"
-#include "core/auth/user_manager.h"
+#include "auth/auth_manager.h"
+#include "auth/user_manager.h"
 #include "models/constant_data.h"
 #include "models/efficiency_data.h"
 #include "models/energy_data.h"
