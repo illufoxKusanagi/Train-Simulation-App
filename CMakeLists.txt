@@ -110,42 +110,40 @@ set(MODEL_SOURCES
 )
 
 set(CONTROLLER_SOURCES
-    controllers/train_simulation/train_simulation.h
-    controllers/train_simulation/train_simulation.cpp
-    controllers/train_simulation/mass_handler.h
-    controllers/train_simulation/mass_handler.cpp
-    controllers/train_simulation/resistance_handler.h
-    controllers/train_simulation/resistance_handler.cpp
-    controllers/train_simulation/tractive_effort_handler.h
-    controllers/train_simulation/tractive_effort_handler.cpp
-    controllers/train_simulation/traction_motor_handler.h
-    controllers/train_simulation/traction_motor_handler.cpp
-    controllers/train_simulation/energy_handler.h
-    controllers/train_simulation/energy_handler.cpp
-    controllers/train_simulation/power_handler.h
-    controllers/train_simulation/power_handler.cpp
-    controllers/train_simulation/moving_handler.h
-    controllers/train_simulation/moving_handler.cpp
-    controllers/train_simulation/output_handler.h
-    controllers/train_simulation/output_handler.cpp
-    controllers/train_simulation/simulation_track_handler.h
-    controllers/train_simulation/simulation_track_handler.cpp
-    controllers/train_simulation/utility_handler.h
-    controllers/train_simulation/utility_handler.cpp
-    controllers/train_simulation/csv_handler.h
-    controllers/train_simulation/csv_handler.cpp
-    controllers/train_simulation/current_handler.h
-    controllers/train_simulation/current_handler.cpp
-    controllers/chart/save_button_handler.h
-    controllers/chart/save_button_handler.cpp
-    controllers/chart/static_simulation_chart_handler.h
-    controllers/chart/static_simulation_chart_handler.cpp
-    controllers/chart/dynamic_simulation_chart_handler.h
-    controllers/chart/dynamic_simulation_chart_handler.cpp
-    controllers/chart/output_table_handler.h
-    controllers/chart/output_table_handler.cpp
-    controllers/train_simulation/csv_variables_handler.h
-    controllers/train_simulation/csv_variables_handler.cpp
+    controllers/simulation/train_simulation_handler.h
+    controllers/simulation/train_simulation_handler.cpp
+    controllers/simulation/mass_handler.h
+    controllers/simulation/mass_handler.cpp
+    controllers/simulation/resistance_handler.h
+    controllers/simulation/resistance_handler.cpp
+    controllers/simulation/tractive_effort_handler.h
+    controllers/simulation/tractive_effort_handler.cpp
+    controllers/simulation/traction_motor_handler.h
+    controllers/simulation/traction_motor_handler.cpp
+    controllers/simulation/energy_handler.h
+    controllers/simulation/energy_handler.cpp
+    controllers/simulation/power_handler.h
+    controllers/simulation/power_handler.cpp
+    controllers/simulation/moving_handler.h
+    controllers/simulation/moving_handler.cpp
+    controllers/simulation/output_handler.h
+    controllers/simulation/output_handler.cpp
+    controllers/simulation/simulation_track_handler.h
+    controllers/simulation/simulation_track_handler.cpp
+    controllers/simulation/utility_handler.h
+    controllers/simulation/utility_handler.cpp
+    controllers/simulation/current_handler.h
+    controllers/simulation/current_handler.cpp
+    controllers/output/save_button_handler.h
+    controllers/output/save_button_handler.cpp
+    controllers/output/static_simulation_chart_handler.h
+    controllers/output/static_simulation_chart_handler.cpp
+    controllers/output/dynamic_simulation_chart_handler.h
+    controllers/output/dynamic_simulation_chart_handler.cpp
+    controllers/output/output_table_handler.h
+    controllers/output/output_table_handler.cpp
+    controllers/simulation/csv_variables_handler.h
+    controllers/simulation/csv_variables_handler.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

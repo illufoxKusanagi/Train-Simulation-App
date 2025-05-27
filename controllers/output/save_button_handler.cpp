@@ -1,6 +1,6 @@
 #include "save_button_handler.h"
 
-SaveButtonHandler::SaveButtonHandler(TrainSimulation *trainSimulation,
+SaveButtonHandler::SaveButtonHandler(TrainSimulationHandler *trainSimulation,
                                      QString &chartTitle, SimulationType *type)
     : m_trainSimulation(trainSimulation), m_chartTitle(chartTitle),
       m_simulationType(type) {}

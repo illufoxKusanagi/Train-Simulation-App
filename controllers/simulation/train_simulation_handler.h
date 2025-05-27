@@ -1,5 +1,5 @@
-#ifndef TRAIN_SIMULATION_H
-#define TRAIN_SIMULATION_H
+#ifndef TRAIN_SIMULATION_HANDLER_H
+#define TRAIN_SIMULATION_HANDLER_H
 
 #define _USE_MATH_DEFINES
 #include "core/appcontext.h"
@@ -28,7 +28,7 @@
 #include <iostream>
 #include <qdebug.h>
 
-class TrainSimulation : public QObject {
+class TrainSimulationHandler : public QObject {
   Q_OBJECT
 
 signals:
@@ -45,7 +45,8 @@ public slots:
   void simulateDynamicTrainMovement();
 
 public:
-  explicit TrainSimulation(AppContext &context, QObject *parent = nullptr);
+  explicit TrainSimulationHandler(AppContext &context,
+                                  QObject *parent = nullptr);
   SimulationDatas &simulationDatas;
   MassHandler *m_massHandler;
   EnergyHandler *m_energyHandler;
@@ -142,4 +143,4 @@ private:
   void addEnergySimulationDatas();
   void addStationSimulationDatas();
 };
-#endif // TRAIN_SIMULATION_H
+#endif // TRAIN_SIMULATION_HANDLER_H

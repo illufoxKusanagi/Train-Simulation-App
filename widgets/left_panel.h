@@ -2,7 +2,7 @@
 #define LEFT_PANEL_H
 
 #include "button_toggle.h"
-#include "controllers/train_simulation/train_simulation.h"
+#include "controllers/simulation/train_simulation_handler.h"
 #include "left_panel_input.h"
 #include "message_box_widget.h"
 #include "widgets/button_action.h"
@@ -21,7 +21,7 @@ class LeftPanel : public QWidget {
 
 public:
   explicit LeftPanel(QWidget *parent = nullptr,
-                     TrainSimulation *trainSimulation = nullptr);
+                     TrainSimulationHandler *trainSimulation = nullptr);
 public slots:
   void emitNavigateSignal(int pageIndex);
 
@@ -37,7 +37,7 @@ private:
   QVBoxLayout *m_buttonLayout;
   LeftPanelInputs *m_inputPanel;
   LeftPanelInputs *m_outputPanel;
-  TrainSimulation *m_trainSimulation;
+  TrainSimulationHandler *m_trainSimulation;
   QVBoxLayout *m_runVButtonLayout;
   QHBoxLayout *m_runHButtonLayout;
 

@@ -1,7 +1,7 @@
 #include "track_parameter_page.h"
 
 TrackParameterPage::TrackParameterPage(AppContext &context,
-                                       TrainSimulation *trainSimulation,
+                                       TrainSimulationHandler *trainSimulation,
                                        QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_formContainer(new QWidget(this)),
@@ -15,7 +15,7 @@ TrackParameterPage::TrackParameterPage(AppContext &context,
   m_formLayout->setHorizontalSpacing(128);
   m_formLayout->setVerticalSpacing(32);
   createInputs();
-  connect(m_trainSimulation, &TrainSimulation::simulationStarted, this,
+  connect(m_trainSimulation, &TrainSimulationHandler::simulationStarted, this,
           [this]() { setParameterValue(); });
   mainLayout->addWidget(m_formContainer);
   setLayout(mainLayout);

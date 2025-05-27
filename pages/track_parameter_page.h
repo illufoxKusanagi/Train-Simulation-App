@@ -1,7 +1,7 @@
 #ifndef TRACK_PARAMETER_PAGE_H
 #define TRACK_PARAMETER_PAGE_H
 
-#include "controllers/train_simulation/train_simulation.h"
+#include "controllers/simulation/train_simulation_handler.h"
 #include "core/appcontext.h"
 #include "models/moving_data.h"
 #include "models/resistance_data.h"
@@ -15,7 +15,7 @@ class TrackParameterPage : public QWidget {
   Q_OBJECT
 public:
   explicit TrackParameterPage(AppContext &context,
-                              TrainSimulation *trainSimulation = nullptr,
+                              TrainSimulationHandler *trainSimulation = nullptr,
                               QWidget *parent = nullptr);
 
 private:
@@ -26,7 +26,7 @@ private:
   ResistanceData *resistanceData;
   MovingData *movingData;
   StationData *stationData;
-  TrainSimulation *m_trainSimulation;
+  TrainSimulationHandler *m_trainSimulation;
 
   void createInputs();
   double getParameterValue(const QString &paramName) const;

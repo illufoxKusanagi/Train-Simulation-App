@@ -1,7 +1,8 @@
 #include "chart_widget.h"
 
 ChartWidget::ChartWidget(QWidget *parent, QString chartTitle,
-                         QString seriesName, TrainSimulation *trainSimulation,
+                         QString seriesName,
+                         TrainSimulationHandler *trainSimulation,
                          AppContext *context)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_chartLayout(nullptr), m_chartWidget(nullptr),
@@ -10,10 +11,10 @@ ChartWidget::ChartWidget(QWidget *parent, QString chartTitle,
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(16);
   addSeries(seriesName, QColor(0, 114, 206));
-  connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
+  connect(m_trainSimulation, &TrainSimulationHandler::simulationCompleted, this,
           &ChartWidget::onSimulationCompleted);
-  connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
-          &ChartWidget::onStaticSimulationCompleted);
+  connect(m_trainSimulation, &TrainSimulationHandler::staticSimulationCompleted,
+          this, &ChartWidget::onStaticSimulationCompleted);
   m_outputTableHandler =
       new OutputTableHandler(trainSimulation, mainLayout, chartTitle, context);
   chartTitle.contains("Track") ? m_outputTableHandler->setupTable()

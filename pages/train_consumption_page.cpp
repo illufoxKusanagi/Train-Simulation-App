@@ -1,16 +1,16 @@
 #include "train_consumption_page.h"
 
-TrainConsumptionPage::TrainConsumptionPage(QWidget *parent,
-                                           TrainSimulation *trainSimulation,
-                                           AppContext *context)
+TrainConsumptionPage::TrainConsumptionPage(
+    QWidget *parent, TrainSimulationHandler *trainSimulation,
+    AppContext *context)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_trainSimulation(trainSimulation), context(context) {
   mainLayout->setAlignment(Qt::AlignCenter);
   stackedWidget = new QStackedWidget(this);
-  connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
+  connect(m_trainSimulation, &TrainSimulationHandler::simulationCompleted, this,
           &TrainConsumptionPage::setParameterValue);
-  connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
-          &TrainConsumptionPage::setStaticParameterValue);
+  connect(m_trainSimulation, &TrainSimulationHandler::staticSimulationCompleted,
+          this, &TrainConsumptionPage::setStaticParameterValue);
   mainLayout->addWidget(stackedWidget);
   setupFirstPage();
   setupSecondPage();

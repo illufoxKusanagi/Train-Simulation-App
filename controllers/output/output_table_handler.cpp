@@ -1,6 +1,6 @@
 #include "output_table_handler.h"
 
-OutputTableHandler::OutputTableHandler(TrainSimulation *trainSimulation,
+OutputTableHandler::OutputTableHandler(TrainSimulationHandler *trainSimulation,
                                        QVBoxLayout *layout, QString chartTitle,
                                        AppContext *context)
     : m_trainSimulation(trainSimulation), mainLayout(layout),

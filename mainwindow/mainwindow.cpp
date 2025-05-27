@@ -6,7 +6,7 @@ MainWindow::MainWindow(AppContext &context, QWidget *parent)
   QHBoxLayout *mainLayout = new QHBoxLayout(centralWidget);
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(0);
-  m_trainSimulation = new TrainSimulation(context, this);
+  m_trainSimulation = new TrainSimulationHandler(context, this);
   leftPanel = new LeftPanel(this, m_trainSimulation);
   stackedWidget = new QStackedWidget(this);
   connect(leftPanel, &LeftPanel::navigateToPage, this,

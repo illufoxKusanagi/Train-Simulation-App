@@ -1,8 +1,8 @@
 #ifndef TRAINPARAMETERPAGE_H
 #define TRAINPARAMETERPAGE_H
 
-#include "controllers/train_simulation/mass_handler.h"
-#include "controllers/train_simulation/train_simulation.h"
+#include "controllers/simulation/mass_handler.h"
+#include "controllers/simulation/train_simulation_handler.h"
 #include "core/appcontext.h"
 #include "models/train_data.h"
 #include "styles/colors.h"
@@ -25,7 +25,7 @@ signals:
 
 public:
   explicit TrainParameterPage(AppContext &context,
-                              TrainSimulation *trainSimulation,
+                              TrainSimulationHandler *trainSimulation,
                               QWidget *parent = nullptr);
   double getAwData();
 
@@ -49,7 +49,7 @@ private:
   MassData *massData;
   LoadData *loadData;
   MassHandler *massHandler;
-  TrainSimulation *m_trainSimulation;
+  TrainSimulationHandler *m_trainSimulation;
   QLabel *m_trainLabelImage;
   InputWidget *massPerTrainsetEmpty;
   InputWidget *massPerTrainsetLoaded;

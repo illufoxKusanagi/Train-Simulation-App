@@ -1,7 +1,7 @@
 #ifndef SAVE_BUTTON_HANDLER_H
 #define SAVE_BUTTON_HANDLER_H
 
-#include "controllers/train_simulation/train_simulation.h"
+#include "controllers/simulation/train_simulation_handler.h"
 #include "widgets/message_box_widget.h"
 #include <QChartView>
 #include <QObject>
@@ -15,9 +15,9 @@ public slots:
 
 public:
   enum SimulationType { None, Dynamic, Static };
-  explicit SaveButtonHandler(TrainSimulation *trainSimulation,
+  explicit SaveButtonHandler(TrainSimulationHandler *trainSimulation,
                              QString &chartTitle, SimulationType *type);
-  TrainSimulation *m_trainSimulation;
+  TrainSimulationHandler *m_trainSimulation;
   QString m_chartTitle;
   SimulationType *m_simulationType;
 };

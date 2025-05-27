@@ -1,15 +1,15 @@
 #include "train_power_page.h"
 
 TrainPowerPage::TrainPowerPage(QWidget *parent,
-                               TrainSimulation *trainSimulation,
+                               TrainSimulationHandler *trainSimulation,
                                AppContext *context)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_trainSimulation(trainSimulation), context(context) {
   mainLayout->setAlignment(Qt::AlignCenter);
-  connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
+  connect(m_trainSimulation, &TrainSimulationHandler::simulationCompleted, this,
           &TrainPowerPage::setParameterValue);
-  connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
-          &TrainPowerPage::setStaticParameterValue);
+  connect(m_trainSimulation, &TrainSimulationHandler::staticSimulationCompleted,
+          this, &TrainPowerPage::setStaticParameterValue);
   stackedWidget = new QStackedWidget(this);
   mainLayout->addWidget(stackedWidget);
   setupFirstPage();
