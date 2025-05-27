@@ -1,12 +1,12 @@
 #ifndef CHART_WIDGET_H
 #define CHART_WIDGET_H
 
-#include "controllers/chart/dynamic_simulation_chart_handler.h"
-#include "controllers/chart/output_table_handler.h"
-#include "controllers/chart/save_button_handler.h"
-#include "controllers/chart/static_simulation_chart_handler.h"
-#include "controllers/train_simulation//tractive_effort_handler.h"
-#include "controllers/train_simulation//train_simulation.h"
+#include "controllers/output/dynamic_simulation_chart_handler.h"
+#include "controllers/output/output_table_handler.h"
+#include "controllers/output/save_button_handler.h"
+#include "controllers/output/static_simulation_chart_handler.h"
+#include "controllers/simulation/tractive_effort_handler.h"
+#include "controllers/simulation/train_simulation_handler.h"
 #include "core/appcontext.h"
 #include "styles/colors.h"
 #include "styles/text_style.h"
@@ -32,7 +32,7 @@ class ChartWidget : public QWidget {
 public:
   explicit ChartWidget(QWidget *parent = nullptr, QString chartTitle = "",
                        QString seriesName = "",
-                       TrainSimulation *trainSimulation = nullptr,
+                       TrainSimulationHandler *trainSimulation = nullptr,
                        AppContext *context = nullptr);
   void addSeries(const QString &name, const QColor &color);
   void updateChart();
@@ -46,7 +46,7 @@ private:
   QVBoxLayout *mainLayout;
   QWidget *m_chartWidget;
   QVBoxLayout *m_chartLayout;
-  TrainSimulation *m_trainSimulation;
+  TrainSimulationHandler *m_trainSimulation;
   QString m_chartTitle;
   QChart *m_chart;
   QList<QString> m_seriesToDisplay;

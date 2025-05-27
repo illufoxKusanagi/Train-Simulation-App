@@ -1,7 +1,7 @@
 #ifndef OUTPUT_TABLE_HANDLER_H
 #define OUTPUT_TABLE_HANDLER_H
 
-#include "controllers/train_simulation/train_simulation.h"
+#include "controllers/simulation/train_simulation_handler.h"
 #include "core/appcontext.h"
 #include "styles/colors.h"
 #include "styles/text_style.h"
@@ -13,7 +13,7 @@
 class OutputTableHandler : public QObject {
   Q_OBJECT
 public:
-  explicit OutputTableHandler(TrainSimulation *trainSimulation,
+  explicit OutputTableHandler(TrainSimulationHandler *trainSimulation,
                               QVBoxLayout *layout, QString chartTitle,
                               AppContext *context = nullptr);
   void setupTable();
@@ -22,7 +22,7 @@ public:
 
 private:
   QVBoxLayout *mainLayout;
-  TrainSimulation *m_trainSimulation;
+  TrainSimulationHandler *m_trainSimulation;
   QString m_chartTitle;
   AppContext *context;
 };

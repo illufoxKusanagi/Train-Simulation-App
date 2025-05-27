@@ -1,8 +1,8 @@
 #ifndef DYNAMIC_SIMULATION_CHART_HANDLER_H
 #define DYNAMIC_SIMULATION_CHART_HANDLER_H
 
-#include "controllers/chart/save_button_handler.h"
-#include "controllers/train_simulation/train_simulation.h"
+#include "controllers/output/save_button_handler.h"
+#include "controllers/simulation/train_simulation_handler.h"
 #include "styles/colors.h"
 #include <QChart>
 #include <QLineSeries>
@@ -11,8 +11,8 @@
 class DynamicSimulationChartHandler {
 public:
   explicit DynamicSimulationChartHandler(
-      TrainSimulation *trainSimulation, QChart *chart, QString &chartTitle,
-      SaveButtonHandler::SimulationType *simulationType);
+      TrainSimulationHandler *trainSimulation, QChart *chart,
+      QString &chartTitle, SaveButtonHandler::SimulationType *simulationType);
   void updateChart();
 
 private:
@@ -25,7 +25,7 @@ private:
   void setupDistanceChart();
   void setupDynamicAxis();
 
-  TrainSimulation *m_trainSimulation;
+  TrainSimulationHandler *m_trainSimulation;
   QChart *m_chart;
   QString m_chartTitle;
   SaveButtonHandler::SimulationType *m_simulationType;

@@ -1,7 +1,7 @@
 #include "static_simulation_chart_handler.h"
 
 StaticSimulationChartHandler::StaticSimulationChartHandler(
-    TrainSimulation *trainSimulation, QChart *chart, QString &chartTitle,
+    TrainSimulationHandler *trainSimulation, QChart *chart, QString &chartTitle,
     SaveButtonHandler::SimulationType *simulationType)
     : m_trainSimulation(trainSimulation), m_chart(chart),
       m_chartTitle(chartTitle), m_simulationType(simulationType) {}

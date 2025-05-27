@@ -1,7 +1,8 @@
 #include "electrical_parameter_page.h"
 
 ElectricalParameterPage::ElectricalParameterPage(
-    AppContext &context, TrainSimulation *trainSimulation, QWidget *parent)
+    AppContext &context, TrainSimulationHandler *trainSimulation,
+    QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_formContainer(new QWidget(this)),
       m_formLayout(new QGridLayout(m_formContainer)),
@@ -14,7 +15,7 @@ ElectricalParameterPage::ElectricalParameterPage(
   m_formLayout->setHorizontalSpacing(128);
   m_formLayout->setVerticalSpacing(32);
   createInputs();
-  connect(m_trainSimulation, &TrainSimulation::simulationStarted, this,
+  connect(m_trainSimulation, &TrainSimulationHandler::simulationStarted, this,
           [this]() { setParameterValue(); });
   mainLayout->addWidget(m_formContainer);
   setLayout(mainLayout);

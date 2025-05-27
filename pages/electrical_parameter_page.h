@@ -1,7 +1,7 @@
 #ifndef ELECTRICAL_PARAMETER_PAGE_H
 #define ELECTRICAL_PARAMETER_PAGE_H
 
-#include "controllers/train_simulation/train_simulation.h"
+#include "controllers/simulation/train_simulation_handler.h"
 #include "core/appcontext.h"
 #include "models/efficiency_data.h"
 #include "models/energy_data.h"
@@ -16,7 +16,7 @@ class ElectricalParameterPage : public QWidget {
   Q_OBJECT
 public:
   explicit ElectricalParameterPage(AppContext &context,
-                                   TrainSimulation *trainSimulation,
+                                   TrainSimulationHandler *trainSimulation,
                                    QWidget *parent = nullptr);
 
 private:
@@ -27,7 +27,7 @@ private:
   EfficiencyData *efficiencyData;
   PowerData *powerData;
   EnergyData *energyData;
-  TrainSimulation *m_trainSimulation;
+  TrainSimulationHandler *m_trainSimulation;
 
   void createInputs();
   double getParameterValue(const QString &paramName) const;

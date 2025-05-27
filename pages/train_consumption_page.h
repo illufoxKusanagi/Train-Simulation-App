@@ -1,7 +1,7 @@
 #ifndef TRAIN_CONSUMPTION_PAGE_H
 #define TRAIN_CONSUMPTION_PAGE_H
 
-#include "controllers/train_simulation/train_simulation.h"
+#include "controllers/simulation/train_simulation_handler.h"
 #include "core/appcontext.h"
 #include "resources/input_type.h"
 #include "widgets/button_action.h"
@@ -15,13 +15,14 @@
 class TrainConsumptionPage : public QWidget {
   Q_OBJECT
 public:
-  explicit TrainConsumptionPage(QWidget *parent = nullptr,
-                                TrainSimulation *trainSimulation = nullptr,
-                                AppContext *context = nullptr);
+  explicit TrainConsumptionPage(
+      QWidget *parent = nullptr,
+      TrainSimulationHandler *trainSimulation = nullptr,
+      AppContext *context = nullptr);
 
 private:
   QVBoxLayout *mainLayout;
-  TrainSimulation *m_trainSimulation;
+  TrainSimulationHandler *m_trainSimulation;
   InputWidget *m_inputWidget;
   ButtonAction *m_prevButton;
   ButtonAction *m_nextButton;

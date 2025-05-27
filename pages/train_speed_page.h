@@ -1,7 +1,7 @@
 #ifndef TRAIN_SPEED_PAGE_H
 #define TRAIN_SPEED_PAGE_H
 
-#include "controllers/train_simulation/train_simulation.h"
+#include "controllers/simulation/train_simulation_handler.h"
 #include "core/appcontext.h"
 #include "resources/input_type.h"
 #include "widgets/button_action.h"
@@ -16,12 +16,12 @@ class TrainSpeedPage : public QWidget {
   Q_OBJECT
 public:
   explicit TrainSpeedPage(QWidget *parent = nullptr,
-                          TrainSimulation *trainSimulation = nullptr,
+                          TrainSimulationHandler *trainSimulation = nullptr,
                           AppContext *context = nullptr);
 
 private:
   QVBoxLayout *mainLayout;
-  TrainSimulation *m_trainSimulation;
+  TrainSimulationHandler *m_trainSimulation;
   InputWidget *m_inputWidget;
   ButtonAction *m_prevButton;
   ButtonAction *m_nextButton;

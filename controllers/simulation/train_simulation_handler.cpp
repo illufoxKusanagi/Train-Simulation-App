@@ -1,8 +1,9 @@
-#include "train_simulation.h"
+#include "train_simulation_handler.h"
 
 using namespace std;
 
-TrainSimulation::TrainSimulation(AppContext &context, QObject *parent)
+TrainSimulationHandler::TrainSimulationHandler(AppContext &context,
+                                               QObject *parent)
     : QObject(parent), trainData(context.trainData.data()),
       massData(context.massData.data()), loadData(context.loadData.data()),
       resistanceData(context.resistanceData.data()),
@@ -26,13 +27,13 @@ TrainSimulation::TrainSimulation(AppContext &context, QObject *parent)
   m_currentHandler = new CurrentHandler(context);
   m_csvVariableHandler = new CsvVariableHandler(context, &m_simulationWarnings);
   initData();
-  connect(this, &TrainSimulation::simulationCompleted, m_utilityHandler,
+  connect(this, &TrainSimulationHandler::simulationCompleted, m_utilityHandler,
           &UtilityHandler::resetSimulation);
-  connect(this, &TrainSimulation::staticSimulationCompleted, m_utilityHandler,
-          &UtilityHandler::resetSimulation);
+  connect(this, &TrainSimulationHandler::staticSimulationCompleted,
+          m_utilityHandler, &UtilityHandler::resetSimulation);
 }
 
-void TrainSimulation::initData() {
+void TrainSimulationHandler::initData() {
   m_slopeIndex = 0;
   m_radiusIndex = 0;
   m_maxSpeedIndex = 0;
@@ -54,7 +55,7 @@ void TrainSimulation::initData() {
   movingData->decc = movingData->decc_start * constantData->cV;
 }
 
-double TrainSimulation::calculateTotalTime(int i) {
+double TrainSimulationHandler::calculateTotalTime(int i) {
   if (i <= 0)
     return 0;
   return ((simulationDatas.trainSpeeds[i] -
@@ -63,7 +64,7 @@ double TrainSimulation::calculateTotalTime(int i) {
          (simulationDatas.accelerations[i - 1] / constantData->cV);
 }
 
-double TrainSimulation::calculateTotalDistance(int i) {
+double TrainSimulationHandler::calculateTotalDistance(int i) {
   if (i <= 0)
     return 0;
   else
@@ -73,7 +74,7 @@ double TrainSimulation::calculateTotalDistance(int i) {
             pow(simulationDatas.time[i], 2));
 }
 
-void TrainSimulation::simulateDynamicTrainMovement() {
+void TrainSimulationHandler::simulateDynamicTrainMovement() {
   clearWarnings();
   clearErrors();
   emit simulationStarted();
@@ -265,7 +266,7 @@ void TrainSimulation::simulateDynamicTrainMovement() {
   }
 }
 
-void TrainSimulation::simulateStaticTrainMovement() {
+void TrainSimulationHandler::simulateStaticTrainMovement() {
   m_utilityHandler->clearSimulationDatas();
   initData();
   clearWarnings();
@@ -335,83 +336,83 @@ void TrainSimulation::simulateStaticTrainMovement() {
   emit staticSimulationCompleted();
 }
 
-double TrainSimulation::getMaxSpeed() {
+double TrainSimulationHandler::getMaxSpeed() {
   if (simulationDatas.trainSpeeds.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas.trainSpeeds.begin(),
                            simulationDatas.trainSpeeds.end());
 }
 
-double TrainSimulation::getMaxVvvfPower() {
+double TrainSimulationHandler::getMaxVvvfPower() {
   if (simulationDatas.vvvfPowers.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas.vvvfPowers.begin(),
                            simulationDatas.vvvfPowers.end());
 }
 
-double TrainSimulation::getMaxCatenaryPower() {
+double TrainSimulationHandler::getMaxCatenaryPower() {
   if (simulationDatas.catenaryPowers.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas.catenaryPowers.begin(),
                            simulationDatas.catenaryPowers.end());
 }
 
-double TrainSimulation::getMaxVvvfCurrent() {
+double TrainSimulationHandler::getMaxVvvfCurrent() {
   if (simulationDatas.vvvfCurrents.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas.vvvfCurrents.begin(),
                            simulationDatas.vvvfCurrents.end());
 }
 
-double TrainSimulation::getMaxCatenaryCurrent() {
+double TrainSimulationHandler::getMaxCatenaryCurrent() {
   if (simulationDatas.catenaryCurrents.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas.catenaryCurrents.begin(),
                            simulationDatas.catenaryCurrents.end());
 }
 
-double TrainSimulation::getMaxTractionEffort() {
+double TrainSimulationHandler::getMaxTractionEffort() {
   if (simulationDatas.tractionEfforts.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas.tractionEfforts.begin(),
                            simulationDatas.tractionEfforts.end());
 }
 
-double TrainSimulation::getDistanceTravelled() {
+double TrainSimulationHandler::getDistanceTravelled() {
   if (simulationDatas.distanceTotal.isEmpty())
     return 0.0;
   return simulationDatas.distanceTotal.last();
 }
 
-double TrainSimulation::getMaxEnergyConsumption() {
+double TrainSimulationHandler::getMaxEnergyConsumption() {
   if (simulationDatas.energyConsumptions.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas.energyConsumptions.begin(),
                            simulationDatas.energyConsumptions.end());
 }
 
-double TrainSimulation::getMaxEnergyRegen() {
+double TrainSimulationHandler::getMaxEnergyRegen() {
   if (simulationDatas.energyRegenerations.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas.energyRegenerations.begin(),
                            simulationDatas.energyRegenerations.end());
 }
 
-double TrainSimulation::getMaxEnergyPowering() {
+double TrainSimulationHandler::getMaxEnergyPowering() {
   if (simulationDatas.energyPowerings.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas.energyPowerings.begin(),
                            simulationDatas.energyPowerings.end());
 }
 
-double TrainSimulation::getMaxEnergyAps() {
+double TrainSimulationHandler::getMaxEnergyAps() {
   if (simulationDatas.energyAps.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas.energyAps.begin(),
                            simulationDatas.energyAps.end());
 }
 
-double TrainSimulation::getMaxCurrTime() {
+double TrainSimulationHandler::getMaxCurrTime() {
   double maxCurrTime = 0.0;
   double maxVvvfCurrent = getMaxVvvfCurrent();
   const double epsilon = 0.001; // Precision on decimal double value
@@ -423,7 +424,7 @@ double TrainSimulation::getMaxCurrTime() {
   return maxCurrTime;
 }
 
-double TrainSimulation::getMaxPowTime() {
+double TrainSimulationHandler::getMaxPowTime() {
   double maxPowTime = 0.0;
   double maxVvvfPower = getMaxVvvfPower();
   const double epsilon = 0.001; // Precision on decimal double value
@@ -435,18 +436,18 @@ double TrainSimulation::getMaxPowTime() {
   return maxPowTime;
 }
 
-double TrainSimulation::getAdhesion() { return trainMotorData->tm_adh; }
+double TrainSimulationHandler::getAdhesion() { return trainMotorData->tm_adh; }
 
-bool TrainSimulation::validateCsvVariables() {
+bool TrainSimulationHandler::validateCsvVariables() {
   if (stationData->x_station.size() > 0) {
     return true;
   } else
     return false;
 }
 
-void TrainSimulation::calculatePowers(double efficiencyGear,
-                                      double efficiencyMotor,
-                                      double efficiencyVvvf) {
+void TrainSimulationHandler::calculatePowers(double efficiencyGear,
+                                             double efficiencyMotor,
+                                             double efficiencyVvvf) {
   powerData->p_wheel = m_powerHandler->calculatePowerWheel();
   powerData->p_motorOut =
       m_powerHandler->calculateOutputTractionMotor(efficiencyGear);
@@ -458,13 +459,13 @@ void TrainSimulation::calculatePowers(double efficiencyGear,
   trainMotorData->tm_rpm = m_tractionMotorHandler->calculateRpm();
 }
 
-void TrainSimulation::calculateEnergies(int i) {
+void TrainSimulationHandler::calculateEnergies(int i) {
   energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
   energyData->e_pow += m_energyHandler->calculateEnergyOfPowering(i);
   energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
 }
 
-void TrainSimulation::addEnergySimulationDatas() {
+void TrainSimulationHandler::addEnergySimulationDatas() {
 
   m_efficiencyVvvf =
       m_csvVariableHandler->setEffVvvfData(m_effVvvfIndex, movingData->v);
@@ -489,7 +490,7 @@ void TrainSimulation::addEnergySimulationDatas() {
       m_motorVoltageIndex, movingData->v);
 }
 
-void TrainSimulation::addStationSimulationDatas() {
+void TrainSimulationHandler::addStationSimulationDatas() {
   m_slope =
       m_csvVariableHandler->setSlopeData(m_slopeIndex, movingData->x_total);
   m_radius =
@@ -504,7 +505,7 @@ void TrainSimulation::addStationSimulationDatas() {
                                                            movingData->x_total);
 }
 
-void TrainSimulation::calculateRunningResEachSlope() {
+void TrainSimulationHandler::calculateRunningResEachSlope() {
   resistanceData->f_resRunningZero =
       movingData->v == 0
           ? m_resistanceHandler->calculateStartRes(0, stationData->stat_radius)

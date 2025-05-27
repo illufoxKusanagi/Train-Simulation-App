@@ -1,7 +1,7 @@
 #include "train_parameter_page.h"
 
 TrainParameterPage::TrainParameterPage(AppContext &context,
-                                       TrainSimulation *trainSimulation,
+                                       TrainSimulationHandler *trainSimulation,
                                        QWidget *parent)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       massData(context.massData.data()), loadData(context.loadData.data()),

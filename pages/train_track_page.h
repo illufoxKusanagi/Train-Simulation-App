@@ -14,12 +14,12 @@ class TrainTrackPage : public QWidget {
   Q_OBJECT
 public:
   explicit TrainTrackPage(QWidget *parent = nullptr,
-                          TrainSimulation *trainSimulation = nullptr,
+                          TrainSimulationHandler *trainSimulation = nullptr,
                           AppContext *context = nullptr);
 
 private:
   QVBoxLayout *mainLayout;
-  TrainSimulation *m_trainSimulation;
+  TrainSimulationHandler *m_trainSimulation;
   InputWidget *m_inputWidget;
   ButtonAction *m_prevButton;
   ButtonAction *m_nextButton;

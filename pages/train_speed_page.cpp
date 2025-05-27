@@ -1,16 +1,16 @@
 #include "train_speed_page.h"
 
 TrainSpeedPage::TrainSpeedPage(QWidget *parent,
-                               TrainSimulation *trainSimulation,
+                               TrainSimulationHandler *trainSimulation,
                                AppContext *context)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_trainSimulation(trainSimulation), context(context) {
   mainLayout->setAlignment(Qt::AlignCenter);
   stackedWidget = new QStackedWidget(this);
-  connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
+  connect(m_trainSimulation, &TrainSimulationHandler::simulationCompleted, this,
           &TrainSpeedPage::setParameterValue);
-  connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
-          &TrainSpeedPage::setStaticParameterValue);
+  connect(m_trainSimulation, &TrainSimulationHandler::staticSimulationCompleted,
+          this, &TrainSpeedPage::setStaticParameterValue);
   mainLayout->addWidget(stackedWidget);
   setupFirstPage();
   setupSecondPage();

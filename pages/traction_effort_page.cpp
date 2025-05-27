@@ -1,15 +1,15 @@
 #include "traction_effort_page.h"
 
 TractionEffortPage::TractionEffortPage(QWidget *parent,
-                                       TrainSimulation *trainSimulation,
+                                       TrainSimulationHandler *trainSimulation,
                                        AppContext *context)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)),
       m_trainSimulation(trainSimulation), context(context) {
   mainLayout->setAlignment(Qt::AlignCenter);
-  connect(m_trainSimulation, &TrainSimulation::simulationCompleted, this,
+  connect(m_trainSimulation, &TrainSimulationHandler::simulationCompleted, this,
           &TractionEffortPage::setParameterValue);
-  connect(m_trainSimulation, &TrainSimulation::staticSimulationCompleted, this,
-          &TractionEffortPage::setStaticParameterValue);
+  connect(m_trainSimulation, &TrainSimulationHandler::staticSimulationCompleted,
+          this, &TractionEffortPage::setStaticParameterValue);
   stackedWidget = new QStackedWidget(this);
   mainLayout->addWidget(stackedWidget);
   setupFirstPage();

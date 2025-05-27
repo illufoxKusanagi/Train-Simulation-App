@@ -1,6 +1,6 @@
 #include "left_panel.h"
 
-LeftPanel::LeftPanel(QWidget *parent, TrainSimulation *trainSimulation)
+LeftPanel::LeftPanel(QWidget *parent, TrainSimulationHandler *trainSimulation)
     : QWidget(parent), m_buttonLayout(nullptr), m_inputPanel(nullptr),
       m_trainSimulation(trainSimulation) {
   m_mainLayout = new QVBoxLayout(this);
@@ -179,22 +179,22 @@ void LeftPanel::updateButtonState(QFuture<void> future, ButtonAction *runButton,
   runStaticButton->setEnabled(false);
   QTimer::singleShot(200, this, [this, runButton, runStaticButton, future]() {
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>(this);
-    connect(watcher, &QFutureWatcher<void>::finished, this,
-            [this, watcher, runStaticButton, runButton]() {
-              runStaticButton->setEnabled(true);
-              runButton->setEnabled(true);
-              connect(m_trainSimulation, &TrainSimulation::simulationError,
-                      this, [this]() { m_isSimulationError = true; });
-              if (!m_isSimulationError) {
-                QSet<QString> warnings =
-                    m_trainSimulation->getSimulationWarnings();
-                showSimMessageBox(warnings, false);
-              } else {
-                QSet<QString> errors = m_trainSimulation->getSimulationErrors();
-                showSimMessageBox(errors, true);
-              }
-              watcher->deleteLater();
-            });
+    connect(
+        watcher, &QFutureWatcher<void>::finished, this,
+        [this, watcher, runStaticButton, runButton]() {
+          runStaticButton->setEnabled(true);
+          runButton->setEnabled(true);
+          connect(m_trainSimulation, &TrainSimulationHandler::simulationError,
+                  this, [this]() { m_isSimulationError = true; });
+          if (!m_isSimulationError) {
+            QSet<QString> warnings = m_trainSimulation->getSimulationWarnings();
+            showSimMessageBox(warnings, false);
+          } else {
+            QSet<QString> errors = m_trainSimulation->getSimulationErrors();
+            showSimMessageBox(errors, true);
+          }
+          watcher->deleteLater();
+        });
     watcher->setFuture(future);
   });
 }
