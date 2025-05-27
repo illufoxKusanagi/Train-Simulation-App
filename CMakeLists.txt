@@ -60,8 +60,8 @@ set(WIDGET_SOURCES
     widgets/input_upload.h
     widgets/button_action.cpp
     widgets/button_action.h
-    widgets/button_sidebar_active.cpp
-    widgets/button_sidebar_active.h
+    widgets/button_sidebar.cpp
+    widgets/button_sidebar.h
     widgets/button_sidebar_widget.cpp
     widgets/button_sidebar_widget.h
     widgets/button_toggle.cpp
@@ -70,10 +70,8 @@ set(WIDGET_SOURCES
     widgets/left_panel.h
     widgets/button_pagination.h
     widgets/button_pagination.cpp
-    widgets/left_panel_category.h
-    widgets/left_panel_category.cpp
-    widgets/button_panel_category.h
-    widgets/button_panel_category.cpp
+    widgets/left_panel_input.h
+    widgets/left_panel_input.cpp
     widgets/chart_widget.h
     widgets/chart_widget.cpp
     widgets/message_box_widget.h
@@ -159,7 +157,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${MODEL_SOURCES}
         ${RESOURCE_SOURCES}
         ${CONTROLLER_SOURCES}
-        pages/testpage.h pages/testpage.cpp
     )
 
 # Define target properties for Android with Qt 6 as:

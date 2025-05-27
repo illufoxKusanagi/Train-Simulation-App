@@ -1,5 +1,5 @@
-#ifndef BUTTONSIDEBARACTIVE_H
-#define BUTTONSIDEBARACTIVE_H
+#ifndef BUTTONSIDEBAR_H
+#define BUTTONSIDEBAR_H
 
 #include "button_sidebar_widget.h"
 #include "resources/icon_paths.h"
@@ -8,14 +8,13 @@
 #include <QBoxLayout>
 #include <QPushButton>
 
-
-class ButtonSidebarActive : public QPushButton {
+class ButtonSidebar : public QPushButton {
   Q_OBJECT
 
 public:
-  explicit ButtonSidebarActive(QWidget *parent = nullptr,
-                               const QString &iconType = "",
-                               const QString &buttonLabel = "");
+  explicit ButtonSidebar(QWidget *parent = nullptr,
+                         const QString &iconType = "",
+                         const QString &buttonLabel = "");
   void setLabelVisible(bool visible);
   void setIconVisible(bool visible);
   void setEnabled(bool isEnabled);
@@ -30,10 +29,10 @@ private:
   static const QString s_stylePressed;
   static const QString s_styleBase;
 
-  QPushButton *buttonSidebarActive;
+  QPushButton *buttonSidebar;
   ButtonSidebarWidget *m_contentWidget;
   QHBoxLayout *m_layout;
   bool isLabelVisible;
 };
 
-#endif // BUTTONSIDEBARACTIVE_H
+#endif // BUTTONSIDEBAR_H

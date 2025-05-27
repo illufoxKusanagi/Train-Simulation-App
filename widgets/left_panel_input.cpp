@@ -1,4 +1,4 @@
-#include "left_panel_category.h"
+#include "left_panel_input.h"
 
 LeftPanelInputs::LeftPanelInputs(QWidget *parent, PanelType type)
     : QWidget(parent), mainLayout(new QVBoxLayout(this)), m_type(type),
@@ -7,8 +7,8 @@ LeftPanelInputs::LeftPanelInputs(QWidget *parent, PanelType type)
   mainLayout->setContentsMargins(0, 0, 0, 0);
   mainLayout->setSpacing(4);
   mainLayout->setAlignment(Qt::AlignCenter);
-  m_categoryButton = new ButtonSidebarActive(
-      this, "category", type == INPUT ? "Inputs" : "Outputs");
+  m_categoryButton =
+      new ButtonSidebar(this, "category", type == INPUT ? "Inputs" : "Outputs");
   m_categoryButton->setEnabled(m_currentIndex);
   QFrame *topSeparator = new QFrame();
   topSeparator->setFrameShape(QFrame::HLine);
@@ -33,8 +33,8 @@ void LeftPanelInputs::setupButtons() {
   local_buttonLayout = new QVBoxLayout(local_buttonContainer);
   local_buttonLayout->setContentsMargins(16, 0, 0, 0);
   for (int i = 0; i < m_buttonNames.size(); i++) {
-    ButtonSidebarActive *button =
-        new ButtonSidebarActive(this, m_buttonTypes[i], m_buttonNames[i]);
+    ButtonSidebar *button =
+        new ButtonSidebar(this, m_buttonTypes[i], m_buttonNames[i]);
     button->setIconSize(40, 40);
     connect(button, &QPushButton::clicked, this, [this, i]() {
       m_currentIndex = i;

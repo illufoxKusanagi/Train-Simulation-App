@@ -3,7 +3,7 @@
 
 #include "button_toggle.h"
 #include "controllers/train_simulation/train_simulation.h"
-#include "left_panel_category.h"
+#include "left_panel_input.h"
 #include "message_box_widget.h"
 #include "widgets/button_action.h"
 #include <QFuture>
