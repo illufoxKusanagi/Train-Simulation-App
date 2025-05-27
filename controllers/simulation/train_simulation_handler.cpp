@@ -16,7 +16,7 @@ TrainSimulationHandler::TrainSimulationHandler(AppContext &context,
       simulationDatas(*context.simulationData.data()),
       constantData(context.constantData.data()) {
   m_massHandler = new MassHandler(context);
-  m_outputHandler = new OutputHandler(simulationDatas);
+  m_outputHandler = new CsvOutputHandler(simulationDatas);
   m_energyHandler = new EnergyHandler(context);
   m_powerHandler = new PowerHandler(context);
   m_utilityHandler = new UtilityHandler(context);

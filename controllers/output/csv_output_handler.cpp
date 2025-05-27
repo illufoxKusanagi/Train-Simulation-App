@@ -1,10 +1,10 @@
-#include "output_handler.h"
+#include "csv_output_handler.h"
 using namespace std;
 
-OutputHandler::OutputHandler(SimulationDatas &simulationDatas)
+CsvOutputHandler::CsvOutputHandler(SimulationDatas &simulationDatas)
     : simulationDatas(&simulationDatas) {}
 
-void OutputHandler::printSimulationDatas() {
+void CsvOutputHandler::printSimulationDatas() {
   int maxSize = getAllDataNumber();
   if (simulationDatas->energyRegenerations.size() < maxSize) {
     simulationDatas->energyRegenerations.resize(maxSize);
@@ -72,7 +72,7 @@ void OutputHandler::printSimulationDatas() {
                               MessageBoxWidget::Information);
 }
 
-bool OutputHandler::saveTrainSpeedData() {
+bool CsvOutputHandler::saveTrainSpeedData() {
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   if (filepath.isEmpty()) {
@@ -91,7 +91,7 @@ bool OutputHandler::saveTrainSpeedData() {
   return true;
 }
 
-bool OutputHandler::saveTractionEffortData() {
+bool CsvOutputHandler::saveTractionEffortData() {
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   if (filepath.isEmpty()) {
@@ -111,7 +111,7 @@ bool OutputHandler::saveTractionEffortData() {
   return true;
 }
 
-bool OutputHandler::saveTrainPowerData() {
+bool CsvOutputHandler::saveTrainPowerData() {
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   if (filepath.isEmpty()) {
@@ -135,7 +135,7 @@ bool OutputHandler::saveTrainPowerData() {
   return true;
 }
 
-bool OutputHandler::saveTrainTrackData() {
+bool CsvOutputHandler::saveTrainTrackData() {
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   if (filepath.isEmpty()) {
@@ -157,7 +157,7 @@ bool OutputHandler::saveTrainTrackData() {
   return true;
 }
 
-bool OutputHandler::saveEnergyConsumptionData() {
+bool CsvOutputHandler::saveEnergyConsumptionData() {
   QString filepath = QFileDialog::getSaveFileName(
       nullptr, "Save File", QDir::homePath(), "CSV File (*.csv)");
   if (filepath.isEmpty()) {
@@ -188,83 +188,83 @@ bool OutputHandler::saveEnergyConsumptionData() {
   return true;
 }
 
-double OutputHandler::findMaxSpeed() {
+double CsvOutputHandler::findMaxSpeed() {
   if (simulationDatas->trainSpeeds.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas->trainSpeeds.begin(),
                            simulationDatas->trainSpeeds.end());
 }
 
-double OutputHandler::findMaxVvvfPower() {
+double CsvOutputHandler::findMaxVvvfPower() {
   if (simulationDatas->vvvfPowers.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas->vvvfPowers.begin(),
                            simulationDatas->vvvfPowers.end());
 }
 
-double OutputHandler::findMaxCatenaryPower() {
+double CsvOutputHandler::findMaxCatenaryPower() {
   if (simulationDatas->catenaryPowers.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas->catenaryPowers.begin(),
                            simulationDatas->catenaryPowers.end());
 }
 
-double OutputHandler::findMaxVvvfCurrent() {
+double CsvOutputHandler::findMaxVvvfCurrent() {
   if (simulationDatas->vvvfCurrents.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas->vvvfCurrents.begin(),
                            simulationDatas->vvvfCurrents.end());
 }
 
-double OutputHandler::findMaxCatenaryCurrent() {
+double CsvOutputHandler::findMaxCatenaryCurrent() {
   if (simulationDatas->catenaryCurrents.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas->catenaryCurrents.begin(),
                            simulationDatas->catenaryCurrents.end());
 }
 
-double OutputHandler::findMaxTractionEffort() {
+double CsvOutputHandler::findMaxTractionEffort() {
   if (simulationDatas->tractionEfforts.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas->tractionEfforts.begin(),
                            simulationDatas->tractionEfforts.end());
 }
 
-double OutputHandler::findDistanceTravelled() {
+double CsvOutputHandler::findDistanceTravelled() {
   if (simulationDatas->distanceTotal.isEmpty())
     return 0.0;
   return simulationDatas->distanceTotal.last();
 }
 
-double OutputHandler::findMaxEnergyConsumption() {
+double CsvOutputHandler::findMaxEnergyConsumption() {
   if (simulationDatas->energyConsumptions.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas->energyConsumptions.begin(),
                            simulationDatas->energyConsumptions.end());
 }
 
-double OutputHandler::findMaxEnergyRegen() {
+double CsvOutputHandler::findMaxEnergyRegen() {
   if (simulationDatas->energyRegenerations.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas->energyRegenerations.begin(),
                            simulationDatas->energyRegenerations.end());
 }
 
-double OutputHandler::findMaxEnergyPowering() {
+double CsvOutputHandler::findMaxEnergyPowering() {
   if (simulationDatas->energyPowerings.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas->energyPowerings.begin(),
                            simulationDatas->energyPowerings.end());
 }
 
-double OutputHandler::findMaxEnergyAps() {
+double CsvOutputHandler::findMaxEnergyAps() {
   if (simulationDatas->energyAps.isEmpty())
     return 0.0;
   return *std::max_element(simulationDatas->energyAps.begin(),
                            simulationDatas->energyAps.end());
 }
 
-double OutputHandler::findMaxCurrTime() {
+double CsvOutputHandler::findMaxCurrTime() {
   double maxCurrTime = 0.0;
   double maxVvvfCurrent = findMaxVvvfCurrent();
   const double epsilon = 0.001; // Precision on decimal double value
@@ -276,7 +276,7 @@ double OutputHandler::findMaxCurrTime() {
   return maxCurrTime;
 }
 
-double OutputHandler::findMaxPowTime() {
+double CsvOutputHandler::findMaxPowTime() {
   double maxPowTime = 0.0;
   double maxVvvfPower = findMaxVvvfPower();
   const double epsilon = 0.001; // Precision on decimal double value
@@ -288,7 +288,7 @@ double OutputHandler::findMaxPowTime() {
   return maxPowTime;
 }
 
-int OutputHandler::getAllDataNumber() {
+int CsvOutputHandler::getAllDataNumber() {
   return (std::min({simulationDatas->trainSpeeds.size(),
                     simulationDatas->vvvfPowers.size(),
                     simulationDatas->catenaryPowers.size(),
@@ -320,7 +320,7 @@ int OutputHandler::getAllDataNumber() {
                     simulationDatas->energyCatenaries.size()}));
 }
 
-int OutputHandler::getTrainSpeedDataNumber() {
+int CsvOutputHandler::getTrainSpeedDataNumber() {
   return std::min({simulationDatas->trainSpeeds.size(),
                    simulationDatas->vvvfPowers.size(),
                    simulationDatas->catenaryPowers.size(),
@@ -328,7 +328,7 @@ int OutputHandler::getTrainSpeedDataNumber() {
                    simulationDatas->catenaryCurrents.size()});
 }
 
-int OutputHandler::getTractionEffortDataNumber() {
+int CsvOutputHandler::getTractionEffortDataNumber() {
   return std::min({simulationDatas->trainSpeeds.size(),
                    simulationDatas->vvvfPowers.size(),
                    simulationDatas->catenaryPowers.size(),
@@ -336,7 +336,7 @@ int OutputHandler::getTractionEffortDataNumber() {
                    simulationDatas->catenaryCurrents.size()});
 }
 
-int OutputHandler::getTrainPowerDataNumber() {
+int CsvOutputHandler::getTrainPowerDataNumber() {
   return std::min({simulationDatas->trainSpeeds.size(),
                    simulationDatas->vvvfPowers.size(),
                    simulationDatas->catenaryPowers.size(),
@@ -344,7 +344,7 @@ int OutputHandler::getTrainPowerDataNumber() {
                    simulationDatas->catenaryCurrents.size()});
 }
 
-int OutputHandler::getTrainTrackDataNumber() {
+int CsvOutputHandler::getTrainTrackDataNumber() {
   return std::min({simulationDatas->time.size(),
                    simulationDatas->timeTotal.size(),
                    simulationDatas->distance.size(),

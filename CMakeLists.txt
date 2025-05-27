@@ -126,14 +126,14 @@ set(CONTROLLER_SOURCES
     controllers/simulation/power_handler.cpp
     controllers/simulation/moving_handler.h
     controllers/simulation/moving_handler.cpp
-    controllers/simulation/output_handler.h
-    controllers/simulation/output_handler.cpp
     controllers/simulation/simulation_track_handler.h
     controllers/simulation/simulation_track_handler.cpp
     controllers/simulation/utility_handler.h
     controllers/simulation/utility_handler.cpp
     controllers/simulation/current_handler.h
     controllers/simulation/current_handler.cpp
+    controllers/output/csv_output_handler.h
+    controllers/output/csv_output_handler.cpp
     controllers/output/save_button_handler.h
     controllers/output/save_button_handler.cpp
     controllers/output/static_simulation_chart_handler.h
