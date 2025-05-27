@@ -10,7 +10,6 @@ ButtonSidebar::ButtonSidebar(QWidget *parent, const QString &iconType,
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   m_contentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
   m_layout->addWidget(m_contentWidget);
-  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 }
 
 void ButtonSidebar::setIconSize(int width, int height) {
@@ -43,18 +42,6 @@ void ButtonSidebar::setEnabled(bool isEnabled) {
   m_contentWidget->setEnabled(isEnabled);
 }
 
-const QString ButtonSidebar::s_styleHover = "QPushButton:hover {"
-                                            "    background-color: " +
-                                            Colors::Secondary300.name() +
-                                            ";"
-                                            "}";
-
-const QString ButtonSidebar::s_stylePressed = "QPushButton:pressed {"
-                                              "    background-color: " +
-                                              Colors::Secondary600.name() +
-                                              ";"
-                                              "}";
-
 const QString ButtonSidebar::s_styleBase = "QPushButton {"
                                            "    padding: 8px 24px;"
                                            "    text-align: left;"
@@ -67,3 +54,15 @@ const QString ButtonSidebar::s_styleBase = "QPushButton {"
                                            ";"
                                            "    " +
                                            TextStyle::BodyBigBold() + "}";
+
+const QString ButtonSidebar::s_styleHover = "QPushButton:hover {"
+                                            "    background-color: " +
+                                            Colors::Secondary300.name() +
+                                            ";"
+                                            "}";
+
+const QString ButtonSidebar::s_stylePressed = "QPushButton:pressed {"
+                                              "    background-color: " +
+                                              Colors::Secondary600.name() +
+                                              ";"
+                                              "}";
