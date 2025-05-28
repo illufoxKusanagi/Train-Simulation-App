@@ -75,14 +75,6 @@ void TrainDataHandler::setTypeValue(
   if (inputWidgets.contains("T3")) {
     m_trainData->n_T3 = inputWidgets["T3"]->getValue();
   }
-  if (inputWidgets.contains("M1-Deg") && inputWidgets["M1-Deg"]) {
-    // Assuming trainData has n_M1_disabled or similar
-    m_trainData->n_M1_disabled = inputWidgets["M1-Deg"]->getValue();
-  }
-  if (inputWidgets.contains("M2-Deg") && inputWidgets["M2-Deg"]) {
-    // Assuming trainData has n_M2_disabled or similar
-    m_trainData->n_M2_disabled = inputWidgets["M2-Deg"]->getValue();
-  }
 }
 
 void TrainDataHandler::setMassValue(
@@ -135,9 +127,9 @@ void TrainDataHandler::setNumberCarValue(double numberCar) {
   }
 }
 
-void TrainDataHandler::setTrainsetLengthValue(double trainsetLength) {
+void TrainDataHandler::setTrainsetLengthValue(double carLength) {
   if (m_trainData) {
-    m_trainData->trainsetLength = trainsetLength;
+    m_trainData->trainsetLength = carLength * m_trainData->n_car;
   }
 }
 
@@ -158,17 +150,17 @@ void TrainDataHandler::storeFormInputs(
   if (inputWidgets.contains("Number of Axle")) {
     setNumberAxleValue(inputWidgets["Number of Axle"]->getValue());
   }
-  if (inputWidgets.contains("Wheel Diameter")) {
-    setWheelDiameterValue(inputWidgets["Wheel Diameter"]->getValue());
+  if (inputWidgets.contains("Wheel Diameter (mm)")) {
+    setWheelDiameterValue(inputWidgets["Wheel Diameter (mm)"]->getValue());
   }
   if (inputWidgets.contains("Gear Ratio")) {
     setGearRatioValue(inputWidgets["Gear Ratio"]->getValue());
   }
-  if (inputWidgets.contains("Load per Car")) {
-    setLoadValue(inputWidgets["Load per Car"]->getValue());
+  if (inputWidgets.contains("Load per Car(ton)")) {
+    setLoadValue(inputWidgets["Load per Car(ton)"]->getValue());
   }
-  if (inputWidgets.contains("Passenger Weight")) {
-    setPassengerWeightValue(inputWidgets["Passenger Weight"]->getValue());
+  if (inputWidgets.contains("Passenger Weight (kg)")) {
+    setPassengerWeightValue(inputWidgets["Passenger Weight (kg)"]->getValue());
   }
   if (inputWidgets.contains("Inertial Coefficient Trailer")) {
     setInertialCoefficientTrailerValue(

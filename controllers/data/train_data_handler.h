@@ -15,7 +15,7 @@ public:
   void setPasengerValue(const QMap<QString, InputWidget *> &inputWidgets);
   void setDegradedTrainMotorValues(double numberM1, double numberM2);
   void setNumberCarValue(double numberCar);
-  void setTrainsetLengthValue(double trainsetLength);
+  void setTrainsetLengthValue(double carLength);
 
 private:
   TrainData *m_trainData;
