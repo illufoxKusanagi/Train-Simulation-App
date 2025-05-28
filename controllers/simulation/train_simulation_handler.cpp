@@ -113,7 +113,9 @@ void TrainSimulationHandler::simulateDynamicTrainMovement() {
       simulationDatas.slopes.append(m_slope);
       simulationDatas.radiuses.append(m_radius);
       simulationDatas.speedLimits.append(m_maxSpeed);
-      odo = m_simulationTrackHandler->calculateOdo(movingData->v);
+      odo = notch == AtStation
+                ? 0
+                : m_simulationTrackHandler->calculateOdo(movingData->v);
       brakingDistance =
           m_simulationTrackHandler->calculateBrakingTrack(movingData->v);
       simulationDatas.odos.append(odo);
@@ -126,7 +128,6 @@ void TrainSimulationHandler::simulateDynamicTrainMovement() {
 
       if (notch == AtStation) {
         phase = "At Station";
-
         movingData->x_total -= trainStopTime == 0 ? distanceDifference : 0;
         movingData->v = 0;
         movingData->v_si = 0;

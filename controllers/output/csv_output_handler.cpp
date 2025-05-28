@@ -34,9 +34,8 @@ void CsvOutputHandler::printSimulationDatas() {
             << simulationDatas->time[i] << "," << simulationDatas->timeTotal[i]
             << "," << simulationDatas->distance[i] << ","
             << simulationDatas->distanceTotal[i] << ","
-            << (simulationDatas->mileages.isEmpty() ? 0
-                                                    : simulationDatas->odos[i])
-            << "," << simulationDatas->brakingDistances[i] << ","
+            << simulationDatas->odos[i] << ","
+            << simulationDatas->brakingDistances[i] << ","
             << simulationDatas->trainSpeeds[i] << ","
             << simulationDatas->trainSpeedsSi[i] << ","
             << simulationDatas->slopes[i] << "," << simulationDatas->radiuses[i]

@@ -144,6 +144,14 @@ set(CONTROLLER_SOURCES
     controllers/output/output_table_handler.cpp
     controllers/simulation/csv_variables_handler.h
     controllers/simulation/csv_variables_handler.cpp
+    controllers/data/electrical_data_handler.h
+    controllers/data/electrical_data_handler.cpp
+    controllers/data/running_data_handler.h
+    controllers/data/running_data_handler.cpp
+    controllers/data/track_data_handler.h 
+    controllers/data/track_data_handler.cpp
+    controllers/data/train_data_handler.h 
+    controllers/data/train_data_handler.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

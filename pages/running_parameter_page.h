@@ -1,6 +1,7 @@
 #ifndef RUNNINGPARAMETERWIDGET_H
 #define RUNNINGPARAMETERWIDGET_H
 
+#include "controllers/data/running_data_handler.h"
 #include "controllers/simulation/train_simulation_handler.h"
 #include "core/appcontext.h"
 #include "models/train_data.h"
@@ -33,6 +34,7 @@ private:
   LoadData *loadData;
   TrainData *trainData;
   TrainParameterPage *m_trainParameterPage;
+  RunningDataHandler *m_runningDataHandler;
 
   void createInputs();
   double getParameterValue(const QString &paramName) const;
