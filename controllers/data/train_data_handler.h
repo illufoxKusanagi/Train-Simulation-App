@@ -12,7 +12,7 @@ public:
   void storeFormInputs(const QMap<QString, InputWidget *> &inputWidgets);
   void setTypeValue(const QMap<QString, InputWidget *> &inputWidgets);
   void setMassValue(const QMap<QString, InputWidget *> &inputWidgets);
-  void setPasengerValue(const QMap<QString, InputWidget *> &inputWidgets);
+  void setPassengerValue(const QMap<QString, InputWidget *> &inputWidgets);
   void setDegradedTrainMotorValues(double numberM1, double numberM2);
   void setNumberCarValue(double numberCar);
   void setTrainsetLengthValue(double carLength);

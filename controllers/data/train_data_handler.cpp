@@ -99,7 +99,7 @@ void TrainDataHandler::setMassValue(
   }
 }
 
-void TrainDataHandler::setPasengerValue(
+void TrainDataHandler::setPassengerValue(
     const QMap<QString, InputWidget *> &inputWidgets) {
   if (inputWidgets.contains("Tc")) {
     m_loadData->n_PTc = inputWidgets["Tc"]->getValue();

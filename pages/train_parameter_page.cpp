@@ -288,48 +288,20 @@ TrainParameterPage::getPassengerParameterValue(const QString &paramName) {
 
 void TrainParameterPage::setParameterValue() {
   m_trainDataHandler->storeFormInputs(m_inputWidgets);
-  // trainData->n_tm = getParameterValue("Number of Traction Motor");
-  // trainData->n_axle = getParameterValue("Number of Axle");
-  // trainData->wheel = getParameterValue("Wheel Diameter (mm)");
-  // trainData->gearRatio = getParameterValue("Gear Ratio");
-  // loadData->load = getParameterValue("Load per Car (ton)");
-  // loadData->mass_P = getParameterValue("Passenger Weight (kg)");
-  // massData->i_M = getParameterValue("Inertial Coefficient Motor");
-  // massData->i_T = getParameterValue("Inertial Coefficient Trailer");
 }
 
 void TrainParameterPage::setTypeValue() {
   m_trainDataHandler->setTypeValue(m_typeInputWidgets);
-  // trainData->n_Tc = getTypeParameterValue("Tc");
-  // trainData->n_M1 = getTypeParameterValue("M1");
-  // trainData->n_M2 = getTypeParameterValue("M2");
-  // trainData->n_T1 = getTypeParameterValue("T1");
-  // trainData->n_T2 = getTypeParameterValue("T2");
-  // trainData->n_T3 = getTypeParameterValue("T3");
-  // trainData->n_M1_disabled = getTypeParameterValue("M1-Deg");
-  // trainData->n_M2_disabled = getTypeParameterValue("M2-Deg");
   setDegradedTrainMotorValues(getTypeParameterValue("M1-Deg"),
                               getTypeParameterValue("M2-Deg"));
 }
 
 void TrainParameterPage::setMassValue() {
   m_trainDataHandler->setMassValue(m_massInputWidgets);
-  // massData->mass_M1 = getMassParameterValue("M1");
-  // massData->mass_M2 = getMassParameterValue("M2");
-  // massData->mass_TC = getMassParameterValue("Tc");
-  // massData->mass_T1 = getMassParameterValue("T1");
-  // massData->mass_T2 = getMassParameterValue("T2");
-  // massData->mass_T3 = getMassParameterValue("T3");
 }
 
 void TrainParameterPage::setPassengerValue() {
-  m_trainDataHandler->setPasengerValue(m_passengerInputWidgets);
-  // loadData->n_PM1 = getPassengerParameterValue("M1");
-  // loadData->n_PM2 = getPassengerParameterValue("M2");
-  // loadData->n_PTc = getPassengerParameterValue("Tc");
-  // loadData->n_PT1 = getPassengerParameterValue("T1");
-  // loadData->n_PT2 = getPassengerParameterValue("T2");
-  // loadData->n_PT3 = getPassengerParameterValue("T3");
+  m_trainDataHandler->setPassengerValue(m_passengerInputWidgets);
 }
 
 void TrainParameterPage::connectInputSignals() {
@@ -438,7 +410,6 @@ void TrainParameterPage::setupTrainsetSection(
                                   nCarOptions);
   m_trainLabelImage = new QLabel(this);
   m_numberOfCar->setValue(12);
-  // trainData->n_car = 12;
   m_trainDataHandler->setNumberCarValue(12);
   m_trainLabelImage->setFixedSize(512, 80);
   updateTrainImage(m_trainLabelImage, 12);
@@ -450,33 +421,20 @@ void TrainParameterPage::setupTrainsetSection(
     if (value == 0) {
       index = 12;
       setDegradedTrainMotorValues(0, 0);
-      // trainData->n_M1_disabled = 0;
-      // trainData->n_M2_disabled = 0;
     } else if (value == 1) {
       index = 10;
       setDegradedTrainMotorValues(0, 0);
-      // trainData->n_M1_disabled = 0;
-      // trainData->n_M2_disabled = 0;
     } else if (value == 2) {
       index = 8;
       setDegradedTrainMotorValues(0, 0);
-      // trainData->n_M1_disabled = 0;
-      // trainData->n_M2_disabled = 0;
     } else if (value == 3) {
       index = 6;
       setDegradedTrainMotorValues(0, 0);
-      // trainData->n_M1_disabled = 0;
-      // trainData->n_M2_disabled = 0;
     } else if (value == 4) {
       index = 14;
-      // trainData->n_car = 12;
-      // m_trainDataHandler->setNumberCarValue(12);
       setDegradedTrainMotorValues(1, 1);
-      // trainData->n_M1_disabled = 1;
-      // trainData->n_M2_disabled = 1;
     }
     m_trainDataHandler->setNumberCarValue(index == 14 ? 12 : index);
-    // trainData->n_car = index;
     updateTrainImage(m_trainLabelImage, index);
     if (value >= 0 && value < carData[0].size()) {
       for (int i = 0; i < labels.size(); i++) {
@@ -562,11 +520,9 @@ void TrainParameterPage::connectTrainsetLengthInputSignal() {
 
 void TrainParameterPage::updateTrainsetLengthValue() {
   m_trainDataHandler->setTrainsetLengthValue(getParameterValue("Car Length"));
-  // trainData->trainsetLength =
-  //     (trainData->n_car * getParameterValue("Car Length"));
 }
 
 void TrainParameterPage::setDegradedTrainMotorValues(double numberM1,
                                                      double numberM2) {
-  // m_trainDataHandler->setDegradedTrainMotorValues(numberM1, numberM2);
+  m_trainDataHandler->setDegradedTrainMotorValues(numberM1, numberM2);
 }

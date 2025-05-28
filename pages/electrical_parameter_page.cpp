@@ -43,30 +43,6 @@ void ElectricalParameterPage::createInputs() {
   connectInputSignals();
 }
 
-// getParameterValue and getCsvParamValue might be removed if no longer used
-// directly by the page For now, keeping them as they are const and don't modify
-// state.
-// double
-// ElectricalParameterPage::getParameterValue(const QString &paramName) const {
-//   if (m_inputWidgets.contains(paramName)) {
-//     return m_inputWidgets[paramName]->getValue();
-//   }
-//   return 0.0;
-// }
-
-// // getParameterValue and getCsvParamValue might be removed if no longer used
-// // directly by the page For now, keeping them as they are const and don't
-// modify
-// // state.
-// QList<double>
-// ElectricalParameterPage::getCsvParamValue(const QString &paramName,
-//                                           const int requiredColumn) const {
-//   if (!m_inputWidgets.isEmpty()) {
-//     return m_inputWidgets[paramName]->getCsvValue(requiredColumn);
-//   }
-//   return QList<double>();
-// }
-
 void ElectricalParameterPage::setParameterValue() {
   m_electricalDataHandler->storeFormInputs(m_inputWidgets);
 }

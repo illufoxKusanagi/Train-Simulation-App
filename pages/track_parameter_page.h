@@ -36,10 +36,10 @@ private:
                                  const int requiredColumn) const;
   void setParameterValue();
   void connectInputSignals();
-  void setSlopeValue();
-  void setRadiusValue();
-  void setMaxSpeedValue();
-  void setStationDistanceValue();
+  // void setSlopeValue();
+  // void setRadiusValue();
+  // void setMaxSpeedValue();
+  // void setStationDistanceValue();
 };
 
 #endif // TRACK_PARAMETER_PAGE_H
