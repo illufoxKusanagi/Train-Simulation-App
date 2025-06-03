@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
           loginDialog.accept();
         } else {
           MessageBoxWidget messageBox(
-              "Login Failed", "Invalid username or password. Please tryagain.",
+              "Login Failed", "Invalid username or password. Please try again.",
               MessageBoxWidget::Critical);
         }
       });

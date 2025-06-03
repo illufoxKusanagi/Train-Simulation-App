@@ -4,12 +4,12 @@
 #include <vector>
 
 struct StationData {
-  double stat_x_station;
-  double stat_v_limit;
-  double stat_slope;
-  double stat_radius;
-  double stat_dwellTime;
-  double x_odo;
+  double stat_x_station = 0.0;
+  double stat_v_limit = 0.0;
+  double stat_slope = 0.0;
+  double stat_radius = 0.0;
+  double stat_dwellTime = 0.0;
+  double x_odo = 0.0;
   int n_station = 2;
   std::vector<double> x_station;
   std::vector<double> tot_x_station;
