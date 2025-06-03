@@ -266,3 +266,15 @@ double CsvVariableHandler::setMotorVoltageData(int motorVoltageIndex,
   }
   return energyData->stat_vol_motor;
 }
+
+double CsvVariableHandler::setDwellTimeData(int dwellTimeIndex) {
+  if (!stationData->dwellTime.empty()) {
+    return stationData->dwellTime[dwellTimeIndex];
+  } else if (stationData->dwellTime.empty()) {
+    m_simulationWarnings->insert("Dwell time csv data is empty.");
+  } else {
+    m_simulationWarnings->insert(
+        "Attempted to access dwell time data beyond range.");
+  }
+  return stationData->stat_dwellTime;
+}

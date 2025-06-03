@@ -94,7 +94,7 @@ void TrainSimulationHandler::simulateDynamicTrainMovement() {
   double trainStopTime = 0;
   double brakingDistance = 0.0;
   bool isError = false;
-  double distanceDifference = 0.0;
+  double dwellTime = 0.0;
 
   if (stationData->n_station > stationData->x_station.size() + 1) {
     m_simulationWarnings.insert(
@@ -118,7 +118,6 @@ void TrainSimulationHandler::simulateDynamicTrainMovement() {
                 : m_simulationTrackHandler->calculateOdo(movingData->v);
       brakingDistance =
           m_simulationTrackHandler->calculateBrakingTrack(movingData->v);
-      simulationDatas.odos.append(odo);
       simulationDatas.brakingDistances.append(brakingDistance);
 
       resistanceData->f_resStart =
@@ -128,7 +127,6 @@ void TrainSimulationHandler::simulateDynamicTrainMovement() {
 
       if (notch == AtStation) {
         phase = "At Station";
-        movingData->x_total -= trainStopTime == 0 ? distanceDifference : 0;
         movingData->v = 0;
         movingData->v_si = 0;
         movingData->acc = 0;
@@ -139,7 +137,8 @@ void TrainSimulationHandler::simulateDynamicTrainMovement() {
         time += constantData->dt;
         simulationDatas.time.append(constantData->dt);
         stationData->x_odo = 0.0;
-        if (trainStopTime >= WAIT_TIME) {
+        dwellTime = m_csvVariableHandler->setDwellTimeData(stationIndex);
+        if (trainStopTime >= dwellTime) {
           trainStopTime = 0;
           stationIndex++;
           notch = Accelerating;
@@ -221,9 +220,6 @@ void TrainSimulationHandler::simulateDynamicTrainMovement() {
           movingData->v_si = 0;
           notch = AtStation;
           trainStopTime = 0;
-          distanceDifference = movingData->x_total -
-                               stationData->tot_x_station[stationIndex] +
-                               ROUNDING_COEFFICIENT;
         }
         if (resistanceData->f_total == 0) {
           isError = true;

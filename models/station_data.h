@@ -8,6 +8,7 @@ struct StationData {
   double stat_v_limit;
   double stat_slope;
   double stat_radius;
+  double stat_dwellTime;
   double x_odo;
   int n_station = 2;
   std::vector<double> x_station;
@@ -22,6 +23,7 @@ struct StationData {
   std::vector<double> x_radiusStart;
   std::vector<double> x_radiusEnd;
   std::vector<double> x_section;
+  std::vector<double> dwellTime;
 };
 
 #endif // STATION_DATA_H

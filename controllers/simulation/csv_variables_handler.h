@@ -27,6 +27,7 @@ public:
   double setEffMotorData(int effMotorIndex, double speed);
   double setLineVoltageData(int lineVoltageIndex, double speed);
   double setMotorVoltageData(int motorVoltageIndex, double speed);
+  double setDwellTimeData(int dwellTimeIndex);
 
 private:
   StationData *stationData;

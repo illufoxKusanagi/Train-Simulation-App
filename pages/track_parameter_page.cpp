@@ -24,11 +24,12 @@ TrackParameterPage::TrackParameterPage(AppContext &context,
 
 void TrackParameterPage::createInputs() {
   QStringList labels = {"Number of Station", "Radius per Section",
-                        "Station Distance", "Slope per Section", "Speed Limit"};
-  QStringList units = {"", "m", "m", "‰", "km/h"};
-  QStringList types = {"field", "field upload", "field upload", "field upload",
-                       "field upload"};
-  QList<double> values = {2, 2000, 2000, 0.0, 70};
+                        "Station Distance",  "Slope per Section",
+                        "Speed Limit",       "Dwell Time"};
+  QStringList units = {"", "m", "m", "‰", "km/h", "s"};
+  QStringList types = {"field",        "field upload", "field upload",
+                       "field upload", "field upload", "field upload"};
+  QList<double> values = {2, 2000, 2000, 0.0, 70, 240};
   for (int i = 0; i < labels.size(); i++) {
     InputWidget *inputWidget =
         new InputWidget(this, InputType(types[i], labels[i], units[i]));
