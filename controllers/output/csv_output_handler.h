@@ -45,6 +45,7 @@ public:
 private:
   SimulationDatas *simulationDatas;
   UtilityHandler *utilityHandler;
+  QString m_csvHeader;
 };
 
 #endif // CSV_OUTPUT_HANDLER_H
