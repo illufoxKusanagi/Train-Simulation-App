@@ -2,7 +2,44 @@
 using namespace std;
 
 CsvOutputHandler::CsvOutputHandler(SimulationDatas &simulationDatas)
-    : simulationDatas(&simulationDatas) {}
+    : simulationDatas(&simulationDatas), m_csvHeader("Phase,"
+                                                     "Iteration,"
+                                                     "Time (s),"
+                                                     "Total time (s),"
+                                                     "Distance (m),"
+                                                     "TotalDistance (m),"
+                                                     "Odo (m),"
+                                                     "Braking Distance,"
+                                                     "Slope,"
+                                                     "Radius,"
+                                                     "Speed (km/h),"
+                                                     "Speed Limit(km/h),"
+                                                     "Speed (m/s),"
+                                                     "Acceleration (km/h/s),"
+                                                     "Acceleration (m/s2),"
+                                                     "F Motor,"
+                                                     "F Res,"
+                                                     "F Total,"
+                                                     "F Motor /TM,"
+                                                     "F Res / TM,"
+                                                     "Torque,"
+                                                     "RPM,"
+                                                     "P Wheel,"
+                                                     "P_motor Out,"
+                                                     "P_motor In,"
+                                                     "P_vvvf,"
+                                                     "P_catenary,"
+                                                     "Catenary current,"
+                                                     "VVVF current,"
+                                                     "Energy Consumption,"
+                                                     "Energy of Powering,"
+                                                     "Energy Regen,"
+                                                     "Energy of APS,"
+                                                     "Energy Catenary,"
+                                                     "Run res at 0,"
+                                                     "Run res at 5,"
+                                                     "Run res at 10,"
+                                                     "Run res at 25") {}
 
 void CsvOutputHandler::printSimulationDatas() {
   int maxSize = getAllDataNumber();
@@ -20,15 +57,7 @@ void CsvOutputHandler::printSimulationDatas() {
     filepath += ".csv";
   }
   ofstream outFile(filepath.toStdString(), ios::out);
-  outFile << "Phase,Iteration,Time (s),Total "
-             "time (s),Distance (m),TotalDistance (m),Odo (m),Braking "
-             "Distance,Speed "
-             "(km/h),Speed (m/s),Slope,Radius,Speed Limit,Acceleration "
-             "(km/h/s),Acceleration (m/s2),F Motor,F Res, F Total, F Motor / "
-             "TM, F Res / TM, Torque, RPM,P Wheel,P_motor Out,P_motor "
-             "In,P_vvvf, P_catenary,Catenary current,VVVF current,Energy "
-             "Consumption,Energy of Powering,Energy Regen,Energy of APS,Energy "
-             "Catenary,Run res at 0,Run res at 5,Run res at 10,Run res at 25\n";
+  outFile << m_csvHeader.toStdString() << "\n";
   for (int i = 0; i < maxSize; i++) {
     outFile << simulationDatas->phase[i].toStdString() << "," << i + 1 << ","
             << simulationDatas->time[i] << "," << simulationDatas->timeTotal[i]
@@ -36,10 +65,10 @@ void CsvOutputHandler::printSimulationDatas() {
             << simulationDatas->distanceTotal[i] << ","
             << simulationDatas->odos[i] << ","
             << simulationDatas->brakingDistances[i] << ","
-            << simulationDatas->trainSpeeds[i] << ","
-            << simulationDatas->trainSpeedsSi[i] << ","
             << simulationDatas->slopes[i] << "," << simulationDatas->radiuses[i]
-            << "," << simulationDatas->speedLimits[i] << ","
+            << "," << simulationDatas->trainSpeeds[i] << ","
+            << simulationDatas->speedLimits[i] << ","
+            << simulationDatas->trainSpeedsSi[i] << ","
             << simulationDatas->accelerations[i] << ","
             << simulationDatas->accelerationsSi[i] << ","
             << simulationDatas->motorForce[i] << ","
