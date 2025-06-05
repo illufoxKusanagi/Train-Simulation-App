@@ -36,6 +36,8 @@ TrackParameterPage::TrackParameterPage(AppContext &context,
   connect(m_trainSimulation, &TrainSimulationHandler::simulationStarted, this,
           [this]() { setParameterValue(); });
   mainLayout->addWidget(m_formContainer);
+  setupSlopeInputs();
+  connectInputSignals();
   setLayout(mainLayout);
 }
 
@@ -56,8 +58,6 @@ void TrackParameterPage::createInputs() {
     m_inputWidgets[labels[i]] = inputWidget;
   }
   setParameterValue();
-  setupSlopeInputs();
-  connectInputSignals();
 }
 
 void TrackParameterPage::setupSlopeInputs() {
