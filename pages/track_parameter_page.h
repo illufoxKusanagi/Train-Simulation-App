@@ -10,6 +10,7 @@
 #include "models/train_data.h"
 #include "widgets/input_widget.h"
 #include <QGridLayout>
+#include <QGroupBox>
 #include <QWidget>
 
 class TrackParameterPage : public QWidget {
@@ -29,6 +30,9 @@ private:
   StationData *stationData;
   TrainSimulationHandler *m_trainSimulation;
   TrackDataHandler *m_trackDataHandler;
+  QGroupBox *m_slopeInputs;
+  QString m_groupBoxStyle;
+  QMap<QString, InputWidget *> m_slopeInputWidgets;
 
   void createInputs();
   double getParameterValue(const QString &paramName) const;
@@ -36,6 +40,7 @@ private:
                                  const int requiredColumn) const;
   void setParameterValue();
   void connectInputSignals();
+  void setupSlopeInputs();
   // void setSlopeValue();
   // void setRadiusValue();
   // void setMaxSpeedValue();

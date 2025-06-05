@@ -503,26 +503,31 @@ void TrainSimulationHandler::addStationSimulationDatas() {
 }
 
 void TrainSimulationHandler::calculateRunningResEachSlope() {
-  resistanceData->f_resRunningZero =
-      movingData->v == 0
-          ? m_resistanceHandler->calculateStartRes(0, stationData->stat_radius)
-          : m_resistanceHandler->calculateRunningRes(movingData->v, 0.0,
-                                                     stationData->stat_radius);
-  resistanceData->f_resRunningFive =
-      movingData->v == 0
-          ? m_resistanceHandler->calculateStartRes(5, stationData->stat_radius)
-          : m_resistanceHandler->calculateRunningRes(movingData->v, 5.0,
-                                                     stationData->stat_radius);
-  resistanceData->f_resRunningTen =
-      movingData->v == 0
-          ? m_resistanceHandler->calculateStartRes(10.0,
-                                                   stationData->stat_radius)
-          : m_resistanceHandler->calculateRunningRes(movingData->v, 10.0,
-                                                     stationData->stat_radius);
-  resistanceData->f_resRunningTwentyFive =
-      movingData->v == 0
-          ? m_resistanceHandler->calculateStartRes(25.0,
-                                                   stationData->stat_radius)
-          : m_resistanceHandler->calculateRunningRes(movingData->v, 25.0,
-                                                     stationData->stat_radius);
+  if (stationData->stat_slope_1) {
+    resistanceData->f_resRunning =
+        movingData->v == 0
+            ? m_resistanceHandler->calculateStartRes(stationData->stat_slope_1,
+                                                     stationData->stat_radius)
+            : m_resistanceHandler->calculateRunningRes(
+                  movingData->v, stationData->stat_slope_1,
+                  stationData->stat_radius);
+  }
+  if (stationData->stat_slope_2) {
+    resistanceData->f_resRunningFive =
+        movingData->v == 0
+            ? m_resistanceHandler->calculateStartRes(stationData->stat_slope_2,
+                                                     stationData->stat_radius)
+            : m_resistanceHandler->calculateRunningRes(
+                  movingData->v, stationData->stat_slope_2,
+                  stationData->stat_radius);
+  }
+  if (stationData->stat_slope_3) {
+    resistanceData->f_resRunningTen =
+        movingData->v == 0
+            ? m_resistanceHandler->calculateStartRes(stationData->stat_slope_3,
+                                                     stationData->stat_radius)
+            : m_resistanceHandler->calculateRunningRes(
+                  movingData->v, stationData->stat_slope_3,
+                  stationData->stat_radius);
+  }
 }
