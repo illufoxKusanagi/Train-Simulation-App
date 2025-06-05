@@ -15,10 +15,29 @@ TrackParameterPage::TrackParameterPage(AppContext &context,
   m_formLayout->setHorizontalSpacing(128);
   m_formLayout->setVerticalSpacing(32);
   m_trackDataHandler = new TrackDataHandler(&context, this);
+  m_groupBoxStyle = "QGroupBox { "
+                    "border: 1px solid" +
+                    Colors::Grey300.name() +
+                    ";"
+                    "padding: 12px 16px; border-radius: 12px; " +
+                    TextStyle::BodyMediumRegular() +
+                    "margin-top: 15px;"
+                    "min-width: 192px;"
+                    "}"
+                    "QGroupBox::title {"
+                    "subcontrol-origin: border;"
+                    "subcontrol-position: top middle;"
+                    "background-color: white;"
+                    "padding: 0 5px;"
+                    "position: relative;"
+                    "top: -8px;"
+                    "}";
   createInputs();
   connect(m_trainSimulation, &TrainSimulationHandler::simulationStarted, this,
           [this]() { setParameterValue(); });
   mainLayout->addWidget(m_formContainer);
+  setupSlopeInputs();
+  connectInputSignals();
   setLayout(mainLayout);
 }
 
@@ -26,7 +45,7 @@ void TrackParameterPage::createInputs() {
   QStringList labels = {"Number of Station", "Radius per Section",
                         "Station Distance",  "Slope per Section",
                         "Speed Limit",       "Dwell Time"};
-  QStringList units = {"", "m", "m", "‰", "km/h", "s"};
+  QStringList units = {"", "m", "m", "%", "km/h", "s"};
   QStringList types = {"field",        "field upload", "field upload",
                        "field upload", "field upload", "field upload"};
   QList<double> values = {2, 2000, 2000, 0.0, 70, 240};
@@ -39,7 +58,22 @@ void TrackParameterPage::createInputs() {
     m_inputWidgets[labels[i]] = inputWidget;
   }
   setParameterValue();
-  connectInputSignals();
+}
+
+void TrackParameterPage::setupSlopeInputs() {
+  QStringList labels = {"1st Slope", "2nd Slope", "3rd Slope"};
+  m_slopeInputs = new QGroupBox("Static Slope Inputs");
+  QHBoxLayout *slopeLayout = new QHBoxLayout(m_slopeInputs);
+  slopeLayout->setContentsMargins(16, 16, 16, 16);
+  slopeLayout->setSpacing(16);
+  for (const QString &label : labels) {
+    InputWidget *slopeInputWidget =
+        new InputWidget(this, InputType("field", label, "%"));
+    m_inputWidgets[label] = slopeInputWidget;
+    slopeLayout->addWidget(slopeInputWidget);
+  }
+  m_slopeInputs->setStyleSheet(m_groupBoxStyle);
+  mainLayout->addWidget(m_slopeInputs);
 }
 
 double TrackParameterPage::getParameterValue(const QString &paramName) const {
@@ -60,6 +94,8 @@ TrackParameterPage::getCsvParamValue(const QString &paramName,
 
 void TrackParameterPage::setParameterValue() {
   m_trackDataHandler->storeFormInputs(m_inputWidgets);
+  qDebug() << "updated slopes" << stationData->stat_slope_1
+           << stationData->stat_slope_2 << stationData->stat_slope_3;
 }
 
 void TrackParameterPage::connectInputSignals() {

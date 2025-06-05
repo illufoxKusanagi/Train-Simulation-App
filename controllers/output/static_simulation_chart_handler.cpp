@@ -2,9 +2,10 @@
 
 StaticSimulationChartHandler::StaticSimulationChartHandler(
     TrainSimulationHandler *trainSimulation, QChart *chart, QString &chartTitle,
-    SaveButtonHandler::SimulationType *simulationType)
+    SaveButtonHandler::SimulationType *simulationType, AppContext *context)
     : m_trainSimulation(trainSimulation), m_chart(chart),
-      m_chartTitle(chartTitle), m_simulationType(simulationType) {}
+      m_chartTitle(chartTitle), m_simulationType(simulationType),
+      m_stationData(context->stationData.data()) {}
 
 void StaticSimulationChartHandler::setupStaticPowerChart() {
   QLineSeries *catenaryPowerSeries = new QLineSeries();
@@ -72,19 +73,22 @@ void StaticSimulationChartHandler::setupStaticTractionChart() {
   QLineSeries *runResistancesZeroSeries = new QLineSeries();
   QLineSeries *runResistancesFiveSeries = new QLineSeries();
   QLineSeries *runResistancesTenSeries = new QLineSeries();
-  QLineSeries *runResistancesTwentyFiveSeries = new QLineSeries();
   speedSeries->setName("Static F motor");
   speedSeries->setPen(QPen(Colors::Primary500, 2));
   runResistanceSeries->setName("Static Run_Res");
   runResistanceSeries->setPen(QPen(Colors::Secondary400, 2));
-  runResistancesZeroSeries->setName("Static Run_Res 0%");
+  runResistancesZeroSeries->setName(
+      QString("Static Run_Res %1%")
+          .arg(QString::number(m_stationData->stat_slope_1)));
   runResistancesZeroSeries->setPen(QPen(Colors::Warning600, 2));
-  runResistancesFiveSeries->setName("Static Run_Res 5%");
+  runResistancesFiveSeries->setName(
+      QString("Static Run_Res %1%")
+          .arg(QString::number(m_stationData->stat_slope_2)));
   runResistancesFiveSeries->setPen(QPen(Colors::Primary700, 2));
-  runResistancesTenSeries->setName("Static Run_Res 10%");
+  runResistancesTenSeries->setName(
+      QString("Static Run_Res %1%")
+          .arg(QString::number(m_stationData->stat_slope_3)));
   runResistancesTenSeries->setPen(QPen(Colors::Danger500, 2));
-  runResistancesTwentyFiveSeries->setName("Static Run_Res 25%");
-  runResistancesTwentyFiveSeries->setPen(QPen(Colors::Secondary700, 2));
   const auto &speed = m_trainSimulation->simulationDatas.trainSpeeds;
   const auto &resistance = m_trainSimulation->simulationDatas.tractionEfforts;
   const auto &runningResistances =
@@ -95,23 +99,23 @@ void StaticSimulationChartHandler::setupStaticTractionChart() {
       m_trainSimulation->simulationDatas.motorResistancesFive;
   const auto &runningResistancesTen =
       m_trainSimulation->simulationDatas.motorResistancesTen;
-  const auto &runningResistancesTwentyFive =
-      m_trainSimulation->simulationDatas.motorResistancesTwentyFive;
   for (int i = 0; i < speed.size() && i < resistance.size(); ++i) {
     speedSeries->append(speed[i], resistance[i]);
     runResistanceSeries->append(speed[i], runningResistances[i]);
     runResistancesZeroSeries->append(speed[i], runningResistancesZero[i]);
     runResistancesFiveSeries->append(speed[i], runningResistancesFive[i]);
     runResistancesTenSeries->append(speed[i], runningResistancesTen[i]);
-    runResistancesTwentyFiveSeries->append(speed[i],
-                                           runningResistancesTwentyFive[i]);
   }
   m_chart->addSeries(speedSeries);
   m_chart->addSeries(runResistanceSeries);
-  m_chart->addSeries(runResistancesZeroSeries);
-  m_chart->addSeries(runResistancesFiveSeries);
-  m_chart->addSeries(runResistancesTenSeries);
-  m_chart->addSeries(runResistancesTwentyFiveSeries);
+  qDebug() << "Adding series to chart" << m_stationData->stat_slope_1
+           << m_stationData->stat_slope_2 << m_stationData->stat_slope_3;
+  if (m_stationData->stat_slope_1)
+    m_chart->addSeries(runResistancesZeroSeries);
+  if (m_stationData->stat_slope_2)
+    m_chart->addSeries(runResistancesFiveSeries);
+  if (m_stationData->stat_slope_3)
+    m_chart->addSeries(runResistancesTenSeries);
 }
 
 void StaticSimulationChartHandler::setupStaticEnergyChart() {
