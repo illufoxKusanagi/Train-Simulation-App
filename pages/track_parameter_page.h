@@ -32,7 +32,6 @@ private:
   TrackDataHandler *m_trackDataHandler;
   QGroupBox *m_slopeInputs;
   QString m_groupBoxStyle;
-  QMap<QString, InputWidget *> m_slopeInputWidgets;
 
   void createInputs();
   double getParameterValue(const QString &paramName) const;
@@ -41,10 +40,6 @@ private:
   void setParameterValue();
   void connectInputSignals();
   void setupSlopeInputs();
-  // void setSlopeValue();
-  // void setRadiusValue();
-  // void setMaxSpeedValue();
-  // void setStationDistanceValue();
 };
 
 #endif // TRACK_PARAMETER_PAGE_H

@@ -67,10 +67,10 @@ void TrackParameterPage::setupSlopeInputs() {
   slopeLayout->setContentsMargins(16, 16, 16, 16);
   slopeLayout->setSpacing(16);
   for (const QString &label : labels) {
-    InputWidget *massInputWidget =
+    InputWidget *slopeInputWidget =
         new InputWidget(this, InputType("field", label, "%"));
-    m_inputWidgets[label] = massInputWidget;
-    slopeLayout->addWidget(massInputWidget);
+    m_inputWidgets[label] = slopeInputWidget;
+    slopeLayout->addWidget(slopeInputWidget);
   }
   m_slopeInputs->setStyleSheet(m_groupBoxStyle);
   mainLayout->addWidget(m_slopeInputs);
