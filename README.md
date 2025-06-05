@@ -1,27 +1,40 @@
 # Train Simulation App
+[![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](https://opensource.org/licenses/MIT)
+[![Release](https://img.shields.io/github/v/release/illufoxKusanagi/Train-Simulation-App?display_name=tag&sort=semver)](https://github.com/illufoxKusanagi/Train-Simulation-App/releases)
+[![Platform](https://img.shields.io/badge/platform-Windows-blue)](#)
+[![Qt](https://img.shields.io/badge/Qt-6.x-green)](https://www.qt.io/)
 
 ## Overview
+![trainSimulationAppLogo](https://github.com/user-attachments/assets/c8c9747c-b962-458f-bf7a-166f7b57ff48)
 
 The Train Simulation App is a graphical user interface (GUI) application designed to simulate various parameters related to train operations. This application allows users to input and visualize different train parameters, making it a useful tool for educational purposes and engineering simulations.
-![App Interface](https://github.com/user-attachments/assets/ca5ffba9-289b-42ce-9954-1a4615c68e1a)
+![image](https://github.com/user-attachments/assets/4c365f79-ba6d-44a6-a12c-6dbe0bf1c197)
+
+---
 
 ## Features
 
-- **User -Friendly Interface**: Intuitive layout with easy navigation between different parameter settings
-- **Parameter Input Forms**: Users can input various train parameters such as inertial coefficients, axle numbers, and more
-- **Dynamic Visualization**: The app provides real-time feedback and visualization of the input parameters
-- **Multiple Parameter Categories**: Organizes parameters into categories for better usability
-- **Data Visualization**: Provides readable data with chart as the result of the simulation
-- **Saving output**: Users can save output data based on inputted parameters as .csv file
+- 🎛️ **User-Friendly Interface** — Intuitive layout with categorized parameter sections  
+- 🧮 **Parameter Input Forms** — Configure inertia, mass, motor, and track data  
+- 📊 **Dynamic Visualization** — Real-time charting and numerical feedback  
+- 📁 **Export Support** — Save simulation output to `.csv` files  
+- 🔒 **Login-Protected Access** — Basic authentication to protect parameter access  
+- 🧩 **Modular Codebase** — Structured with `AppContext`, `Controller`, and `Handler` modules 
+
+---
 
 ## Technologies Used
 
-- **Qt Framework**: The application is built using the Qt framework for C++
-- **C++**: The primary programming language used for the application logic
-- **QWidgets**: Utilizes Qt's widget toolkit for creating the GUI
-- **QCharts**: Utilizes Qt's chart widget for showing data output
+- **C++17**
+- **Qt 6 Framework**
+- **CMake** (build system)
+- **QWidgets**, `QChart`, `QFile`, and more from Qt Modules
 
-## Running Project
+---
+
+## Getting Started
+
+### 🔧 Prerequisites
 
 To run the Train Simulation App, follow these steps:
 
@@ -42,32 +55,40 @@ To run the Train Simulation App, follow these steps:
    - [x] CMake 3.30.5
    - [x] Ninja 1.12.1
 
-5. **Open the Project**:
+### 🛠️ Build Instructions
+
+1. **Open the Project**:
    - Open the cloned project in Qt Creator.
    - Open `CMakeLists.txt` file located in project directory.
 
-6. **Build the Project**:
+2. **Build the Project**:
    - Configure the build kit according to your system. Specifically, using MinGW for this project.
    - Use the build option in Qt Creator to compile the application.
 
-7. **Run the Application**:
+3. **Run the Application**:
    - After building, run the application from Qt Creator.
 
-## Installation 
+---
+
+## 📦 Portable Installation
 
    - Go to [here](https://github.com/illufoxKusanagi/Train-Simulation-App/releases) to find the binaries.
    - Download the latest `TrainSimulationApp.zip` or `TrainSimulationApp.7z` file.
    - Extract the contents to any folder on your computer.
    - Run `TrainSimulationApp.exe` without installation needed.
 
-## Usage
+---
+
+## 🚀 Usage
 
 1. Launch the application.
 2. Use the left panel to navigate between different parameter categories.
 3. Input the desired parameters in the provided forms.
 4. Observe the results and visualizations based on the input parameters.
 
-## Contributing
+---
+
+## 🤝 Contributing
 
 Contributions are welcome! If you would like to contribute to the Train Simulation App, please follow these steps:
 
@@ -79,4 +100,4 @@ Contributions are welcome! If you would like to contribute to the Train Simulati
 
 ---
 
-<!-- *This project is maintained by Illufox Kusangi. Released under [License Type].* -->
+*This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).*
