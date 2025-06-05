@@ -8,7 +8,7 @@
 /.vscode
 /.trunk
 /formulas
-/simulation
+controllers/simulation
 dummy.txt
 .auth
 .env
