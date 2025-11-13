@@ -3,6 +3,7 @@
 
 #include "controllers/output/save_button_handler.h"
 #include "controllers/simulation/train_simulation_handler.h"
+#include "core/appcontext.h"
 #include "styles/colors.h"
 #include <QLineSeries>
 #include <QObject>
@@ -13,7 +14,8 @@ class StaticSimulationChartHandler : public QObject {
 public:
   explicit StaticSimulationChartHandler(
       TrainSimulationHandler *trainSimulation, QChart *chart,
-      QString &chartTitle, SaveButtonHandler::SimulationType *simulationType);
+      QString &chartTitle, SaveButtonHandler::SimulationType *simulationType,
+      AppContext *context);
   void updateStaticChart();
 
 private:
@@ -25,6 +27,7 @@ private:
   double m_roundedMaxValue;
   double m_minValue;
   double m_roundedMinValue;
+  StationData *m_stationData;
   void setupStaticSpeedChart();
   void setupStaticTractionChart();
   void setupStaticTrackChart();

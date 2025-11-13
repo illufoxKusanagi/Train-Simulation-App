@@ -22,7 +22,7 @@ ChartWidget::ChartWidget(QWidget *parent, QString chartTitle,
   m_saveButtonHandler =
       new SaveButtonHandler(m_trainSimulation, chartTitle, &m_simulationType);
   m_staticSimulationChartHandler = new StaticSimulationChartHandler(
-      m_trainSimulation, m_chart, chartTitle, &m_simulationType);
+      m_trainSimulation, m_chart, chartTitle, &m_simulationType, context);
   m_dynamicSimulationChartHandler = new DynamicSimulationChartHandler(
       m_trainSimulation, m_chart, chartTitle, &m_simulationType);
 }

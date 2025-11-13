@@ -78,6 +78,9 @@ void TrackDataHandler::storeFormInputs(
   const QString slopeKey = "Slope per Section";
   const QString radiusKey = "Radius per Section";
   const QString dwellTimeKey = "Dwell Time";
+  const QString slope1Key = "1st Slope";
+  const QString slope2Key = "2nd Slope";
+  const QString slope3Key = "3rd Slope";
 
   if (inputWidgets.contains(speedLimitKey)) {
     setMaxSpeedValue(inputWidgets[speedLimitKey]->getValue());
@@ -109,6 +112,15 @@ void TrackDataHandler::storeFormInputs(
   if (inputWidgets.contains(dwellTimeKey)) {
     m_stationData->dwellTime =
         toStdVector(inputWidgets[dwellTimeKey]->getCsvValue(0));
+  }
+  if (inputWidgets.contains(slope1Key)) {
+    m_stationData->stat_slope_1 = inputWidgets[slope1Key]->getValue();
+  }
+  if (inputWidgets.contains(slope2Key)) {
+    m_stationData->stat_slope_2 = inputWidgets[slope2Key]->getValue();
+  }
+  if (inputWidgets.contains(slope3Key)) {
+    m_stationData->stat_slope_3 = inputWidgets[slope3Key]->getValue();
   }
 }
 
