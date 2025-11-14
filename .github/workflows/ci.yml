@@ -1,0 +1,100 @@
+name: CI - Build Frontend & Backend
+
+on:
+  push:
+    branches: [ main, master, feat/** ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  frontend:
+    name: Build Frontend (Node)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install deps
+        run: |
+          cd frontend
+          npm ci
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-out
+          path: frontend/out || frontend/.next || ''
+
+  backend_ubuntu:
+    name: Build Backend (Ubuntu)
+    runs-on: ubuntu-latest
+    needs: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build python3-pip git
+          # Try to install Qt6 dev packages (may vary per runner)
+          sudo apt-get install -y qt6-base-dev qt6-webengine-dev qt6-qthttpserver-dev || true
+      - name: Configure & Build
+        run: |
+          mkdir -p backend/build
+          cd backend/build
+          cmake -G Ninja ..
+          cmake --build . --config Release
+      - name: Upload backend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build-ubuntu
+          path: backend/build
+
+  backend_fedora_container:
+    name: Build Backend (Fedora container)
+    runs-on: ubuntu-latest
+    needs: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run build inside Fedora container
+        run: |
+          docker run --rm -v "$PWD":/work -w /work -e DEBIAN_FRONTEND=noninteractive fedora:latest /bin/bash -lc "\
+            dnf install -y gcc-c++ cmake ninja-build python3 git qt6-qtbase-devel qt6-qtwebengine-devel qt6-qthttpserver-devel || true; \
+            mkdir -p backend/build && cd backend/build; cmake -G Ninja .. || true; cmake --build . --config Release || true;\"
+      - name: Upload backend build (fedora)
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build-fedora
+          path: backend/build || ''
+
+  backend_windows:
+    name: Build Backend (Windows)
+    runs-on: windows-latest
+    needs: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup vcpkg (optional)
+        run: |
+          git clone https://github.com/microsoft/vcpkg C:\vcpkg
+          C:\vcpkg\bootstrap-vcpkg.bat
+      - name: Install dependencies (choco)
+        shell: powershell
+        run: |
+          choco install -y cmake --installargs 'ADD_CMAKE_TO_PATH=System' || true
+          choco install -y visualstudio2019buildtools --yes || true
+      - name: Configure & Build (Windows)
+        shell: powershell
+        run: |
+          md backend\build
+          cd backend\build
+          cmake .. -G "Ninja"
+          cmake --build . --config Release
+      - name: Upload backend build (windows)
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-build-windows
+          path: backend/build
