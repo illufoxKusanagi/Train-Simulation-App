@@ -2,33 +2,37 @@ name: CI - Build Frontend & Backend
 
 on:
   push:
-    branches: [ main, master, feat/** ]
+    branches: [main, master, feat/**]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
+  workflow_dispatch:
 
 jobs:
   frontend:
-    name: Build Frontend (Node)
+    name: Build Frontend (Next.js)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-      - name: Install deps
-        run: |
-          cd frontend
-          npm ci
-      - name: Build frontend
-        run: |
-          cd frontend
-          npm run build
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: npm run build
+
       - name: Upload frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-out
-          path: frontend/out || frontend/.next || ''
+          name: frontend-build
+          path: frontend/.next
+          retention-days: 7
 
   backend_ubuntu:
     name: Build Backend (Ubuntu)
@@ -36,40 +40,74 @@ jobs:
     needs: frontend
     steps:
       - uses: actions/checkout@v4
-      - name: Install dependencies
+
+      - name: Install Qt6 and dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake ninja-build python3-pip git
-          # Try to install Qt6 dev packages (may vary per runner)
-          sudo apt-get install -y qt6-base-dev qt6-webengine-dev qt6-qthttpserver-dev || true
-      - name: Configure & Build
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            ninja-build \
+            git \
+            qt6-base-dev \
+            qt6-webengine-dev \
+            libqt6webenginecore6-bin \
+            libqt6webchannel6-dev \
+            qt6-httpserver-dev || echo "Some Qt packages may not be available"
+
+      - name: Configure CMake
+        working-directory: ./backend
         run: |
-          mkdir -p backend/build
-          cd backend/build
-          cmake -G Ninja ..
-          cmake --build . --config Release
-      - name: Upload backend build
+          mkdir -p build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build Backend
+        working-directory: ./backend/build
+        run: cmake --build . --config Release -j$(nproc)
+
+      - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend-build-ubuntu
-          path: backend/build
+          name: backend-ubuntu
+          path: backend/build/bin/TrainSimulationApp
+          retention-days: 7
 
-  backend_fedora_container:
-    name: Build Backend (Fedora container)
+  backend_fedora:
+    name: Build Backend (Fedora)
     runs-on: ubuntu-latest
+    container:
+      image: fedora:latest
     needs: frontend
     steps:
-      - uses: actions/checkout@v4
-      - name: Run build inside Fedora container
+      - name: Install dependencies
         run: |
-          docker run --rm -v "$PWD":/work -w /work -e DEBIAN_FRONTEND=noninteractive fedora:latest /bin/bash -lc "\
-            dnf install -y gcc-c++ cmake ninja-build python3 git qt6-qtbase-devel qt6-qtwebengine-devel qt6-qthttpserver-devel || true; \
-            mkdir -p backend/build && cd backend/build; cmake -G Ninja .. || true; cmake --build . --config Release || true;\"
-      - name: Upload backend build (fedora)
+          dnf install -y \
+            gcc-c++ \
+            cmake \
+            make \
+            git \
+            qt6-qtbase-devel \
+            qt6-qtwebengine-devel \
+            qt6-qtwebchannel-devel \
+            qt6-qthttpserver-devel
+
+      - uses: actions/checkout@v4
+
+      - name: Build Backend
+        working-directory: ./backend
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          make -j$(nproc)
+
+      - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend-build-fedora
-          path: backend/build || ''
+          name: backend-fedora
+          path: backend/build/bin/TrainSimulationApp
+          retention-days: 7
 
   backend_windows:
     name: Build Backend (Windows)
@@ -77,24 +115,35 @@ jobs:
     needs: frontend
     steps:
       - uses: actions/checkout@v4
-      - name: Setup vcpkg (optional)
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.7.0"
+          host: "windows"
+          target: "desktop"
+          arch: "win64_msvc2019_64"
+          modules: "qtwebchannel qthttpserver qtwebengine qtpositioning qtwebsockets"
+
+      - name: Build Backend
+        working-directory: ./backend
         run: |
-          git clone https://github.com/microsoft/vcpkg C:\vcpkg
-          C:\vcpkg\bootstrap-vcpkg.bat
-      - name: Install dependencies (choco)
-        shell: powershell
-        run: |
-          choco install -y cmake --installargs 'ADD_CMAKE_TO_PATH=System' || true
-          choco install -y visualstudio2019buildtools --yes || true
-      - name: Configure & Build (Windows)
-        shell: powershell
-        run: |
-          md backend\build
-          cd backend\build
-          cmake .. -G "Ninja"
+          mkdir build
+          cd build
+          cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release ..
           cmake --build . --config Release
-      - name: Upload backend build (windows)
+
+      - name: Deploy Qt dependencies
+        shell: powershell
+        run: |
+          windeployqt.exe --release --no-translations backend/build/bin/TrainSimulationApp.exe
+
+      - name: Upload backend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend-build-windows
-          path: backend/build
+          name: backend-windows
+          path: backend/build/bin/
+          retention-days: 7

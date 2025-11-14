@@ -6,7 +6,7 @@
     "frontend"
   ],
   "scripts": {
-    "dev": "./build.sh dev",
+    "dev": "./scripts/run.sh dev",
     "dev:backend": "cd backend && ./scripts/smart-run.sh",
     "dev:frontend": "cd frontend && npm run dev",
     "build": "./build.sh prod",

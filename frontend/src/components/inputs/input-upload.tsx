@@ -63,6 +63,7 @@ export function InputUpload({
 
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     field: any
   ) => {
     const file = event.target.files?.[0];
