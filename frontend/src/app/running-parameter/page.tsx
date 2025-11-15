@@ -17,6 +17,7 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Form } from "@/components/ui/form";
+import { api, RunningParameters } from "@/services/api";
 
 export default function RunningPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,15 +42,34 @@ export default function RunningPage() {
     try {
       console.log("Form Data:", data);
 
-      toast("Data berhasil disimpan!", {
-        description: (
-          <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-            <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-          </pre>
-        ),
+      // Map frontend form to backend API structure
+      const params: RunningParameters = {
+        // Passenger load parameters (using dummy values for now)
+        load: 0,
+        massPerPassenger: 70,
+        passengersPerM1: 200,
+        passengersPerM2: 200,
+        passengersPerTc: 100,
+        passengersPerT1: 200,
+        passengersPerT2: 200,
+        passengersPerT3: 200,
+
+        // Motion parameters from form
+        acceleration: data.acc_start,
+        deceleration: data.decc_start,
+        speedLimit: 100, // km/h - need to add this to form
+        stationDistance: 1000, // meters - need to add this to form
+      };
+
+      const result = await api.updateRunningParameters(params);
+      console.log("Backend response:", result);
+
+      toast.success("Data berhasil disimpan!", {
+        description: "Running parameters updated successfully",
       });
     } catch (error) {
-      toast("Error!", {
+      console.error("Error updating parameters:", error);
+      toast.error("Error!", {
         description: "Gagal menyimpan data. Silakan coba lagi.",
       });
     } finally {

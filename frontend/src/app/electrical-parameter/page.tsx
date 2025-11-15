@@ -15,7 +15,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
-import { TrackFormSchema } from "../track-parameter/form.constants";
 import { constantFormRows, ElectricalFormSchema } from "./form.constants";
 import { Form } from "@/components/ui/form";
 
@@ -50,15 +49,28 @@ export default function ElectricalParameterPage() {
       console.log("Form Data:", data);
       console.log("CSV Data:", csvData);
 
-      toast("Data berhasil disimpan!", {
-        description: (
-          <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-            <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-          </pre>
-        ),
+      const { api } = await import("@/services/api");
+
+      // Map to backend ElectricalParameters
+      const electricalParams = {
+        lineVoltage: data.stat_vol_line,
+        motorVoltage: data.stat_vol_motor,
+        powerFactor: data.stat_pf / 100, // Convert percentage to 0-1
+        gearEfficiency: data.stat_eff_gear / 100, // Convert percentage to 0-1
+        motorEfficiency: data.stat_eff_motor / 100, // Convert percentage to 0-1
+        vvvfEfficiency: data.stat_eff_vvvf / 100, // Convert percentage to 0-1
+        auxiliaryPower: data.p_aps,
+      };
+
+      const result = await api.updateElectricalParameters(electricalParams);
+      console.log("Backend response:", result);
+
+      toast.success("Data berhasil disimpan!", {
+        description: "Electrical parameters updated successfully",
       });
     } catch (error) {
-      toast("Error!", {
+      console.error("Error updating parameters:", error);
+      toast.error("Error!", {
         description: "Gagal menyimpan data. Silakan coba lagi.",
       });
     } finally {

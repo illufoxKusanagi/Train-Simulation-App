@@ -99,15 +99,36 @@ export default function TrainParameter() {
       console.log("Form Data:", data);
       console.log("CSV Data:", csvData);
 
-      toast("Data berhasil disimpan!", {
-        description: (
-          <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-            <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-          </pre>
-        ),
+      // Import API at the top of the file
+      const { api } = await import("@/services/api");
+
+      const trainsetData = trainsetForm.getValues();
+
+      // Map to backend TrainParameters
+      const trainParams = {
+        numberOfMotorCars: data.n_tm,
+        numberOfAxles: data.n_axle,
+        numberOfCars: trainsetData.n_car || 12,
+        gearRatio: data.gearRatio,
+        wheelDiameter: data.wheelDiameter / 1000, // mm to m
+        trainsetLength: data.carLength * (trainsetData.n_car || 12),
+        numberOfM1Cars: trainsetData.n_M1 || 0,
+        numberOfM2Cars: trainsetData.n_M2 || 0,
+        numberOfTcCars: trainsetData.n_Tc || 0,
+        numberOfT1Cars: trainsetData.n_T1 || 0,
+        numberOfT2Cars: trainsetData.n_T2 || 0,
+        numberOfT3Cars: trainsetData.n_T3 || 0,
+      };
+
+      const result = await api.updateTrainParameters(trainParams);
+      console.log("Backend response:", result);
+
+      toast.success("Data berhasil disimpan!", {
+        description: "Train parameters updated successfully",
       });
     } catch (error) {
-      toast("Error!", {
+      console.error("Error updating parameters:", error);
+      toast.error("Error!", {
         description: "Gagal menyimpan data. Silakan coba lagi.",
       });
     } finally {
@@ -121,15 +142,46 @@ export default function TrainParameter() {
       console.log("Form Data:", data);
       console.log("CSV Data:", csvData);
 
-      toast("Data berhasil disimpan!", {
-        description: (
-          <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-            <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-          </pre>
-        ),
+      const { api } = await import("@/services/api");
+
+      // Update mass parameters
+      const massParams = {
+        massM1: data.mass_M1 * 1000, // ton to kg
+        massM2: data.mass_M2 * 1000,
+        massTc: data.mass_Tc * 1000,
+        massT1: data.mass_T1 * 1000,
+        massT2: data.mass_T2 * 1000,
+        massT3: data.mass_T3 * 1000,
+        rotationalInertiaMotor: constantForm.getValues().i_M || 1.1,
+        rotationalInertiaTrailer: constantForm.getValues().i_T || 1.05,
+      };
+
+      await api.updateMassParameters(massParams);
+
+      // Update running parameters (passenger data)
+      const runningParams = {
+        load: constantForm.getValues().load || 0,
+        massPerPassenger: constantForm.getValues().mass_P || 70,
+        passengersPerM1: data.n_PM1 || 0,
+        passengersPerM2: data.n_PM2 || 0,
+        passengersPerTc: data.n_PTc || 0,
+        passengersPerT1: data.n_PT1 || 0,
+        passengersPerT2: data.n_PT2 || 0,
+        passengersPerT3: data.n_PT3 || 0,
+        acceleration: 1.0,
+        deceleration: 1.0,
+        speedLimit: 100,
+        stationDistance: 1000,
+      };
+
+      await api.updateRunningParameters(runningParams);
+
+      toast.success("Data berhasil disimpan!", {
+        description: "Trainset and mass parameters updated successfully",
       });
     } catch (error) {
-      toast("Error!", {
+      console.error("Error updating parameters:", error);
+      toast.error("Error!", {
         description: "Gagal menyimpan data. Silakan coba lagi.",
       });
     } finally {

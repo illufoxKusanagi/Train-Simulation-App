@@ -47,9 +47,30 @@ export default function Home() {
     }
   };
 
-  const handleStartSimulation = () => {
-    // Navigate to simulation page or show simulation controls
-    console.log("Starting simulation...");
+  const handleStartSimulation = async () => {
+    try {
+      console.log("Starting static simulation...");
+
+      // Start static simulation
+      const startResult = await api.startSimulation({ type: "static" });
+      console.log("Simulation started:", startResult);
+
+      // Poll status until complete
+      let statusResult = await api.getSimulationStatus();
+      while (statusResult.isRunning) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        statusResult = await api.getSimulationStatus();
+      }
+
+      // Fetch results
+      const results = await api.getSimulationResults();
+      console.log("Simulation results:", results);
+
+      alert("Simulation completed! Check console for results.");
+    } catch (error) {
+      console.error("Simulation failed:", error);
+      alert("Simulation failed. Make sure to update all parameters first!");
+    }
   };
 
   const features = [
