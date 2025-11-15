@@ -21,34 +21,38 @@ public:
 
     // Health check
     QHttpServerResponse handleHealthCheck();
-    
+
     // Train parameters
     QHttpServerResponse handleGetTrainParameters();
     QHttpServerResponse handleUpdateTrainParameters(const QJsonObject &data);
-    
+
     // Electrical parameters
     QHttpServerResponse handleGetElectricalParameters();
     QHttpServerResponse handleUpdateElectricalParameters(const QJsonObject &data);
-    
+
     // Running parameters
     QHttpServerResponse handleGetRunningParameters();
     QHttpServerResponse handleUpdateRunningParameters(const QJsonObject &data);
-    
+
     // Track parameters
     QHttpServerResponse handleGetTrackParameters();
     QHttpServerResponse handleUpdateTrackParameters(const QJsonObject &data);
-    
+
+    // Mass parameters
+    QHttpServerResponse handleGetMassParameters();
+    QHttpServerResponse handleUpdateMassParameters(const QJsonObject &data);
+
     // Simulation control
     QHttpServerResponse handleStartSimulation(const QJsonObject &data);
     QHttpServerResponse handleGetSimulationStatus();
     QHttpServerResponse handleGetSimulationResults();
-    
+
     // Export functionality
     QHttpServerResponse handleExportResults(const QJsonObject &data);
 
 private:
     AppContext &m_context;
-    
+
     // Edited here: Fixed handler member variable types to match actual classes
     TrainDataHandler *m_trainDataHandler;
     ElectricalDataHandler *m_electricalDataHandler;
@@ -83,34 +87,34 @@ private:
 
 //     // Health check
 //     QHttpServerResponse handleHealthCheck();
-    
+
 //     // Train parameters
 //     QHttpServerResponse handleGetTrainParameters();
 //     QHttpServerResponse handleUpdateTrainParameters(const QJsonObject &data);
-    
+
 //     // Electrical parameters
 //     QHttpServerResponse handleGetElectricalParameters();
 //     QHttpServerResponse handleUpdateElectricalParameters(const QJsonObject &data);
-    
+
 //     // Running parameters
 //     QHttpServerResponse handleGetRunningParameters();
 //     QHttpServerResponse handleUpdateRunningParameters(const QJsonObject &data);
-    
+
 //     // Track parameters - Edited here: Added missing track parameter methods
 //     QHttpServerResponse handleGetTrackParameters();
 //     QHttpServerResponse handleUpdateTrackParameters(const QJsonObject &data);
-    
+
 //     // Simulation control
 //     QHttpServerResponse handleStartSimulation(const QJsonObject &data);
 //     QHttpServerResponse handleGetSimulationStatus();
 //     QHttpServerResponse handleGetSimulationResults();
-    
+
 //     // Export functionality
 //     QHttpServerResponse handleExportResults(const QJsonObject &data);
 
 // private:
 //     AppContext &m_context;
-    
+
 //     // Edited here: Fixed handler member variable types to match actual classes
 //     TrainDataHandler *m_trainDataHandler;
 //     ElectricalDataHandler *m_electricalDataHandler;

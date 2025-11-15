@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { ModeToggle } from "@/components/toggle-mode-button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ReactNode } from "react";
+import { SaveButton } from "./buttons/save-button";
 interface PageMoldProps {
   children: ReactNode;
   className?: string;
@@ -22,10 +23,11 @@ export default function PageLayout({
           <AppSidebar />
           <div className="flex items-center justify-between px-4 py-3">
             <SidebarTrigger size="lg" />
+            <SaveButton />
             <ModeToggle />
           </div>
         </div>
-        <div className="flex flex-col xl:flex-row gap-4 justify-start xl:justify-center items-center p-12 overflow-auto m-12">
+        <div className="flex flex-col xl:flex-row gap-4 justify-center items-center mx-16 overflow-auto my-4">
           {children}
         </div>
       </div>

@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { CardDescription } from "../ui/card";
 
 export function AppSidebar() {
   const { open } = useSidebar();
@@ -77,12 +76,9 @@ export function AppSidebar() {
           <SidebarMenuButton asChild className="hover:bg-accent/50 h-full">
             {open ? (
               <div className="flex items-center gap-3 w-full px-2 mt-16">
-                <Network className="h-6 w-6 text-primary-600 dark:text-primary-300 shrink-0" />
-                <div className="flex flex-col items-start overflow-hidden">
-                  <p className="body-big-bold text-primary-600 dark:text-primary-300 truncate">
-                    Train Simulation App
-                  </p>
-                </div>
+                <p className="body-big-bold text-primary-600 dark:text-primary-300 text-wrap text-center">
+                  Train Simulation App
+                </p>
               </div>
             ) : (
               <div className="flex items-center justify-center w-full mt-11">

@@ -247,6 +247,28 @@ void HttpServer::setupRoutes()
                             return addCorsHeaders(m_apiHandler->handleUpdateTrackParameters(data));
                         });
 
+    // Mass parameters
+    m_httpServer->route("/api/parameters/mass", QHttpServerRequest::Method::Options,
+                        [addCorsHeaders]()
+                        {
+                            return addCorsHeaders(QHttpServerResponse(QHttpServerResponse::StatusCode::NoContent));
+                        });
+
+    m_httpServer->route("/api/parameters/mass", QHttpServerRequest::Method::Get,
+                        [this, addCorsHeaders]()
+                        {
+                            qDebug() << "🔍 GET /api/parameters/mass";
+                            return addCorsHeaders(m_apiHandler->handleGetMassParameters());
+                        });
+
+    m_httpServer->route("/api/parameters/mass", QHttpServerRequest::Method::Post,
+                        [this, addCorsHeaders](const QHttpServerRequest &request)
+                        {
+                            qDebug() << "📝 POST /api/parameters/mass";
+                            QJsonObject data = parseRequestBody(request);
+                            return addCorsHeaders(m_apiHandler->handleUpdateMassParameters(data));
+                        });
+
     // Simulation control endpoints
     m_httpServer->route("/api/simulation/start", QHttpServerRequest::Method::Post,
                         [this, addCorsHeaders](const QHttpServerRequest &request)
