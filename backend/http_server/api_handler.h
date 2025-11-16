@@ -15,6 +15,7 @@
 #include "inputs/electrical_parameter_handler.h"
 #include "inputs/running_parameter_handler.h"
 #include "inputs/track_parameter_handler.h"
+#include "simulations/simulation_handler.h"
 
 class ApiHandler : public QObject
 {
@@ -73,14 +74,14 @@ private:
     // MassParameterHandler *m_massHandler;
     // CarNumberHandler *m_carNumberHandler;
     // PassengerHandler *m_passengerHandler;
-    // SimulationHandler *m_simulationHandler;
+    SimulationHandler *m_simulationHandler;
     // ExportHandler *m_exportHandler;
     // Edited here: Fixed handler member variable types to match actual classes
     TrainDataHandler *m_trainDataHandler;
     ElectricalDataHandler *m_electricalDataHandler;
     RunningDataHandler *m_runningDataHandler;
     TrackDataHandler *m_trackDataHandler;
-    TrainSimulationHandler *m_simulationHandler;
+    // TrainSimulationHandler *m_simulationHandler;
     CsvOutputHandler *m_csvOutputHandler;
 };
 
