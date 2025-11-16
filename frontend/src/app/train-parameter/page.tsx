@@ -28,6 +28,7 @@ import {
 } from "./form.constant";
 import { cn } from "@/lib/utils";
 import PageLayout from "@/components/page-layout";
+import { api } from "@/services/api";
 
 export default function TrainParameter() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -99,30 +100,28 @@ export default function TrainParameter() {
       console.log("Form Data:", data);
       console.log("CSV Data:", csvData);
 
-      // Import API at the top of the file
-      const { api } = await import("@/services/api");
-
       const trainsetData = trainsetForm.getValues();
 
-      // Map to backend TrainParameters
       const trainParams = {
         numberOfMotorCars: data.n_tm,
         numberOfAxles: data.n_axle,
-        numberOfCars: trainsetData.n_car || 12,
+        numberOfCars: trainsetData.n_car,
         gearRatio: data.gearRatio,
-        wheelDiameter: data.wheelDiameter / 1000, // mm to m
-        trainsetLength: data.carLength * (trainsetData.n_car || 12),
-        numberOfM1Cars: trainsetData.n_M1 || 0,
-        numberOfM2Cars: trainsetData.n_M2 || 0,
-        numberOfTcCars: trainsetData.n_Tc || 0,
-        numberOfT1Cars: trainsetData.n_T1 || 0,
-        numberOfT2Cars: trainsetData.n_T2 || 0,
-        numberOfT3Cars: trainsetData.n_T3 || 0,
+        wheelDiameter: data.wheelDiameter, // Keep as-is from form
+        trainsetLength: data.carLength * trainsetData.n_car,
+        trainLoad: data.load,
+        numberOfM1Cars: trainsetData.n_M1,
+        numberOfM2Cars: trainsetData.n_M2,
+        numberOfTcCars: trainsetData.n_Tc,
+        numberOfT1Cars: trainsetData.n_T1,
+        numberOfT2Cars: trainsetData.n_T2,
+        numberOfT3Cars: trainsetData.n_T3,
+        numberOfM1DisabledCars: trainsetData.n_M1_disabled,
+        numberOfM2DisabledCars: trainsetData.n_M2_disabled,
       };
 
       const result = await api.updateTrainParameters(trainParams);
       console.log("Backend response:", result);
-
       toast.success("Data berhasil disimpan!", {
         description: "Train parameters updated successfully",
       });
@@ -139,45 +138,50 @@ export default function TrainParameter() {
   async function onTrainsetSubmit(data: z.infer<typeof TrainsetFormSchema>) {
     setIsSubmitting(true);
     try {
-      console.log("Form Data:", data);
+      console.log("Trainset data submitted:", data);
       console.log("CSV Data:", csvData);
 
-      const { api } = await import("@/services/api");
+      // 1. Update car number parameters
+      const carNumberParams = {
+        n_M1: data.n_M1,
+        n_M2: data.n_M2,
+        n_Tc: data.n_Tc,
+        n_T1: data.n_T1,
+        n_T2: data.n_T2,
+        n_T3: data.n_T3,
+        n_M1_disabled: data.n_M1_disabled,
+        n_M2_disabled: data.n_M2_disabled,
+      };
 
-      // Update mass parameters
+      await api.updateCarNumberParameters(carNumberParams);
+
+      // 2. Update mass parameters
       const massParams = {
-        massM1: data.mass_M1 * 1000, // ton to kg
-        massM2: data.mass_M2 * 1000,
-        massTc: data.mass_Tc * 1000,
-        massT1: data.mass_T1 * 1000,
-        massT2: data.mass_T2 * 1000,
-        massT3: data.mass_T3 * 1000,
-        rotationalInertiaMotor: constantForm.getValues().i_M || 1.1,
-        rotationalInertiaTrailer: constantForm.getValues().i_T || 1.05,
+        mass_M1: data.mass_M1,
+        mass_M2: data.mass_M2,
+        mass_Tc: data.mass_Tc,
+        mass_T1: data.mass_T1,
+        mass_T2: data.mass_T2,
+        mass_T3: data.mass_T3,
       };
 
       await api.updateMassParameters(massParams);
 
-      // Update running parameters (passenger data)
-      const runningParams = {
-        load: constantForm.getValues().load || 0,
-        massPerPassenger: constantForm.getValues().mass_P || 70,
-        passengersPerM1: data.n_PM1 || 0,
-        passengersPerM2: data.n_PM2 || 0,
-        passengersPerTc: data.n_PTc || 0,
-        passengersPerT1: data.n_PT1 || 0,
-        passengersPerT2: data.n_PT2 || 0,
-        passengersPerT3: data.n_PT3 || 0,
-        acceleration: 1.0,
-        deceleration: 1.0,
-        speedLimit: 100,
-        stationDistance: 1000,
+      // 3. Update passenger parameters
+      const passengerParams = {
+        n_PTc: data.n_PTc,
+        n_PM1: data.n_PM1,
+        n_PM2: data.n_PM2,
+        n_Pt1: data.n_PT1,
+        n_Pt2: data.n_PT2,
+        n_Pt3: data.n_PT3,
       };
 
-      await api.updateRunningParameters(runningParams);
+      await api.updatePassengerParameters(passengerParams);
 
       toast.success("Data berhasil disimpan!", {
-        description: "Trainset and mass parameters updated successfully",
+        description:
+          "Trainset configuration (car numbers, masses, passengers) updated successfully",
       });
     } catch (error) {
       console.error("Error updating parameters:", error);

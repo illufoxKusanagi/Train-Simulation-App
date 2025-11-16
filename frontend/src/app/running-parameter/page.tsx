@@ -17,7 +17,7 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Form } from "@/components/ui/form";
-import { api, RunningParameters } from "@/services/api";
+import { api, RunningParams } from "@/services/api";
 
 export default function RunningPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,9 +42,10 @@ export default function RunningPage() {
     try {
       console.log("Form Data:", data);
 
-      // Map frontend form to backend API structure
-      const params: RunningParameters = {
-        // Passenger load parameters (using dummy values for now)
+      // Map frontend form to backend API structure - NO UNIT CONVERSION
+      // Note: Running form doesn't have passenger data, those come from train-parameter page
+      const params = {
+        // Passenger load parameters (keep existing values from train-parameter)
         load: 0,
         massPerPassenger: 70,
         passengersPerM1: 200,
@@ -54,16 +55,15 @@ export default function RunningPage() {
         passengersPerT2: 200,
         passengersPerT3: 200,
 
-        // Motion parameters from form
+        // Motion parameters from form - send as-is
         acceleration: data.acc_start,
         deceleration: data.decc_start,
-        speedLimit: 100, // km/h - need to add this to form
-        stationDistance: 1000, // meters - need to add this to form
+        speedLimit: 100,
+        stationDistance: 1000,
       };
 
       const result = await api.updateRunningParameters(params);
       console.log("Backend response:", result);
-
       toast.success("Data berhasil disimpan!", {
         description: "Running parameters updated successfully",
       });

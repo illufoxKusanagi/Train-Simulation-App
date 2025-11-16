@@ -4,85 +4,23 @@
 // Maps frontend TypeScript types to backend C++ structs
 // All parameters stored in AppContext before simulation runs
 
+// ============================================================
+// Train Simulation API Client
+// Uses ONLY the types declared in input-params.ts
+// ============================================================
+
+import {
+  TrainConstantParams,
+  TrainMassParams,
+  TrainPassangerParams,
+  TrainNumberParams,
+  TrackParams,
+  RunningParams,
+  ElectricalParams,
+} from "@/types/input-params";
+import { SimulationConfig, SimulationResults } from "@/types/simulation-params";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-
-// ============================================================
-// Type Definitions (matching backend structures)
-// ============================================================
-
-export interface TrainParameters {
-  numberOfMotorCars: number; // n_tm
-  numberOfAxles: number; // n_axle
-  numberOfCars: number; // n_car
-  gearRatio: number; // gearRatio
-  wheelDiameter: number; // wheel (meters)
-  trainsetLength: number; // trainsetLength (meters)
-  numberOfM1Cars: number; // n_M1
-  numberOfM2Cars: number; // n_M2
-  numberOfTcCars: number; // n_TC
-  numberOfT1Cars: number; // n_T1
-  numberOfT2Cars: number; // n_T2
-  numberOfT3Cars: number; // n_T3
-}
-
-export interface ElectricalParameters {
-  lineVoltage: number; // stat_vol_line (V)
-  motorVoltage: number; // stat_vol_motor (V)
-  powerFactor: number; // stat_pf (0-1)
-  gearEfficiency: number; // stat_eff_gear (0-1)
-  motorEfficiency: number; // stat_eff_motor (0-1)
-  vvvfEfficiency: number; // stat_eff_vvvf (0-1)
-  auxiliaryPower: number; // p_aps (kW)
-}
-
-export interface RunningParameters {
-  // Passenger load (8 parameters)
-  load: number; // load type
-  massPerPassenger: number; // mass_P (kg)
-  passengersPerM1: number; // n_PM1
-  passengersPerM2: number; // n_PM2
-  passengersPerTc: number; // n_PTc
-  passengersPerT1: number; // n_PT1
-  passengersPerT2: number; // n_PT2
-  passengersPerT3: number; // n_PT3
-
-  // Motion parameters (4 parameters)
-  acceleration: number; // acc (km/h to m/s²)
-  deceleration: number; // decc (km/h to m/s²)
-  speedLimit: number; // v_limit (m/s)
-  stationDistance: number; // x_station (m)
-}
-
-export interface TrackParameters {
-  numberOfStations: number; // n_station
-}
-
-export interface MassParameters {
-  // Car masses (kg)
-  massM1: number; // mass_M1
-  massM2: number; // mass_M2
-  massTc: number; // mass_TC
-  massT1: number; // mass_T1
-  massT2: number; // mass_T2
-  massT3: number; // mass_T3
-
-  // Rotational inertia coefficients
-  rotationalInertiaMotor: number; // i_M
-  rotationalInertiaTrailer: number; // i_T
-}
-
-export interface SimulationConfig {
-  type: "static" | "dynamic";
-}
-
-export interface SimulationResults {
-  trainSpeeds: number[];
-  vvvfPowers: number[];
-  distances: number[];
-  times: number[];
-  accelerations: number[];
-  // ... more result fields
-}
 
 // ============================================================
 // API Client
@@ -98,7 +36,7 @@ export const api = {
 
   // ==================== Train Parameters ====================
   getTrainParameters: async (): Promise<{
-    trainParameters: TrainParameters;
+    trainParameters: TrainConstantParams & TrainNumberParams;
     status: string;
   }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/train`);
@@ -108,7 +46,7 @@ export const api = {
   },
 
   updateTrainParameters: async (
-    params: TrainParameters
+    params: Record<string, number>
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/train`, {
       method: "POST",
@@ -122,7 +60,7 @@ export const api = {
 
   // ==================== Electrical Parameters ====================
   getElectricalParameters: async (): Promise<{
-    electricalParameters: ElectricalParameters;
+    electricalParameters: ElectricalParams;
     status: string;
   }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/electrical`);
@@ -132,7 +70,7 @@ export const api = {
   },
 
   updateElectricalParameters: async (
-    params: ElectricalParameters
+    params: ElectricalParams
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/electrical`, {
       method: "POST",
@@ -146,7 +84,7 @@ export const api = {
 
   // ==================== Running Parameters ====================
   getRunningParameters: async (): Promise<{
-    runningParameters: RunningParameters;
+    runningParameters: RunningParams & TrainPassangerParams;
     status: string;
   }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/running`);
@@ -156,7 +94,7 @@ export const api = {
   },
 
   updateRunningParameters: async (
-    params: RunningParameters
+    params: Record<string, number>
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/running`, {
       method: "POST",
@@ -170,7 +108,7 @@ export const api = {
 
   // ==================== Track Parameters ====================
   getTrackParameters: async (): Promise<{
-    trackParameters: TrackParameters;
+    trackParameters: TrackParams;
     status: string;
   }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/track`);
@@ -180,7 +118,7 @@ export const api = {
   },
 
   updateTrackParameters: async (
-    params: TrackParameters
+    params: TrackParams
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/track`, {
       method: "POST",
@@ -194,7 +132,7 @@ export const api = {
 
   // ==================== Mass Parameters ====================
   getMassParameters: async (): Promise<{
-    massParameters: MassParameters;
+    massParameters: TrainMassParams;
     status: string;
   }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/mass`);
@@ -204,7 +142,7 @@ export const api = {
   },
 
   updateMassParameters: async (
-    params: MassParameters
+    params: Record<string, number>
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/mass`, {
       method: "POST",
@@ -213,6 +151,54 @@ export const api = {
     });
     if (!res.ok)
       throw new Error(`Failed to update mass parameters: ${res.status}`);
+    return res.json();
+  },
+
+  // ==================== Car Number Parameters ====================
+  getCarNumberParameters: async (): Promise<{
+    carNumberParameters: TrainNumberParams;
+    status: string;
+  }> => {
+    const res = await fetch(`${API_BASE_URL}/api/parameters/carnumber`);
+    if (!res.ok)
+      throw new Error(`Failed to get car number parameters: ${res.status}`);
+    return res.json();
+  },
+
+  updateCarNumberParameters: async (
+    params: TrainNumberParams
+  ): Promise<{ status: string; message: string }> => {
+    const res = await fetch(`${API_BASE_URL}/api/parameters/carnumber`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    });
+    if (!res.ok)
+      throw new Error(`Failed to update car number parameters: ${res.status}`);
+    return res.json();
+  },
+
+  // ==================== Passenger Parameters ====================
+  getPassengerParameters: async (): Promise<{
+    passengerParameters: TrainPassangerParams;
+    status: string;
+  }> => {
+    const res = await fetch(`${API_BASE_URL}/api/parameters/passenger`);
+    if (!res.ok)
+      throw new Error(`Failed to get passenger parameters: ${res.status}`);
+    return res.json();
+  },
+
+  updatePassengerParameters: async (
+    params: TrainPassangerParams
+  ): Promise<{ status: string; message: string }> => {
+    const res = await fetch(`${API_BASE_URL}/api/parameters/passenger`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    });
+    if (!res.ok)
+      throw new Error(`Failed to update passenger parameters: ${res.status}`);
     return res.json();
   },
 
@@ -250,39 +236,13 @@ export const api = {
   },
 };
 
-// import axios, { AxiosInstance } from "axios";
-
-// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-
-// class TrainSimulationAPI {
-//   private client: AxiosInstance;
-
-//   constructor() {
-//     this.client = axios.create({
-//       baseURL: API_BASE_URL,
-//       timeout: 10000,
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//     });
-//   }
-
-//   // Health check
-//   async checkHealth(): Promise<{ status: string; dataStatus: string }> {
-//     const response = await this.client.get("/api/health");
-//     return response.data;
-//   }
-
-//   // Add more API methods as needed
-//   async getTrainParameters(): Promise<any> {
-//     const response = await this.client.get("/api/parameters/train");
-//     return response.data;
-//   }
-
-//   async updateTrainParameters(params: any): Promise<any> {
-//     const response = await this.client.post("/api/parameters/train", params);
-//     return response.data;
-//   }
-// }
-
-// export const api = new TrainSimulationAPI();
+// Re-export types from input-params.ts for convenience
+export type {
+  TrainConstantParams,
+  TrainMassParams,
+  TrainPassangerParams,
+  TrainNumberParams,
+  TrackParams,
+  RunningParams,
+  ElectricalParams,
+};

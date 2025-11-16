@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { constantFormRows, TrackFormSchema } from "./form.constants";
 import { useState } from "react";
 import { toast } from "sonner";
+import { api } from "@/services/api";
 import PageLayout from "@/components/page-layout";
 import {
   Card,
@@ -48,16 +49,18 @@ export default function TrackParameterPage() {
       console.log("Form Data:", data);
       console.log("CSV Data:", csvData);
 
-      const { api } = await import("@/services/api");
-
-      // Map to backend TrackParameters
+      // Send using YOUR exact variable names - NO CONVERSION
       const trackParams = {
-        numberOfStations: data.n_station,
+        n_station: data.n_station,
+        x_station: 0,
+        radius: 0,
+        slope: 0,
+        v_limit: 0,
+        dwellTime: 0,
       };
 
       const result = await api.updateTrackParameters(trackParams);
       console.log("Backend response:", result);
-
       toast.success("Data berhasil disimpan!", {
         description: "Track parameters updated successfully",
       });
