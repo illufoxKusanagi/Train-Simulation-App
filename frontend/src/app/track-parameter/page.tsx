@@ -27,7 +27,7 @@ export default function TrackParameterPage() {
     resolver: zodResolver(TrackFormSchema),
     defaultValues: {
       n_station: 2,
-      x_station: 1000,
+      x_station: 2000,
       radius: 300,
       slope: 0,
       v_limit: 80,
@@ -50,24 +50,41 @@ export default function TrackParameterPage() {
       console.log("CSV Data:", csvData);
 
       // Send using YOUR exact variable names - NO CONVERSION
-      const trackParams = {
+      const trackParams: Record<string, number | number[]> = {
         n_station: data.n_station,
-        x_station: 0,
-        radius: 0,
-        slope: 0,
-        v_limit: 0,
-        dwellTime: 0,
+        x_station: data.x_station,
+        radius: data.radius,
+        slope: data.slope,
+        v_limit: data.v_limit,
+        dwellTime: data.dwellTime,
       };
+
+      // Add CSV array data if available
+      if (csvData.x_station && csvData.x_station.length > 0) {
+        trackParams.x_station_array = csvData.x_station.flat();
+      }
+      if (csvData.v_limit && csvData.v_limit.length > 0) {
+        trackParams.v_limit_array = csvData.v_limit.flat();
+      }
+      if (csvData.slope && csvData.slope.length > 0) {
+        trackParams.slope_array = csvData.slope.flat();
+      }
+      if (csvData.radius && csvData.radius.length > 0) {
+        trackParams.radius_array = csvData.radius.flat();
+      }
+      if (csvData.dwellTime && csvData.dwellTime.length > 0) {
+        trackParams.dwellTime_array = csvData.dwellTime.flat();
+      }
 
       const result = await api.updateTrackParameters(trackParams);
       console.log("Backend response:", result);
-      toast.success("Data berhasil disimpan!", {
+      toast.success("Success!", {
         description: "Track parameters updated successfully",
       });
     } catch (error) {
       console.error("Error updating parameters:", error);
       toast.error("Error!", {
-        description: "Gagal menyimpan data. Silakan coba lagi.",
+        description: "Failed to save data. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -77,7 +94,7 @@ export default function TrackParameterPage() {
   const handleReset = () => {
     constantForm.reset();
     setCsvData({});
-    toast("Form berhasil direset!");
+    toast("Form has been reset!");
   };
 
   return (
@@ -122,7 +139,7 @@ export default function TrackParameterPage() {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Menyimpan..." : "Simpan"}
+                  {isSubmitting ? "Saving..." : "Save"}
                 </Button>
                 <Button
                   type="button"

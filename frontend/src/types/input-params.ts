@@ -24,9 +24,9 @@ export interface TrainPassangerParams {
   n_PTc: number;
   n_PM1: number;
   n_PM2: number;
-  n_Pt1: number;
-  n_Pt2: number;
-  n_Pt3: number;
+  n_PT1: number; // Fixed: was n_Pt1 (lowercase t)
+  n_PT2: number; // Fixed: was n_Pt2 (lowercase t)
+  n_PT3: number; // Fixed: was n_Pt3 (lowercase t)
 }
 
 export interface TrainNumberParams {

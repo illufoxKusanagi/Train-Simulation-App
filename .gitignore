@@ -7,6 +7,10 @@
 /frontend/build/
 /backend/widgets/
 /backend/controllers/simulation
+/backend/pages
+/backend_copy
+/backend_copy_3
+/frontend_copy
 
 # Qt build artifacts
 *.idx

@@ -63,6 +63,12 @@ public:
     // Export functionality
     QHttpServerResponse handleExportResults(const QJsonObject &data);
 
+    // Simple initialization with minimal valid data
+    QHttpServerResponse handleQuickInit();
+
+    // Debug endpoint to check current AppContext values
+    QHttpServerResponse handleDebugContext();
+
 private:
     AppContext &m_context;
 

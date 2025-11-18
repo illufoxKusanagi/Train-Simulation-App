@@ -6,7 +6,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -29,14 +29,109 @@ import {
 import { cn } from "@/lib/utils";
 import PageLayout from "@/components/page-layout";
 import { api } from "@/services/api";
+import { useFormPersistence } from "@/contexts/FormPersistenceContext";
+
+// Preset configurations for n_car dropdown (outside component to avoid recreating on every render)
+const carPresets: Record<
+  string | number,
+  {
+    n_M1: number;
+    n_M2: number;
+    n_Tc: number;
+    n_T1: number;
+    n_T2: number;
+    n_T3: number;
+    n_M1_disabled: number;
+    n_M2_disabled: number;
+  }
+> = {
+  "12": {
+    n_M1: 3,
+    n_M2: 3,
+    n_Tc: 2,
+    n_T1: 2,
+    n_T2: 1,
+    n_T3: 1,
+    n_M1_disabled: 0,
+    n_M2_disabled: 0,
+  },
+  "10": {
+    n_M1: 3,
+    n_M2: 2,
+    n_Tc: 2,
+    n_T1: 2,
+    n_T2: 1,
+    n_T3: 0,
+    n_M1_disabled: 0,
+    n_M2_disabled: 0,
+  },
+  "8": {
+    n_M1: 2,
+    n_M2: 2,
+    n_Tc: 2,
+    n_T1: 1,
+    n_T2: 1,
+    n_T3: 0,
+    n_M1_disabled: 0,
+    n_M2_disabled: 0,
+  },
+  "6": {
+    n_M1: 2,
+    n_M2: 1,
+    n_Tc: 2,
+    n_T1: 1,
+    n_T2: 0,
+    n_T3: 0,
+    n_M1_disabled: 0,
+    n_M2_disabled: 0,
+  },
+  "4": {
+    n_M1: 1,
+    n_M2: 1,
+    n_Tc: 2,
+    n_T1: 0,
+    n_T2: 0,
+    n_T3: 0,
+    n_M1_disabled: 0,
+    n_M2_disabled: 0,
+  },
+  "12-Degraded": {
+    n_M1: 3,
+    n_M2: 3,
+    n_Tc: 2,
+    n_T1: 2,
+    n_T2: 1,
+    n_T3: 1,
+    n_M1_disabled: 1,
+    n_M2_disabled: 1,
+  },
+  "10-Degraded": {
+    n_M1: 3,
+    n_M2: 2,
+    n_Tc: 2,
+    n_T1: 2,
+    n_T2: 1,
+    n_T3: 0,
+    n_M1_disabled: 1,
+    n_M2_disabled: 1,
+  },
+};
 
 export default function TrainParameter() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
+  const { saveFormData, loadFormData } = useFormPersistence();
+
+  // Load saved form data
+  const savedConstantData = loadFormData("train-constant");
+  const savedTrainsetData = loadFormData("train-trainset");
+  const savedCalculatedData = loadFormData("train-calculated");
 
   const constantForm = useForm<z.infer<typeof ConstantFormSchema>>({
     resolver: zodResolver(ConstantFormSchema),
-    defaultValues: {
+    defaultValues: (savedConstantData as z.infer<
+      typeof ConstantFormSchema
+    >) || {
       i_T: 1.05,
       i_M: 1.1,
       n_axle: 4,
@@ -52,7 +147,9 @@ export default function TrainParameter() {
 
   const trainsetForm = useForm<z.infer<typeof TrainsetFormSchema>>({
     resolver: zodResolver(TrainsetFormSchema),
-    defaultValues: {
+    defaultValues: (savedTrainsetData as z.infer<
+      typeof TrainsetFormSchema
+    >) || {
       n_car: 12,
       n_M1: 2,
       n_M2: 2,
@@ -79,12 +176,35 @@ export default function TrainParameter() {
 
   const calculatedMassForm = useForm<z.infer<typeof CalculatedMassFormSchema>>({
     resolver: zodResolver(CalculatedMassFormSchema),
-    defaultValues: {
+    defaultValues: (savedCalculatedData as z.infer<
+      typeof CalculatedMassFormSchema
+    >) || {
       mass_totalEmpty: 180,
       mass_totalLoad: 334,
       mass_totalInertial: 349,
     },
   });
+
+  // Handler for n_car dropdown changes
+  const handleCarNumberChange = useCallback(
+    (value: string) => {
+      const preset = carPresets[value];
+      if (preset) {
+        // Update all car type fields with preset values
+        trainsetForm.setValue("n_M1", preset.n_M1);
+        trainsetForm.setValue("n_M2", preset.n_M2);
+        trainsetForm.setValue("n_Tc", preset.n_Tc);
+        trainsetForm.setValue("n_T1", preset.n_T1);
+        trainsetForm.setValue("n_T2", preset.n_T2);
+        trainsetForm.setValue("n_T3", preset.n_T3);
+        trainsetForm.setValue("n_M1_disabled", preset.n_M1_disabled);
+        trainsetForm.setValue("n_M2_disabled", preset.n_M2_disabled);
+
+        console.log(`Applied preset for ${value}-car configuration:`, preset);
+      }
+    },
+    [trainsetForm]
+  );
 
   const handleFileLoad = (name: string, data: number[][]) => {
     setCsvData((prev) => ({
@@ -122,13 +242,13 @@ export default function TrainParameter() {
 
       const result = await api.updateTrainParameters(trainParams);
       console.log("Backend response:", result);
-      toast.success("Data berhasil disimpan!", {
-        description: "Train parameters updated successfully",
+      toast.success("Success!", {
+        description: "Constant parameters updated successfully",
       });
     } catch (error) {
       console.error("Error updating parameters:", error);
       toast.error("Error!", {
-        description: "Gagal menyimpan data. Silakan coba lagi.",
+        description: "Failed to save data. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -172,21 +292,21 @@ export default function TrainParameter() {
         n_PTc: data.n_PTc,
         n_PM1: data.n_PM1,
         n_PM2: data.n_PM2,
-        n_Pt1: data.n_PT1,
-        n_Pt2: data.n_PT2,
-        n_Pt3: data.n_PT3,
+        n_PT1: data.n_PT1, // Fixed: was n_Pt1 (lowercase t)
+        n_PT2: data.n_PT2, // Fixed: was n_Pt2 (lowercase t)
+        n_PT3: data.n_PT3, // Fixed: was n_Pt3 (lowercase t)
       };
 
       await api.updatePassengerParameters(passengerParams);
 
-      toast.success("Data berhasil disimpan!", {
+      toast.success("Success!", {
         description:
           "Trainset configuration (car numbers, masses, passengers) updated successfully",
       });
     } catch (error) {
       console.error("Error updating parameters:", error);
       toast.error("Error!", {
-        description: "Gagal menyimpan data. Silakan coba lagi.",
+        description: "Failed to save data. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -196,53 +316,126 @@ export default function TrainParameter() {
   const handleReset = () => {
     constantForm.reset();
     setCsvData({});
-    toast("Form berhasil direset!");
+    toast("Form has been reset!");
   };
+
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    const subscription = constantForm.watch((data) => {
+      saveFormData("train-constant", data as Record<string, unknown>);
+    });
+    return () => subscription.unsubscribe();
+  }, [constantForm, saveFormData]);
+
   useEffect(() => {
     const subscription = trainsetForm.watch((data) => {
-      if (data) {
-        // Calculate total empty mass
-        const totalEmpty =
-          (data.n_M1 || 0) * (data.mass_M1 || 0) +
-          (data.n_M2 || 0) * (data.mass_M2 || 0) +
-          (data.n_Tc || 0) * (data.mass_Tc || 0) +
-          (data.n_T1 || 0) * (data.mass_T1 || 0) +
-          (data.n_T2 || 0) * (data.mass_T2 || 0) +
-          (data.n_T3 || 0) * (data.mass_T3 || 0);
+      saveFormData("train-trainset", data as Record<string, unknown>);
+    });
+    return () => subscription.unsubscribe();
+  }, [trainsetForm, saveFormData]);
 
-        // Calculate total with passengers
-        const passengerMass =
-          ((data.n_PM1 || 0) +
-            (data.n_PM2 || 0) +
-            (data.n_PTc || 0) +
-            (data.n_PT1 || 0) +
-            (data.n_PT2 || 0) +
-            (data.n_PT3 || 0)) *
-          0.07;
+  useEffect(() => {
+    const subscription = calculatedMassForm.watch((data) => {
+      saveFormData("train-calculated", data as Record<string, unknown>);
+    });
+    return () => subscription.unsubscribe();
+  }, [calculatedMassForm, saveFormData]);
 
-        const totalLoad = totalEmpty + passengerMass;
-
-        // Get inertial coefficient
-        const iT = constantForm.watch("i_T") || 1.05;
-        const totalInertial = totalLoad * iT;
-
-        // Update calculated mass form
-        calculatedMassForm.setValue(
-          "mass_totalEmpty",
-          Math.round(totalEmpty * 100) / 100
-        );
-        calculatedMassForm.setValue(
-          "mass_totalLoad",
-          Math.round(totalLoad * 100) / 100
-        );
-        calculatedMassForm.setValue(
-          "mass_totalInertial",
-          Math.round(totalInertial * 100) / 100
-        );
+  // Watch n_car changes and apply preset configurations
+  useEffect(() => {
+    const subscription = trainsetForm.watch((value, { name }) => {
+      if (name === "n_car" && value.n_car) {
+        handleCarNumberChange(value.n_car.toString());
       }
     });
 
     return () => subscription.unsubscribe();
+  }, [trainsetForm, handleCarNumberChange]);
+
+  useEffect(() => {
+    // Watch both trainset AND constant form changes
+    const trainsetSubscription = trainsetForm.watch(() => recalculateMass());
+    const constantSubscription = constantForm.watch(() => recalculateMass());
+
+    // Calculate masses whenever any field changes
+    function recalculateMass() {
+      const data = trainsetForm.getValues();
+
+      // Calculate total empty mass
+      const totalEmpty =
+        (data.n_M1 || 0) * (data.mass_M1 || 0) +
+        (data.n_M2 || 0) * (data.mass_M2 || 0) +
+        (data.n_Tc || 0) * (data.mass_Tc || 0) +
+        (data.n_T1 || 0) * (data.mass_T1 || 0) +
+        (data.n_T2 || 0) * (data.mass_T2 || 0) +
+        (data.n_T3 || 0) * (data.mass_T3 || 0);
+
+      // Calculate total with passengers
+      // Formula: mass_P_final = mass_P / 1000 (kg to tons)
+      // Each car type: n_carType * (mass_P_final * n_PassengersPerCar)
+      const mass_P = constantForm.getValues("mass_P") || 70; // kg per passenger
+      const mass_P_final = mass_P / 1000; // convert to tons
+
+      const passengerMass =
+        (data.n_M1 || 0) * (mass_P_final * (data.n_PM1 || 0)) +
+        (data.n_M2 || 0) * (mass_P_final * (data.n_PM2 || 0)) +
+        (data.n_Tc || 0) * (mass_P_final * (data.n_PTc || 0)) +
+        (data.n_T1 || 0) * (mass_P_final * (data.n_PT1 || 0)) +
+        (data.n_T2 || 0) * (mass_P_final * (data.n_PT2 || 0)) +
+        (data.n_T3 || 0) * (mass_P_final * (data.n_PT3 || 0));
+
+      const totalLoad = totalEmpty + passengerMass;
+
+      // Calculate inertial mass using original formula
+      // massData->mass_Mi = (massData->mass_Me * massData->i_M) + passengers
+      // massData->mass_Ti = (massData->mass_Te * massData->i_T) + passengers
+      const iT = constantForm.getValues("i_T") || 1.05;
+      const iM = constantForm.getValues("i_M") || 1.1;
+
+      const mass_Me =
+        (data.n_M1 || 0) * (data.mass_M1 || 0) +
+        (data.n_M2 || 0) * (data.mass_M2 || 0);
+      const mass_Te =
+        (data.n_Tc || 0) * (data.mass_Tc || 0) +
+        (data.n_T1 || 0) * (data.mass_T1 || 0) +
+        (data.n_T2 || 0) * (data.mass_T2 || 0) +
+        (data.n_T3 || 0) * (data.mass_T3 || 0);
+
+      const mass_Mi =
+        mass_Me * iM +
+        ((data.n_M1 || 0) * (mass_P_final * (data.n_PM1 || 0)) +
+          (data.n_M2 || 0) * (mass_P_final * (data.n_PM2 || 0)));
+      const mass_Ti =
+        mass_Te * iT +
+        ((data.n_Tc || 0) * (mass_P_final * (data.n_PTc || 0)) +
+          (data.n_T1 || 0) * (mass_P_final * (data.n_PT1 || 0)) +
+          (data.n_T2 || 0) * (mass_P_final * (data.n_PT2 || 0)) +
+          (data.n_T3 || 0) * (mass_P_final * (data.n_PT3 || 0)));
+
+      const totalInertial = mass_Mi + mass_Ti;
+
+      // Update calculated mass form
+      calculatedMassForm.setValue(
+        "mass_totalEmpty",
+        Math.round(totalEmpty * 100) / 100
+      );
+      calculatedMassForm.setValue(
+        "mass_totalLoad",
+        Math.round(totalLoad * 100) / 100
+      );
+      calculatedMassForm.setValue(
+        "mass_totalInertial",
+        Math.round(totalInertial * 100) / 100
+      );
+    }
+
+    // Initial calculation
+    recalculateMass();
+
+    return () => {
+      trainsetSubscription.unsubscribe();
+      constantSubscription.unsubscribe();
+    };
   }, [trainsetForm, constantForm, calculatedMassForm]);
 
   return (
@@ -287,7 +480,7 @@ export default function TrainParameter() {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Menyimpan..." : "Simpan"}
+                  {isSubmitting ? "Saving..." : "Save"}
                 </Button>
                 <Button
                   type="button"
@@ -437,7 +630,7 @@ export default function TrainParameter() {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Menyimpan..." : "Save Data"}
+                  {isSubmitting ? "Saving..." : "Save Data"}
                 </Button>
                 <Button
                   type="button"

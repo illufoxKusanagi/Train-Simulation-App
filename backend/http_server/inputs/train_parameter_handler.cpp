@@ -1,8 +1,43 @@
 #include "train_parameter_handler.h"
+#include "controllers/simulation/mass_handler.h"
 
 TrainParameterHandler::TrainParameterHandler(AppContext &context, QObject *parent)
     : QObject{parent}, m_context(context)
 {
+    m_massHandler = new MassHandler(context);
+}
+
+TrainParameterHandler::~TrainParameterHandler()
+{
+    delete m_massHandler;
+}
+
+void TrainParameterHandler::recalculateMasses()
+{
+    if (!m_context.massData || !m_context.loadData || !m_context.trainData)
+    {
+        qDebug() << "⚠️ Cannot recalculate masses: data not initialized";
+        return;
+    }
+
+    // Recalculate total masses using MassHandler (same logic as simulation initData())
+    m_context.massData->mass_totalEmpty = m_massHandler->countMassEmptyCar();
+
+    if (m_context.loadData->load > 0)
+    {
+        m_context.massData->mass_totalLoad = m_massHandler->countMassLoadInput();
+        m_context.massData->mass_totalInertial = m_massHandler->countInertialMassInput();
+    }
+    else
+    {
+        m_context.massData->mass_totalLoad = m_massHandler->countMassWithLoad();
+        m_context.massData->mass_totalInertial = m_massHandler->countInertialMass();
+    }
+
+    qDebug() << "✅ Masses recalculated:";
+    qDebug() << "   - Empty:" << m_context.massData->mass_totalEmpty << "tons";
+    qDebug() << "   - Loaded:" << m_context.massData->mass_totalLoad << "tons";
+    qDebug() << "   - Inertial:" << m_context.massData->mass_totalInertial << "tons";
 }
 QHttpServerResponse TrainParameterHandler::handleGetTrainParameters()
 {
@@ -134,6 +169,9 @@ QHttpServerResponse TrainParameterHandler::handleUpdateTrainParameters(const QJs
                 qDebug() << "Updated n_T3 to:" << m_context.trainData->n_M2_disabled;
             }
 
+            // CRITICAL: Recalculate masses after train parameters change
+            recalculateMasses();
+
             response["status"] = "success";
             response["message"] = "Train parameters updated successfully";
             qDebug() << "✅ Train parameters updated successfully";
@@ -234,6 +272,9 @@ QHttpServerResponse TrainParameterHandler::handleUpdateCarNumberParameters(const
             m_context.trainData->n_T3 = carNumberParams["n_T3"].toDouble();
         }
 
+        // CRITICAL: Recalculate masses after car number changes
+        recalculateMasses();
+
         response["status"] = "success";
         response["message"] = "Car number parameters updated successfully";
         qDebug() << "✅ Car number parameters updated successfully";
@@ -320,6 +361,9 @@ QHttpServerResponse TrainParameterHandler::handleUpdatePassengerParameters(const
         {
             m_context.loadData->n_PT3 = passengerParams["n_Pt3"].toDouble();
         }
+
+        // CRITICAL: Recalculate masses after passenger parameter changes
+        recalculateMasses();
 
         response["status"] = "success";
         response["message"] = "Passenger parameters updated successfully";
@@ -428,6 +472,9 @@ QHttpServerResponse TrainParameterHandler::handleUpdateMassParameters(const QJso
             {
                 m_context.massData->i_T = massParams["rotationalInertiaTrailer"].toDouble();
             }
+
+            // CRITICAL: Recalculate masses after mass parameters change
+            recalculateMasses();
 
             response["status"] = "success";
             response["message"] = "Mass parameters updated successfully";

@@ -34,6 +34,22 @@ export const api = {
     return res.json();
   },
 
+  // ==================== Quick Initialization ====================
+  quickInit: async (): Promise<{ status: string; message: string }> => {
+    const res = await fetch(`${API_BASE_URL}/api/init/quick`, {
+      method: "POST",
+    });
+    if (!res.ok) throw new Error(`Quick init failed: ${res.status}`);
+    return res.json();
+  },
+
+  // ==================== Debug Context ====================
+  debugContext: async (): Promise<Record<string, unknown>> => {
+    const res = await fetch(`${API_BASE_URL}/api/debug/context`);
+    if (!res.ok) throw new Error(`Debug context failed: ${res.status}`);
+    return res.json();
+  },
+
   // ==================== Train Parameters ====================
   getTrainParameters: async (): Promise<{
     trainParameters: TrainConstantParams & TrainNumberParams;
@@ -118,7 +134,7 @@ export const api = {
   },
 
   updateTrackParameters: async (
-    params: TrackParams
+    params: TrackParams | Record<string, number | number[]>
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/track`, {
       method: "POST",
@@ -225,10 +241,7 @@ export const api = {
     return res.json();
   },
 
-  getSimulationResults: async (): Promise<{
-    results: SimulationResults;
-    status: string;
-  }> => {
+  getSimulationResults: async (): Promise<SimulationResults> => {
     const res = await fetch(`${API_BASE_URL}/api/simulation/results`);
     if (!res.ok)
       throw new Error(`Failed to get simulation results: ${res.status}`);
@@ -236,7 +249,7 @@ export const api = {
   },
 };
 
-// Re-export types from input-params.ts for convenience
+// Re-export types for convenience
 export type {
   TrainConstantParams,
   TrainMassParams,
@@ -246,3 +259,8 @@ export type {
   RunningParams,
   ElectricalParams,
 };
+
+export type {
+  SimulationConfig,
+  SimulationResults,
+} from "@/types/simulation-params";

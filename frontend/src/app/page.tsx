@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { api } from "@/services/api";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/sidebar/app-sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/toggle-mode-button";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +33,7 @@ export default function Home() {
 
   useEffect(() => {
     checkBackendConnection();
+    initializeBackendOnce();
   }, []);
 
   const checkBackendConnection = async () => {
@@ -41,9 +41,27 @@ export default function Home() {
       const health = await api.checkHealth();
       setBackendStatus(`Backend Terhubung: ${health.status}`);
       setIsConnected(true);
-    } catch (error) {
+    } catch {
       setBackendStatus(`Backend Terputus`);
       setIsConnected(false);
+    }
+  };
+
+  const initializeBackendOnce = async () => {
+    // Check if we've already initialized
+    const initialized = sessionStorage.getItem("backendInitialized");
+    if (initialized) {
+      console.log("ℹ️ Backend already initialized, skipping quickInit");
+      return;
+    }
+
+    try {
+      console.log("🔧 First-time initialization with quickInit...");
+      await api.quickInit();
+      sessionStorage.setItem("backendInitialized", "true");
+      console.log("✅ Backend initialized with default values");
+    } catch (error) {
+      console.error("❌ Failed to initialize backend:", error);
     }
   };
 

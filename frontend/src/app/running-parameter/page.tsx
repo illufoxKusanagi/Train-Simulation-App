@@ -17,7 +17,7 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Form } from "@/components/ui/form";
-import { api, RunningParams } from "@/services/api";
+import { api } from "@/services/api";
 
 export default function RunningPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,35 +42,28 @@ export default function RunningPage() {
     try {
       console.log("Form Data:", data);
 
-      // Map frontend form to backend API structure - NO UNIT CONVERSION
-      // Note: Running form doesn't have passenger data, those come from train-parameter page
+      // Use YOUR exact field names from RunningParams - NO CONVERSION
       const params = {
-        // Passenger load parameters (keep existing values from train-parameter)
-        load: 0,
-        massPerPassenger: 70,
-        passengersPerM1: 200,
-        passengersPerM2: 200,
-        passengersPerTc: 100,
-        passengersPerT1: 200,
-        passengersPerT2: 200,
-        passengersPerT3: 200,
-
-        // Motion parameters from form - send as-is
-        acceleration: data.acc_start,
-        deceleration: data.decc_start,
-        speedLimit: 100,
-        stationDistance: 1000,
+        startRes: data.startRes,
+        v_diffCoast: data.v_diffCoast,
+        acc_start: data.acc_start,
+        v_p1: data.v_p1,
+        v_p2: data.v_p2,
+        v_b1: data.v_b1,
+        v_b2: data.v_b2,
+        decc_start: data.decc_start,
+        decc_emergency: data.decc_emergency,
       };
 
-      const result = await api.updateRunningParameters(params);
+      const result = await api.updateRunningParameters(data);
       console.log("Backend response:", result);
-      toast.success("Data berhasil disimpan!", {
+      toast.success("Success!", {
         description: "Running parameters updated successfully",
       });
     } catch (error) {
       console.error("Error updating parameters:", error);
       toast.error("Error!", {
-        description: "Gagal menyimpan data. Silakan coba lagi.",
+        description: "Failed to save data. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -123,7 +116,7 @@ export default function RunningPage() {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Menyimpan..." : "Simpan"}
+                  {isSubmitting ? "Saving..." : "Save"}
                 </Button>
                 <Button
                   type="button"

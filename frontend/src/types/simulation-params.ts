@@ -21,11 +21,19 @@ export interface SimulationSummary {
   maxSpeed: number;
   maxVvvfPower: number;
   maxCatenaryPower: number;
+  maxVvvfCurrent: number;
+  maxCatenaryCurrent: number;
   maxTractionEffort: number;
   distanceTravelled: number;
   maxEnergyConsumption: number;
   maxEnergyRegen: number;
   adhesion: number;
+}
+
+export interface TrackDistanceTable {
+  normalBraking: number[];
+  emergencyBraking: number[];
+  labels: string[];
 }
 
 export interface SimulationResults {
@@ -34,4 +42,5 @@ export interface SimulationResults {
   totalPoints: number;
   returnedPoints: number;
   summary: SimulationSummary;
+  trackDistanceTable?: TrackDistanceTable;
 }

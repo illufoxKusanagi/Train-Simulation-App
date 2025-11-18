@@ -183,6 +183,34 @@ void HttpServer::setupRoutes()
                             return addCorsHeaders(m_apiHandler->handleHealthCheck());
                         });
 
+    // Quick initialization endpoint - sets minimal valid data for immediate simulation
+    m_httpServer->route("/api/init/quick", QHttpServerRequest::Method::Post,
+                        [this, addCorsHeaders]()
+                        {
+                            qDebug() << "🔧 POST /api/init/quick - Quick initialization";
+                            return addCorsHeaders(m_apiHandler->handleQuickInit());
+                        });
+
+    m_httpServer->route("/api/init/quick", QHttpServerRequest::Method::Options,
+                        [addCorsHeaders]()
+                        {
+                            return addCorsHeaders(QHttpServerResponse(QHttpServerResponse::StatusCode::Ok));
+                        });
+
+    // Debug endpoint to check current AppContext values
+    m_httpServer->route("/api/debug/context", QHttpServerRequest::Method::Get,
+                        [this, addCorsHeaders]()
+                        {
+                            qDebug() << "🐛 GET /api/debug/context - Checking AppContext values";
+                            return addCorsHeaders(m_apiHandler->handleDebugContext());
+                        });
+
+    m_httpServer->route("/api/debug/context", QHttpServerRequest::Method::Options,
+                        [addCorsHeaders]()
+                        {
+                            return addCorsHeaders(QHttpServerResponse(QHttpServerResponse::StatusCode::Ok));
+                        });
+
     // Train parameters endpoints
     m_httpServer->route("/api/parameters/train", QHttpServerRequest::Method::Get,
                         [this, addCorsHeaders]()

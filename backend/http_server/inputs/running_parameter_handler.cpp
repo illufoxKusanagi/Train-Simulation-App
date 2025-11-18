@@ -9,7 +9,7 @@ QHttpServerResponse RunningParameterHandler::handleGetRunningParameters()
 {
     QJsonObject response;
 
-    if (!m_context.loadData || !m_context.movingData)
+    if (!m_context.movingData || !m_context.resistanceData)
     {
         response["status"] = "error";
         response["message"] = "Running data not initialized";
@@ -19,26 +19,27 @@ QHttpServerResponse RunningParameterHandler::handleGetRunningParameters()
 
     QJsonObject runningParams;
 
-    // Load/Passenger data
-    runningParams["passengerLoad"] = m_context.loadData->load;
-    runningParams["passengerMass"] = m_context.loadData->mass_P;
-    runningParams["passengerMassFinal"] = m_context.loadData->mass_P_final;
-    runningParams["passengersM1"] = m_context.loadData->n_PM1;
-    runningParams["passengersM2"] = m_context.loadData->n_PM2;
-    runningParams["passengersTc"] = m_context.loadData->n_PTc;
-    runningParams["passengersT1"] = m_context.loadData->n_PT1;
-    runningParams["passengersT2"] = m_context.loadData->n_PT2;
-    runningParams["passengersT3"] = m_context.loadData->n_PT3;
+    // Use YOUR exact field names from RunningParams interface
+    runningParams["startRes"] = m_context.resistanceData->startRes;
+    runningParams["v_diffCoast"] = m_context.movingData->v_diffCoast;
+    runningParams["acc_start"] = m_context.movingData->acc_start;
+    runningParams["v_p1"] = m_context.movingData->v_p1;
+    runningParams["v_p2"] = m_context.movingData->v_p2;
+    runningParams["v_b1"] = m_context.movingData->v_b1;
+    runningParams["v_b2"] = m_context.movingData->v_b2;
+    runningParams["decc_start"] = m_context.movingData->decc_start;
+    runningParams["decc_emergency"] = m_context.movingData->decc_emergency;
 
-    // Motion parameters
-    runningParams["acceleration"] = m_context.movingData->acc;
-    runningParams["deceleration"] = m_context.movingData->decc;
-    runningParams["startingAcceleration"] = m_context.movingData->acc_start;
-    runningParams["startingDeceleration"] = m_context.movingData->decc_start;
-    runningParams["emergencyDeceleration"] = m_context.movingData->decc_emergency;
-    runningParams["speedLimit"] = m_context.movingData->v_limit;
-    runningParams["coastingSpeedDiff"] = m_context.movingData->v_diffCoast;
-    runningParams["stationDistance"] = m_context.movingData->x_station;
+    // Passenger data (TrainPassangerParams)
+    if (m_context.loadData)
+    {
+        runningParams["n_PTc"] = m_context.loadData->n_PTc;
+        runningParams["n_PM1"] = m_context.loadData->n_PM1;
+        runningParams["n_PM2"] = m_context.loadData->n_PM2;
+        runningParams["n_Pt1"] = m_context.loadData->n_PT1;
+        runningParams["n_Pt2"] = m_context.loadData->n_PT2;
+        runningParams["n_Pt3"] = m_context.loadData->n_PT3;
+    }
 
     response["runningParameters"] = runningParams;
     response["status"] = "success";
@@ -61,92 +62,79 @@ QHttpServerResponse RunningParameterHandler::handleUpdateRunningParameters(const
 
     try
     {
-        if (data.contains("runningParameters"))
+        QJsonObject runningParams = data.contains("runningParameters") ? data["runningParameters"].toObject() : data;
+        qDebug() << "📝 Updating running parameters:" << runningParams;
+
+        // Use YOUR exact field names from RunningParams interface
+        if (runningParams.contains("startRes"))
         {
-            QJsonObject runningParams = data["runningParameters"].toObject();
-            qDebug() << "📝 Updating running parameters:" << runningParams;
-
-            // Update load data
-            if (runningParams.contains("passengerLoad") || runningParams.contains("load"))
-            {
-                m_context.loadData->load = runningParams.contains("load") ? runningParams["load"].toDouble() : runningParams["passengerLoad"].toDouble();
-            }
-            if (runningParams.contains("passengerMass") || runningParams.contains("massPerPassenger"))
-            {
-                m_context.loadData->mass_P = runningParams.contains("massPerPassenger") ? runningParams["massPerPassenger"].toDouble() : runningParams["passengerMass"].toDouble();
-            }
-
-            // Support both naming conventions: passengersM1 and passengersPerM1
-            if (runningParams.contains("passengersM1") || runningParams.contains("passengersPerM1"))
-            {
-                m_context.loadData->n_PM1 = runningParams.contains("passengersPerM1") ? runningParams["passengersPerM1"].toDouble() : runningParams["passengersM1"].toDouble();
-            }
-            if (runningParams.contains("passengersM2") || runningParams.contains("passengersPerM2"))
-            {
-                m_context.loadData->n_PM2 = runningParams.contains("passengersPerM2") ? runningParams["passengersPerM2"].toDouble() : runningParams["passengersM2"].toDouble();
-            }
-            if (runningParams.contains("passengersTc") || runningParams.contains("passengersPerTc"))
-            {
-                m_context.loadData->n_PTc = runningParams.contains("passengersPerTc") ? runningParams["passengersPerTc"].toDouble() : runningParams["passengersTc"].toDouble();
-            }
-            if (runningParams.contains("passengersT1") || runningParams.contains("passengersPerT1"))
-            {
-                m_context.loadData->n_PT1 = runningParams.contains("passengersPerT1") ? runningParams["passengersPerT1"].toDouble() : runningParams["passengersT1"].toDouble();
-            }
-            if (runningParams.contains("passengersT2") || runningParams.contains("passengersPerT2"))
-            {
-                m_context.loadData->n_PT2 = runningParams.contains("passengersPerT2") ? runningParams["passengersPerT2"].toDouble() : runningParams["passengersT2"].toDouble();
-            }
-            if (runningParams.contains("passengersT3") || runningParams.contains("passengersPerT3"))
-            {
-                m_context.loadData->n_PT3 = runningParams.contains("passengersPerT3") ? runningParams["passengersPerT3"].toDouble() : runningParams["passengersT3"].toDouble();
-            }
-
-            // Update motion parameters
-            if (runningParams.contains("acceleration"))
-            {
-                m_context.movingData->acc = runningParams["acceleration"].toDouble();
-                m_context.movingData->acc_si = m_context.movingData->acc / 3.6; // Convert to m/s²
-            }
-            if (runningParams.contains("deceleration"))
-            {
-                m_context.movingData->decc = runningParams["deceleration"].toDouble();
-                m_context.movingData->decc_si = m_context.movingData->decc / 3.6;
-            }
-            if (runningParams.contains("startingAcceleration"))
-            {
-                m_context.movingData->acc_start = runningParams["startingAcceleration"].toDouble();
-            }
-            if (runningParams.contains("startingDeceleration"))
-            {
-                m_context.movingData->decc_start = runningParams["startingDeceleration"].toDouble();
-            }
-            if (runningParams.contains("emergencyDeceleration"))
-            {
-                m_context.movingData->decc_emergency = runningParams["emergencyDeceleration"].toDouble();
-            }
-            if (runningParams.contains("speedLimit"))
-            {
-                m_context.movingData->v_limit = runningParams["speedLimit"].toDouble();
-            }
-            if (runningParams.contains("coastingSpeedDiff"))
-            {
-                m_context.movingData->v_diffCoast = runningParams["coastingSpeedDiff"].toDouble();
-            }
-            if (runningParams.contains("stationDistance"))
-            {
-                m_context.movingData->x_station = runningParams["stationDistance"].toDouble();
-            }
-
-            response["status"] = "success";
-            response["message"] = "Running parameters updated successfully";
-            qDebug() << "✅ Running parameters updated successfully";
+            m_context.resistanceData->startRes = runningParams["startRes"].toDouble();
         }
-        else
+        if (runningParams.contains("v_diffCoast"))
         {
-            response["status"] = "error";
-            response["message"] = "No running parameters provided";
+            m_context.movingData->v_diffCoast = runningParams["v_diffCoast"].toDouble();
         }
+        if (runningParams.contains("acc_start"))
+        {
+            m_context.movingData->acc_start = runningParams["acc_start"].toDouble();
+        }
+        if (runningParams.contains("v_p1"))
+        {
+            m_context.movingData->v_p1 = runningParams["v_p1"].toDouble();
+        }
+        if (runningParams.contains("v_p2"))
+        {
+            m_context.movingData->v_p2 = runningParams["v_p2"].toDouble();
+        }
+        if (runningParams.contains("v_b1"))
+        {
+            m_context.movingData->v_b1 = runningParams["v_b1"].toDouble();
+        }
+        if (runningParams.contains("v_b2"))
+        {
+            m_context.movingData->v_b2 = runningParams["v_b2"].toDouble();
+        }
+        if (runningParams.contains("decc_start"))
+        {
+            m_context.movingData->decc_start = runningParams["decc_start"].toDouble();
+        }
+        if (runningParams.contains("decc_emergency"))
+        {
+            m_context.movingData->decc_emergency = runningParams["decc_emergency"].toDouble();
+        }
+
+        // Passenger data (TrainPassangerParams) - support from running params too
+        if (m_context.loadData)
+        {
+            if (runningParams.contains("n_PTc"))
+            {
+                m_context.loadData->n_PTc = runningParams["n_PTc"].toDouble();
+            }
+            if (runningParams.contains("n_PM1"))
+            {
+                m_context.loadData->n_PM1 = runningParams["n_PM1"].toDouble();
+            }
+            if (runningParams.contains("n_PM2"))
+            {
+                m_context.loadData->n_PM2 = runningParams["n_PM2"].toDouble();
+            }
+            if (runningParams.contains("n_Pt1"))
+            {
+                m_context.loadData->n_PT1 = runningParams["n_Pt1"].toDouble();
+            }
+            if (runningParams.contains("n_Pt2"))
+            {
+                m_context.loadData->n_PT2 = runningParams["n_Pt2"].toDouble();
+            }
+            if (runningParams.contains("n_Pt3"))
+            {
+                m_context.loadData->n_PT3 = runningParams["n_Pt3"].toDouble();
+            }
+        }
+
+        response["status"] = "success";
+        response["message"] = "Running parameters updated successfully";
+        qDebug() << "✅ Running parameters updated successfully";
     }
     catch (const std::exception &e)
     {

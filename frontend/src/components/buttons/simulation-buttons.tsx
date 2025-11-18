@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Loader2 } from "lucide-react";
 import { api } from "@/services/api";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
 
 export function SimulationButtons() {
@@ -18,7 +18,11 @@ export function SimulationButtons() {
 
     setLoading(true);
     try {
-      // Start simulation
+      // REMOVED: quickInit() was resetting all parameters to default/zero values!
+      // Users must submit parameters from the parameter pages first
+      // quickInit should only be called once at app startup, not before every simulation
+
+      // Start simulation with current parameters
       await api.startSimulation({ type });
 
       // Poll status until complete
@@ -32,27 +36,24 @@ export function SimulationButtons() {
       const response = await api.getSimulationResults();
 
       // Store results in sessionStorage for output page
-      sessionStorage.setItem(
-        "simulationResults",
-        JSON.stringify(response.results)
-      );
+      sessionStorage.setItem("simulationResults", JSON.stringify(response));
+
+      // Safely get maxSpeed with fallback
+      const maxSpeed = response.summary?.maxSpeed ?? 0;
 
       toast.success(
         `${type === "static" ? "Static" : "Dynamic"} simulation completed!`,
-        {
-          description: `Max speed: ${response.results.summary.maxSpeed.toFixed(
-            2
-          )} km/h`,
-        }
+        `Max speed: ${maxSpeed.toFixed(2)} km/h`
       );
 
       // Navigate to output page
       router.push("/output");
     } catch (error) {
       console.error("Simulation failed:", error);
-      toast.error("Simulation failed!", {
-        description: "Make sure all parameters are set correctly.",
-      });
+      toast.error(
+        "Simulation failed!",
+        "Make sure all parameters are set correctly."
+      );
     } finally {
       setLoading(false);
     }

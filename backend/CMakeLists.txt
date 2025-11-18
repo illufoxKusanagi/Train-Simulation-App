@@ -28,9 +28,9 @@ if(NOT DEFINED Qt6_DIR)
 endif()
 
 # Find Qt6 packages - IMPORTANT: Add WebEngineWidgets for embedding Next.js
-find_package(Qt6 REQUIRED COMPONENTS 
-    Core 
-    Network 
+find_package(Qt6 REQUIRED COMPONENTS
+    Core
+    Network
     HttpServer
     Widgets
     WebEngineWidgets
@@ -39,26 +39,28 @@ find_package(Qt6 REQUIRED COMPONENTS
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
 # Source files - adjust paths as needed
-file(GLOB_RECURSE SOURCES 
+file(GLOB_RECURSE SOURCES
     "src/*.cpp"
     "src/*.h"
 )
 
 # If no sources found in src/, try current directory
 if(NOT SOURCES)
-    file(GLOB_RECURSE SOURCES 
+    file(GLOB_RECURSE SOURCES
         "*.cpp"
         "*.h"
     )
 endif()
 
 set(HTTP_SERVER_SOURCES)
+
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/http_server/http_server.cpp")
     list(APPEND HTTP_SERVER_SOURCES
         "http_server/http_server.h"
         "http_server/http_server.cpp"
     )
 endif()
+
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/http_server/api_handler.cpp")
     list(APPEND HTTP_SERVER_SOURCES
         "http_server/api_handler.h"
@@ -207,7 +209,6 @@ qt_add_executable(TrainSimulationApp
 # )
 # endif()
 # endif()
-
 if(TARGET Qt${QT_VERSION_MAJOR}::HttpServer)
     list(APPEND QT_LIBS Qt${QT_VERSION_MAJOR}::HttpServer)
     target_compile_definitions(TrainSimulationApp PRIVATE HAVE_QT_HTTPSERVER)
@@ -232,6 +233,7 @@ target_link_libraries(TrainSimulationApp PRIVATE
     Qt6::Widgets
     Qt6::WebEngineWidgets
     Qt6::WebChannel
+
     # Qt6::Charts
 )
 target_link_libraries(TrainSimulationApp PRIVATE Qt6::Core)
@@ -248,13 +250,12 @@ target_include_directories(TrainSimulationApp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR
 # set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.TrainSimulationApp)
 # endif()
 # set_target_properties(TrainSimulationApp PROPERTIES
-#     ${BUNDLE_ID_OPTION}
-#     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-#     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-#     MACOSX_BUNDLE TRUE
-#     WIN32_EXECUTABLE TRUE
+# ${BUNDLE_ID_OPTION}
+# MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+# MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+# MACOSX_BUNDLE TRUE
+# WIN32_EXECUTABLE TRUE
 # )
-
 set_target_properties(TrainSimulationApp PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )

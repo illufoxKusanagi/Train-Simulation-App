@@ -61,15 +61,15 @@ export default function ElectricalParameterPage() {
         p_aps: data.p_aps,
       };
 
-      const result = await api.updateElectricalParameters(electricalParams);
+      const result = await api.updateElectricalParameters(data);
       console.log("Backend response:", result);
-      toast.success("Data berhasil disimpan!", {
+      toast.success("Success!", {
         description: "Electrical parameters updated successfully",
       });
     } catch (error) {
       console.error("Error updating parameters:", error);
       toast.error("Error!", {
-        description: "Gagal menyimpan data. Silakan coba lagi.",
+        description: "Failed to save data. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -79,7 +79,7 @@ export default function ElectricalParameterPage() {
   const handleReset = () => {
     constantForm.reset();
     setCsvData({});
-    toast("Form berhasil direset!");
+    toast("Form has been reset!");
   };
 
   return (
@@ -124,7 +124,7 @@ export default function ElectricalParameterPage() {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Menyimpan..." : "Simpan"}
+                  {isSubmitting ? "Saving..." : "Save"}
                 </Button>
                 <Button
                   type="button"

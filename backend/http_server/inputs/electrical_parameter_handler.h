@@ -12,7 +12,7 @@ class ElectricalParameterHandler : public QObject
 public:
     explicit ElectricalParameterHandler(AppContext &context, QObject *parent = nullptr);
     QHttpServerResponse handleGetElectricalParameters();
-    QHttpServerResponse ElectricalParameterHandler::handleUpdateElectricalParameters(const QJsonObject &data);
+    QHttpServerResponse handleUpdateElectricalParameters(const QJsonObject &data);
 
 private:
     AppContext &m_context;

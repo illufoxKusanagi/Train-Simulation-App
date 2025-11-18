@@ -20,12 +20,6 @@ import Link from "next/link";
 export function AppSidebar() {
   const { open } = useSidebar();
 
-  const user = {
-    name: "arief",
-    email: "ariefsatria@gmail.com",
-    avatar: "",
-  };
-
   const items = [
     {
       title: "Dashboard",

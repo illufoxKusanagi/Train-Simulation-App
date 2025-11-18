@@ -6,11 +6,15 @@
 #include <qjsonobject.h>
 #include <core/appcontext.h>
 
+// Forward declaration
+class MassHandler;
+
 class TrainParameterHandler : public QObject
 {
     Q_OBJECT
 public:
     explicit TrainParameterHandler(AppContext &context, QObject *parent = nullptr);
+    ~TrainParameterHandler();
     QHttpServerResponse handleGetTrainParameters();
     QHttpServerResponse handleUpdateTrainParameters(const QJsonObject &data);
     QHttpServerResponse handleGetCarNumberParameters();
@@ -22,6 +26,9 @@ public:
 
 private:
     AppContext &m_context;
+    MassHandler *m_massHandler;
+
+    void recalculateMasses();
 };
 
 #endif // TRAIN_PARAMETER_HANDLER_H
