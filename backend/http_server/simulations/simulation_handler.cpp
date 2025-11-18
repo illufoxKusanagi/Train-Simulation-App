@@ -31,7 +31,7 @@ SimulationHandler::handleStartSimulation(const QJsonObject &data) {
     if (simulationType == "static") {
       summary["distanceOnBraking"] =
           m_trainSimulation->m_simulationTrackHandler->calculateBrakingTrack(
-              m_context.movingData->v_limit);
+              m_context.stationData->stat_v_limit);
       summary["distanceOnEmergencyBraking"] =
           m_trainSimulation->m_simulationTrackHandler
               ->calculateBrakingEmergencyTrack();
@@ -82,12 +82,22 @@ QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
       point["timeTotal"] = simulationDatas->timeTotal[i];
       point["distances"] = simulationDatas->distance[i];
       point["distancesTotal"] = simulationDatas->distanceTotal[i];
-      point["odos"] = simulationDatas->odos[i];
-      point["brakingDistances"] = simulationDatas->brakingDistances[i];
-      point["slopes"] = simulationDatas->slopes[i];
-      point["radiuses"] = simulationDatas->radiuses[i];
+      // These arrays may have different sizes (populated once per simulation vs
+      // once per iteration)
+      point["odos"] =
+          i < simulationDatas->odos.size() ? simulationDatas->odos[i] : 0.0;
+      point["brakingDistances"] = i < simulationDatas->brakingDistances.size()
+                                      ? simulationDatas->brakingDistances[i]
+                                      : 0.0;
+      point["slopes"] =
+          i < simulationDatas->slopes.size() ? simulationDatas->slopes[i] : 0.0;
+      point["radiuses"] = i < simulationDatas->radiuses.size()
+                              ? simulationDatas->radiuses[i]
+                              : 0.0;
       point["speeds"] = simulationDatas->trainSpeeds[i];
-      point["speedLimits"] = simulationDatas->speedLimits[i];
+      point["speedLimits"] = i < simulationDatas->speedLimits.size()
+                                 ? simulationDatas->speedLimits[i]
+                                 : 0.0;
       point["speedsSi"] = simulationDatas->trainSpeedsSi[i];
       point["accelerations"] = simulationDatas->accelerations[i];
       point["accelerationsSi"] = simulationDatas->accelerationsSi[i];
@@ -131,20 +141,20 @@ QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
     response["results"] = resultsArray;
     response["totalPoints"] = dataSize;
 
-    // Add track distance table
+    // Add track distance table only for static simulation
     QJsonObject trackDistanceTable;
     QJsonArray normalBraking;
     QJsonArray emergencyBraking;
 
-    normalBraking.append(
-        m_trainSimulation->m_simulationTrackHandler
-            ->calculateNormalSimulationTrack(m_context.movingData->v_limit));
-    normalBraking.append(
-        m_trainSimulation->m_simulationTrackHandler
-            ->calculateDelaySimulationTrack(m_context.movingData->v_limit));
-    normalBraking.append(
-        m_trainSimulation->m_simulationTrackHandler
-            ->calculateSafetySimulationTrack(m_context.movingData->v_limit));
+    normalBraking.append(m_trainSimulation->m_simulationTrackHandler
+                             ->calculateNormalSimulationTrack(
+                                 m_context.stationData->stat_v_limit));
+    normalBraking.append(m_trainSimulation->m_simulationTrackHandler
+                             ->calculateDelaySimulationTrack(
+                                 m_context.stationData->stat_v_limit));
+    normalBraking.append(m_trainSimulation->m_simulationTrackHandler
+                             ->calculateSafetySimulationTrack(
+                                 m_context.stationData->stat_v_limit));
     emergencyBraking.append(m_trainSimulation->m_simulationTrackHandler
                                 ->calculateEmergencyNormalSimulationTrack());
     emergencyBraking.append(m_trainSimulation->m_simulationTrackHandler
@@ -169,7 +179,6 @@ QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
         QJsonArray({"Normal", "Delay 3s", "Safety 20%"});
 
     response["trackDistanceTable"] = trackDistanceTable;
-
   } catch (const std::exception &e) {
     response["status"] = "error";
     response["message"] = QString("Error: %1").arg(e.what());
@@ -262,10 +271,10 @@ QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
 //     }
 //     catch (const std::exception &e)
 //     {
-//         qCritical() << "💥 Exception in handleStartSimulation:" << e.what();
-//         response["status"] = "error";
-//         response["message"] = QString("Simulation error: %1").arg(e.what());
-//         return QHttpServerResponse(QJsonDocument(response).toJson(),
+//         qCritical() << "💥 Exception in handleStartSimulation:" <<
+//         e.what(); response["status"] = "error"; response["message"] =
+//         QString("Simulation error: %1").arg(e.what()); return
+//         QHttpServerResponse(QJsonDocument(response).toJson(),
 //                                    QHttpServerResponse::StatusCode::InternalServerError);
 //     }
 //     catch (...)
@@ -281,51 +290,43 @@ QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
 //                                QHttpServerResponse::StatusCode::Ok);
 // }
 
-// QHttpServerResponse SimulationHandler::handleGetSimulationStatus()
-// {
-//     QJsonObject response;
-//     response["status"] = "success";
+QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
+  QJsonObject response;
+  response["status"] = "success";
 
-//     if (!m_trainSimulation)
-//     {
-//         response["isRunning"] = false;
-//         response["simulationStatus"] = "unavailable";
-//         response["message"] = "Simulation handler not initialized";
-//     }
-//     else
-//     {
-//         // Since simulation runs synchronously, it's never "running" when
-//         status is checked
-//         // It's either completed or idle
-//         response["isRunning"] = false;
+  if (!m_trainSimulation) {
+    response["isRunning"] = false;
+    response["simulationStatus"] = "unavailable";
+    response["message"] = "Simulation handler not initialized";
+  } else {
+    // Since simulation runs synchronously, it's never "running" when
+    // status is checked
+    // It's either completed or idle
+    response["isRunning"] = false;
 
-//         double maxSpeed = m_trainSimulation->getMaxSpeed();
+    double maxSpeed = m_trainSimulation->getMaxSpeed();
 
-//         if (maxSpeed > 0)
-//         {
-//             response["simulationStatus"] = "completed";
-//             response["hasResults"] = true;
-//         }
-//         else
-//         {
-//             response["simulationStatus"] = "idle";
-//             response["hasResults"] = false;
-//         }
+    if (maxSpeed > 0) {
+      response["simulationStatus"] = "completed";
+      response["hasResults"] = true;
+    } else {
+      response["simulationStatus"] = "idle";
+      response["hasResults"] = false;
+    }
 
-//         // Add current simulation metrics
-//         QJsonObject metrics;
-//         metrics["maxSpeed"] = maxSpeed;
-//         metrics["distanceTravelled"] =
-//         m_trainSimulation->getDistanceTravelled(); metrics["maxVvvfPower"]
-//         = m_trainSimulation->getMaxVvvfPower(); metrics["adhesion"] =
-//         m_trainSimulation->getAdhesion();
+    // Add current simulation metrics
+    QJsonObject metrics;
+    metrics["maxSpeed"] = maxSpeed;
+    metrics["distanceTravelled"] = m_trainSimulation->getDistanceTravelled();
+    metrics["maxVvvfPower"] = m_trainSimulation->getMaxVvvfPower();
+    metrics["adhesion"] = m_trainSimulation->getAdhesion();
 
-//         response["metrics"] = metrics;
-//     }
+    response["metrics"] = metrics;
+  }
 
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
-// }
+  return QHttpServerResponse(QJsonDocument(response).toJson(),
+                             QHttpServerResponse::StatusCode::Ok);
+}
 
 // QHttpServerResponse SimulationHandler::handleGetSimulationResults()
 // {
@@ -421,10 +422,11 @@ QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
 
 //         response["trackDistanceTable"] = trackDistanceTable;
 
-//         qDebug() << "� Track Distance Table:" << normalBraking[0].toDouble()
+//         qDebug() << "� Track Distance Table:" <<
+//         normalBraking[0].toDouble()
 //         << normalBraking[1].toDouble() << normalBraking[2].toDouble();
-//         qDebug() << "�📊 Returned" << resultsArray.size() << "simulation data
-//         points";
+//         qDebug() << "�📊 Returned" << resultsArray.size() << "simulation
+//         data points";
 //     }
 //     catch (const std::exception &e)
 //     {

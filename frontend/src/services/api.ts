@@ -18,7 +18,11 @@ import {
   RunningParams,
   ElectricalParams,
 } from "@/types/input-params";
-import { SimulationConfig, SimulationResults } from "@/types/simulation-params";
+import {
+  SimulationConfig,
+  SimulationResults,
+  SimulationSummary,
+} from "@/types/simulation-params";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
@@ -221,7 +225,12 @@ export const api = {
   // ==================== Simulation Control ====================
   startSimulation: async (
     config: SimulationConfig
-  ): Promise<{ status: string; message: string }> => {
+  ): Promise<{
+    status: string;
+    message: string;
+    summary: SimulationSummary;
+    simulationType: string;
+  }> => {
     const res = await fetch(`${API_BASE_URL}/api/simulation/start`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

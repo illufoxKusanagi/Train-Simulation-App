@@ -454,14 +454,20 @@ export default function OutputPage() {
                                 {label}
                               </td>
                               <td className="border border-border p-3 text-center">
-                                {results.trackDistanceTable!.normalBraking[
-                                  index
-                                ].toFixed(3)}
+                                {typeof results.trackDistanceTable
+                                  ?.normalBraking[index] === "number"
+                                  ? results.trackDistanceTable.normalBraking[
+                                      index
+                                    ].toFixed(3)
+                                  : "N/A"}
                               </td>
                               <td className="border border-border p-3 text-center">
-                                {results.trackDistanceTable!.emergencyBraking[
-                                  index
-                                ].toFixed(3)}
+                                {typeof results.trackDistanceTable
+                                  ?.emergencyBraking[index] === "number"
+                                  ? results.trackDistanceTable.emergencyBraking[
+                                      index
+                                    ].toFixed(3)
+                                  : "N/A"}
                               </td>
                             </tr>
                           )

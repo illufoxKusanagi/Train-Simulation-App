@@ -48,21 +48,11 @@ export default function Home() {
   };
 
   const initializeBackendOnce = async () => {
-    // Check if we've already initialized
-    const initialized = sessionStorage.getItem("backendInitialized");
-    if (initialized) {
-      console.log("ℹ️ Backend already initialized, skipping quickInit");
-      return;
-    }
-
-    try {
-      console.log("🔧 First-time initialization with quickInit...");
-      await api.quickInit();
-      sessionStorage.setItem("backendInitialized", "true");
-      console.log("✅ Backend initialized with default values");
-    } catch (error) {
-      console.error("❌ Failed to initialize backend:", error);
-    }
+    // Use the proper initialization that sets all Qt GUI default values
+    const { initializeBackendOnce: initBackend } = await import(
+      "@/lib/backendInit"
+    );
+    await initBackend();
   };
 
   const handleStartSimulation = async () => {
