@@ -72,6 +72,69 @@ QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
   try {
     auto simulationDatas = m_context.simulationDatas.data();
 
+    // Add comprehensive debug information
+    QJsonObject debugInfo;
+    debugInfo["totalDataPoints"] = simulationDatas->time.size();
+    debugInfo["vvvfCurrentsSize"] = simulationDatas->vvvfCurrents.size();
+    debugInfo["catenaryCurrentsSize"] =
+        simulationDatas->catenaryCurrents.size();
+    debugInfo["vvvfPowersSize"] = simulationDatas->vvvfPowers.size();
+    debugInfo["catenaryPowersSize"] = simulationDatas->catenaryPowers.size();
+    debugInfo["trainSpeedsSize"] = simulationDatas->trainSpeeds.size();
+    debugInfo["accelerationsSize"] = simulationDatas->accelerations.size();
+    debugInfo["timesSize"] = simulationDatas->time.size();
+    debugInfo["distancesSize"] = simulationDatas->distance.size();
+
+    // Sample first few values for debugging
+    QJsonArray vvvfCurrentsSample, catenaryCurrentsSample;
+    QJsonArray vvvfPowersSample, catenaryPowersSample;
+
+    int sampleSize = qMin(5, simulationDatas->time.size());
+    for (int j = 0; j < sampleSize; j++) {
+      if (j < simulationDatas->vvvfCurrents.size()) {
+        vvvfCurrentsSample.append(simulationDatas->vvvfCurrents[j]);
+      }
+      if (j < simulationDatas->catenaryCurrents.size()) {
+        catenaryCurrentsSample.append(simulationDatas->catenaryCurrents[j]);
+      }
+      if (j < simulationDatas->vvvfPowers.size()) {
+        vvvfPowersSample.append(simulationDatas->vvvfPowers[j]);
+      }
+      if (j < simulationDatas->catenaryPowers.size()) {
+        catenaryPowersSample.append(simulationDatas->catenaryPowers[j]);
+      }
+    }
+
+    debugInfo["vvvfCurrentsSample"] = vvvfCurrentsSample;
+    debugInfo["catenaryCurrentsSample"] = catenaryCurrentsSample;
+    debugInfo["vvvfPowersSample"] = vvvfPowersSample;
+    debugInfo["catenaryPowersSample"] = catenaryPowersSample;
+
+    // Check if arrays are empty or contain only zeros/nulls
+    bool vvvfCurrentsEmpty = simulationDatas->vvvfCurrents.isEmpty();
+    bool catenaryCurrentsEmpty = simulationDatas->catenaryCurrents.isEmpty();
+    bool allVvvfCurrentsZero = true;
+    bool allCatenaryCurrentsZero = true;
+
+    for (int j = 0; j < simulationDatas->vvvfCurrents.size(); j++) {
+      if (simulationDatas->vvvfCurrents[j] != 0.0) {
+        allVvvfCurrentsZero = false;
+        break;
+      }
+    }
+
+    for (int j = 0; j < simulationDatas->catenaryCurrents.size(); j++) {
+      if (simulationDatas->catenaryCurrents[j] != 0.0) {
+        allCatenaryCurrentsZero = false;
+        break;
+      }
+    }
+
+    debugInfo["vvvfCurrentsEmpty"] = vvvfCurrentsEmpty;
+    debugInfo["catenaryCurrentsEmpty"] = catenaryCurrentsEmpty;
+    debugInfo["allVvvfCurrentsZero"] = allVvvfCurrentsZero;
+    debugInfo["allCatenaryCurrentsZero"] = allCatenaryCurrentsZero;
+
     QJsonArray resultsArray;
     int dataSize = simulationDatas->time.size();
 
@@ -113,9 +176,36 @@ QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
       point["powerMotorOut"] = simulationDatas->powerMotorOut[i];
       point["powerMotorIn"] = simulationDatas->powerMotorIn[i];
       point["vvvfPowers"] = simulationDatas->vvvfPowers[i];
-      point["vvvfCurrents"] = simulationDatas->vvvfCurrents[i];
+
+      // Add debug information for current values at each point
+      if (i < simulationDatas->vvvfCurrents.size()) {
+        point["vvvfCurrents"] = simulationDatas->vvvfCurrents[i];
+        point["vvvfCurrentsDebug"] = QString("Value at index %1: %2")
+                                         .arg(i)
+                                         .arg(simulationDatas->vvvfCurrents[i]);
+      } else {
+        point["vvvfCurrents"] = QJsonValue();
+        point["vvvfCurrentsDebug"] =
+            QString("Index %1 >= array size %2")
+                .arg(i)
+                .arg(simulationDatas->vvvfCurrents.size());
+      }
+
+      if (i < simulationDatas->catenaryCurrents.size()) {
+        point["catenaryCurrents"] = simulationDatas->catenaryCurrents[i];
+        point["catenaryCurrentsDebug"] =
+            QString("Value at index %1: %2")
+                .arg(i)
+                .arg(simulationDatas->catenaryCurrents[i]);
+      } else {
+        point["catenaryCurrents"] = QJsonValue();
+        point["catenaryCurrentsDebug"] =
+            QString("Index %1 >= array size %2")
+                .arg(i)
+                .arg(simulationDatas->catenaryCurrents.size());
+      }
+
       point["catenaryPowers"] = simulationDatas->catenaryPowers[i];
-      point["catenaryCurrents"] = simulationDatas->catenaryCurrents[i];
       point["energyConsumptions"] = simulationDatas->energyConsumptions[i];
       point["energyPowerings"] = simulationDatas->energyPowerings[i];
       point["energyRegenerations"] = simulationDatas->energyRegenerations[i];
@@ -140,6 +230,7 @@ QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
     response["status"] = "success";
     response["results"] = resultsArray;
     response["totalPoints"] = dataSize;
+    response["debugInfo"] = debugInfo;
 
     // Add track distance table only for static simulation
     QJsonObject trackDistanceTable;

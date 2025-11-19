@@ -75,6 +75,10 @@ set(PROJECT_SOURCES
     webengine/webengine_window.h
     webengine/webengine_window.cpp
 
+    # File bridge for Qt WebChannel integration
+    webengine/file_bridge.h
+    webengine/file_bridge.cpp
+
     # mainwindow/mainwindow.cpp
     # mainwindow/mainwindow.h
     # mainwindow/mainwindow.ui
