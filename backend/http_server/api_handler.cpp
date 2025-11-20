@@ -176,7 +176,9 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
       m_context.trainData->n_car = 12.0;    // Number of cars (12-car default)
       m_context.trainData->gearRatio = 3.0; // Gear ratio
       m_context.trainData->wheel = 860.0;   // Wheel diameter (mm)
-      m_context.trainData->trainsetLength = 240.0; // 12 cars × 20m
+      m_context.trainData->trainsetLength =
+          (m_context.trainData->trainsetLength *
+           m_context.trainData->n_car); // 12 cars × 20m
 
       // From backend copy line 89: trainValues = {2, 3, 3, 2, 1, 1, 0, 0}
       m_context.trainData->n_Tc = 2.0; // Tc = 2
@@ -193,10 +195,10 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
 
     // Mass parameters - MATCHING ORIGINAL BACKEND COPY DEFAULT VALUES
     if (m_context.massData) {
-      m_context.massData->mass_Me = 20.0;
-      m_context.massData->mass_Te = 10.0;
-      m_context.massData->mass_M = 20.0;
-      m_context.massData->mass_T = 10.0;
+      // m_context.massData->mass_Me = 20.0;
+      // m_context.massData->mass_Te = 10.0;
+      // m_context.massData->mass_M = 20.0;
+      // m_context.massData->mass_T = 10.0;
       // From backend copy/pages/train_parameter_page.cpp line 90:
       // massValues = {10, 20, 20, 10, 10, 10, 20, 20}
       m_context.massData->mass_TC = 10.0; // Tc = 10 tons
@@ -207,10 +209,10 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
       m_context.massData->mass_T3 = 10.0; // T3 = 10 tons
       m_context.massData->i_M = 1.1;
       m_context.massData->i_T = 1.05;
-      m_context.massData->mass_totalEmpty =
-          0.0; // Will be calculated by countMassEmptyCar()
-      m_context.massData->mass_totalLoad = 0.0;
-      m_context.massData->mass_totalInertial = 0.0;
+      // m_context.massData->mass_totalEmpty =
+      //     0.0; // Will be calculated by countMassEmptyCar()
+      // m_context.massData->mass_totalLoad = 0.0;
+      // m_context.massData->mass_totalInertial = 0.0;
       qDebug()
           << "✓ Mass parameters initialized (matching backend copy defaults)";
     }
@@ -219,7 +221,8 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
     if (m_context.loadData) {
       m_context.loadData->load = 0.0;
       m_context.loadData->mass_P = 70.0;
-      m_context.loadData->mass_P_final = 0.07; // 70kg / 1000
+      m_context.loadData->mass_P_final =
+          m_context.loadData->mass_P / 1000; // 70kg / 1000
 
       // Passenger counts from backend copy line 91:
       // passengerValues = {100, 200, 200, 200, 200, 200, 200, 200}
@@ -235,18 +238,18 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
     }
 
     // Motor data (realistic values for 8-car EMU with 24 motors)
-    if (m_context.trainMotorData) {
-      m_context.trainMotorData->tm_f =
-          250.0; // Total traction force (kN) - much higher for realistic
-                 // acceleration
-      m_context.trainMotorData->tm_adh = 0.25; // Adhesion coefficient
-      qDebug() << "✓ Motor parameters initialized";
-    }
+    // if (m_context.trainMotorData) {
+    //   m_context.trainMotorData->tm_f =
+    //       250.0; // Total traction force (kN) - much higher for realistic
+    //              // acceleration
+    //   m_context.trainMotorData->tm_adh = 0.25; // Adhesion coefficient
+    //   qDebug() << "✓ Motor parameters initialized";
+    // }
 
     // Efficiency parameters
     if (m_context.efficiencyData) {
-      m_context.efficiencyData->stat_eff_gear = 0.95;
-      m_context.efficiencyData->stat_eff_motor = 0.93;
+      m_context.efficiencyData->stat_eff_gear = 0.98;
+      m_context.efficiencyData->stat_eff_motor = 0.89;
       m_context.efficiencyData->stat_eff_vvvf = 0.97;
       qDebug() << "✓ Efficiency parameters initialized";
     }
@@ -254,23 +257,21 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
     // Resistance parameters
     if (m_context.resistanceData) {
       m_context.resistanceData->startRes =
-          30.0; // Starting resistance (reduced for better acceleration)
-      m_context.resistanceData->slope = 0.0;  // No slope
-      m_context.resistanceData->radius = 0.0; // No curve
+          39.2; // Starting resistance (reduced for better acceleration)
+      m_context.resistanceData->slope = 0.0;     // No slope
+      m_context.resistanceData->radius = 2000.0; // No curve
       qDebug() << "✓ Resistance parameters initialized";
     }
 
     // Station data - STATIC simulation values
     if (m_context.stationData) {
       m_context.stationData->stat_slope_1 = 0.0;
-      m_context.stationData->stat_slope_2 = 0.0;
-      m_context.stationData->stat_slope_3 = 0.0;
-      m_context.stationData->stat_radius =
-          100000.0; // Large radius = straight track (no curve, avoids division
-                    // by zero)
+      m_context.stationData->stat_slope_2 = 10.0;
+      m_context.stationData->stat_slope_3 = 10.0;
+      m_context.stationData->stat_radius = 2000;
       m_context.stationData->stat_x_station = 2000.0; // 2km
-      m_context.stationData->stat_v_limit = 100.0;    // 100 km/h
-      m_context.stationData->stat_dwellTime = 30.0;
+      m_context.stationData->stat_v_limit = 70.0;     // 100 km/h
+      m_context.stationData->stat_dwellTime = 60.0;
       m_context.stationData->n_station = 2;
       qDebug() << "✓ Station parameters initialized";
     }
@@ -280,13 +281,18 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
       m_context.movingData->v = 0.0;
       m_context.movingData->v_diffCoast = 5.0;
       m_context.movingData->acc_start = 1.0; // 1 m/s²
-      m_context.movingData->v_p1 = 40.0;
-      m_context.movingData->v_p2 = 70.0;
-      m_context.movingData->v_b1 = 40.0;
+      m_context.movingData->v_p1 = 35.0;
+      m_context.movingData->v_p2 = 65.0;
+      m_context.movingData->v_b1 = 55.0;
       m_context.movingData->v_b2 = 70.0;
-      m_context.movingData->decc_start = -0.8; // Braking deceleration
-      m_context.movingData->decc_emergency = -1.2;
+      m_context.movingData->decc_start = 1.0; // Braking deceleration
+      m_context.movingData->decc_emergency = 1.2;
       qDebug() << "✓ Running parameters initialized";
+    }
+
+    if (m_context.powerData) {
+      m_context.energyData->stat_vol_line = 1500;
+      m_context.energyData->stat_vol_motor = 1200;
     }
 
     response["status"] = "success";

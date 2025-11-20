@@ -20,9 +20,35 @@ SimulationHandler::handleStartSimulation(const QJsonObject &data) {
     } else {
       m_trainSimulation->simulateDynamicTrainMovement();
     }
+    QSet<QString> errors = m_trainSimulation->getSimulationErrors();
+    if (!errors.isEmpty()) {
+      response["status"] = "error";
+      response["message"] = "Simulation failed with errors.";
+      QJsonArray errorArray;
+      for (const QString &error : errors) {
+        errorArray.append(error);
+      }
+      response["errors"] = errorArray;
+      return QHttpServerResponse(QJsonDocument(response).toJson(),
+                                 QHttpServerResponse::StatusCode::Ok);
+    }
+
     response["status"] = "success";
     response["message"] = "Simulation completed";
     response["simulationType"] = simulationType;
+
+    QJsonArray warnings;
+    for (const QString &warning : m_trainSimulation->getSimulationWarnings()) {
+      warnings.append(warning);
+    }
+    if (m_context.simulationDatas &&
+        (m_context.simulationDatas->vvvfCurrents.isEmpty() ||
+         m_context.simulationDatas->catenaryCurrents.isEmpty())) {
+      warnings.append(
+          "Warning: VVVF and Catenary currents were not calculated. This is a "
+          "known issue in the simulation logic.");
+    }
+    response["warnings"] = warnings;
 
     QJsonObject summary;
     summary["maxSpeed"] = m_trainSimulation->getMaxSpeed();

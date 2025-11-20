@@ -27,12 +27,12 @@ export default function ElectricalParameterPage() {
     resolver: zodResolver(ElectricalFormSchema),
     defaultValues: {
       stat_vol_line: 1500,
-      stat_vol_motor: 750,
+      stat_vol_motor: 1200,
       stat_pf: 0,
-      stat_eff_gear: 95,
-      stat_eff_motor: 90,
-      stat_eff_vvvf: 90,
-      p_aps: 300,
+      stat_eff_gear: 98,
+      stat_eff_motor: 89,
+      stat_eff_vvvf: 96,
+      p_aps: 30,
     },
   });
 
@@ -61,7 +61,7 @@ export default function ElectricalParameterPage() {
         p_aps: data.p_aps,
       };
 
-      const result = await api.updateElectricalParameters(data);
+      const result = await api.updateElectricalParameters(electricalParams);
       console.log("Backend response:", result);
       toast.success("Success!", {
         description: "Electrical parameters updated successfully",
