@@ -26,6 +26,7 @@ import {
   Gauge,
 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function Home() {
   const [backendStatus, setBackendStatus] = useState<string>("Memeriksa...");
@@ -74,10 +75,10 @@ export default function Home() {
       const results = await api.getSimulationResults();
       console.log("Simulation results:", results);
 
-      alert("Simulation completed! Check console for results.");
+      toast("Simulation completed! Check console for results.");
     } catch (error) {
       console.error("Simulation failed:", error);
-      alert("Simulation failed. Make sure to update all parameters first!");
+      toast("Simulation failed. Make sure to update all parameters first!");
     }
   };
 

@@ -16,7 +16,6 @@
 #include <QJsonObject>
 #include <QObject>
 
-
 class ApiHandler : public QObject {
   Q_OBJECT
 
@@ -45,6 +44,7 @@ public:
   // Mass parameters
   QHttpServerResponse handleGetMassParameters();
   QHttpServerResponse handleUpdateMassParameters(const QJsonObject &data);
+  QHttpServerResponse handleCalculateMass(const QJsonObject &data);
 
   // Car number parameters
   QHttpServerResponse handleGetCarNumberParameters();

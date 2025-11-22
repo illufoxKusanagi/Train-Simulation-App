@@ -358,75 +358,31 @@ export default function TrainParameter() {
     const constantSubscription = constantForm.watch(() => recalculateMass());
 
     // Calculate masses whenever any field changes
-    function recalculateMass() {
-      const data = trainsetForm.getValues();
+    // Calculate masses whenever any field changes
+    async function recalculateMass() {
+      // Get current values from forms
+      const trainsetData = trainsetForm.getValues();
+      const constantData = constantForm.getValues();
 
-      // Calculate total empty mass
-      const totalEmpty =
-        (data.n_M1 || 0) * (data.mass_M1 || 0) +
-        (data.n_M2 || 0) * (data.mass_M2 || 0) +
-        (data.n_Tc || 0) * (data.mass_Tc || 0) +
-        (data.n_T1 || 0) * (data.mass_T1 || 0) +
-        (data.n_T2 || 0) * (data.mass_T2 || 0) +
-        (data.n_T3 || 0) * (data.mass_T3 || 0);
+      try {
+        const data = await api.calculateMass(trainsetData, constantData);
 
-      // Calculate total with passengers
-      // Formula: mass_P_final = mass_P / 1000 (kg to tons)
-      // Each car type: n_carType * (mass_P_final * n_PassengersPerCar)
-      const mass_P = constantForm.getValues("mass_P") || 70; // kg per passenger
-      const mass_P_final = mass_P / 1000; // convert to tons
-
-      const passengerMass =
-        (data.n_M1 || 0) * (mass_P_final * (data.n_PM1 || 0)) +
-        (data.n_M2 || 0) * (mass_P_final * (data.n_PM2 || 0)) +
-        (data.n_Tc || 0) * (mass_P_final * (data.n_PTc || 0)) +
-        (data.n_T1 || 0) * (mass_P_final * (data.n_PT1 || 0)) +
-        (data.n_T2 || 0) * (mass_P_final * (data.n_PT2 || 0)) +
-        (data.n_T3 || 0) * (mass_P_final * (data.n_PT3 || 0));
-
-      const totalLoad = totalEmpty + passengerMass;
-
-      // Calculate inertial mass using original formula
-      // massData->mass_Mi = (massData->mass_Me * massData->i_M) + passengers
-      // massData->mass_Ti = (massData->mass_Te * massData->i_T) + passengers
-      const iT = constantForm.getValues("i_T") || 1.05;
-      const iM = constantForm.getValues("i_M") || 1.1;
-
-      const mass_Me =
-        (data.n_M1 || 0) * (data.mass_M1 || 0) +
-        (data.n_M2 || 0) * (data.mass_M2 || 0);
-      const mass_Te =
-        (data.n_Tc || 0) * (data.mass_Tc || 0) +
-        (data.n_T1 || 0) * (data.mass_T1 || 0) +
-        (data.n_T2 || 0) * (data.mass_T2 || 0) +
-        (data.n_T3 || 0) * (data.mass_T3 || 0);
-
-      const mass_Mi =
-        mass_Me * iM +
-        ((data.n_M1 || 0) * (mass_P_final * (data.n_PM1 || 0)) +
-          (data.n_M2 || 0) * (mass_P_final * (data.n_PM2 || 0)));
-      const mass_Ti =
-        mass_Te * iT +
-        ((data.n_Tc || 0) * (mass_P_final * (data.n_PTc || 0)) +
-          (data.n_T1 || 0) * (mass_P_final * (data.n_PT1 || 0)) +
-          (data.n_T2 || 0) * (mass_P_final * (data.n_PT2 || 0)) +
-          (data.n_T3 || 0) * (mass_P_final * (data.n_PT3 || 0)));
-
-      const totalInertial = mass_Mi + mass_Ti;
-
-      // Update calculated mass form
-      calculatedMassForm.setValue(
-        "mass_totalEmpty",
-        Math.round(totalEmpty * 100) / 100
-      );
-      calculatedMassForm.setValue(
-        "mass_totalLoad",
-        Math.round(totalLoad * 100) / 100
-      );
-      calculatedMassForm.setValue(
-        "mass_totalInertial",
-        Math.round(totalInertial * 100) / 100
-      );
+        // Update calculated mass form
+        calculatedMassForm.setValue(
+          "mass_totalEmpty",
+          data.massParameters.totalEmptyMass
+        );
+        calculatedMassForm.setValue(
+          "mass_totalLoad",
+          data.massParameters.totalLoadMass
+        );
+        calculatedMassForm.setValue(
+          "mass_totalInertial",
+          data.massParameters.totalInertialMass
+        );
+      } catch (error) {
+        console.error("Failed to calculate mass:", error);
+      }
     }
 
     // Initial calculation

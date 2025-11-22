@@ -1,5 +1,6 @@
 #include "simulation_handler.h"
 #include <exception>
+#include <qcontainerfwd.h>
 #include <qjsonarray.h>
 #include <qjsonobject.h>
 
@@ -20,7 +21,7 @@ SimulationHandler::handleStartSimulation(const QJsonObject &data) {
     } else {
       m_trainSimulation->simulateDynamicTrainMovement();
     }
-    QSet<QString> errors = m_trainSimulation->getSimulationErrors();
+    QStringList errors = m_trainSimulation->getSimulationErrors();
     if (!errors.isEmpty()) {
       response["status"] = "error";
       response["message"] = "Simulation failed with errors.";

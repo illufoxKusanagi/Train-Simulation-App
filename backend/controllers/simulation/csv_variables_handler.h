@@ -4,7 +4,6 @@
 #include "core/appcontext.h"
 #include <QObject>
 #include <QSet>
-#include <qcontainerfwd.h>
 
 class CsvVariableHandler : public QObject {
   Q_OBJECT

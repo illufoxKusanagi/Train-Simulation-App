@@ -106,7 +106,49 @@ if (n_tm < 0) throw std::invalid_argument("Traction motors cannot be negative");
 ## 5. Recommended Next Steps
 
 1.  **Fix the Critical Crash**: Immediately add null pointer checks to `TrainSimulationHandler`.
-2.  **Refactor Frontend Logic**: Move mass calculation to the backend or strictly synchronize the formulas.
+24. Refactor Frontend Logic: Move mass calculation to the backend or strictly synchronize the formulas.
+
+## 6. Architectural & Code Quality Audit
+
+### [CRITICAL] God Class: `TrainSimulationHandler`
+**Location**: `backend/controllers/simulation/train_simulation_handler.cpp`
+**Issue**: This class violates the Single Responsibility Principle (SRP). It handles:
+1.  Physics simulation loop.
+2.  Data aggregation (max/min/total calculations).
+3.  CSV variable interpolation.
+4.  Sub-handler management.
+**Impact**: Hard to test, hard to maintain. A change in CSV logic requires recompiling the simulation engine.
+**Solution**:
+*   Extract `SimulationResultAggregator` to handle `getMaxSpeed`, `getTotalEnergy`, etc.
+*   Extract `PhysicsEngine` to handle the core `while` loop and force calculations.
+
+### [HIGH] Code Duplication: `CsvVariableHandler`
+**Location**: `backend/controllers/simulation/csv_variables_handler.cpp`
+**Issue**: Contains ~20 methods that look nearly identical (`setSlopeIndex`, `setRadiusIndex`, `setEffGearIndex`...). They all perform linear interpolation or step-function logic on vectors.
+**Impact**: If the interpolation logic needs to change (e.g., to support smooth curves), you have to update 20 places.
+**Solution**: Use C++ Templates or a helper class `TimeSeriesInterpolator<T>`.
+```cpp
+template <typename T>
+T getStepValue(const std::vector<double>& x_axis, const std::vector<T>& y_axis, double current_x, int& index);
+```
+
+### [MEDIUM] Data Flow & Ownership
+**Location**: Global / `AppContext` usage
+**Issue**:
+1.  `AppContext` holds `QSharedPointer`s, but handlers often extract and store raw pointers (`TrainData* trainData`).
+2.  HTTP Handlers (e.g., `ElectricalParameterHandler`) contain business logic for validation and updating.
+**Impact**:
+*   **Raw Pointers**: Risk of dangling pointers if `AppContext` is reset or re-initialized (though unlikely in current lifecycle).
+*   **Logic Scattering**: Validation logic is inside HTTP handlers, making it hard to reuse if we add a CLI or WebSocket interface later.
+**Solution**:
+*   Use `QSharedPointer` or `QWeakPointer` in handlers instead of raw pointers.
+*   Create a "Service Layer" (e.g., `TrainService`, `SimulationService`) that handles logic, leaving HTTP handlers to just parse JSON and call the service.
+
+## 7. Recommended Refactoring Plan
+
+1.  **Immediate**: Implement the `QStringList` error logging (as discussed).
+2.  **Short Term**: Refactor `CsvVariableHandler` using a template method to delete ~200 lines of duplicate code.
+3.  **Medium Term**: Split `TrainSimulationHandler` into `PhysicsEngine` and `ResultAggregator`.
 3.  **Improve Error UX**: Replace `alert()` with `toast()` in the main dashboard.
 4.  **Thread the Simulation**: Move the physics loop to a worker thread to prevent server freezing.
 5.  **Validate Inputs**: Add range checks in all parameter handlers.

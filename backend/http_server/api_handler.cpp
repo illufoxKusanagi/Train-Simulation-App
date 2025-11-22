@@ -394,3 +394,7 @@ QHttpServerResponse ApiHandler::handleDebugContext() {
   return QHttpServerResponse(QJsonDocument(response).toJson(),
                              QHttpServerResponse::StatusCode::Ok);
 }
+
+QHttpServerResponse ApiHandler::handleCalculateMass(const QJsonObject &data) {
+  return m_trainHandler->handleCalculateMass(data);
+}

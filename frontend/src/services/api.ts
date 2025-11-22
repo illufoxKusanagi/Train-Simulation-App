@@ -174,6 +174,22 @@ export const api = {
     return res.json();
   },
 
+  calculateMass: async (
+    trainset: Record<string, unknown>,
+    constant: Record<string, unknown>
+  ): Promise<{
+    massParameters: TrainMassParams;
+    status: string;
+  }> => {
+    const res = await fetch(`${API_BASE_URL}/api/calculate/mass`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ trainset, constant }),
+    });
+    if (!res.ok) throw new Error(`Failed to calculate mass: ${res.status}`);
+    return res.json();
+  },
+
   // ==================== Car Number Parameters ====================
   getCarNumberParameters: async (): Promise<{
     carNumberParameters: TrainNumberParams;

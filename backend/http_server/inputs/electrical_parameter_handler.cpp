@@ -1,4 +1,5 @@
 #include "electrical_parameter_handler.h"
+#include "core/appcontext.h"
 
 ElectricalParameterHandler::ElectricalParameterHandler(AppContext &context,
                                                        QObject *parent)
@@ -61,29 +62,52 @@ ElectricalParameterHandler::handleUpdateElectricalParameters(
       m_context.energyData->stat_vol_line = params["stat_vol_line"].toDouble();
       // Verify the value was actually set
       if (m_context.energyData->stat_vol_line <= 0) {
-        qDebug() << "⚠️ WARNING: stat_vol_line is"
-                 << m_context.energyData->stat_vol_line
-                 << "- current calculation will fail!";
+        m_context.simulationWarnings.append(
+            "Static Line Voltage is 0 or null!");
       }
     }
     if (params.contains("stat_vol_motor")) {
       m_context.energyData->stat_vol_motor =
           params["stat_vol_motor"].toDouble();
+      // Verify the value was actually set
+      if (m_context.energyData->stat_vol_motor <= 0) {
+        m_context.simulationWarnings.append(
+            "Static Motor Voltage is 0 or null!");
+      }
     }
     if (params.contains("stat_eff_gear")) {
       m_context.efficiencyData->stat_eff_gear =
           params["stat_eff_gear"].toDouble();
+      // Verify the value was actually set
+      if (m_context.efficiencyData->stat_eff_gear <= 0) {
+        m_context.simulationWarnings.append(
+            "Static Gear Efficiency is 0 or null!");
+      }
     }
     if (params.contains("stat_eff_motor")) {
       m_context.efficiencyData->stat_eff_motor =
           params["stat_eff_motor"].toDouble();
+      // Verify the value was actually set
+      if (m_context.efficiencyData->stat_eff_motor <= 0) {
+        m_context.simulationWarnings.append(
+            "Static Motor Efficiency is 0 or null!");
+      }
     }
     if (params.contains("stat_eff_vvvf")) {
       m_context.efficiencyData->stat_eff_vvvf =
           params["stat_eff_vvvf"].toDouble();
+      // Verify the value was actually set
+      if (m_context.efficiencyData->stat_eff_vvvf <= 0) {
+        m_context.simulationWarnings.append(
+            "Static VVVF Efficiency is 0 or null!");
+      }
     }
     if (params.contains("p_aps")) {
       m_context.powerData->p_aps = params["p_aps"].toDouble();
+      // Verify the value was actually set
+      if (m_context.powerData->p_aps <= 0) {
+        m_context.simulationWarnings.append("APS Power is 0 or null!");
+      }
     }
     response["status"] = "success";
     response["message"] = "Electrical parameters updated successfully";

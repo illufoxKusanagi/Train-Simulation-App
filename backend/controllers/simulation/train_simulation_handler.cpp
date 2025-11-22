@@ -505,7 +505,7 @@ void TrainSimulationHandler::addStationSimulationDatas() {
 }
 
 void TrainSimulationHandler::calculateRunningResEachSlope() {
-  if (stationData->stat_slope_1) {
+  if (stationData->stat_slope_1 && resistanceData->f_resRunning > 0) {
     resistanceData->f_resRunning =
         movingData->v == 0
             ? m_resistanceHandler->calculateStartRes(stationData->stat_slope_1,
@@ -514,7 +514,7 @@ void TrainSimulationHandler::calculateRunningResEachSlope() {
                   movingData->v, stationData->stat_slope_1,
                   stationData->stat_radius);
   }
-  if (stationData->stat_slope_2) {
+  if (stationData->stat_slope_2 && resistanceData->f_resRunningFive > 0) {
     resistanceData->f_resRunningFive =
         movingData->v == 0
             ? m_resistanceHandler->calculateStartRes(stationData->stat_slope_2,
@@ -523,7 +523,7 @@ void TrainSimulationHandler::calculateRunningResEachSlope() {
                   movingData->v, stationData->stat_slope_2,
                   stationData->stat_radius);
   }
-  if (stationData->stat_slope_3) {
+  if (stationData->stat_slope_3 && resistanceData->f_resRunningTen > 0) {
     resistanceData->f_resRunningTen =
         movingData->v == 0
             ? m_resistanceHandler->calculateStartRes(stationData->stat_slope_3,

@@ -18,6 +18,11 @@ export interface TrainMassParams {
   mass_T2: number;
   mass_T3: number;
   mass_Tc: number;
+  totalEmptyMass: number;
+  totalLoadMass: number;
+  totalInertialMass: number;
+  i_M: number;
+  i_T: number;
 }
 
 export interface TrainPassangerParams {

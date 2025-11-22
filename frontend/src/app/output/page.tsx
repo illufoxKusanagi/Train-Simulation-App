@@ -21,6 +21,7 @@ import PowerTab from "./power-tab";
 import CurrentTab from "./current-tab";
 import ForceTab from "./force-tab";
 import DistanceTab from "./distance-tab";
+import { toast } from "sonner";
 
 export default function OutputPage() {
   const [results, setResults] = useState<SimulationResults | null>(null);
@@ -58,7 +59,7 @@ export default function OutputPage() {
     console.log("Data points:", data?.length);
 
     if (!data || !Array.isArray(data) || data.length === 0) {
-      alert("❌ No valid simulation data available for CSV download");
+      toast("❌ No valid simulation data available for CSV download");
       return;
     }
 
@@ -183,10 +184,10 @@ export default function OutputPage() {
           );
 
           if (result.success) {
-            alert(`✅ File saved: ${result.filepath}`);
+            toast(`✅ File saved: ${result.filepath}`);
             return;
           } else if (result.error !== "User cancelled file dialog") {
-            alert(`❌ Save failed: ${result.error}`);
+            toast(`❌ Save failed: ${result.error}`);
           }
           return;
         } catch (error) {
@@ -213,12 +214,12 @@ export default function OutputPage() {
       URL.revokeObjectURL(url);
 
       // For now, file goes to Downloads. To enable file picker:
-      alert(
+      toast(
         `✅ CSV file downloaded successfully!\n📁 Location: ~/Downloads/${filename}\n\n🔧 To choose save location, you need Qt WebChannel integration.\nSee: NATIVE-FILE-DIALOG-INTEGRATION.md`
       );
     } catch (error) {
       console.error("💥 CSV Download Failed:", error);
-      alert(
+      toast(
         `❌ CSV Download Error: ${
           error instanceof Error ? error.message : String(error)
         }`
@@ -231,7 +232,7 @@ export default function OutputPage() {
     console.log("Data points:", data?.length);
 
     if (!data || !Array.isArray(data) || data.length === 0) {
-      alert("❌ No valid simulation data available for Excel download");
+      toast("❌ No valid simulation data available for Excel download");
       return;
     }
 
@@ -319,7 +320,7 @@ export default function OutputPage() {
           );
 
           if (result && result.success) {
-            alert(
+            toast(
               `✅ Excel file saved successfully!\n📁 Location: ${result.filepath}`
             );
             return;
@@ -328,12 +329,12 @@ export default function OutputPage() {
             if (result.error === "User cancelled file dialog") {
               return; // User cancelled - don't show error
             }
-            alert(`❌ Failed to save Excel file: ${result.error}`);
+            toast(`❌ Failed to save Excel file: ${result.error}`);
             return;
           }
         } catch (qtError) {
           console.log("⚠️ Qt WebChannel Excel save error:", qtError);
-          alert(
+          toast(
             `❌ Qt WebChannel error: ${
               qtError instanceof Error ? qtError.message : String(qtError)
             }`
@@ -342,7 +343,7 @@ export default function OutputPage() {
         }
       } else {
         console.log("⚠️ Qt WebChannel fileBridge not available");
-        alert(
+        toast(
           "❌ Native file dialog not available. Qt WebChannel integration required."
         );
         return;
@@ -356,12 +357,12 @@ export default function OutputPage() {
       XLSX.writeFile(workbook, filename);
 
       // For now, file goes to Downloads. To enable file picker:
-      alert(
+      toast(
         `✅ Excel file downloaded successfully!\n📁 Location: ~/Downloads/${filename}\n\n🔧 To choose save location, you need Qt WebChannel integration.\nSee: NATIVE-FILE-DIALOG-INTEGRATION.md`
       );
     } catch (error) {
       console.error("💥 Excel Download Failed:", error);
-      alert(
+      toast(
         `❌ Excel Download Error: ${
           error instanceof Error ? error.message : String(error)
         }`
