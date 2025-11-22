@@ -6,7 +6,7 @@
 /frontend/out/
 /frontend/build/
 /backend/widgets/
-/backend/controllers/simulation
+# /backend/controllers/simulation
 /backend/controllers_copy
 /backend/pages
 /backend_copy

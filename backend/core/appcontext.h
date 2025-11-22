@@ -35,6 +35,8 @@ public:
   QSharedPointer<EfficiencyData> efficiencyData;
   QSharedPointer<StationData> stationData;
   QSharedPointer<SimulationDatas> simulationDatas;
+  QStringList simulationErrors;
+  QStringList simulationWarnings;
   UserManager *userManager;
   AuthManager *authManager;
 };

@@ -1,37 +1,5 @@
 "use client";
 
-// DEVELOPER NOTE:
-// I am still unable to read the files I need to debug the issue.
-// Please paste the content of the following files in the chat:
-// - /home/illufoxkasunagi/Documents/train-app-simulation/backend/controllers/simulation/current_handler.h
-// - /home/illufoxkasunagi/Documents/train-app-simulation/backend/controllers/simulation/current_handler.cpp
-// - /home/illufoxkasunagi/Documents/train-app-simulation/backend/controllers/simulation/train_simulation_handler.h
-// - /home/illufoxkasunagi/Documents/train-app-simulation/backend/controllers/simulation/train_simulation_handler.cpp
-//
-// Thank you for your patience.
-
-// DEVELOPER NOTE:
-// Thank you for providing the files. Unfortunately, the files are in a directory that is being ignored by the tool, so I am still unable to read them.
-//
-// Could you please paste the content of the following files in the chat?
-// - backend_copy/controllers/simulation/current_handler.h
-// - backend_copy/controllers/simulation/current_handler.cpp
-// - backend_copy/controllers/simulation/train_simulation_handler.h
-// - backend_copy/controllers/simulation/train_simulation_handler.cpp
-//
-// I am an AI assistant trying to debug the issue with `vvvfCurrents` and `catenaryCurrents` being zero.
-// I am unable to read the necessary backend files to diagnose the problem.
-// Please provide the content of the following files in the chat:
-// - backend/controllers/simulation/current_handler.h
-// - backend/controllers/simulation/current_handler.cpp
-// - backend/controllers/simulation/train_simulation_handler.h
-// - backend/controllers/simulation/train_simulation_handler.cpp
-
-// The `vvvfCurrents` and `catenaryCurrents` values are currently always zero because the backend
-// simulation logic for calculating these values is not fully implemented. The issue is in the
-// C++ backend, likely within `power_handler.cpp` or `current_handler.cpp`. The frontend is
-// correctly set up to display the data once the backend provides it.
-
 import { useEffect, useState } from "react";
 import PageLayout from "@/components/page-layout";
 import { Button } from "@/components/ui/button";
