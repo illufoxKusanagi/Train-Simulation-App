@@ -89,15 +89,24 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
 
       // Update train data using actual TrainData variables
       if (trainParams.contains("tractionMotors")) {
-        m_context.trainData->n_tm = trainParams["tractionMotors"].toDouble();
+        double val = trainParams["tractionMotors"].toDouble();
+        if (val < 0)
+          throw std::invalid_argument("Traction motors cannot be negative");
+        m_context.trainData->n_tm = val;
         qDebug() << "Updated n_tm to:" << m_context.trainData->n_tm;
       }
       if (trainParams.contains("axles")) {
-        m_context.trainData->n_axle = trainParams["axles"].toDouble();
+        double val = trainParams["axles"].toDouble();
+        if (val < 0)
+          throw std::invalid_argument("Axles cannot be negative");
+        m_context.trainData->n_axle = val;
         qDebug() << "Updated n_axle to:" << m_context.trainData->n_axle;
       }
       if (trainParams.contains("cars")) {
-        m_context.trainData->n_car = trainParams["cars"].toDouble();
+        double val = trainParams["cars"].toDouble();
+        if (val <= 0)
+          throw std::invalid_argument("Number of cars must be positive");
+        m_context.trainData->n_car = val;
         qDebug() << "Updated n_car to:" << m_context.trainData->n_car;
       }
       if (trainParams.contains("gearRatio")) {
@@ -223,7 +232,10 @@ QHttpServerResponse TrainParameterHandler::handleUpdateCarNumberParameters(
 
     // Update car numbers
     if (carNumberParams.contains("n_M1")) {
-      m_context.trainData->n_M1 = carNumberParams["n_M1"].toDouble();
+      double val = carNumberParams["n_M1"].toDouble();
+      if (val < 0)
+        throw std::invalid_argument("n_M1 cannot be negative");
+      m_context.trainData->n_M1 = val;
     }
     if (carNumberParams.contains("n_M2")) {
       m_context.trainData->n_M2 = carNumberParams["n_M2"].toDouble();
@@ -304,7 +316,10 @@ QHttpServerResponse TrainParameterHandler::handleUpdatePassengerParameters(
 
     // Update passenger numbers
     if (passengerParams.contains("n_PTc")) {
-      m_context.loadData->n_PTc = passengerParams["n_PTc"].toDouble();
+      double val = passengerParams["n_PTc"].toDouble();
+      if (val < 0)
+        throw std::invalid_argument("n_PTc cannot be negative");
+      m_context.loadData->n_PTc = val;
     }
     if (passengerParams.contains("n_PM1")) {
       m_context.loadData->n_PM1 = passengerParams["n_PM1"].toDouble();
@@ -397,7 +412,10 @@ TrainParameterHandler::handleUpdateMassParameters(const QJsonObject &data) {
 
       // Update car masses
       if (massParams.contains("mass_M1")) {
-        m_context.massData->mass_M1 = massParams["mass_M1"].toDouble();
+        double val = massParams["mass_M1"].toDouble();
+        if (val < 0)
+          throw std::invalid_argument("Mass M1 cannot be negative");
+        m_context.massData->mass_M1 = val;
       }
       if (massParams.contains("mass_M2")) {
         m_context.massData->mass_M2 = massParams["mass_M2"].toDouble();

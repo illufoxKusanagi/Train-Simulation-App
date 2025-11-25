@@ -18,9 +18,12 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QFuture>
+#include <QMutex>
 #include <QObject>
 #include <QSet>
 #include <QString>
+#include <QtConcurrent>
 #include <qdebug.h>
 
 class TrainSimulationHandler : public QObject {
@@ -70,11 +73,13 @@ public:
   double getMaxPowTime();
   double getAdhesion();
 
+  bool validateDataInitialized();
   bool validateCsvVariables();
   void clearWarnings() { m_simulationWarnings->clear(); }
   QStringList getSimulationWarnings() const { return *m_simulationWarnings; }
   void clearErrors() { m_simulationErrors->clear(); }
   QStringList getSimulationErrors() const { return *m_simulationErrors; }
+  bool isSimulationRunning() const { return m_simulationFuture.isRunning(); }
 
 private:
   enum Notch { AtStation, Accelerating, Coasting, Braking, None };
@@ -139,5 +144,9 @@ private:
   void setCsvVariablesData();
   void addEnergySimulationDatas();
   void addStationSimulationDatas();
+  void runDynamicSimulation();
+  void runStaticSimulation();
+  QMutex *m_simulationMutex;
+  QFuture<void> m_simulationFuture;
 };
 #endif // TRAIN_SIMULATION_HANDLER_H

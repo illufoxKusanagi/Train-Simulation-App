@@ -23,7 +23,7 @@ export function SimulationButtons() {
       // quickInit should only be called once at app startup, not before every simulation
 
       // Start simulation with current parameters - this returns the summary
-      const startResponse = await api.startSimulation({ type });
+      await api.startSimulation({ type });
 
       // Poll status until complete
       let statusResult = await api.getSimulationStatus();
@@ -35,17 +35,17 @@ export function SimulationButtons() {
       // Fetch detailed results
       const resultsResponse = await api.getSimulationResults();
 
-      // Combine summary from start with results from getResults
+      // Combine summary from status with results from getResults
       const response = {
         ...resultsResponse,
-        summary: startResponse.summary, // Use summary from start endpoint
+        summary: statusResult.summary, // Use summary from status endpoint
       };
 
       // Store combined results in sessionStorage for output page
       sessionStorage.setItem("simulationResults", JSON.stringify(response));
 
       // Safely get maxSpeed with fallback
-      const maxSpeed = startResponse.summary?.maxSpeed ?? 0;
+      const maxSpeed = statusResult.summary?.maxSpeed ?? 0;
 
       toast.success(
         `${type === "static" ? "Static" : "Dynamic"} simulation completed!`,

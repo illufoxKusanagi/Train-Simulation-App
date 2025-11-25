@@ -13,6 +13,8 @@ double SimulationTrackHandler::calculateBrakingTrack(double speed) {
 }
 
 double SimulationTrackHandler::calculateBrakingEmergencyTrack() {
+  if (simulationDatas->trainSpeedsSi.isEmpty())
+    return 0.0;
   double speed = simulationDatas->trainSpeedsSi.last();
   double brakingTrack = (speed * constantData->t_reaction) +
                         (pow(speed, 2) / (2 * movingData->decc_emergency));
@@ -20,6 +22,8 @@ double SimulationTrackHandler::calculateBrakingEmergencyTrack() {
 }
 
 double SimulationTrackHandler::calculateNormalSimulationTrack(double speed) {
+  if (simulationDatas->distanceTotal.isEmpty())
+    return 0.0;
   double poweringDistance = simulationDatas->distanceTotal.last();
   double trainLength = trainData->trainsetLength;
   double brakingDistance = calculateBrakingTrack(speed);
@@ -27,6 +31,8 @@ double SimulationTrackHandler::calculateNormalSimulationTrack(double speed) {
 }
 
 double SimulationTrackHandler::calculateEmergencyNormalSimulationTrack() {
+  if (simulationDatas->distanceTotal.isEmpty())
+    return 0.0;
   double poweringDistance = simulationDatas->distanceTotal.last();
   double trainLength = trainData->trainsetLength;
   double brakingDistance = calculateBrakingEmergencyTrack();
@@ -34,6 +40,10 @@ double SimulationTrackHandler::calculateEmergencyNormalSimulationTrack() {
 }
 
 double SimulationTrackHandler::calculateDelaySimulationTrack(double speed) {
+  if (simulationDatas->distanceTotal.isEmpty() ||
+      simulationDatas->trainSpeedsSi.isEmpty() ||
+      simulationDatas->accelerationsSi.isEmpty())
+    return 0.0;
   double poweringDistance = simulationDatas->distanceTotal.last();
   double trainLength = trainData->trainsetLength;
   double brakingDistance = calculateBrakingTrack(speed);
@@ -44,6 +54,10 @@ double SimulationTrackHandler::calculateDelaySimulationTrack(double speed) {
 }
 
 double SimulationTrackHandler::calculateEmergencyDelaySimulationTrack() {
+  if (simulationDatas->distanceTotal.isEmpty() ||
+      simulationDatas->trainSpeedsSi.isEmpty() ||
+      simulationDatas->accelerationsSi.isEmpty())
+    return 0.0;
   double poweringDistance = simulationDatas->distanceTotal.last();
   double trainLength = trainData->trainsetLength;
   double brakingDistance = calculateBrakingEmergencyTrack();

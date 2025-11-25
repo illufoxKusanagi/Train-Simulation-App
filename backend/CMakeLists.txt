@@ -34,7 +34,9 @@ find_package(Qt6 REQUIRED COMPONENTS
     HttpServer
     Widgets
     WebEngineWidgets
+    WebEngineWidgets
     WebChannel
+    Concurrent
 )
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
@@ -237,6 +239,7 @@ target_link_libraries(TrainSimulationApp PRIVATE
     Qt6::Widgets
     Qt6::WebEngineWidgets
     Qt6::WebChannel
+    Qt6::Concurrent
 
     # Qt6::Charts
 )

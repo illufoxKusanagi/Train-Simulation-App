@@ -16,7 +16,8 @@ TrainSimulationHandler::TrainSimulationHandler(AppContext &context,
       simulationDatas(*context.simulationDatas.data()),
       constantData(context.constantData.data()),
       m_simulationWarnings(&context.simulationWarnings),
-      m_simulationErrors(&context.simulationErrors) {
+      m_simulationErrors(&context.simulationErrors),
+      m_simulationMutex(&context.simulationMutex) {
   m_massHandler = new MassHandler(context);
   m_outputHandler = new CsvOutputHandler(simulationDatas);
   m_energyHandler = new EnergyHandler(context);
@@ -76,11 +77,40 @@ double TrainSimulationHandler::calculateTotalDistance(int i) {
             pow(simulationDatas.time[i], 2));
 }
 
+bool TrainSimulationHandler::validateDataInitialized() {
+  if (!trainData || !massData || !loadData || !resistanceData || !movingData ||
+      !trainMotorData || !efficiencyData || !powerData || !energyData ||
+      !stationData || !constantData) {
+    qCritical() << "CRITICAL: Simulation data not initialized!";
+    m_simulationErrors->append("Critical: Simulation data not initialized.");
+    return false;
+  }
+  return true;
+}
+
 void TrainSimulationHandler::simulateDynamicTrainMovement() {
+  // Run in a separate thread
+  m_simulationFuture =
+      QtConcurrent::run([this]() { this->runDynamicSimulation(); });
+}
+
+void TrainSimulationHandler::runDynamicSimulation() {
   clearWarnings();
   clearErrors();
+
+  if (!validateDataInitialized()) {
+    emit simulationError();
+    return;
+  }
+
   emit simulationStarted();
-  m_utilityHandler->clearSimulationDatas();
+
+  // Lock mutex when clearing data
+  {
+    QMutexLocker locker(m_simulationMutex);
+    m_utilityHandler->clearSimulationDatas();
+  }
+
   initData();
   QString phase = "Starting";
   const double WAIT_TIME = 10.0;
@@ -110,6 +140,10 @@ void TrainSimulationHandler::simulateDynamicTrainMovement() {
     while (((movingData->v >= 0 && notch == AtStation) ||
             (stationIndex + 1 < stationData->n_station &&
              stationIndex < stationData->x_station.size()))) {
+
+      // Lock mutex for shared data updates
+      QMutexLocker locker(m_simulationMutex);
+
       addStationSimulationDatas();
       addEnergySimulationDatas();
       simulationDatas.slopes.append(m_slope);
@@ -258,6 +292,9 @@ void TrainSimulationHandler::simulateDynamicTrainMovement() {
         trainMotorData->tm_adh = m_tractiveEffortHandler->calculateAdhesion();
       }
       i++;
+
+      // Unlock mutex implicitly when loop iteration ends (locker goes out of
+      // scope)
     }
     emit simulationCompleted();
   } else {
@@ -266,7 +303,23 @@ void TrainSimulationHandler::simulateDynamicTrainMovement() {
 }
 
 void TrainSimulationHandler::simulateStaticTrainMovement() {
-  m_utilityHandler->clearSimulationDatas();
+  // Run in a separate thread
+  m_simulationFuture =
+      QtConcurrent::run([this]() { this->runStaticSimulation(); });
+}
+
+void TrainSimulationHandler::runStaticSimulation() {
+  if (!validateDataInitialized()) {
+    emit simulationError();
+    return;
+  }
+
+  // Lock mutex when clearing data
+  {
+    QMutexLocker locker(m_simulationMutex);
+    m_utilityHandler->clearSimulationDatas();
+  }
+
   initData();
   clearWarnings();
   double v_limit = 130;
@@ -280,6 +333,10 @@ void TrainSimulationHandler::simulateStaticTrainMovement() {
   double maxVvvfPower = 0.0;
   while (movingData->v <= stationData->stat_v_limit &&
          movingData->x_total < stationData->stat_x_station) {
+
+    // Lock mutex for shared data updates
+    QMutexLocker locker(m_simulationMutex);
+
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes(
         stationData->stat_slope, stationData->stat_radius);
     phase = "Accelerating";
@@ -505,6 +562,9 @@ void TrainSimulationHandler::addStationSimulationDatas() {
 }
 
 void TrainSimulationHandler::calculateRunningResEachSlope() {
+  if (!stationData || !resistanceData || !movingData)
+    return;
+
   if (stationData->stat_slope_1 && resistanceData->f_resRunning > 0) {
     resistanceData->f_resRunning =
         movingData->v == 0

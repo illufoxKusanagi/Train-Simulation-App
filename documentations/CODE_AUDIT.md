@@ -4,7 +4,7 @@ This document lists vulnerabilities, potential errors, inconsistencies, ambiguit
 
 ## 1. Vulnerabilities & Critical Bugs
 
-### [CRITICAL] Potential Server Crash in Simulation Handler
+### [FIXED] [CRITICAL] Potential Server Crash in Simulation Handler
 **Location**: `backend/controllers/simulation/train_simulation_handler.cpp`
 **Issue**: The handler accesses `stationData` and other model pointers directly without checking if they are valid (non-null).
 **Code Snippet**:
@@ -24,7 +24,7 @@ if (!stationData) {
 }
 ```
 
-### [HIGH] Logic Duplication (Frontend vs Backend)
+### [FIXED][HIGH] Logic Duplication (Frontend vs Backend)
 **Location**: `frontend/src/app/train-parameter/page.tsx` vs `backend/models/mass_data.h` (implied logic)
 **Issue**: The frontend calculates `mass_totalEmpty`, `mass_totalLoad`, and `mass_totalInertial` in `recalculateMass()` using JavaScript. The backend likely performs similar calculations.
 **Risk**: If the formula changes in the backend (e.g., how inertial mass is calculated), the frontend will show incorrect "preview" values, leading to user confusion.
@@ -53,7 +53,7 @@ m_trainHandler = new TrainParameterHandler(context, this);
 **Risk**: While `QObject` parent-child system handles deletion, using `std::unique_ptr` or `std::shared_ptr` is safer and more modern C++.
 **Solution**: Refactor to use `std::unique_ptr` or `QScopedPointer` where appropriate.
 
-### [LOW] Frontend Error Handling via `alert()`
+### [FIXED] [LOW] Frontend Error Handling via `alert()`
 **Location**: `frontend/src/app/page.tsx`
 **Issue**: Uses `alert("Simulation failed...")` for error reporting.
 **Risk**: Poor user experience. Alerts block the UI and look unprofessional.
@@ -75,7 +75,7 @@ m_trainHandler = new TrainParameterHandler(context, this);
 
 ## 4. Deep Audit Findings (Advanced)
 
-### [CRITICAL] Blocking Simulation Loop (Threading)
+### [FIXED] [CRITICAL] Blocking Simulation Loop (Threading)
 **Location**: `backend/controllers/simulation/train_simulation_handler.cpp`
 **Issue**: The `startStaticSimulation` method runs a `while` loop on the main thread.
 ```cpp
@@ -84,7 +84,7 @@ while (movingData->x_total < stationData->stat_x_station) { ... }
 **Risk**: This blocks the entire backend server. During a long simulation, the API will not respond to `/api/simulation/status` or `/api/health`. The frontend polling will time out.
 **Solution**: Move the simulation loop to a separate `QThread` or use `QtConcurrent::run`.
 
-### [HIGH] Missing Input Range Validation
+### [FIXED] [HIGH] Missing Input Range Validation
 **Location**: `backend/http_server/inputs/train_parameter_handler.cpp`
 **Issue**: Parameters are assigned directly without range checks.
 ```cpp
@@ -152,3 +152,24 @@ T getStepValue(const std::vector<double>& x_axis, const std::vector<T>& y_axis, 
 3.  **Improve Error UX**: Replace `alert()` with `toast()` in the main dashboard.
 4.  **Thread the Simulation**: Move the physics loop to a worker thread to prevent server freezing.
 5.  **Validate Inputs**: Add range checks in all parameter handlers.
+
+## 8. UI/UX Improvement
+### [LOW] Variable toast duration if simulation has error, or warning
+
+**Location: frontend/src/app/all-pages/page.tsx, frontend/src/app/layout.tsx**
+**Issue**: Toast duration is fixed to 2 seconds, regardless of the severity of the error or warning.
+
+### [HIGH] Show simulation warnings and errors on toast
+**Location: frontend/src/app/all-pages/page.tsx, frontend/src/app/layout.tsx**
+**Issue**: Simulation warnings and errors isn't showed on toast, and only showed on backend response.
+
+### 
+
+
+## 9. Future Feature
+
+### [HIGH] Fuzzy logic implementation on optimizing train specification
+**Location: backend/controllers/simulation/train_simulation_handler.cpp, backend/http_server/inputs/fuzzy-engine.cpp**
+**Issue**: Have no logic on controlling fuzzy logic engine
+
+

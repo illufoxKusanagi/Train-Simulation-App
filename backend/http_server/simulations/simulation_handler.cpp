@@ -21,10 +21,12 @@ SimulationHandler::handleStartSimulation(const QJsonObject &data) {
     } else {
       m_trainSimulation->simulateDynamicTrainMovement();
     }
+
+    // Check for immediate errors (e.g. initialization failure)
     QStringList errors = m_trainSimulation->getSimulationErrors();
     if (!errors.isEmpty()) {
       response["status"] = "error";
-      response["message"] = "Simulation failed with errors.";
+      response["message"] = "Simulation failed to start.";
       QJsonArray errorArray;
       for (const QString &error : errors) {
         errorArray.append(error);
@@ -35,52 +37,11 @@ SimulationHandler::handleStartSimulation(const QJsonObject &data) {
     }
 
     response["status"] = "success";
-    response["message"] = "Simulation completed";
+    response["message"] = "Simulation started";
     response["simulationType"] = simulationType;
 
-    QJsonArray warnings;
-    for (const QString &warning : m_trainSimulation->getSimulationWarnings()) {
-      warnings.append(warning);
-    }
-    if (m_context.simulationDatas &&
-        (m_context.simulationDatas->vvvfCurrents.isEmpty() ||
-         m_context.simulationDatas->catenaryCurrents.isEmpty())) {
-      warnings.append(
-          "Warning: VVVF and Catenary currents were not calculated. This is a "
-          "known issue in the simulation logic.");
-    }
-    response["warnings"] = warnings;
+    // We do NOT return summary here anymore. The frontend must poll for status.
 
-    QJsonObject summary;
-    summary["maxSpeed"] = m_trainSimulation->getMaxSpeed();
-    summary["distanceTravelled"] = m_trainSimulation->getDistanceTravelled();
-
-    if (simulationType == "static") {
-      summary["distanceOnBraking"] =
-          m_trainSimulation->m_simulationTrackHandler->calculateBrakingTrack(
-              m_context.stationData->stat_v_limit);
-      summary["distanceOnEmergencyBraking"] =
-          m_trainSimulation->m_simulationTrackHandler
-              ->calculateBrakingEmergencyTrack();
-    }
-
-    summary["maxTractionEffort"] = m_trainSimulation->getMaxTractionEffort();
-    summary["adhesion"] = m_trainSimulation->getAdhesion();
-
-    summary["maxCatenaryPower"] = m_trainSimulation->getMaxCatenaryPower();
-    summary["maxVvvfPower"] = m_trainSimulation->getMaxVvvfPower();
-    summary["maxCatenaryCurrent"] = m_trainSimulation->getMaxCatenaryCurrent();
-    summary["maxVvvfCurrent"] = m_trainSimulation->getMaxVvvfCurrent();
-    summary["maxCurrentTime"] = m_trainSimulation->getMaxCurrTime();
-    summary["maxPowerTime"] = m_trainSimulation->getMaxPowTime();
-
-    summary["maxEnergyConsumption"] =
-        m_trainSimulation->getMaxEnergyConsumption();
-    summary["maxEnergyPowering"] = m_trainSimulation->getMaxEnergyPowering();
-    summary["maxEnergyRegen"] = m_trainSimulation->getMaxEnergyRegen();
-    summary["maxEnergyAps"] = m_trainSimulation->getMaxEnergyAps();
-
-    response["summary"] = summary;
     return QHttpServerResponse(QJsonDocument(response).toJson(),
                                QHttpServerResponse::StatusCode::Ok);
 
@@ -239,7 +200,7 @@ QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
       point["energyAps"] = simulationDatas->energyAps[i];
       point["energyCatenaries"] = simulationDatas->energyCatenaries[i];
 
-      // TODO : Add simulation type to apply this condition
+      // TODO : Add simulation type to apply these condition
       // if (simulationType == "static") {
       //           point["motorResistancesZero"] =
       //           simulationDatas->motorResistancesZero[i];
@@ -417,29 +378,94 @@ QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
     response["simulationStatus"] = "unavailable";
     response["message"] = "Simulation handler not initialized";
   } else {
-    // Since simulation runs synchronously, it's never "running" when
-    // status is checked
-    // It's either completed or idle
-    response["isRunning"] = false;
+    bool isRunning = m_trainSimulation->isSimulationRunning();
+    response["isRunning"] = isRunning;
 
-    double maxSpeed = m_trainSimulation->getMaxSpeed();
-
-    if (maxSpeed > 0) {
-      response["simulationStatus"] = "completed";
-      response["hasResults"] = true;
-    } else {
-      response["simulationStatus"] = "idle";
+    if (isRunning) {
+      response["simulationStatus"] = "running";
       response["hasResults"] = false;
+    } else {
+      double maxSpeed = m_trainSimulation->getMaxSpeed();
+      // Check if we have results (either maxSpeed > 0 or errors present)
+      if (maxSpeed > 0 || !m_trainSimulation->getSimulationErrors().isEmpty()) {
+        response["simulationStatus"] = "completed";
+        response["hasResults"] = true;
+
+        // --- Populate Summary Data ---
+        QJsonObject summary;
+        summary["maxSpeed"] = maxSpeed;
+        summary["distanceTravelled"] =
+            m_trainSimulation->getDistanceTravelled();
+
+        // Note: We don't know the exact simulation type here easily without
+        // storing it, but we can check if static-specific data is relevant or
+        // just calculate it safely. For now, we'll calculate static braking
+        // distances if it looks like a static sim (e.g. based on request, but
+        // request is gone). A better approach is to always calculate if data
+        // permits, or store type in TrainSimulationHandler. Let's calculate
+        // safely.
+
+        if (m_context.stationData->stat_v_limit >
+            0) { // Heuristic for static sim relevance
+          summary["distanceOnBraking"] =
+              m_trainSimulation->m_simulationTrackHandler
+                  ->calculateBrakingTrack(m_context.stationData->stat_v_limit);
+          summary["distanceOnEmergencyBraking"] =
+              m_trainSimulation->m_simulationTrackHandler
+                  ->calculateBrakingEmergencyTrack();
+        }
+
+        summary["maxTractionEffort"] =
+            m_trainSimulation->getMaxTractionEffort();
+        summary["adhesion"] = m_trainSimulation->getAdhesion();
+
+        summary["maxCatenaryPower"] = m_trainSimulation->getMaxCatenaryPower();
+        summary["maxVvvfPower"] = m_trainSimulation->getMaxVvvfPower();
+        summary["maxCatenaryCurrent"] =
+            m_trainSimulation->getMaxCatenaryCurrent();
+        summary["maxVvvfCurrent"] = m_trainSimulation->getMaxVvvfCurrent();
+        summary["maxCurrentTime"] = m_trainSimulation->getMaxCurrTime();
+        summary["maxPowerTime"] = m_trainSimulation->getMaxPowTime();
+
+        summary["maxEnergyConsumption"] =
+            m_trainSimulation->getMaxEnergyConsumption();
+        summary["maxEnergyPowering"] =
+            m_trainSimulation->getMaxEnergyPowering();
+        summary["maxEnergyRegen"] = m_trainSimulation->getMaxEnergyRegen();
+        summary["maxEnergyAps"] = m_trainSimulation->getMaxEnergyAps();
+
+        response["summary"] = summary;
+
+        // --- Populate Warnings ---
+        QJsonArray warnings;
+        for (const QString &warning :
+             m_trainSimulation->getSimulationWarnings()) {
+          warnings.append(warning);
+        }
+        if (m_context.simulationDatas &&
+            (m_context.simulationDatas->vvvfCurrents.isEmpty() ||
+             m_context.simulationDatas->catenaryCurrents.isEmpty())) {
+          warnings.append("Warning: VVVF and Catenary currents were not "
+                          "calculated. This is a "
+                          "known issue in the simulation logic.");
+        }
+        response["warnings"] = warnings;
+
+      } else {
+        response["simulationStatus"] = "idle";
+        response["hasResults"] = false;
+      }
+
+      // Add current simulation metrics (kept for backward
+      // compatibility/debugging)
+      QJsonObject metrics;
+      metrics["maxSpeed"] = maxSpeed;
+      metrics["distanceTravelled"] = m_trainSimulation->getDistanceTravelled();
+      metrics["maxVvvfPower"] = m_trainSimulation->getMaxVvvfPower();
+      metrics["adhesion"] = m_trainSimulation->getAdhesion();
+
+      response["metrics"] = metrics;
     }
-
-    // Add current simulation metrics
-    QJsonObject metrics;
-    metrics["maxSpeed"] = maxSpeed;
-    metrics["distanceTravelled"] = m_trainSimulation->getDistanceTravelled();
-    metrics["maxVvvfPower"] = m_trainSimulation->getMaxVvvfPower();
-    metrics["adhesion"] = m_trainSimulation->getAdhesion();
-
-    response["metrics"] = metrics;
   }
 
   return QHttpServerResponse(QJsonDocument(response).toJson(),
