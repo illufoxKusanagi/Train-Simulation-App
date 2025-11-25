@@ -49,8 +49,28 @@ export function SimulationButtons() {
 
       toast.success(
         `${type === "static" ? "Static" : "Dynamic"} simulation completed!`,
-        `Max speed: ${maxSpeed.toFixed(2)} km/h`
+        { description: `Max speed: ${maxSpeed.toFixed(2)} km/h` }
       );
+
+      // Display warnings
+      if (statusResult.warnings && statusResult.warnings.length > 0) {
+        statusResult.warnings.forEach((warning) => {
+          toast.warning("Simulation Warning", {
+            description: warning,
+            duration: 5000,
+          });
+        });
+      }
+
+      // Display errors
+      if (statusResult.errors && statusResult.errors.length > 0) {
+        statusResult.errors.forEach((error) => {
+          toast.error("Simulation Error", {
+            description: error,
+            duration: 8000,
+          });
+        });
+      }
 
       // Navigate to output page
       router.push("/output");

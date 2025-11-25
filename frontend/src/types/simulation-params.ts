@@ -35,7 +35,7 @@ export interface SimulationDataPoint {
   vvvfCurrents: number; // simulationDatas->vvvfCurrents[i] - VVVF current
   energyConsumptions: number; // simulationDatas->energyConsumptions[i] - Energy Consumption
   energyPowerings: number; // simulationDatas->energyPowerings[i] - Energy of Powering
-  energyRegenerations: number; // simulationDatas->energyRegenerations[i] - Energy Regen
+  // energyRegenerations: number; // simulationDatas->energyRegenerations[i] - Energy Regen
   energyAps: number; // simulationDatas->energyAps[i] - Energy of APS
   energyCatenaries: number; // simulationDatas->energyCatenaries[i] - Energy Catenary
   motorResistancesZero: number; // simulationDatas->motorResistancesZero[i] - Run res at 0
@@ -59,7 +59,7 @@ export interface SimulationSummary {
   maxPowerTime: number;
   maxEnergyConsumption: number | null;
   maxEnergyPowering: number | null;
-  maxEnergyRegen: number;
+  // maxEnergyRegen: number;
   maxEnergyAps: number;
 }
 

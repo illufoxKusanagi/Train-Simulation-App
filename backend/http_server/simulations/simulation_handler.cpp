@@ -14,15 +14,13 @@ SimulationHandler::handleStartSimulation(const QJsonObject &data) {
   QJsonObject response;
   try {
     m_trainSimulation->clearWarnings();
+    m_currentSimulationType = data.value("type").toString("dynamic");
 
-    QString simulationType = data.value("type").toString("dynamic");
-    if (simulationType == "static") {
+    if (m_currentSimulationType == "static") {
       m_trainSimulation->simulateStaticTrainMovement();
     } else {
       m_trainSimulation->simulateDynamicTrainMovement();
     }
-
-    // Check for immediate errors (e.g. initialization failure)
     QStringList errors = m_trainSimulation->getSimulationErrors();
     if (!errors.isEmpty()) {
       response["status"] = "error";
@@ -35,13 +33,9 @@ SimulationHandler::handleStartSimulation(const QJsonObject &data) {
       return QHttpServerResponse(QJsonDocument(response).toJson(),
                                  QHttpServerResponse::StatusCode::Ok);
     }
-
     response["status"] = "success";
     response["message"] = "Simulation started";
-    response["simulationType"] = simulationType;
-
-    // We do NOT return summary here anymore. The frontend must poll for status.
-
+    response["simulationType"] = m_currentSimulationType;
     return QHttpServerResponse(QJsonDocument(response).toJson(),
                                QHttpServerResponse::StatusCode::Ok);
 
@@ -56,318 +50,252 @@ SimulationHandler::handleStartSimulation(const QJsonObject &data) {
 
 QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
   QJsonObject response;
-
   try {
-    auto simulationDatas = m_context.simulationDatas.data();
-
-    // Add comprehensive debug information
-    QJsonObject debugInfo;
-    debugInfo["totalDataPoints"] = simulationDatas->time.size();
-    debugInfo["vvvfCurrentsSize"] = simulationDatas->vvvfCurrents.size();
-    debugInfo["catenaryCurrentsSize"] =
-        simulationDatas->catenaryCurrents.size();
-    debugInfo["vvvfPowersSize"] = simulationDatas->vvvfPowers.size();
-    debugInfo["catenaryPowersSize"] = simulationDatas->catenaryPowers.size();
-    debugInfo["trainSpeedsSize"] = simulationDatas->trainSpeeds.size();
-    debugInfo["accelerationsSize"] = simulationDatas->accelerations.size();
-    debugInfo["timesSize"] = simulationDatas->time.size();
-    debugInfo["distancesSize"] = simulationDatas->distance.size();
-
-    // Sample first few values for debugging
-    QJsonArray vvvfCurrentsSample, catenaryCurrentsSample;
-    QJsonArray vvvfPowersSample, catenaryPowersSample;
-
-    int sampleSize = qMin(5, simulationDatas->time.size());
-    for (int j = 0; j < sampleSize; j++) {
-      if (j < simulationDatas->vvvfCurrents.size()) {
-        vvvfCurrentsSample.append(simulationDatas->vvvfCurrents[j]);
-      }
-      if (j < simulationDatas->catenaryCurrents.size()) {
-        catenaryCurrentsSample.append(simulationDatas->catenaryCurrents[j]);
-      }
-      if (j < simulationDatas->vvvfPowers.size()) {
-        vvvfPowersSample.append(simulationDatas->vvvfPowers[j]);
-      }
-      if (j < simulationDatas->catenaryPowers.size()) {
-        catenaryPowersSample.append(simulationDatas->catenaryPowers[j]);
-      }
-    }
-
-    debugInfo["vvvfCurrentsSample"] = vvvfCurrentsSample;
-    debugInfo["catenaryCurrentsSample"] = catenaryCurrentsSample;
-    debugInfo["vvvfPowersSample"] = vvvfPowersSample;
-    debugInfo["catenaryPowersSample"] = catenaryPowersSample;
-
-    // Check if arrays are empty or contain only zeros/nulls
-    bool vvvfCurrentsEmpty = simulationDatas->vvvfCurrents.isEmpty();
-    bool catenaryCurrentsEmpty = simulationDatas->catenaryCurrents.isEmpty();
-    bool allVvvfCurrentsZero = true;
-    bool allCatenaryCurrentsZero = true;
-
-    for (int j = 0; j < simulationDatas->vvvfCurrents.size(); j++) {
-      if (simulationDatas->vvvfCurrents[j] != 0.0) {
-        allVvvfCurrentsZero = false;
-        break;
-      }
-    }
-
-    for (int j = 0; j < simulationDatas->catenaryCurrents.size(); j++) {
-      if (simulationDatas->catenaryCurrents[j] != 0.0) {
-        allCatenaryCurrentsZero = false;
-        break;
-      }
-    }
-
-    debugInfo["vvvfCurrentsEmpty"] = vvvfCurrentsEmpty;
-    debugInfo["catenaryCurrentsEmpty"] = catenaryCurrentsEmpty;
-    debugInfo["allVvvfCurrentsZero"] = allVvvfCurrentsZero;
-    debugInfo["allCatenaryCurrentsZero"] = allCatenaryCurrentsZero;
-
-    QJsonArray resultsArray;
-    int dataSize = simulationDatas->time.size();
-
-    for (int i = 0; i < dataSize; i++) {
-      QJsonObject point;
-      point["phase"] = simulationDatas->phase[i];
-      point["time"] = simulationDatas->time[i];
-      point["timeTotal"] = simulationDatas->timeTotal[i];
-      point["distances"] = simulationDatas->distance[i];
-      point["distancesTotal"] = simulationDatas->distanceTotal[i];
-      // These arrays may have different sizes (populated once per simulation vs
-      // once per iteration)
-      point["odos"] =
-          i < simulationDatas->odos.size() ? simulationDatas->odos[i] : 0.0;
-      point["brakingDistances"] = i < simulationDatas->brakingDistances.size()
-                                      ? simulationDatas->brakingDistances[i]
-                                      : 0.0;
-      point["slopes"] =
-          i < simulationDatas->slopes.size() ? simulationDatas->slopes[i] : 0.0;
-      point["radiuses"] = i < simulationDatas->radiuses.size()
-                              ? simulationDatas->radiuses[i]
-                              : 0.0;
-      point["speeds"] = simulationDatas->trainSpeeds[i];
-      point["speedLimits"] = i < simulationDatas->speedLimits.size()
-                                 ? simulationDatas->speedLimits[i]
-                                 : 0.0;
-      point["speedsSi"] = simulationDatas->trainSpeedsSi[i];
-      point["accelerations"] = simulationDatas->accelerations[i];
-      point["accelerationsSi"] = simulationDatas->accelerationsSi[i];
-      point["motorForce"] = simulationDatas->motorForce[i];
-      point["motorResistance"] = simulationDatas->motorResistance[i];
-      point["totalResistance"] = simulationDatas->totalResistance[i];
-      point["tractionForcePerMotor"] =
-          simulationDatas->tractionForcePerMotor[i];
-      point["resistancePerMotor"] = simulationDatas->resistancePerMotor[i];
-      point["torque"] = simulationDatas->torque[i];
-      point["rpm"] = simulationDatas->rpm[i];
-      point["powerWheel"] = simulationDatas->powerWheel[i];
-      point["powerMotorOut"] = simulationDatas->powerMotorOut[i];
-      point["powerMotorIn"] = simulationDatas->powerMotorIn[i];
-      point["vvvfPowers"] = simulationDatas->vvvfPowers[i];
-
-      // Add debug information for current values at each point
-      if (i < simulationDatas->vvvfCurrents.size()) {
-        point["vvvfCurrents"] = simulationDatas->vvvfCurrents[i];
-        point["vvvfCurrentsDebug"] = QString("Value at index %1: %2")
-                                         .arg(i)
-                                         .arg(simulationDatas->vvvfCurrents[i]);
-      } else {
-        point["vvvfCurrents"] = QJsonValue();
-        point["vvvfCurrentsDebug"] =
-            QString("Index %1 >= array size %2")
-                .arg(i)
-                .arg(simulationDatas->vvvfCurrents.size());
-      }
-
-      if (i < simulationDatas->catenaryCurrents.size()) {
-        point["catenaryCurrents"] = simulationDatas->catenaryCurrents[i];
-        point["catenaryCurrentsDebug"] =
-            QString("Value at index %1: %2")
-                .arg(i)
-                .arg(simulationDatas->catenaryCurrents[i]);
-      } else {
-        point["catenaryCurrents"] = QJsonValue();
-        point["catenaryCurrentsDebug"] =
-            QString("Index %1 >= array size %2")
-                .arg(i)
-                .arg(simulationDatas->catenaryCurrents.size());
-      }
-
-      point["catenaryPowers"] = simulationDatas->catenaryPowers[i];
-      point["energyConsumptions"] = simulationDatas->energyConsumptions[i];
-      point["energyPowerings"] = simulationDatas->energyPowerings[i];
-      point["energyRegenerations"] = simulationDatas->energyRegenerations[i];
-      point["energyAps"] = simulationDatas->energyAps[i];
-      point["energyCatenaries"] = simulationDatas->energyCatenaries[i];
-
-      // TODO : Add simulation type to apply these condition
-      // if (simulationType == "static") {
-      //           point["motorResistancesZero"] =
-      //           simulationDatas->motorResistancesZero[i];
-      //           point["motorResistancesFive"] =
-      //           simulationDatas->motorResistancesFive[i];
-      //           point["motorResistancesTen"] =
-      //           simulationDatas->motorResistancesTen[i];
-      //           point["motorResistancesTwentyFive"] =
-      //           simulationDatas->motorResistancesTwentyFive[i];
-      // }
-
-      resultsArray.append(point);
-    }
-
     response["status"] = "success";
-    response["results"] = resultsArray;
-    response["totalPoints"] = dataSize;
+
+    // Use the helper methods based on the current simulation type
+    if (m_currentSimulationType == "static") {
+      response["results"] = getStaticResults().value("data");
+      response["trackDistanceTable"] =
+          getStaticResults().value("trackDistanceTable");
+    } else {
+      // Default to dynamic if not specified or explicitly dynamic
+      response["results"] = getDynamicResults().value("data");
+    }
+
+    // Add debug info if needed (simplified for now to fix build)
+    QJsonObject debugInfo;
+    debugInfo["simulationType"] = m_currentSimulationType;
     response["debugInfo"] = debugInfo;
 
-    // Add track distance table only for static simulation
-    QJsonObject trackDistanceTable;
-    QJsonArray normalBraking;
-    QJsonArray emergencyBraking;
-
-    normalBraking.append(m_trainSimulation->m_simulationTrackHandler
-                             ->calculateNormalSimulationTrack(
-                                 m_context.stationData->stat_v_limit));
-    normalBraking.append(m_trainSimulation->m_simulationTrackHandler
-                             ->calculateDelaySimulationTrack(
-                                 m_context.stationData->stat_v_limit));
-    normalBraking.append(m_trainSimulation->m_simulationTrackHandler
-                             ->calculateSafetySimulationTrack(
-                                 m_context.stationData->stat_v_limit));
-    emergencyBraking.append(m_trainSimulation->m_simulationTrackHandler
-                                ->calculateEmergencyNormalSimulationTrack());
-    emergencyBraking.append(m_trainSimulation->m_simulationTrackHandler
-                                ->calculateEmergencyDelaySimulationTrack());
-    emergencyBraking.append(m_trainSimulation->m_simulationTrackHandler
-                                ->calculateEmergencySafetySimulationTrack());
-
-    // double vLimit = m_context.stationData->stat_v_limit;
-
-    // normalBraking.append(m_trainSimulation->m_simulationTrackHandler
-    //                          ->calculateTrackDistanceNormal(vLimit));
-    // normalBraking.append(m_trainSimulation->m_simulationTrackHandler
-    //                          ->calculateTrackDistanceDelay(vLimit));
-    // normalBraking.append(m_trainSimulation->m_simulationTrackHandler
-    //                          ->calculateTrackDistanceSafety(vLimit));
-
-    trackDistanceTable["normalBraking"] = normalBraking;
-    trackDistanceTable["emergencyBraking"] = emergencyBraking;
-    trackDistanceTable["headers"] =
-        QJsonArray({"Normal Braking", "Emergency Braking"});
-    trackDistanceTable["labels"] =
-        QJsonArray({"Normal", "Delay 3s", "Safety 20%"});
-
-    response["trackDistanceTable"] = trackDistanceTable;
+    return QHttpServerResponse(QJsonDocument(response).toJson(),
+                               QHttpServerResponse::StatusCode::Ok);
   } catch (const std::exception &e) {
     response["status"] = "error";
-    response["message"] = QString("Error: %1").arg(e.what());
+    response["message"] = QString("Error retrieving results: %1").arg(e.what());
     return QHttpServerResponse(
         QJsonDocument(response).toJson(),
         QHttpServerResponse::StatusCode::InternalServerError);
   }
+}
+QJsonObject SimulationHandler::getDynamicResults() {
+  QJsonObject results;
+  auto simulationDatas = m_context.simulationDatas.data();
 
-  return QHttpServerResponse(QJsonDocument(response).toJson(),
-                             QHttpServerResponse::StatusCode::Ok);
+  // Build results array (limit to prevent huge payloads if needed, but
+  // keeping full for now as per request)
+  QJsonArray resultsArray;
+  int dataSize = simulationDatas->time.size();
+
+  for (int i = 0; i < dataSize; i++) {
+    QJsonObject point;
+    point["phase"] = simulationDatas->phase[i];
+    point["time"] = simulationDatas->time[i];
+    point["timeTotal"] = simulationDatas->timeTotal[i];
+    point["distances"] = simulationDatas->distance[i];
+    point["distancesTotal"] = simulationDatas->distanceTotal[i];
+    // These arrays may have different sizes (populated once per simulation vs
+    // once per iteration)
+    point["odos"] =
+        i < simulationDatas->odos.size() ? simulationDatas->odos[i] : 0.0;
+    point["brakingDistances"] = i < simulationDatas->brakingDistances.size()
+                                    ? simulationDatas->brakingDistances[i]
+                                    : 0.0;
+    point["slopes"] =
+        i < simulationDatas->slopes.size() ? simulationDatas->slopes[i] : 0.0;
+    point["radiuses"] = i < simulationDatas->radiuses.size()
+                            ? simulationDatas->radiuses[i]
+                            : 0.0;
+    point["speeds"] = simulationDatas->trainSpeeds[i];
+    point["speedLimits"] = i < simulationDatas->speedLimits.size()
+                               ? simulationDatas->speedLimits[i]
+                               : 0.0;
+    point["speedsSi"] = simulationDatas->trainSpeedsSi[i];
+    point["accelerations"] = simulationDatas->accelerations[i];
+    point["accelerationsSi"] = simulationDatas->accelerationsSi[i];
+    point["motorForce"] = simulationDatas->motorForce[i];
+    point["motorResistance"] = simulationDatas->motorResistance[i];
+    point["totalResistance"] = simulationDatas->totalResistance[i];
+    point["tractionForcePerMotor"] = simulationDatas->tractionForcePerMotor[i];
+    point["resistancePerMotor"] = simulationDatas->resistancePerMotor[i];
+    point["torque"] = simulationDatas->torque[i];
+    point["rpm"] = simulationDatas->rpm[i];
+    point["powerWheel"] = simulationDatas->powerWheel[i];
+    point["powerMotorOut"] = simulationDatas->powerMotorOut[i];
+    point["powerMotorIn"] = simulationDatas->powerMotorIn[i];
+    point["vvvfPowers"] = simulationDatas->vvvfPowers[i];
+
+    // Add debug information for current values at each point
+    // if (i < simulationDatas->vvvfCurrents.size()) {
+    point["vvvfCurrents"] = simulationDatas->vvvfCurrents[i];
+    //   point["vvvfCurrentsDebug"] = QString("Value at index %1: %2")
+    //                                    .arg(i)
+    //                                    .arg(simulationDatas->vvvfCurrents[i]);
+    // } else {
+    //   point["vvvfCurrents"] = QJsonValue();
+    //   point["vvvfCurrentsDebug"] =
+    //       QString("Index %1 >= array size %2")
+    //           .arg(i)
+    //           .arg(simulationDatas->vvvfCurrents.size());
+    // }
+
+    // if (i < simulationDatas->catenaryCurrents.size()) {
+    point["catenaryCurrents"] = simulationDatas->catenaryCurrents[i];
+    //   point["catenaryCurrentsDebug"] =
+    //       QString("Value at index %1: %2")
+    //           .arg(i)
+    //           .arg(simulationDatas->catenaryCurrents[i]);
+    // } else {
+    //   point["catenaryCurrents"] = QJsonValue();
+    //   point["catenaryCurrentsDebug"] =
+    //       QString("Index %1 >= array size %2")
+    //           .arg(i)
+    //           .arg(simulationDatas->catenaryCurrents.size());
+    // }
+    point["catenaryPowers"] = simulationDatas->catenaryPowers[i];
+    point["energyConsumptions"] = simulationDatas->energyConsumptions[i];
+    point["energyPowerings"] = simulationDatas->energyPowerings[i];
+    point["energyRegenerations"] = simulationDatas->energyRegenerations[i];
+    point["energyAps"] = simulationDatas->energyAps[i];
+    point["energyCatenaries"] = simulationDatas->energyCatenaries[i];
+    resultsArray.append(point);
+  }
+  results["data"] = resultsArray;
+  return results;
 }
 
-// #include "simulation_handler.h"
+QJsonObject SimulationHandler::getStaticResults() {
+  QJsonObject results;
+  auto simulationDatas = m_context.simulationDatas.data();
 
-// SimulationHandler::SimulationHandler(AppContext &context, QObject *parent)
-//     : QObject{parent}, m_context(context)
-// {
-//     m_trainSimulation = new TrainSimulationHandler(context, this);
-// }
+  // Static simulation also needs time-series data for charts
+  QJsonArray resultsArray;
+  int dataSize = simulationDatas->time.size();
 
-// QHttpServerResponse SimulationHandler::handleStartSimulation(const
-// QJsonObject &data)
-// {
-//     QJsonObject response;
+  for (int i = 0; i < dataSize; i++) {
+    QJsonObject point;
+    point["phase"] = simulationDatas->phase[i];
+    point["time"] = simulationDatas->time[i];
+    point["timeTotal"] = simulationDatas->timeTotal[i];
+    point["distances"] = simulationDatas->distance[i];
+    point["distancesTotal"] = simulationDatas->distanceTotal[i];
+    // These arrays may have different sizes (populated once per simulation vs
+    // once per iteration)
+    point["odos"] =
+        i < simulationDatas->odos.size() ? simulationDatas->odos[i] : 0.0;
+    point["brakingDistances"] = i < simulationDatas->brakingDistances.size()
+                                    ? simulationDatas->brakingDistances[i]
+                                    : 0.0;
+    point["slopes"] =
+        i < simulationDatas->slopes.size() ? simulationDatas->slopes[i] : 0.0;
+    point["radiuses"] = i < simulationDatas->radiuses.size()
+                            ? simulationDatas->radiuses[i]
+                            : 0.0;
+    point["speeds"] = simulationDatas->trainSpeeds[i];
+    point["speedLimits"] = i < simulationDatas->speedLimits.size()
+                               ? simulationDatas->speedLimits[i]
+                               : 0.0;
+    point["speedsSi"] = simulationDatas->trainSpeedsSi[i];
+    point["accelerations"] = simulationDatas->accelerations[i];
+    point["accelerationsSi"] = simulationDatas->accelerationsSi[i];
+    point["motorForce"] = simulationDatas->motorForce[i];
+    point["motorResistance"] = simulationDatas->motorResistance[i];
+    point["totalResistance"] = simulationDatas->totalResistance[i];
+    point["tractionForcePerMotor"] = simulationDatas->tractionForcePerMotor[i];
+    point["resistancePerMotor"] = simulationDatas->resistancePerMotor[i];
+    point["torque"] = simulationDatas->torque[i];
+    point["rpm"] = simulationDatas->rpm[i];
+    point["powerWheel"] = simulationDatas->powerWheel[i];
+    point["powerMotorOut"] = simulationDatas->powerMotorOut[i];
+    point["powerMotorIn"] = simulationDatas->powerMotorIn[i];
+    point["vvvfPowers"] = simulationDatas->vvvfPowers[i];
 
-//     try
-//     {
-//         // Check if simulation handler is initialized
-//         if (!m_trainSimulation)
-//         {
-//             response["status"] = "error";
-//             response["message"] = "Simulation handler not initialized";
-//             return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                        QHttpServerResponse::StatusCode::InternalServerError);
-//         }
+    // Add debug information for current values at each point
+    // if (i < simulationDatas->vvvfCurrents.size()) {
+    point["vvvfCurrents"] = simulationDatas->vvvfCurrents[i];
+    //   point["vvvfCurrentsDebug"] = QString("Value at index %1: %2")
+    //                                    .arg(i)
+    //                                    .arg(simulationDatas->vvvfCurrents[i]);
+    // } else {
+    // point["vvvfC?urrents"] = QJsonValue();
+    // point["vvvfCurrentsDebug"] =
+    //       QString("Index %1 >= array size %2")
+    //           .arg(i)
+    //           .arg(simulationDatas->vvvfCurrents.size());
+    // }
 
-//         // Validate CSV variables before starting simulation
-//         if (!m_trainSimulation->validateCsvVariables())
-//         {
-//             response["status"] = "error";
-//             response["message"] = "CSV variables validation failed. Check
-//             console for warnings."; return
-//             QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                        QHttpServerResponse::StatusCode::BadRequest);
-//         }
+    // if (i < simulationDatas->catenaryCurrents.size()) {
+    point["catenaryCurrents"] = simulationDatas->catenaryCurrents[i];
+    //   point["catenaryCurrentsDebug"] =
+    //       QString("Value at index %1: %2")
+    //           .arg(i)
+    //           .arg(simulationDatas->catenaryCurrents[i]);
+    // // } else {
+    //   point["catenaryCurrents"] = QJsonValue();
+    //   point["catenaryCurrentsDebug"] =
+    //       QString("Index %1 >= array size %2")
+    //           .arg(i)
+    //           .arg(simulationDatas->catenaryCurrents.size());
+    // }
 
-//         // Determine simulation type from request data
-//         QString simulationType = data.value("type").toString("dynamic"); //
-//         default to dynamic
+    point["catenaryPowers"] = simulationDatas->catenaryPowers[i];
+    point["energyConsumptions"] = simulationDatas->energyConsumptions[i];
+    point["energyPowerings"] = simulationDatas->energyPowerings[i];
+    point["energyRegenerations"] = simulationDatas->energyRegenerations[i];
+    point["energyAps"] = simulationDatas->energyAps[i];
+    point["energyCatenaries"] = simulationDatas->energyCatenaries[i];
+    point["motorResistancesZero"] = simulationDatas->motorResistancesZero[i];
+    point["motorResistancesFive"] = simulationDatas->motorResistancesFive[i];
+    point["motorResistancesTen"] = simulationDatas->motorResistancesTen[i];
+    point["motorResistancesTwentyFive"] =
+        simulationDatas->motorResistancesTwentyFive[i];
 
-//         qDebug() << "🚀 Starting" << simulationType << "simulation...";
+    resultsArray.append(point);
+  }
 
-//         // Clear previous warnings
-//         m_trainSimulation->clearWarnings();
+  // for (int i = 0; i < dataSize; i++) {
+  //   QJsonObject point;
+  //   point["time"] = simulationDatas->time[i];
+  //   point["speed"] = simulationDatas->trainSpeeds[i];
+  //   point["distance"] = simulationDatas->distance[i];
+  //   point["acceleration"] = simulationDatas->accelerations[i];
+  //   point["tractiveEffort"] = simulationDatas->tractionEfforts[i];
 
-//         // Trigger the appropriate simulation using Qt signals/slots
-//         if (simulationType == "static")
-//         {
-//             // Call static simulation (slot will be executed)
-//             m_trainSimulation->simulateStaticTrainMovement();
-//         }
-//         else
-//         {
-//             // Call dynamic simulation (slot will be executed)
-//             m_trainSimulation->simulateDynamicTrainMovement();
-//         }
+  //   resultsArray.append(point);
+  // }
+  results["data"] = resultsArray;
 
-//         // Note: The actual simulation runs synchronously in the slot
-//         // In Qt GUI apps, you'd emit signals and track progress
-//         // For HTTP API, we can return success immediately after slot
-//         execution
+  // Calculate Track Distance Table (Logic from OutputTableHandler)
+  QJsonObject trackDistanceTable;
+  QJsonArray normalBraking;
+  QJsonArray emergencyBraking;
 
-//         response["status"] = "success";
-//         response["message"] = "Simulation completed successfully";
-//         response["simulationType"] = simulationType;
+  double vLimit = m_context.stationData->stat_v_limit;
 
-//         // Add simulation summary
-//         QJsonObject summary;
-//         summary["maxSpeed"] = m_trainSimulation->getMaxSpeed();
-//         summary["distanceTravelled"] =
-//         m_trainSimulation->getDistanceTravelled(); summary["maxVvvfPower"]
-//         = m_trainSimulation->getMaxVvvfPower(); summary["maxCatenaryPower"]
-//         = m_trainSimulation->getMaxCatenaryPower();
-//         summary["maxEnergyConsumption"] =
-//         m_trainSimulation->getMaxEnergyConsumption();
+  normalBraking.append(m_trainSimulation->m_simulationTrackHandler
+                           ->calculateNormalSimulationTrack(vLimit));
+  normalBraking.append(m_trainSimulation->m_simulationTrackHandler
+                           ->calculateDelaySimulationTrack(vLimit));
+  normalBraking.append(m_trainSimulation->m_simulationTrackHandler
+                           ->calculateSafetySimulationTrack(vLimit));
 
-//         response["summary"] = summary;
+  emergencyBraking.append(m_trainSimulation->m_simulationTrackHandler
+                              ->calculateEmergencyNormalSimulationTrack());
+  emergencyBraking.append(m_trainSimulation->m_simulationTrackHandler
+                              ->calculateEmergencyDelaySimulationTrack());
+  emergencyBraking.append(m_trainSimulation->m_simulationTrackHandler
+                              ->calculateEmergencySafetySimulationTrack());
 
-//         qDebug() << "✅ Simulation completed successfully";
-//     }
-//     catch (const std::exception &e)
-//     {
-//         qCritical() << "💥 Exception in handleStartSimulation:" <<
-//         e.what(); response["status"] = "error"; response["message"] =
-//         QString("Simulation error: %1").arg(e.what()); return
-//         QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                    QHttpServerResponse::StatusCode::InternalServerError);
-//     }
-//     catch (...)
-//     {
-//         qCritical() << "💥 Unknown exception in handleStartSimulation";
-//         response["status"] = "error";
-//         response["message"] = "Unknown error during simulation";
-//         return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                    QHttpServerResponse::StatusCode::InternalServerError);
-//     }
+  trackDistanceTable["normalBraking"] = normalBraking;
+  trackDistanceTable["emergencyBraking"] = emergencyBraking;
+  trackDistanceTable["headers"] =
+      QJsonArray({"Normal Braking", "Emergency Braking"});
+  trackDistanceTable["labels"] =
+      QJsonArray({"Normal", "Delay 3s", "Safety 20%"});
 
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
-// }
+  results["trackDistanceTable"] = trackDistanceTable;
+  return results;
+}
 
 QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
   QJsonObject response;
@@ -396,191 +324,51 @@ QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
         summary["maxSpeed"] = maxSpeed;
         summary["distanceTravelled"] =
             m_trainSimulation->getDistanceTravelled();
-
-        // Note: We don't know the exact simulation type here easily without
-        // storing it, but we can check if static-specific data is relevant or
-        // just calculate it safely. For now, we'll calculate static braking
-        // distances if it looks like a static sim (e.g. based on request, but
-        // request is gone). A better approach is to always calculate if data
-        // permits, or store type in TrainSimulationHandler. Let's calculate
-        // safely.
-
-        if (m_context.stationData->stat_v_limit >
-            0) { // Heuristic for static sim relevance
-          summary["distanceOnBraking"] =
-              m_trainSimulation->m_simulationTrackHandler
-                  ->calculateBrakingTrack(m_context.stationData->stat_v_limit);
-          summary["distanceOnEmergencyBraking"] =
-              m_trainSimulation->m_simulationTrackHandler
-                  ->calculateBrakingEmergencyTrack();
-        }
-
         summary["maxTractionEffort"] =
             m_trainSimulation->getMaxTractionEffort();
-        summary["adhesion"] = m_trainSimulation->getAdhesion();
+        summary["maxEnergyConsumption"] =
+            m_trainSimulation->getMaxEnergyConsumption();
 
+        // if (m_currentSimulationType == "dynamic") {
         summary["maxCatenaryPower"] = m_trainSimulation->getMaxCatenaryPower();
         summary["maxVvvfPower"] = m_trainSimulation->getMaxVvvfPower();
         summary["maxCatenaryCurrent"] =
             m_trainSimulation->getMaxCatenaryCurrent();
         summary["maxVvvfCurrent"] = m_trainSimulation->getMaxVvvfCurrent();
-        summary["maxCurrentTime"] = m_trainSimulation->getMaxCurrTime();
-        summary["maxPowerTime"] = m_trainSimulation->getMaxPowTime();
-
-        summary["maxEnergyConsumption"] =
-            m_trainSimulation->getMaxEnergyConsumption();
-        summary["maxEnergyPowering"] =
-            m_trainSimulation->getMaxEnergyPowering();
-        summary["maxEnergyRegen"] = m_trainSimulation->getMaxEnergyRegen();
-        summary["maxEnergyAps"] = m_trainSimulation->getMaxEnergyAps();
+        // summary["maxEnergyRegen"] = m_trainSimulation->getMaxEnergyRegen();
+        summary["adhesion"] = m_trainSimulation->getAdhesion();
+        // }
 
         response["summary"] = summary;
 
-        // --- Populate Warnings ---
+        // --- Populate Warnings & Errors ---
         QJsonArray warnings;
         for (const QString &warning :
              m_trainSimulation->getSimulationWarnings()) {
           warnings.append(warning);
         }
-        if (m_context.simulationDatas &&
-            (m_context.simulationDatas->vvvfCurrents.isEmpty() ||
-             m_context.simulationDatas->catenaryCurrents.isEmpty())) {
-          warnings.append("Warning: VVVF and Catenary currents were not "
-                          "calculated. This is a "
-                          "known issue in the simulation logic.");
-        }
         response["warnings"] = warnings;
+
+        QJsonArray errors;
+        for (const QString &error : m_trainSimulation->getSimulationErrors()) {
+          errors.append(error);
+        }
+        response["errors"] = errors;
+
+        // --- Populate Detailed Results based on Type ---
+        if (m_currentSimulationType == "static") {
+          response["results"] = getStaticResults();
+        } else {
+          response["results"] = getDynamicResults();
+        }
 
       } else {
         response["simulationStatus"] = "idle";
         response["hasResults"] = false;
       }
-
-      // Add current simulation metrics (kept for backward
-      // compatibility/debugging)
-      QJsonObject metrics;
-      metrics["maxSpeed"] = maxSpeed;
-      metrics["distanceTravelled"] = m_trainSimulation->getDistanceTravelled();
-      metrics["maxVvvfPower"] = m_trainSimulation->getMaxVvvfPower();
-      metrics["adhesion"] = m_trainSimulation->getAdhesion();
-
-      response["metrics"] = metrics;
     }
   }
 
   return QHttpServerResponse(QJsonDocument(response).toJson(),
                              QHttpServerResponse::StatusCode::Ok);
 }
-
-// QHttpServerResponse SimulationHandler::handleGetSimulationResults()
-// {
-//     QJsonObject response;
-
-//     if (!m_trainSimulation || !m_context.simulationDatas)
-//     {
-//         response["status"] = "error";
-//         response["message"] = "Simulation data not available";
-//         return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                    QHttpServerResponse::StatusCode::InternalServerError);
-//     }
-
-//     try
-//     {
-//         // Get simulation data from context
-//         const SimulationDatas &simData = *m_context.simulationDatas;
-
-//         // Build results array (limit to prevent huge payloads)
-//         QJsonArray resultsArray;
-//         int maxPoints = 1000; // Limit data points for API response
-//         int dataSize = simData.trainSpeeds.size();
-//         int step = (dataSize > maxPoints) ? (dataSize / maxPoints) : 1;
-
-//         for (int i = 0; i < dataSize; i += step)
-//         {
-//             QJsonObject point;
-//             point["time"] = simData.time[i];
-//             point["speed"] = simData.trainSpeeds[i];
-//             point["speedSI"] = simData.trainSpeedsSi[i];
-//             point["distance"] = simData.distance[i];
-//             point["acceleration"] = simData.accelerations[i];
-//             point["vvvfPower"] = simData.vvvfPowers[i];
-//             point["catenaryPower"] = simData.catenaryPowers[i];
-//             point["vvvfCurrent"] = simData.vvvfCurrents[i];
-//             point["catenaryCurrent"] = simData.catenaryCurrents[i];
-//             point["tractiveEffort"] = simData.tractionEfforts[i];
-//             point["totalResistance"] = simData.totalResistance[i];
-//             point["phase"] = simData.phase[i];
-
-//             resultsArray.append(point);
-//         }
-
-//         response["status"] = "success";
-//         response["results"] = resultsArray;
-//         response["totalPoints"] = dataSize;
-//         response["returnedPoints"] = resultsArray.size();
-
-//         // Add summary statistics
-//         QJsonObject summary;
-//         summary["maxSpeed"] = m_trainSimulation->getMaxSpeed();
-//         summary["maxVvvfPower"] = m_trainSimulation->getMaxVvvfPower();
-//         summary["maxCatenaryPower"] =
-//         m_trainSimulation->getMaxCatenaryPower(); summary["maxVvvfCurrent"]
-//         = m_trainSimulation->getMaxVvvfCurrent();
-//         summary["maxCatenaryCurrent"] =
-//         m_trainSimulation->getMaxCatenaryCurrent();
-//         summary["maxTractionEffort"] =
-//         m_trainSimulation->getMaxTractionEffort();
-//         summary["distanceTravelled"] =
-//         m_trainSimulation->getDistanceTravelled();
-//         summary["maxEnergyConsumption"] =
-//         m_trainSimulation->getMaxEnergyConsumption();
-//         summary["maxEnergyRegen"] = m_trainSimulation->getMaxEnergyRegen();
-//         summary["adhesion"] = m_trainSimulation->getAdhesion();
-
-//         response["summary"] = summary;
-
-//         // Add track distance table for static simulation
-//         QJsonObject trackDistanceTable;
-//         QJsonArray normalBraking;
-//         QJsonArray emergencyBraking;
-
-//         // Use the track speed limit for table calculation
-//         double vLimit = m_context.stationData->stat_v_limit;
-
-//         // Use dedicated track distance methods (without simulation's
-//         distanceTotal)
-//         normalBraking.append(m_trainSimulation->m_simulationTrackHandler->calculateTrackDistanceNormal(vLimit));
-//         normalBraking.append(m_trainSimulation->m_simulationTrackHandler->calculateTrackDistanceDelay(vLimit));
-//         normalBraking.append(m_trainSimulation->m_simulationTrackHandler->calculateTrackDistanceSafety(vLimit));
-
-//         // Emergency braking still uses simulation methods (requires actual
-//         simulation data)
-//         emergencyBraking.append(m_trainSimulation->m_simulationTrackHandler->calculateEmergencyNormalSimulationTrack());
-//         emergencyBraking.append(m_trainSimulation->m_simulationTrackHandler->calculateEmergencyDelaySimulationTrack());
-//         emergencyBraking.append(m_trainSimulation->m_simulationTrackHandler->calculateEmergencySafetySimulationTrack());
-
-//         trackDistanceTable["normalBraking"] = normalBraking;
-//         trackDistanceTable["emergencyBraking"] = emergencyBraking;
-//         trackDistanceTable["labels"] = QJsonArray({"Normal", "Delay 3s",
-//         "Safety 20%"});
-
-//         response["trackDistanceTable"] = trackDistanceTable;
-
-//         qDebug() << "� Track Distance Table:" <<
-//         normalBraking[0].toDouble()
-//         << normalBraking[1].toDouble() << normalBraking[2].toDouble();
-//         qDebug() << "�📊 Returned" << resultsArray.size() << "simulation
-//         data points";
-//     }
-//     catch (const std::exception &e)
-//     {
-//         qCritical() << "💥 Exception in handleGetSimulationResults:" <<
-//         e.what(); response["status"] = "error"; response["message"] =
-//         QString("Error retrieving results: %1").arg(e.what()); return
-//         QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                    QHttpServerResponse::StatusCode::InternalServerError);
-//     }
-
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
-// }

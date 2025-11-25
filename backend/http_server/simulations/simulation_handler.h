@@ -17,8 +17,12 @@ public:
   QHttpServerResponse handleGetSimulationResults();
 
 private:
+  QJsonObject getStaticResults();
+  QJsonObject getDynamicResults();
+
   AppContext &m_context;
   TrainSimulationHandler *m_trainSimulation;
+  QString m_currentSimulationType;
 };
 
 #endif // SIMULATION_HANDLER_H

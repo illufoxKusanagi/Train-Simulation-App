@@ -261,6 +261,7 @@ export const api = {
     isRunning: boolean;
     summary?: SimulationSummary;
     warnings?: string[];
+    errors?: string[];
   }> => {
     const res = await fetch(`${API_BASE_URL}/api/simulation/status`);
     if (!res.ok)

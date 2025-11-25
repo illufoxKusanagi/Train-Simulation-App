@@ -154,12 +154,12 @@ T getStepValue(const std::vector<double>& x_axis, const std::vector<T>& y_axis, 
 5.  **Validate Inputs**: Add range checks in all parameter handlers.
 
 ## 8. UI/UX Improvement
-### [LOW] Variable toast duration if simulation has error, or warning
+### [FIXED] [LOW] Variable toast duration if simulation has error, or warning
 
 **Location: frontend/src/app/all-pages/page.tsx, frontend/src/app/layout.tsx**
 **Issue**: Toast duration is fixed to 2 seconds, regardless of the severity of the error or warning.
 
-### [HIGH] Show simulation warnings and errors on toast
+### [FIXED] [HIGH] Show simulation warnings and errors on toast
 **Location: frontend/src/app/all-pages/page.tsx, frontend/src/app/layout.tsx**
 **Issue**: Simulation warnings and errors isn't showed on toast, and only showed on backend response.
 

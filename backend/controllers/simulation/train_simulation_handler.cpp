@@ -89,7 +89,6 @@ bool TrainSimulationHandler::validateDataInitialized() {
 }
 
 void TrainSimulationHandler::simulateDynamicTrainMovement() {
-  // Run in a separate thread
   m_simulationFuture =
       QtConcurrent::run([this]() { this->runDynamicSimulation(); });
 }
@@ -102,15 +101,11 @@ void TrainSimulationHandler::runDynamicSimulation() {
     emit simulationError();
     return;
   }
-
   emit simulationStarted();
-
-  // Lock mutex when clearing data
   {
     QMutexLocker locker(m_simulationMutex);
     m_utilityHandler->clearSimulationDatas();
   }
-
   initData();
   QString phase = "Starting";
   const double WAIT_TIME = 10.0;
@@ -127,7 +122,6 @@ void TrainSimulationHandler::runDynamicSimulation() {
   double brakingDistance = 0.0;
   bool isError = false;
   double dwellTime = 0.0;
-
   if (stationData->n_station > stationData->x_station.size() + 1) {
     m_simulationWarnings->append(
         "Number of stations exceeds the number of station data.");
@@ -303,23 +297,18 @@ void TrainSimulationHandler::runDynamicSimulation() {
 }
 
 void TrainSimulationHandler::simulateStaticTrainMovement() {
-  // Run in a separate thread
   m_simulationFuture =
       QtConcurrent::run([this]() { this->runStaticSimulation(); });
 }
-
 void TrainSimulationHandler::runStaticSimulation() {
   if (!validateDataInitialized()) {
     emit simulationError();
     return;
   }
-
-  // Lock mutex when clearing data
   {
     QMutexLocker locker(m_simulationMutex);
     m_utilityHandler->clearSimulationDatas();
   }
-
   initData();
   clearWarnings();
   double v_limit = 130;

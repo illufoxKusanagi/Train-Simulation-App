@@ -80,6 +80,8 @@ if (val < 0) throw std::invalid_argument("Traction motors cannot be negative");
 - **Refactor:** Replaced the custom `toast.tsx` implementation with the native `sonner` API.
 - **Compatibility:** Maintained the existing `toast.success(title, description)` signature to avoid breaking changes.
 - **Layout:** Updated `layout.tsx` to use the `Toaster` component correctly with `richColors` enabled.
+- **Variable Duration:** Added support for custom durations in the `toast` utility.
+- **Feedback Loop:** Updated `simulation-buttons.tsx` to display simulation warnings (5s) and errors (8s) using the enhanced toast system.
 
 ---
 
@@ -105,7 +107,10 @@ The following items from the Code Audit have been addressed:
     - [x] Backend: `handleGetSimulationStatus` returns full results.
     - [x] Frontend: Updated polling logic to consume async results.
 - [x] **Refactored Toast Notifications**
+- [x] **Refactored Toast Notifications**
     - [x] Switched to native `sonner` for better UI/UX.
+    - [x] Implemented variable toast durations.
+    - [x] Added warning/error feedback loop.
 
 ## Files Modified
 - `backend/controllers/simulation/train_simulation_handler.cpp`

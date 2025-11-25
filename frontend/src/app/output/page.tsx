@@ -103,7 +103,7 @@ export default function OutputPage() {
         "VVVF current",
         "Energy Consumption",
         "Energy of Powering",
-        "Energy Regen",
+        // "Energy Regen",
         "Energy of APS",
         "Energy Catenary",
         "Run res at 0",
@@ -149,7 +149,7 @@ export default function OutputPage() {
           item.vvvfCurrents || 0,
           item.energyConsumptions || 0,
           item.energyPowerings || 0,
-          item.energyRegenerations || 0,
+          // item.energyRegenerations || 0,
           item.energyAps || 0,
           item.energyCatenaries || 0,
           item.motorResistancesZero || 0,
@@ -276,7 +276,7 @@ export default function OutputPage() {
           "VVVF current": item.vvvfCurrents || 0,
           "Energy Consumption": item.energyConsumptions || 0,
           "Energy of Powering": item.energyPowerings || 0,
-          "Energy Regen": item.energyRegenerations || 0,
+          // "Energy Regen": item.energyRegenerations || 0,
           "Energy of APS": item.energyAps || 0,
           "Energy Catenary": item.energyCatenaries || 0,
           "Run res at 0": item.motorResistancesZero || 0,
@@ -427,7 +427,7 @@ export default function OutputPage() {
                   catenaryCurrents: 102 + i * 5,
                   energyConsumptions: 50 + i * 2,
                   energyPowerings: 45 + i * 2,
-                  energyRegenerations: 0,
+                  // energyRegenerations: 0,
                   energyAps: 5,
                   energyCatenaries: 50 + i * 2,
                   motorResistancesZero: 10,
@@ -448,7 +448,7 @@ export default function OutputPage() {
                   maxPowerTime: 0.8,
                   maxEnergyConsumption: 68,
                   maxEnergyPowering: 63,
-                  maxEnergyRegen: 0,
+                  // maxEnergyRegen: 0,
                   maxEnergyAps: 5,
                 },
               };
@@ -523,14 +523,14 @@ export default function OutputPage() {
               </CardTitle>
             </CardHeader>
           </Card>
-          <Card>
+          {/* <Card>
             <CardHeader className="pb-2">
               <CardDescription>Max Energy Regen</CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.maxEnergyRegen ?? 0).toFixed(2)} kWh
               </CardTitle>
             </CardHeader>
-          </Card>
+          </Card> */}
           <Card>
             <CardHeader className="pb-2">
               <CardDescription>Max VVVF Current</CardDescription>

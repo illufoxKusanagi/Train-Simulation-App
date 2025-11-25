@@ -6,19 +6,59 @@ export { sonnerToast as nativeToast };
 // Convenience methods matching the previous API signature
 // This maintains compatibility with existing code: toast.success("Title", "Description")
 export const toast = {
-  success: (title: string, description?: string) =>
-    sonnerToast.success(title, { description }),
+  success: (
+    title: string,
+    descriptionOrOptions?: string | { description?: string; duration?: number }
+  ) => {
+    const options =
+      typeof descriptionOrOptions === "string"
+        ? { description: descriptionOrOptions }
+        : descriptionOrOptions;
+    sonnerToast.success(title, options);
+  },
 
-  error: (title: string, description?: string) =>
-    sonnerToast.error(title, { description }),
+  error: (
+    title: string,
+    descriptionOrOptions?: string | { description?: string; duration?: number }
+  ) => {
+    const options =
+      typeof descriptionOrOptions === "string"
+        ? { description: descriptionOrOptions }
+        : descriptionOrOptions;
+    sonnerToast.error(title, options);
+  },
 
-  warning: (title: string, description?: string) =>
-    sonnerToast.warning(title, { description }),
+  warning: (
+    title: string,
+    descriptionOrOptions?: string | { description?: string; duration?: number }
+  ) => {
+    const options =
+      typeof descriptionOrOptions === "string"
+        ? { description: descriptionOrOptions }
+        : descriptionOrOptions;
+    sonnerToast.warning(title, options);
+  },
 
-  info: (title: string, description?: string) =>
-    sonnerToast.info(title, { description }),
+  info: (
+    title: string,
+    descriptionOrOptions?: string | { description?: string; duration?: number }
+  ) => {
+    const options =
+      typeof descriptionOrOptions === "string"
+        ? { description: descriptionOrOptions }
+        : descriptionOrOptions;
+    sonnerToast.info(title, options);
+  },
 
   // Add a generic message method if needed
-  message: (title: string, description?: string) =>
-    sonnerToast.message(title, { description }),
+  message: (
+    title: string,
+    descriptionOrOptions?: string | { description?: string; duration?: number }
+  ) => {
+    const options =
+      typeof descriptionOrOptions === "string"
+        ? { description: descriptionOrOptions }
+        : descriptionOrOptions;
+    sonnerToast.message(title, options);
+  },
 };
