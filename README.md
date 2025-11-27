@@ -1,8 +1,27 @@
 # Train Simulation App
 [![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](https://opensource.org/licenses/MIT)
 [![Release](https://img.shields.io/github/v/release/illufoxKusanagi/Train-Simulation-App?display_name=tag&sort=semver)](https://github.com/illufoxKusanagi/Train-Simulation-App/releases)
-[![Platform](https://img.shields.io/badge/platform-Windows-blue)](#)
+[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows-blue)](#)
 [![Qt](https://img.shields.io/badge/Qt-6.x-green)](https://www.qt.io/)
+[![Next.js](https://img.shields.io/badge/Next.js-14+-black)](https://nextjs.org/)
+
+---
+
+## ⚡ Quick Start (One Command!)
+
+```bash
+# Install Qt WebEngine (one time)
+sudo dnf install qt6-qtwebengine-devel
+
+# Run everything!
+./build.sh
+```
+
+**That's it!** 🎉 Desktop window opens with your app.
+
+📚 **New here?** Read **[SIMPLE_GUIDE.md](SIMPLE_GUIDE.md)** (one page, super simple!)
+
+---
 
 ## Overview
 ![trainSimulationAppLogo](https://github.com/user-attachments/assets/c8c9747c-b962-458f-bf7a-166f7b57ff48)
