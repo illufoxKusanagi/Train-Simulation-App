@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Remove 'output: export' for standard web deployment
   // Keep it only if you need static HTML export
+  // output: "export", // Generate static HTML export
 
   async rewrites() {
     return [

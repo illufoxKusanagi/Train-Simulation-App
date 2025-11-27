@@ -74,6 +74,7 @@ export const TrainsetFormSchema = z.object({
     message: "This Value must be a number",
   }),
 });
+
 export const ConstantFormSchema = z.object({
   i_T: z.coerce.number<number>({
     message: "iCt Must be a number or decimal",
@@ -175,6 +176,7 @@ export const constantInputFormDatas: InputType[] = [
     options: ["AW0", "AW1", "AW2", "AW3", "AW4"],
   },
 ];
+
 const trainsetInputFormDatas: InputType[] = [
   {
     label: "n_car",
@@ -210,6 +212,7 @@ const carMassFormDatas: InputType[] = [
   { label: "T2", unit: "ton", type: "field", name: "mass_T2" },
   { label: "T3", unit: "ton", type: "field", name: "mass_T3" },
 ];
+
 const calculatedMassDatas: InputType[] = [
   {
     label: "Empty Mass Car",
