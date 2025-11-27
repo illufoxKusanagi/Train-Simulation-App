@@ -375,6 +375,69 @@ void HttpServer::setupRoutes() {
         return addCorsHeaders(m_apiHandler->handleGetSimulationResults());
       });
 
+  // // Optimization endpoints
+  // m_httpServer->route("/api/optimization/start",
+  //                     QHttpServerRequest::Method::Options, [addCorsHeaders]()
+  //                     {
+  //                       qDebug() << "📋 OPTIONS /api/optimization/start";
+  //                       return addCorsHeaders(QHttpServerResponse(
+  //                           QHttpServerResponse::StatusCode::Ok));
+  //                     });
+
+  // m_httpServer->route(
+  //     "/api/optimization/start", QHttpServerRequest::Method::Post,
+  //     [this, addCorsHeaders](const QHttpServerRequest &request) {
+  //       qDebug() << "🚀 POST /api/optimization/start";
+  //       QJsonObject data = parseRequestBody(request);
+  //       return addCorsHeaders(m_apiHandler->handleStartOptimization(data));
+  //     });
+
+  // m_httpServer->route("/api/optimization/stop",
+  //                     QHttpServerRequest::Method::Options, [addCorsHeaders]()
+  //                     {
+  //                       qDebug() << "📋 OPTIONS /api/optimization/stop";
+  //                       return addCorsHeaders(QHttpServerResponse(
+  //                           QHttpServerResponse::StatusCode::Ok));
+  //                     });
+
+  // m_httpServer->route(
+  //     "/api/optimization/stop", QHttpServerRequest::Method::Post,
+  //     [this, addCorsHeaders]() {
+  //       qDebug() << "🛑 POST /api/optimization/stop";
+  //       return addCorsHeaders(m_apiHandler->handleStopOptimization());
+  //     });
+
+  // m_httpServer->route("/api/optimization/status",
+  //                     QHttpServerRequest::Method::Options, [addCorsHeaders]()
+  //                     {
+  //                       qDebug() << "📋 OPTIONS /api/optimization/status";
+  //                       return addCorsHeaders(QHttpServerResponse(
+  //                           QHttpServerResponse::StatusCode::Ok));
+  //                     });
+
+  // m_httpServer->route(
+  //     "/api/optimization/status", QHttpServerRequest::Method::Get,
+  //     [this, addCorsHeaders]() {
+  //       // qDebug() << "📊 GET /api/optimization/status"; // Commented out to
+  //       // reduce noise
+  //       return addCorsHeaders(m_apiHandler->handleGetOptimizationStatus());
+  //     });
+
+  // m_httpServer->route("/api/optimization/apply",
+  //                     QHttpServerRequest::Method::Options, [addCorsHeaders]()
+  //                     {
+  //                       qDebug() << "📋 OPTIONS /api/optimization/apply";
+  //                       return addCorsHeaders(QHttpServerResponse(
+  //                           QHttpServerResponse::StatusCode::Ok));
+  //                     });
+
+  // m_httpServer->route(
+  //     "/api/optimization/apply", QHttpServerRequest::Method::Post,
+  //     [this, addCorsHeaders]() {
+  //       qDebug() << "✅ POST /api/optimization/apply";
+  //       return addCorsHeaders(m_apiHandler->handleApplyOptimization());
+  //     });
+
   // Export endpoints
   m_httpServer->route(
       "/api/export/results", QHttpServerRequest::Method::Post,

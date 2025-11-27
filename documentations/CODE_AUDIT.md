@@ -122,7 +122,7 @@ if (n_tm < 0) throw std::invalid_argument("Traction motors cannot be negative");
 *   Extract `SimulationResultAggregator` to handle `getMaxSpeed`, `getTotalEnergy`, etc.
 *   Extract `PhysicsEngine` to handle the core `while` loop and force calculations.
 
-### [HIGH] Code Duplication: `CsvVariableHandler`
+### [FIXED][HIGH] Code Duplication: `CsvVariableHandler`
 **Location**: `backend/controllers/simulation/csv_variables_handler.cpp`
 **Issue**: Contains ~20 methods that look nearly identical (`setSlopeIndex`, `setRadiusIndex`, `setEffGearIndex`...). They all perform linear interpolation or step-function logic on vectors.
 **Impact**: If the interpolation logic needs to change (e.g., to support smooth curves), you have to update 20 places.

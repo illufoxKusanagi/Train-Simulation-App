@@ -5,6 +5,7 @@
 #include "controllers/data/running_data_handler.h"
 #include "controllers/data/track_data_handler.h"
 #include "controllers/data/train_data_handler.h"
+// #include "controllers/optimization/optimization_handler.h"
 #include "controllers/output/csv_output_handler.h"
 #include "core/appcontext.h"
 #include "inputs/electrical_parameter_handler.h"
@@ -59,6 +60,12 @@ public:
   QHttpServerResponse handleGetSimulationStatus();
   QHttpServerResponse handleGetSimulationResults();
 
+  // Optimization control
+  // QHttpServerResponse handleStartOptimization(const QJsonObject &data);
+  // QHttpServerResponse handleStopOptimization();
+  // QHttpServerResponse handleGetOptimizationStatus();
+  // QHttpServerResponse handleApplyOptimization();
+
   // Export functionality
   QHttpServerResponse handleExportResults(const QJsonObject &data);
 
@@ -80,8 +87,7 @@ private:
   // CarNumberHandler *m_carNumberHandler;
   // PassengerHandler *m_passengerHandler;
   SimulationHandler *m_simulationHandler;
-  // ExportHandler *m_exportHandler;
-  // Edited here: Fixed handler member variable types to match actual classes
+  // OptimizationHandler *m_optimizationHandler;
   TrainDataHandler *m_trainDataHandler;
   ElectricalDataHandler *m_electricalDataHandler;
   RunningDataHandler *m_runningDataHandler;

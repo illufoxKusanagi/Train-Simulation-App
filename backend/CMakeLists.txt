@@ -117,6 +117,11 @@ set(MODEL_SOURCES
     models/train_motor_data.h
 )
 
+set(UTILITY_SOURCES
+    utils/fuzzy_engine.h
+    utils/fuzzy_engine.cpp
+)
+
 set(CONTROLLER_SOURCES
     controllers/simulation/train_simulation_handler.h
     controllers/simulation/train_simulation_handler.cpp
@@ -161,6 +166,8 @@ set(CONTROLLER_SOURCES
     controllers/data/track_data_handler.cpp
     controllers/data/train_data_handler.h
     controllers/data/train_data_handler.cpp
+    controllers/optimization/optimization_handler.h
+    controllers/optimization/optimization_handler.cpp
 )
 
 set(HTTP_SERVER
@@ -186,6 +193,7 @@ qt_add_executable(TrainSimulationApp
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
     ${MODEL_SOURCES}
+    ${UTILITY_SOURCES}
     ${RESOURCE_SOURCES}
     ${CONTROLLER_SOURCES}
     ${HTTP_SERVER}

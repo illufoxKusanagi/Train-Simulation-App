@@ -14,6 +14,7 @@ ApiHandler::ApiHandler(AppContext &context, QObject *parent)
   m_runningHandler = new RunningParameterHandler(context, this);
   m_trackHandler = new TrackParameterHandler(context, this);
   m_simulationHandler = new SimulationHandler(context, this);
+  // m_optimizationHandler = new OptimizationHandler(this);
   // m_exportHandler = new ExportHandler(context, this);
 
   // **FIX: Initialize handlers safely with null checks**
@@ -398,3 +399,93 @@ QHttpServerResponse ApiHandler::handleDebugContext() {
 QHttpServerResponse ApiHandler::handleCalculateMass(const QJsonObject &data) {
   return m_trainHandler->handleCalculateMass(data);
 }
+
+// QHttpServerResponse
+// ApiHandler::handleStartOptimization(const QJsonObject &data) {
+//   QJsonObject response;
+
+//   if (!m_context.trainData || !m_context.massData ||
+//       !m_context.simulationDatas) {
+//     response["status"] = "error";
+//     response["message"] = "Context data not initialized";
+//     return QHttpServerResponse(QJsonDocument(response).toJson(),
+//                                QHttpServerResponse::StatusCode::BadRequest);
+//   }
+
+//   if (m_optimizationHandler->isRunning()) {
+//     response["status"] = "error";
+//     response["message"] = "Optimization already running";
+//     return QHttpServerResponse(QJsonDocument(response).toJson(),
+//                                QHttpServerResponse::StatusCode::Conflict);
+//   }
+
+//   // Start optimization
+//   m_optimizationHandler->startOptimization(
+//       *m_context.trainData, *m_context.massData, *m_context.simulationDatas);
+
+//   response["status"] = "success";
+//   response["message"] = "Optimization started";
+//   return QHttpServerResponse(QJsonDocument(response).toJson(),
+//                              QHttpServerResponse::StatusCode::Ok);
+// }
+
+// QHttpServerResponse ApiHandler::handleStopOptimization() {
+//   m_optimizationHandler->stopOptimization();
+//   QJsonObject response;
+//   response["status"] = "success";
+//   response["message"] = "Optimization stop requested";
+//   return QHttpServerResponse(QJsonDocument(response).toJson(),
+//                              QHttpServerResponse::StatusCode::Ok);
+// }
+
+// QHttpServerResponse ApiHandler::handleGetOptimizationStatus() {
+//   QJsonObject response;
+
+//   OptimizationResult result = m_optimizationHandler->getResult();
+
+//   response["isRunning"] = m_optimizationHandler->isRunning();
+//   response["iteration"] = result.iterationCount;
+//   response["suitabilityScore"] = result.suitabilityScore;
+//   response["suitabilityLabel"] = result.suitabilityLabel;
+
+//   // Convert score history to array
+//   QJsonArray history;
+//   for (double score : result.scoreHistory) {
+//     history.append(score);
+//   }
+//   response["scoreHistory"] = history;
+
+//   // Optimized Train Data
+//   QJsonObject trainObj;
+//   trainObj["n_tm"] = result.optimizedTrain.n_tm;
+//   trainObj["gearRatio"] = result.optimizedTrain.gearRatio;
+//   // Add other fields if optimized
+//   response["optimizedTrain"] = trainObj;
+
+//   return QHttpServerResponse(QJsonDocument(response).toJson(),
+//                              QHttpServerResponse::StatusCode::Ok);
+// }
+
+// QHttpServerResponse ApiHandler::handleApplyOptimization() {
+//   QJsonObject response;
+
+//   OptimizationResult result = m_optimizationHandler->getResult();
+//   if (result.suitabilityScore <= 0.0) {
+//     response["status"] = "error";
+//     response["message"] = "No valid optimization result to apply";
+//     return QHttpServerResponse(QJsonDocument(response).toJson(),
+//                                QHttpServerResponse::StatusCode::BadRequest);
+//   }
+
+//   // Apply to context
+//   if (m_context.trainData) {
+//     m_context.trainData->n_tm = result.optimizedTrain.n_tm;
+//     m_context.trainData->gearRatio = result.optimizedTrain.gearRatio;
+//     // Apply other optimized fields
+//   }
+
+//   response["status"] = "success";
+//   response["message"] = "Optimization applied to train parameters";
+//   return QHttpServerResponse(QJsonDocument(response).toJson(),
+//                              QHttpServerResponse::StatusCode::Ok);
+// }
