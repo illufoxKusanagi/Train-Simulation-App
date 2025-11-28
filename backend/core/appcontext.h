@@ -17,6 +17,7 @@
 #include "models/train_motor_data.h"
 #include <QFile>
 #include <QIODevice>
+#include <QMutex>
 #include <QSharedPointer>
 
 class AppContext : public QObject {
@@ -37,6 +38,9 @@ public:
   QSharedPointer<SimulationDatas> simulationDatas;
   UserManager *userManager;
   AuthManager *authManager;
+  QStringList simulationErrors;
+  QStringList simulationWarnings;
+  QMutex simulationMutex;
 };
 
 #endif // APPCONTEXT_H

@@ -1,5 +1,16 @@
 "use client";
-import { Calendar, Home, Network, Settings, Ticket } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  Calendar,
+  Home,
+  Rocket,
+  Settings,
+  Ticket,
+  TrainFront,
+  Waypoints,
+  Zap,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -16,16 +27,48 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { CardDescription } from "../ui/card";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 export function AppSidebar() {
   const { open } = useSidebar();
+  const pathname = usePathname();
 
-  const user = {
-    name: "arief",
-    email: "ariefsatria@gmail.com",
-    avatar: "",
-  };
+  const configItems = [
+    {
+      title: "Train Parameter",
+      url: "/train-parameter",
+      icon: TrainFront,
+    },
+    {
+      title: "Track Parameter",
+      url: "/track-parameter",
+      icon: Waypoints,
+    },
+    {
+      title: "Running Parameter",
+      url: "/running-parameter",
+      icon: Activity,
+    },
+    {
+      title: "Electrical Parameter",
+      url: "/electrical-parameter",
+      icon: Zap,
+    },
+  ];
+
+  const analysisItems = [
+    {
+      title: "Output",
+      url: "/output",
+      icon: BarChart3,
+    },
+    {
+      title: "Optimization",
+      url: "/optimization",
+      icon: Rocket,
+    },
+  ];
 
   const items = [
     {
@@ -73,54 +116,90 @@ export function AppSidebar() {
             : "px-2 pt-4 flex items-center justify-center opacity-100"
         )}
       >
-        <SidebarMenu>
-          <SidebarMenuButton asChild className="hover:bg-accent/50 h-full">
-            {open ? (
-              <div className="flex items-center gap-3 w-full px-2 mt-16">
-                <Network className="h-6 w-6 text-primary-600 dark:text-primary-300 shrink-0" />
-                <div className="flex flex-col items-start overflow-hidden">
-                  <p className="body-big-bold text-primary-600 dark:text-primary-300 truncate">
-                    Train Simulation App
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center w-full mt-11">
-                <Network className="h-6 w-6 text-primary-600 dark:text-primary-300" />
-              </div>
-            )}
-          </SidebarMenuButton>
-        </SidebarMenu>
+        {open ? (
+          <div className="flex flex-row gap-2 items-center w-full mt-10 mb-3">
+            <Image src="/logo.png" alt="Logo" width={50} height={50} />
+            <div className="flex flex-col">
+              <p className="font-bold text-lg text-primary leading-none">
+                Train Simulation App
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center w-full mt-11">
+            <Image src="/logo.png" alt="Logo" width={16} height={16} />
+          </div>
+        )}
       </SidebarHeader>
       <SidebarContent className="flex flex-col gap-4 transition-all duration-500 ease-in-out">
-        <SidebarMenu>
-          <SidebarGroup>
-            <SidebarGroupContent className="space-y-1">
-              <SidebarGroupLabel className={cn(open ? "block" : "hidden")}>
-                Input Menus
-              </SidebarGroupLabel>
-              <SidebarMenu>
-                {items.map((item) => (
-                  <SidebarHeader key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <Link href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarHeader>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarMenu>
+        <SidebarGroup className={cn(open ? "" : "mt-6")}>
+          <SidebarGroupContent>
+            <SidebarGroupLabel>Input Menus</SidebarGroupLabel>
+            <SidebarMenu>
+              {configItems.map((item) => (
+                <SidebarHeader key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    key={item.title}
+                    isActive={pathname === item.url}
+                    tooltip={item.title}
+                  >
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarHeader>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarGroupLabel>Output Menus</SidebarGroupLabel>
+            <SidebarMenu>
+              {analysisItems.map((item) => (
+                <SidebarHeader key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    key={item.title}
+                    isActive={pathname === item.url}
+                    tooltip={item.title}
+                  >
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarHeader>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter
         className={cn(
-          "absolute bottom-0 w-full border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-          open ? "p-0" : "p-0"
+          "w-full bg-accent/50 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300",
+          open ? "p-4" : "p-2"
         )}
-      ></SidebarFooter>
+      >
+        {open ? (
+          <p className="body-small-bold text-center">
+            Made with ❤️ by{" "}
+            <Link href={"https://github.com/illufoxKusanagi"}>
+              <span className="hover:underline text-primary-600 dark:text-primary-300">
+                illufoxKusanagi
+              </span>
+            </Link>
+          </p>
+        ) : (
+          <div className="flex items-center justify-center h-6">
+            <Link href={"https://github.com/illufoxKusanagi"}>
+              <span className="text-xl">❤️</span>
+            </Link>
+          </div>
+        )}
+      </SidebarFooter>
     </Sidebar>
   );
 }

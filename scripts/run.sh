@@ -167,11 +167,23 @@ run_dev() {
     echo ""
     
     # Run Qt application (blocks until closed)
+    # Prefix all output with [BACKEND] for clarity
     cd "$BACKEND_BUILD_DIR"
     if [ -f "bin/TrainSimulationApp" ]; then
         export FONTCONFIG_FILE=/etc/fonts/fonts.conf
         export FONTCONFIG_PATH=/etc/fonts
-        ./bin/TrainSimulationApp
+        export QT_LOGGING_RULES="*.debug=true"
+        export QT_FORCE_STDERR_LOGGING=1
+        print_msg "$BLUE" "🔍 Backend logs will appear below with [BACKEND] prefix:"
+        echo ""
+        # Use unbuffer if available for immediate output, otherwise use stdbuf
+        if command -v unbuffer &> /dev/null; then
+            unbuffer ./bin/TrainSimulationApp 2>&1 | sed 's/^/[BACKEND] /'
+        elif command -v stdbuf &> /dev/null; then
+            stdbuf -oL -eL ./bin/TrainSimulationApp 2>&1 | sed 's/^/[BACKEND] /'
+        else
+            ./bin/TrainSimulationApp 2>&1 | sed 's/^/[BACKEND] /'
+        fi
     else
         print_msg "$RED" "❌ Error: backend executable not found"
         print_msg "$YELLOW" "Expected: $BACKEND_BUILD_DIR/bin/TrainSimulationApp"

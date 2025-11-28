@@ -1,40 +1,46 @@
-export interface TrainParams {
-  constantData: {
-    i_T: number;
-    i_M: number;
-    n_axle: number;
-    n_tm: number;
-    wheelDiameter: number;
-    mass_P: number;
-    gearRatio: number;
-    carLength: number;
-    loadCondition: ["AW0", "AW1", "AW2", "AW3", "AW4"];
-    trainsetData: ["12", "10", "8", "6", "4", "12-Degraded", "10-Degraded"];
-  };
-  carMassData: {
-    mass_M1: number;
-    mass_M2: number;
-    mass_T1: number;
-    mass_T2: number;
-    mass_T3: number;
-    mass_Tc: number;
-  };
-  carPassanger: {
-    n_PTc: number;
-    n_PM1: number;
-    n_PM2: number;
-    n_Pt1: number;
-    n_Pt2: number;
-    n_Pt3: number;
-  };
-  carNumberForm: {
-    n_M1: number;
-    n_M2: number;
-    n_T1: number;
-    n_T2: number;
-    n_T3: number;
-    n_Tc: number;
-  };
+export interface TrainConstantParams {
+  i_T: number;
+  i_M: number;
+  n_axle: number;
+  n_tm: number;
+  wheelDiameter: number;
+  mass_P: number;
+  gearRatio: number;
+  carLength: number;
+  loadCondition: ["AW0", "AW1", "AW2", "AW3", "AW4"];
+  trainsetData: ["12", "10", "8", "6", "4", "12-Degraded", "10-Degraded"];
+}
+
+export interface TrainMassParams {
+  mass_M1: number;
+  mass_M2: number;
+  mass_T1: number;
+  mass_T2: number;
+  mass_T3: number;
+  mass_Tc: number;
+  totalEmptyMass: number;
+  totalLoadMass: number;
+  totalInertialMass: number;
+  i_M: number;
+  i_T: number;
+}
+
+export interface TrainPassangerParams {
+  n_PTc: number;
+  n_PM1: number;
+  n_PM2: number;
+  n_PT1: number; // Fixed: was n_Pt1 (lowercase t)
+  n_PT2: number; // Fixed: was n_Pt2 (lowercase t)
+  n_PT3: number; // Fixed: was n_Pt3 (lowercase t)
+}
+
+export interface TrainNumberParams {
+  n_M1: number;
+  n_M2: number;
+  n_T1: number;
+  n_T2: number;
+  n_T3: number;
+  n_Tc: number;
 }
 
 export interface TrackParams {

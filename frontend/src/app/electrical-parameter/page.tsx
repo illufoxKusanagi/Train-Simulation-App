@@ -15,9 +15,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
-import { TrackFormSchema } from "../track-parameter/form.constants";
 import { constantFormRows, ElectricalFormSchema } from "./form.constants";
 import { Form } from "@/components/ui/form";
+import { api } from "@/services/api";
 
 export default function ElectricalParameterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,12 +27,12 @@ export default function ElectricalParameterPage() {
     resolver: zodResolver(ElectricalFormSchema),
     defaultValues: {
       stat_vol_line: 1500,
-      stat_vol_motor: 750,
+      stat_vol_motor: 1200,
       stat_pf: 0,
-      stat_eff_gear: 95,
-      stat_eff_motor: 90,
-      stat_eff_vvvf: 90,
-      p_aps: 300,
+      stat_eff_gear: 98,
+      stat_eff_motor: 89,
+      stat_eff_vvvf: 96,
+      p_aps: 30,
     },
   });
 
@@ -50,16 +50,26 @@ export default function ElectricalParameterPage() {
       console.log("Form Data:", data);
       console.log("CSV Data:", csvData);
 
-      toast("Data berhasil disimpan!", {
-        description: (
-          <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-            <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-          </pre>
-        ),
+      // Send using YOUR exact variable names - NO CONVERSION
+      const electricalParams = {
+        stat_vol_line: data.stat_vol_line,
+        stat_vol_motor: data.stat_vol_motor,
+        stat_pf: data.stat_pf,
+        stat_eff_gear: data.stat_eff_gear,
+        stat_eff_motor: data.stat_eff_motor,
+        stat_eff_vvvf: data.stat_eff_vvvf,
+        p_aps: data.p_aps,
+      };
+
+      const result = await api.updateElectricalParameters(electricalParams);
+      console.log("Backend response:", result);
+      toast.success("Success!", {
+        description: "Electrical parameters updated successfully",
       });
     } catch (error) {
-      toast("Error!", {
-        description: "Gagal menyimpan data. Silakan coba lagi.",
+      console.error("Error updating parameters:", error);
+      toast.error("Error!", {
+        description: "Failed to save data. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -69,16 +79,16 @@ export default function ElectricalParameterPage() {
   const handleReset = () => {
     constantForm.reset();
     setCsvData({});
-    toast("Form berhasil direset!");
+    toast("Form has been reset!");
   };
 
   return (
     <PageLayout>
       <Card className="px-6 py-8 min-h-[40rem] h-full w-full max-w-2xl rounded-3xl justify-center">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Track Parameter</CardTitle>
+          <CardTitle className="text-2xl">Electrical Parameter</CardTitle>
           <CardDescription>
-            Input related to Track configuration
+            Input related to Electrical configuration
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -114,7 +124,7 @@ export default function ElectricalParameterPage() {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Menyimpan..." : "Simpan"}
+                  {isSubmitting ? "Saving..." : "Save"}
                 </Button>
                 <Button
                   type="button"
