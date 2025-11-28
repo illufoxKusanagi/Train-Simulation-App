@@ -1,5 +1,6 @@
 #include "electrical_parameter_handler.h"
 #include "core/appcontext.h"
+#include <QJsonDocument>
 
 ElectricalParameterHandler::ElectricalParameterHandler(AppContext &context,
                                                        QObject *parent)
