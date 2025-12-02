@@ -12,6 +12,7 @@
 /backend_copy
 /backend_copy_3
 /frontend_copy
+/backend/auth
 # /backend/utils
 # /backend/controllers/optimization
 
@@ -80,7 +81,7 @@ compile_commands.json
 
 # Environment and config files
 .env*
-# .auth
+.auth
 
 # Debug logs
 npm-debug.log*

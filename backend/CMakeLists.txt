@@ -88,19 +88,19 @@ set(PROJECT_SOURCES
     core/appcontext.cpp
 )
 
-set(RESOURCE_SOURCES
-    styles/colors.h
-    styles/text_style.h
-    resources/input_type.h
-    resources/icon_paths.h
-    resources/icons.qrc
-    auth/auth.qrc
-    auth/auth_data.h
-    auth/auth_manager.h
-    auth/auth_manager.cpp
-    auth/user_manager.cpp
-    auth/user_manager.h
-)
+# set(RESOURCE_SOURCES
+#     styles/colors.h
+#     styles/text_style.h
+#     resources/input_type.h
+#     resources/icon_paths.h
+#     resources/icons.qrc
+#     auth/auth.qrc
+#     auth/auth_data.h
+#     auth/auth_manager.h
+#     auth/auth_manager.cpp
+#     auth/user_manager.cpp
+#     auth/user_manager.h
+# )
 
 set(MODEL_SOURCES
     models/train_data.h
@@ -194,7 +194,7 @@ qt_add_executable(TrainSimulationApp
     ${PROJECT_SOURCES}
     ${MODEL_SOURCES}
     ${UTILITY_SOURCES}
-    ${RESOURCE_SOURCES}
+    # ${RESOURCE_SOURCES}
     ${CONTROLLER_SOURCES}
     ${HTTP_SERVER}
     ${HTTP_SERVER_PARAMS}
