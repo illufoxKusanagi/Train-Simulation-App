@@ -80,7 +80,7 @@ compile_commands.json
 
 # Environment and config files
 .env*
-.auth
+# .auth
 
 # Debug logs
 npm-debug.log*
