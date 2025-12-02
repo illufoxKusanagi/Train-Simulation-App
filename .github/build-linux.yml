@@ -38,18 +38,22 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Frontend
-        working-directory: ./frontend
         run: |
+          cd frontend
           npm install
           npm run build
 
       - name: Build Backend
-        working-directory: ./backend
         run: |
-          mkdir -p build
-          cd build
+          mkdir -p backend/build
+          cd backend/build
           cmake -DCMAKE_BUILD_TYPE=Release ..
-          make -j$(nproc)
+          cmake --build . --config Release
+
+      - name: Bundle Frontend with Backend
+        run: |
+          mkdir -p backend/build/bin/frontend
+          cp -r frontend/out/* backend/build/bin/frontend/
 
       - name: Create RPM package
         run: |
