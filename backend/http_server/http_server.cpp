@@ -70,6 +70,24 @@ QJsonObject HttpServer::parseRequestBody(const QHttpServerRequest &request) {
 void HttpServer::setupRoutes() {
   // Helper function to add CORS headers to any response
   auto addCorsHeaders = [](QHttpServerResponse &&response) {
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
+    QHttpServerResponder::HeaderList headers;
+    headers.append(qMakePair(QByteArrayLiteral("Access-Control-Allow-Origin"),
+                             QByteArrayLiteral("*")));
+    headers.append(
+        qMakePair(QByteArrayLiteral("Access-Control-Allow-Methods"),
+                  QByteArrayLiteral("GET, POST, PUT, DELETE, OPTIONS")));
+    headers.append(qMakePair(QByteArrayLiteral("Access-Control-Allow-Headers"),
+                             QByteArrayLiteral("Content-Type, Authorization")));
+    headers.append(qMakePair(QByteArrayLiteral("Access-Control-Max-Age"),
+                             QByteArrayLiteral("86400")));
+    // For Qt 6.7, setHeaders might overwrite existing headers (like
+    // Content-Type from constructor). We re-add it just in case, assuming JSON
+    // for most responses.
+    headers.append(qMakePair(QByteArrayLiteral("Content-Type"),
+                             QByteArrayLiteral("application/json")));
+    response.setHeaders(headers);
+#else
     QHttpHeaders headers = response.headers();
     headers.append("Access-Control-Allow-Origin", "*");
     headers.append("Access-Control-Allow-Methods",
@@ -78,6 +96,7 @@ void HttpServer::setupRoutes() {
                    "Content-Type, Authorization");
     headers.append("Access-Control-Max-Age", "86400");
     response.setHeaders(headers);
+#endif
     return std::move(response);
   };
 
