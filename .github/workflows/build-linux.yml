@@ -61,48 +61,47 @@ jobs:
         run: |
           # Create installation directory structure
           INSTALL_DIR="rpm-package"
-          mkdir -p "$INSTALL_DIR"/{usr/bin,usr/share/daily-reminder,usr/share/applications}
+          mkdir -p "$INSTALL_DIR"/{usr/bin,usr/share/train-simulation-app,usr/share/applications}
 
           # Copy files
-          cp backend/build/backend "$INSTALL_DIR/usr/bin/daily-reminder"
-          cp -r frontend/out/* "$INSTALL_DIR/usr/share/daily-reminder/"
+          cp backend/build/bin/TrainSimulationApp "$INSTALL_DIR/usr/bin/train-simulation-app"
+          cp -r frontend/out/* "$INSTALL_DIR/usr/share/train-simulation-app/"
 
           # Create desktop entry
-          cat > "$INSTALL_DIR/usr/share/applications/daily-reminder.desktop" <<'EOF'
+          cat > "$INSTALL_DIR/usr/share/applications/train-simulation-app.desktop" <<'EOF'
           [Desktop Entry]
-          Name=Daily Reminder
-          Comment=Calendar application with reminders
-          Exec=/usr/bin/daily-reminder
-          Icon=appointment-soon
+          Name=Train Simulation App
+          Comment=Train Simulation Application
+          Exec=/usr/bin/train-simulation-app
+          Icon=utilities-terminal
           Terminal=false
           Type=Application
-          Categories=Office;Calendar;
+          Categories=Education;Simulation;
           EOF
 
           # Create tarball
-          tar czf daily-reminder-1.0.0.tar.gz -C rpm-package .
+          tar czf train-simulation-app-1.0.0.tar.gz -C rpm-package .
 
           # Setup rpmbuild directories
           mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-          cp daily-reminder-1.0.0.tar.gz ~/rpmbuild/SOURCES/
+          cp train-simulation-app-1.0.0.tar.gz ~/rpmbuild/SOURCES/
 
           # Create spec file
-          cat > ~/rpmbuild/SPECS/daily-reminder.spec <<'SPEC'
+          cat > ~/rpmbuild/SPECS/train-simulation-app.spec <<'SPEC'
           %global debug_package %{nil}
 
-          Name:           daily-reminder
+          Name:           train-simulation-app
           Version:        1.0.0
           Release:        1%{?dist}
-          Summary:        Desktop calendar application with reminders
+          Summary:        Train Simulation Application
           License:        MIT
-          URL:            https://github.com/illufoxKusanagi/daily-reminder
+          URL:            https://github.com/illufoxKusanagi/Train-Simulation-App
           Source0:        %{name}-%{version}.tar.gz
           BuildArch:      x86_64
-          Requires:       qt6-qtbase qt6-qtwebengine libnotify
+          Requires:       qt6-qtbase qt6-qtwebengine
 
           %description
-          A desktop calendar application for managing daily activities with reminders,
-          built with Qt 6 (backend REST API) and Next.js (frontend UI).
+          A train simulation application built with Qt 6 (backend) and Next.js (frontend).
 
           %prep
           %setup -q -c
@@ -112,25 +111,25 @@ jobs:
           cp -a * %{buildroot}/
 
           %files
-          /usr/bin/daily-reminder
-          /usr/share/daily-reminder/*
-          /usr/share/applications/daily-reminder.desktop
+          /usr/bin/train-simulation-app
+          /usr/share/train-simulation-app/*
+          /usr/share/applications/train-simulation-app.desktop
 
           %changelog
-          * Sat Nov 02 2025 Builder <builder@localhost> - 1.0.0-1
+          * Sat Dec 02 2025 Builder <builder@localhost> - 1.0.0-1
           - Initial RPM release
           SPEC
 
           # Build RPM
-          rpmbuild -bb ~/rpmbuild/SPECS/daily-reminder.spec
+          rpmbuild -bb ~/rpmbuild/SPECS/train-simulation-app.spec
 
           # Copy RPM to workspace
-          cp ~/rpmbuild/RPMS/x86_64/daily-reminder-*.rpm .
+          cp ~/rpmbuild/RPMS/x86_64/train-simulation-app-*.rpm .
 
       - name: Upload RPM Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DailyReminder-Linux-RPM
+          name: TrainSimulationApp-Linux-RPM
           path: "*.rpm"
           retention-days: 30
 

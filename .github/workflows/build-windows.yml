@@ -50,31 +50,31 @@ jobs:
           cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{ env.Qt6_DIR }} ..
           cmake --build . --config Release
 
-          windeployqt.exe --release --no-translations output/DailyReminder/backend.exe
+          windeployqt.exe --release --no-translations backend/build/bin/TrainSimulationApp.exe
 
           # Create run script
           @"
           @echo off
-          start "" "%~dp0backend.exe"
-          "@ | Out-File -FilePath output/DailyReminder/DailyReminder.bat -Encoding ASCII
+          start "" "%~dp0TrainSimulationApp.exe"
+          "@ | Out-File -FilePath backend/build/bin/TrainSimulationApp.bat -Encoding ASCII
 
       - name: Create ZIP archive
         shell: powershell
         run: |
-          Compress-Archive -Path output/DailyReminder/* -DestinationPath DailyReminder-Windows-x64.zip
+          Compress-Archive -Path backend/build/bin/* -DestinationPath TrainSimulationApp-Windows-x64.zip
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DailyReminder-Windows-x64
-          path: DailyReminder-Windows-x64.zip
+          name: TrainSimulationApp-Windows-x64
+          path: TrainSimulationApp-Windows-x64.zip
           retention-days: 30
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v1
         with:
-          files: DailyReminder-Windows-x64.zip
+          files: TrainSimulationApp-Windows-x64.zip
           draft: false
           prerelease: false
         env:
