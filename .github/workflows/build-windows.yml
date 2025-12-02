@@ -50,6 +50,10 @@ jobs:
           cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{ env.Qt6_DIR }} ..
           cmake --build . --config Release
 
+      - name: Deploy Qt Dependencies
+        shell: powershell
+        run: |
+          cd backend/build
           windeployqt.exe --release --no-translations bin\TrainSimulationApp.exe
 
           # Create run script
