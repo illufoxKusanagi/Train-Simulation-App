@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
   // Auto-detect frontend URL if not specified
   if (frontendUrl.isEmpty()) {
     if (devMode) {
-      frontendUrl = "http://localhost:3254";
+      frontendUrl = "http://127.0.0.1:3254";
     } else {
       // Check for local file in standard locations
       QStringList possiblePaths = {
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
       if (!found) {
         qWarning() << "⚠️ Could not find local frontend file. Defaulting to "
                       "localhost.";
-        frontendUrl = "http://localhost:3254";
+        frontendUrl = "http://127.0.0.1:3254";
       }
     }
   }

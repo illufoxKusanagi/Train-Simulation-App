@@ -129,8 +129,8 @@ start_nextjs_dev() {
     local max_attempts=30
     local attempt=0
     while [ $attempt -lt $max_attempts ]; do
-        if curl -s -o /dev/null -w "%{http_code}" http://localhost:3254 | grep -q "200"; then
-            print_msg "$GREEN" "✅ Next.js dev server ready at http://localhost:3254"
+        if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3254 | grep -q "200"; then
+            print_msg "$GREEN" "✅ Next.js dev server ready at http://127.0.0.1:3254"
             return 0
         fi
         sleep 1

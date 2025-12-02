@@ -1,5 +1,6 @@
 #include "train_parameter_handler.h"
 #include "controllers/simulation/mass_handler.h"
+#include <QJsonDocument>
 
 TrainParameterHandler::TrainParameterHandler(AppContext &context,
                                              QObject *parent)
