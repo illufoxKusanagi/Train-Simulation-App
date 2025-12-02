@@ -120,8 +120,10 @@ install_frontend_deps() {
 start_nextjs_dev() {
     print_msg "$YELLOW" "💻 Starting Next.js dev server..."
     cd "$FRONTEND_DIR"
-    npm run dev > /dev/null 2>&1 &
+    # Redirect output to log file for debugging
+    npm run dev > "$PROJECT_ROOT/frontend.log" 2>&1 &
     FRONTEND_PID=$!
+    print_msg "$BLUE" "📝 Frontend logs redirected to: $PROJECT_ROOT/frontend.log"
     cd "$PROJECT_ROOT"
     
     # Wait for Next.js to be ready
@@ -138,6 +140,10 @@ start_nextjs_dev() {
     done
     
     print_msg "$RED" "❌ Next.js dev server failed to start"
+    if [ -f "$PROJECT_ROOT/frontend.log" ]; then
+        print_msg "$RED" "Last 20 lines of frontend log:"
+        tail -n 20 "$PROJECT_ROOT/frontend.log"
+    fi
     return 1
 }
 
