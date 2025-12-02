@@ -24,7 +24,8 @@ jobs:
             nodejs \
             npm \
             rpm \
-            libgl1-mesa-dev
+            libgl1-mesa-dev \
+            libcups2-dev
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
