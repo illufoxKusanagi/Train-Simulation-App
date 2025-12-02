@@ -27,12 +27,13 @@ jobs:
             libgl1-mesa-dev
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: "6.8.0"
           host: "linux"
           target: "desktop"
           arch: "linux_gcc_64"
+          modules: "qtwebchannel qthttpserver qtwebengine qtpositioning qtwebsockets"
 
       - name: Checkout code
         uses: actions/checkout@v4

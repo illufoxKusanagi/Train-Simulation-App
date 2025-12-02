@@ -33,6 +33,7 @@ find_package(Qt6 REQUIRED COMPONENTS
     Network
     HttpServer
     Widgets
+    PrintSupport
     WebEngineWidgets
     WebEngineWidgets
     WebChannel
