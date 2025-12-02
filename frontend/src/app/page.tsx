@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { api } from "@/services/api";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/sidebar/app-sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/toggle-mode-button";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +26,7 @@ import {
   Gauge,
 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function Home() {
   const [backendStatus, setBackendStatus] = useState<string>("Memeriksa...");
@@ -34,6 +34,7 @@ export default function Home() {
 
   useEffect(() => {
     checkBackendConnection();
+    initializeBackendOnce();
   }, []);
 
   const checkBackendConnection = async () => {
@@ -41,15 +42,44 @@ export default function Home() {
       const health = await api.checkHealth();
       setBackendStatus(`Backend Terhubung: ${health.status}`);
       setIsConnected(true);
-    } catch (error) {
+    } catch {
       setBackendStatus(`Backend Terputus`);
       setIsConnected(false);
     }
   };
 
-  const handleStartSimulation = () => {
-    // Navigate to simulation page or show simulation controls
-    console.log("Starting simulation...");
+  const initializeBackendOnce = async () => {
+    // Use the proper initialization that sets all Qt GUI default values
+    const { initializeBackendOnce: initBackend } = await import(
+      "@/lib/backendInit"
+    );
+    await initBackend();
+  };
+
+  const handleStartSimulation = async () => {
+    try {
+      console.log("Starting static simulation...");
+
+      // Start static simulation
+      const startResult = await api.startSimulation({ type: "static" });
+      console.log("Simulation started:", startResult);
+
+      // Poll status until complete
+      let statusResult = await api.getSimulationStatus();
+      while (statusResult.isRunning) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        statusResult = await api.getSimulationStatus();
+      }
+
+      // Fetch results
+      const results = await api.getSimulationResults();
+      console.log("Simulation results:", results);
+
+      toast("Simulation completed! Check console for results.");
+    } catch (error) {
+      console.error("Simulation failed:", error);
+      toast("Simulation failed. Make sure to update all parameters first!");
+    }
   };
 
   const features = [
@@ -131,7 +161,7 @@ export default function Home() {
 
         {/* Hero Section */}
         <main className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20">
-          <div className="absolute inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02]" />
+          <div className="absolute bg-grid-black/[0.02] dark:bg-grid-white/[0.02]" />
           <div className="container mx-auto px-6 py-20 relative">
             <div className="text-center max-w-4xl mx-auto">
               <div className="inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 px-4 py-2 rounded-full text-sm font-medium text-blue-600 dark:text-blue-400 mb-6">

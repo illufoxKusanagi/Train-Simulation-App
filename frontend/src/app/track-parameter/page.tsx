@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { constantFormRows, TrackFormSchema } from "./form.constants";
 import { useState } from "react";
 import { toast } from "sonner";
+import { api } from "@/services/api";
 import PageLayout from "@/components/page-layout";
 import {
   Card,
@@ -26,7 +27,7 @@ export default function TrackParameterPage() {
     resolver: zodResolver(TrackFormSchema),
     defaultValues: {
       n_station: 2,
-      x_station: 1000,
+      x_station: 2000,
       radius: 300,
       slope: 0,
       v_limit: 80,
@@ -48,16 +49,42 @@ export default function TrackParameterPage() {
       console.log("Form Data:", data);
       console.log("CSV Data:", csvData);
 
-      toast("Data berhasil disimpan!", {
-        description: (
-          <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-            <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-          </pre>
-        ),
+      // Send using YOUR exact variable names - NO CONVERSION
+      const trackParams: Record<string, number | number[]> = {
+        n_station: data.n_station,
+        x_station: data.x_station,
+        radius: data.radius,
+        slope: data.slope,
+        v_limit: data.v_limit,
+        dwellTime: data.dwellTime,
+      };
+
+      // Add CSV array data if available
+      if (csvData.x_station && csvData.x_station.length > 0) {
+        trackParams.x_station_array = csvData.x_station.flat();
+      }
+      if (csvData.v_limit && csvData.v_limit.length > 0) {
+        trackParams.v_limit_array = csvData.v_limit.flat();
+      }
+      if (csvData.slope && csvData.slope.length > 0) {
+        trackParams.slope_array = csvData.slope.flat();
+      }
+      if (csvData.radius && csvData.radius.length > 0) {
+        trackParams.radius_array = csvData.radius.flat();
+      }
+      if (csvData.dwellTime && csvData.dwellTime.length > 0) {
+        trackParams.dwellTime_array = csvData.dwellTime.flat();
+      }
+
+      const result = await api.updateTrackParameters(trackParams);
+      console.log("Backend response:", result);
+      toast.success("Success!", {
+        description: "Track parameters updated successfully",
       });
     } catch (error) {
-      toast("Error!", {
-        description: "Gagal menyimpan data. Silakan coba lagi.",
+      console.error("Error updating parameters:", error);
+      toast.error("Error!", {
+        description: "Failed to save data. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -67,7 +94,7 @@ export default function TrackParameterPage() {
   const handleReset = () => {
     constantForm.reset();
     setCsvData({});
-    toast("Form berhasil direset!");
+    toast("Form has been reset!");
   };
 
   return (
@@ -112,7 +139,7 @@ export default function TrackParameterPage() {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Menyimpan..." : "Simpan"}
+                  {isSubmitting ? "Saving..." : "Save"}
                 </Button>
                 <Button
                   type="button"

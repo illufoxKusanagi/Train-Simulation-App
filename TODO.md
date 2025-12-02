@@ -1,0 +1,3 @@
+- [ ] Resolving Code Audit before everything else
+- [x] Applying simulationWarnings and simulationErrors to AppContext 
+- [ ] Implementing simulationErrors and simulationWarnings to backend reponse and frontend

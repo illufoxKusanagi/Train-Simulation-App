@@ -21,42 +21,35 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@v3
         with:
-          version: "6.7.0"
+          version: "6.8.0"
           host: "windows"
           target: "desktop"
           arch: "win64_msvc2019_64"
           modules: "qtwebchannel qthttpserver qtwebengine qtpositioning qtwebsockets"
 
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Build Frontend
-        working-directory: ./frontend
+        shell: bash
         run: |
+          cd frontend
           npm install
           npm run build
 
       - name: Build Backend
-        working-directory: ./backend
+        shell: cmd
         run: |
-          mkdir build
-          cd build
-          cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release ..
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          mkdir backend\build
+          cd backend\build
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{ env.Qt6_DIR }} ..
           cmake --build . --config Release
 
-      - name: Create Distribution Package
-        shell: powershell
-        run: |
-          # Create output directory
-          New-Item -ItemType Directory -Force -Path output/DailyReminder
-
-          # Copy backend executable
-          Copy-Item backend/build/backend.exe output/DailyReminder/
-
-          # Copy frontend files
-          New-Item -ItemType Directory -Force -Path output/DailyReminder/frontend
-          Copy-Item -Recurse frontend/out/* output/DailyReminder/frontend/
-
-          # Run windeployqt to bundle Qt dependencies
           windeployqt.exe --release --no-translations output/DailyReminder/backend.exe
 
           # Create run script

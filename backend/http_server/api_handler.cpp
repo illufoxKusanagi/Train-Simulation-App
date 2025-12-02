@@ -1,1296 +1,491 @@
 #include "api_handler.h"
-#include <QJsonDocument>
-#include <QJsonObject>
-#include <QJsonArray>
+#include <QDateTime>
 #include <QDebug>
 #include <QHttpServerResponse>
-#include <QDateTime>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 ApiHandler::ApiHandler(AppContext &context, QObject *parent)
-    : QObject(parent), m_context(context)
-{
-    // **FIX: Initialize handlers safely with null checks**
-    m_trainDataHandler = new TrainDataHandler(&context, this);
-    m_electricalDataHandler = new ElectricalDataHandler(&context, this);
-    m_runningDataHandler = new RunningDataHandler(&context, this);
-    m_trackDataHandler = new TrackDataHandler(&context, this);
-    m_simulationHandler = new TrainSimulationHandler(context, this);
-    
-    // **FIX: Check if simulationDatas exists before creating CSV handler**
-    if (context.simulationDatas) {
-        m_csvOutputHandler = new CsvOutputHandler(*context.simulationDatas);
+    : QObject(parent), m_context(context) {
+  // Sub handlers
+  m_trainHandler = new TrainParameterHandler(context, this);
+  m_electricalHandler = new ElectricalParameterHandler(context, this);
+  m_runningHandler = new RunningParameterHandler(context, this);
+  m_trackHandler = new TrackParameterHandler(context, this);
+  m_simulationHandler = new SimulationHandler(context, this);
+  // m_optimizationHandler = new OptimizationHandler(this);
+  // m_exportHandler = new ExportHandler(context, this);
+
+  // **FIX: Initialize handlers safely with null checks**
+  m_trainDataHandler = new TrainDataHandler(&context, this);
+  m_electricalDataHandler = new ElectricalDataHandler(&context, this);
+  m_runningDataHandler = new RunningDataHandler(&context, this);
+  m_trackDataHandler = new TrackDataHandler(&context, this);
+  // m_simulationHandler = new TrainSimulationHandler(context, this);
+
+  // **FIX: Check if simulationDatas exists before creating CSV handler**
+  if (context.simulationDatas) {
+    m_csvOutputHandler = new CsvOutputHandler(*context.simulationDatas);
+  } else {
+    m_csvOutputHandler = nullptr;
+    qWarning()
+        << "simulationDatas not initialized, CSV export will not be available";
+  }
+}
+
+QHttpServerResponse ApiHandler::handleHealthCheck() {
+  QJsonObject response;
+  response["status"] = "ok";
+  response["service"] = "Train Simulation Backend";
+  response["timestamp"] = QDateTime::currentDateTime().toString(Qt::ISODate);
+  response["dataStatus"] =
+      QJsonObject{{"trainData", m_context.trainData != nullptr},
+                  {"powerData", m_context.powerData != nullptr},
+                  {"efficiencyData", m_context.efficiencyData != nullptr},
+                  {"loadData", m_context.loadData != nullptr},
+                  {"massData", m_context.massData != nullptr},
+                  {"energyData", m_context.energyData != nullptr},
+                  {"simulationDatas", m_context.simulationDatas != nullptr}};
+
+  return QHttpServerResponse(QJsonDocument(response).toJson(),
+                             QHttpServerResponse::StatusCode::Ok);
+}
+
+QHttpServerResponse ApiHandler::handleGetTrainParameters() {
+  return m_trainHandler->handleGetTrainParameters();
+}
+
+QHttpServerResponse
+ApiHandler::handleUpdateTrainParameters(const QJsonObject &data) {
+  return m_trainHandler->handleUpdateTrainParameters(data);
+}
+
+QHttpServerResponse ApiHandler::handleExportResults(const QJsonObject &data) {
+  QJsonObject response;
+
+  // **FIX: Check if CSV handler exists**
+  if (!m_csvOutputHandler) {
+    response["status"] = "error";
+    response["message"] =
+        "CSV export not available - simulation data not initialized";
+    return QHttpServerResponse(
+        QJsonDocument(response).toJson(),
+        QHttpServerResponse::StatusCode::InternalServerError);
+  }
+
+  try {
+    QString format = data.value("format").toString("csv");
+
+    if (format == "csv") {
+      m_csvOutputHandler->printSimulationDatas();
+
+      response["status"] = "success";
+      response["message"] = "Results exported to CSV successfully";
     } else {
-        m_csvOutputHandler = nullptr;
-        qWarning() << "simulationDatas not initialized, CSV export will not be available";
+      response["status"] = "error";
+      response["message"] = "Unsupported export format";
     }
-}
+  } catch (const std::exception &e) {
+    response["status"] = "error";
+    response["message"] = QString("Error exporting results: %1").arg(e.what());
+  }
 
-QHttpServerResponse ApiHandler::handleHealthCheck()
-{
-    QJsonObject response;
-    response["status"] = "ok";
-    response["service"] = "Train Simulation Backend";
-    response["timestamp"] = QDateTime::currentDateTime().toString(Qt::ISODate);
-    response["dataStatus"] = QJsonObject{
-        {"trainData", m_context.trainData != nullptr},
-        {"powerData", m_context.powerData != nullptr},
-        {"efficiencyData", m_context.efficiencyData != nullptr},
-        {"loadData", m_context.loadData != nullptr},
-        {"massData", m_context.massData != nullptr},
-        {"energyData", m_context.energyData != nullptr},
-        {"simulationDatas", m_context.simulationDatas != nullptr}
-    };
-    
-    return QHttpServerResponse(QJsonDocument(response).toJson(), 
-                               QHttpServerResponse::StatusCode::Ok);
-}
-
-QHttpServerResponse ApiHandler::handleGetTrainParameters()
-{
-    QJsonObject response;
-    
-    // **FIX: Add null check and initialize data if needed**
-    if (!m_context.trainData) {
-        response["status"] = "error";
-        response["message"] = "Train data not initialized";
-        return QHttpServerResponse(QJsonDocument(response).toJson(),
-                                   QHttpServerResponse::StatusCode::InternalServerError);
-    }
-    
-    QJsonObject trainParams;
-    trainParams["tractionMotors"] = m_context.trainData->n_tm;
-    trainParams["axles"] = m_context.trainData->n_axle;
-    trainParams["cars"] = m_context.trainData->n_car;
-    trainParams["gearRatio"] = m_context.trainData->gearRatio;
-    trainParams["wheelDiameter"] = m_context.trainData->wheel;
-    trainParams["trainsetLength"] = m_context.trainData->trainsetLength;
-    trainParams["motorCars1"] = m_context.trainData->n_M1;
-    trainParams["motorCars2"] = m_context.trainData->n_M2;
-    trainParams["trailerCabCars"] = m_context.trainData->n_Tc;
-    trainParams["trailerCars1"] = m_context.trainData->n_T1;
-    trainParams["trailerCars2"] = m_context.trainData->n_T2;
-    trainParams["trailerCars3"] = m_context.trainData->n_T3;
-    trainParams["motorCars1Disabled"] = m_context.trainData->n_M1_disabled;
-    trainParams["motorCars2Disabled"] = m_context.trainData->n_M2_disabled;
-    
-    response["trainParameters"] = trainParams;
-    response["status"] = "success";
-    
-    return QHttpServerResponse(QJsonDocument(response).toJson(),
-                               QHttpServerResponse::StatusCode::Ok);
-}
-
-QHttpServerResponse ApiHandler::handleUpdateTrainParameters(const QJsonObject &data)
-{
-    QJsonObject response;
-    
-    // **FIX: Add null check**
-    if (!m_context.trainData) {
-        response["status"] = "error";
-        response["message"] = "Train data not initialized";
-        return QHttpServerResponse(QJsonDocument(response).toJson(),
-                                   QHttpServerResponse::StatusCode::InternalServerError);
-    }
-    
-try {
-        if (data.contains("trainParameters")) {
-            QJsonObject trainParams = data["trainParameters"].toObject();
-            qDebug() << "📝 Updating train parameters:" << trainParams;
-            
-            // Update train data using actual TrainData variables
-            if (trainParams.contains("tractionMotors")) {
-                m_context.trainData->n_tm = trainParams["tractionMotors"].toDouble();
-                qDebug() << "Updated n_tm to:" << m_context.trainData->n_tm;
-            }
-            if (trainParams.contains("axles")) {
-                m_context.trainData->n_axle = trainParams["axles"].toDouble();
-                qDebug() << "Updated n_axle to:" << m_context.trainData->n_axle;
-            }
-            if (trainParams.contains("cars")) {
-                m_context.trainData->n_car = trainParams["cars"].toDouble();
-                qDebug() << "Updated n_car to:" << m_context.trainData->n_car;
-            }
-            if (trainParams.contains("gearRatio")) {
-                m_context.trainData->gearRatio = trainParams["gearRatio"].toDouble();
-                qDebug() << "Updated gearRatio to:" << m_context.trainData->gearRatio;
-            }
-            if (trainParams.contains("wheelDiameter")) {
-                m_context.trainData->wheel = trainParams["wheelDiameter"].toDouble();
-                qDebug() << "Updated wheel to:" << m_context.trainData->wheel;
-            }
-            
-            response["status"] = "success";
-            response["message"] = "Train parameters updated successfully";
-            qDebug() << "✅ Train parameters updated successfully";
-        } else {
-            qDebug() << "❌ No train parameters provided in request";
-            response["status"] = "error";
-            response["message"] = "No train parameters provided";
-        }
-    } catch (const std::exception &e) {
-        qDebug() << "💥 Exception in handleUpdateTrainParameters:" << e.what();
-        response["status"] = "error";
-        response["message"] = QString("Error updating parameters: %1").arg(e.what());
-    } catch (...) {
-        qDebug() << "💥 Unknown exception in handleUpdateTrainParameters";
-        response["status"] = "error";
-        response["message"] = "Unknown error updating parameters";
-    }
-    
-    return QHttpServerResponse(QJsonDocument(response).toJson(),
-                               QHttpServerResponse::StatusCode::Ok);
+  return QHttpServerResponse(QJsonDocument(response).toJson(),
+                             QHttpServerResponse::StatusCode::Ok);
 }
 
 // **FIX: Similar null checks for other methods**
-QHttpServerResponse ApiHandler::handleGetElectricalParameters()
-{
-    QJsonObject response;
-    
-    if (!m_context.powerData || !m_context.efficiencyData) {
-        response["status"] = "error";
-        response["message"] = "Electrical data not initialized";
-        return QHttpServerResponse(QJsonDocument(response).toJson(),
-                                   QHttpServerResponse::StatusCode::InternalServerError);
+QHttpServerResponse ApiHandler::handleGetElectricalParameters() {
+  return m_electricalHandler->handleGetElectricalParameters();
+}
+
+QHttpServerResponse
+ApiHandler::handleUpdateElectricalParameters(const QJsonObject &data) {
+  return m_electricalHandler->handleUpdateElectricalParameters(data);
+}
+
+QHttpServerResponse ApiHandler::handleGetRunningParameters() {
+  return m_runningHandler->handleGetRunningParameters();
+}
+
+QHttpServerResponse
+ApiHandler::handleUpdateRunningParameters(const QJsonObject &data) {
+  return m_runningHandler->handleUpdateRunningParameters(data);
+}
+
+QHttpServerResponse ApiHandler::handleGetTrackParameters() {
+  return m_trackHandler->handleGetTrackParameters();
+}
+
+QHttpServerResponse
+ApiHandler::handleUpdateTrackParameters(const QJsonObject &data) {
+  return m_trackHandler->handleUpdateTrackParameters(data);
+}
+
+QHttpServerResponse ApiHandler::handleGetCarNumberParameters() {
+  return m_trainHandler->handleGetCarNumberParameters();
+}
+
+QHttpServerResponse
+ApiHandler::handleUpdateCarNumberParameters(const QJsonObject &data) {
+  return m_trainHandler->handleUpdateCarNumberParameters(data);
+}
+
+QHttpServerResponse ApiHandler::handleGetPassengerParameters() {
+  return m_trainHandler->handleGetPassengerParameters();
+}
+
+QHttpServerResponse
+ApiHandler::handleUpdatePassengerParameters(const QJsonObject &data) {
+  return m_trainHandler->handleUpdatePassengerParameters(data);
+}
+
+QHttpServerResponse ApiHandler::handleGetMassParameters() {
+  return m_trainHandler->handleGetMassParameters();
+}
+
+QHttpServerResponse
+ApiHandler::handleUpdateMassParameters(const QJsonObject &data) {
+  return m_trainHandler->handleUpdateMassParameters(data);
+}
+
+QHttpServerResponse ApiHandler::handleStartSimulation(const QJsonObject &data) {
+  return m_simulationHandler->handleStartSimulation(data);
+}
+
+QHttpServerResponse ApiHandler::handleGetSimulationStatus() {
+  return m_simulationHandler->handleGetSimulationStatus();
+}
+
+QHttpServerResponse ApiHandler::handleGetSimulationResults() {
+  return m_simulationHandler->handleGetSimulationResults();
+}
+
+QHttpServerResponse ApiHandler::handleQuickInit() {
+  QJsonObject response;
+
+  try {
+    qDebug() << "🔧 Quick initialization with minimal valid data";
+
+    // Train parameters - MATCHING ORIGINAL BACKEND COPY DEFAULT VALUES
+    if (m_context.trainData) {
+      // From backend copy/pages/train_parameter_page.cpp line 60:
+      // values = {1.05, 4, 1.1, 24, 860, 70.0, 3.0, 0.0, 0, 20}
+      m_context.trainData->n_tm = 24.0;     // Number of traction motors
+      m_context.trainData->n_axle = 4.0;    // Axles per car
+      m_context.trainData->n_car = 12.0;    // Number of cars (12-car default)
+      m_context.trainData->gearRatio = 3.0; // Gear ratio
+      m_context.trainData->wheel = 860.0;   // Wheel diameter (mm)
+      m_context.trainData->trainsetLength =
+          (m_context.trainData->trainsetLength *
+           m_context.trainData->n_car); // 12 cars × 20m
+
+      // From backend copy line 89: trainValues = {2, 3, 3, 2, 1, 1, 0, 0}
+      m_context.trainData->n_Tc = 2.0; // Tc = 2
+      m_context.trainData->n_M1 = 3.0; // M1 = 3
+      m_context.trainData->n_M2 = 3.0; // M2 = 3
+      m_context.trainData->n_T1 = 2.0; // T1 = 2
+      m_context.trainData->n_T2 = 1.0; // T2 = 1
+      m_context.trainData->n_T3 = 1.0; // T3 = 1
+      m_context.trainData->n_M1_disabled = 0.0;
+      m_context.trainData->n_M2_disabled = 0.0;
+      qDebug() << "✓ Train parameters initialized (matching backend copy: "
+                  "12-car configuration)";
     }
-    
-    QJsonObject electricalParams;
-    electricalParams["wheelPower"] = m_context.powerData->p_wheel;
-    electricalParams["motorOutPower"] = m_context.powerData->p_motorOut;
-    electricalParams["motorInPower"] = m_context.powerData->p_motorIn;
-    electricalParams["vvvfInPower"] = m_context.powerData->p_vvvfIn;
-    electricalParams["catenaryPower"] = m_context.powerData->p_catenary;
-    electricalParams["apsPower"] = m_context.powerData->p_aps;
-    electricalParams["staticApsPower"] = m_context.powerData->stat_p_aps;
-    
-    electricalParams["staticGearEfficiency"] = m_context.efficiencyData->stat_eff_gear;
-    electricalParams["staticMotorEfficiency"] = m_context.efficiencyData->stat_eff_motor;
-    electricalParams["staticVvvfEfficiency"] = m_context.efficiencyData->stat_eff_vvvf;
-    
-    response["electricalParameters"] = electricalParams;
-    response["status"] = "success";
-    
-    return QHttpServerResponse(QJsonDocument(response).toJson(),
-                               QHttpServerResponse::StatusCode::Ok);
-}
 
-// **Continue with the rest of the methods from your original file, but add null checks**
-
-QHttpServerResponse ApiHandler::handleExportResults(const QJsonObject &data)
-{
-    QJsonObject response;
-    
-    // **FIX: Check if CSV handler exists**
-    if (!m_csvOutputHandler) {
-        response["status"] = "error";
-        response["message"] = "CSV export not available - simulation data not initialized";
-        return QHttpServerResponse(QJsonDocument(response).toJson(),
-                                   QHttpServerResponse::StatusCode::InternalServerError);
+    // Mass parameters - MATCHING ORIGINAL BACKEND COPY DEFAULT VALUES
+    if (m_context.massData) {
+      // m_context.massData->mass_Me = 20.0;
+      // m_context.massData->mass_Te = 10.0;
+      // m_context.massData->mass_M = 20.0;
+      // m_context.massData->mass_T = 10.0;
+      // From backend copy/pages/train_parameter_page.cpp line 90:
+      // massValues = {10, 20, 20, 10, 10, 10, 20, 20}
+      m_context.massData->mass_TC = 10.0; // Tc = 10 tons
+      m_context.massData->mass_M1 = 20.0; // M1 = 20 tons
+      m_context.massData->mass_M2 = 20.0; // M2 = 20 tons
+      m_context.massData->mass_T1 = 10.0; // T1 = 10 tons
+      m_context.massData->mass_T2 = 10.0; // T2 = 10 tons
+      m_context.massData->mass_T3 = 10.0; // T3 = 10 tons
+      m_context.massData->i_M = 1.1;
+      m_context.massData->i_T = 1.05;
+      // m_context.massData->mass_totalEmpty =
+      //     0.0; // Will be calculated by countMassEmptyCar()
+      // m_context.massData->mass_totalLoad = 0.0;
+      // m_context.massData->mass_totalInertial = 0.0;
+      qDebug()
+          << "✓ Mass parameters initialized (matching backend copy defaults)";
     }
-    
-    try {
-        QString format = data.value("format").toString("csv");
-        
-        if (format == "csv") {
-            m_csvOutputHandler->printSimulationDatas();
-            
-            response["status"] = "success";
-            response["message"] = "Results exported to CSV successfully";
-        } else {
-            response["status"] = "error";
-            response["message"] = "Unsupported export format";
-        }
-    } catch (const std::exception &e) {
-        response["status"] = "error";
-        response["message"] = QString("Error exporting results: %1").arg(e.what());
+
+    // Load parameters - MATCHING ORIGINAL BACKEND COPY DEFAULT VALUES
+    if (m_context.loadData) {
+      m_context.loadData->load = 0.0;
+      m_context.loadData->mass_P = 70.0;
+      m_context.loadData->mass_P_final =
+          m_context.loadData->mass_P / 1000; // 70kg / 1000
+
+      // Passenger counts from backend copy line 91:
+      // passengerValues = {100, 200, 200, 200, 200, 200, 200, 200}
+      m_context.loadData->n_PTc = 100.0; // Tc = 100 passengers
+      m_context.loadData->n_PM1 = 200.0; // M1 = 200 passengers
+      m_context.loadData->n_PM2 = 200.0; // M2 = 200 passengers
+      m_context.loadData->n_PT1 = 200.0; // T1 = 200 passengers
+      m_context.loadData->n_PT2 = 200.0; // T2 = 200 passengers
+      m_context.loadData->n_PT3 = 200.0; // T3 = 200 passengers
+
+      qDebug()
+          << "✓ Load parameters initialized (matching backend copy defaults)";
     }
-    
-    return QHttpServerResponse(QJsonDocument(response).toJson(),
-                               QHttpServerResponse::StatusCode::Ok);
-}
 
-QHttpServerResponse ApiHandler::handleUpdateElectricalParameters(const QJsonObject &data)
-{
-    QJsonObject response;
-    
-    if (!m_context.powerData || !m_context.efficiencyData) {
-        response["status"] = "error";
-        response["message"] = "Electrical data not initialized";
-        return QHttpServerResponse(QJsonDocument(response).toJson(),
-                                   QHttpServerResponse::StatusCode::InternalServerError);
+    // Motor data (realistic values for 8-car EMU with 24 motors)
+    // if (m_context.trainMotorData) {
+    //   m_context.trainMotorData->tm_f =
+    //       250.0; // Total traction force (kN) - much higher for realistic
+    //              // acceleration
+    //   m_context.trainMotorData->tm_adh = 0.25; // Adhesion coefficient
+    //   qDebug() << "✓ Motor parameters initialized";
+    // }
+
+    // Efficiency parameters
+    if (m_context.efficiencyData) {
+      m_context.efficiencyData->stat_eff_gear = 0.98;
+      m_context.efficiencyData->stat_eff_motor = 0.89;
+      m_context.efficiencyData->stat_eff_vvvf = 0.97;
+      qDebug() << "✓ Efficiency parameters initialized";
     }
-    
-    try {
-        if (data.contains("electricalParameters")) {
-            QJsonObject params = data["electricalParameters"].toObject();
-            
-            // Update power data
-            if (params.contains("wheelPower")) {
-                m_context.powerData->p_wheel = params["wheelPower"].toDouble();
-            }
-            if (params.contains("motorOutPower")) {
-                m_context.powerData->p_motorOut = params["motorOutPower"].toDouble();
-            }
-            // Add other parameters as needed...
-            
-            response["status"] = "success";
-            response["message"] = "Electrical parameters updated successfully";
-        } else {
-            response["status"] = "error";
-            response["message"] = "No electrical parameters provided";
-        }
-    } catch (const std::exception &e) {
-        response["status"] = "error";
-        response["message"] = QString("Error updating parameters: %1").arg(e.what());
+
+    // Resistance parameters
+    if (m_context.resistanceData) {
+      m_context.resistanceData->startRes =
+          39.2; // Starting resistance (reduced for better acceleration)
+      m_context.resistanceData->slope = 0.0;     // No slope
+      m_context.resistanceData->radius = 2000.0; // No curve
+      qDebug() << "✓ Resistance parameters initialized";
     }
-    
-    return QHttpServerResponse(QJsonDocument(response).toJson(),
-                               QHttpServerResponse::StatusCode::Ok);
-}
 
-QHttpServerResponse ApiHandler::handleGetRunningParameters()
-{
-    QJsonObject response;
+    // Station data - STATIC simulation values
+    if (m_context.stationData) {
+      m_context.stationData->stat_slope_1 = 0.0;
+      m_context.stationData->stat_slope_2 = 10.0;
+      m_context.stationData->stat_slope_3 = 10.0;
+      m_context.stationData->stat_radius = 2000;
+      m_context.stationData->stat_x_station = 2000.0; // 2km
+      m_context.stationData->stat_v_limit = 70.0;     // 100 km/h
+      m_context.stationData->stat_dwellTime = 60.0;
+      m_context.stationData->n_station = 2;
+      qDebug() << "✓ Station parameters initialized";
+    }
+
+    // Running parameters
+    if (m_context.movingData) {
+      m_context.movingData->v = 0.0;
+      m_context.movingData->v_diffCoast = 5.0;
+      m_context.movingData->acc_start = 1.0; // 1 m/s²
+      m_context.movingData->v_p1 = 35.0;
+      m_context.movingData->v_p2 = 65.0;
+      m_context.movingData->v_b1 = 55.0;
+      m_context.movingData->v_b2 = 70.0;
+      m_context.movingData->decc_start = 1.0; // Braking deceleration
+      m_context.movingData->decc_emergency = 1.2;
+      qDebug() << "✓ Running parameters initialized";
+    }
+
+    if (m_context.powerData) {
+      m_context.energyData->stat_vol_line = 1500;
+      m_context.energyData->stat_vol_motor = 1200;
+    }
+
     response["status"] = "success";
-    response["message"] = "Running parameters endpoint - not implemented yet";
-    response["runningParameters"] = QJsonObject();
-    
-    return QHttpServerResponse(QJsonDocument(response).toJson(),
-                               QHttpServerResponse::StatusCode::Ok);
+    response["message"] =
+        "Quick initialization completed with minimal valid values";
+    response["initialized"] =
+        QJsonObject{{"trainData", m_context.trainData != nullptr},
+                    {"massData", m_context.massData != nullptr},
+                    {"loadData", m_context.loadData != nullptr},
+                    {"motorData", m_context.trainMotorData != nullptr},
+                    {"efficiencyData", m_context.efficiencyData != nullptr},
+                    {"resistanceData", m_context.resistanceData != nullptr},
+                    {"stationData", m_context.stationData != nullptr},
+                    {"movingData", m_context.movingData != nullptr}};
+
+    // Log actual values for verification
+    qDebug() << "📋 Verification - Train Data:";
+    qDebug() << "  n_tm:" << m_context.trainData->n_tm;
+    qDebug() << "  n_car:" << m_context.trainData->n_car;
+    qDebug() << "  wheel:" << m_context.trainData->wheel;
+    qDebug() << "📋 Verification - Mass Data:";
+    qDebug() << "  mass_totalEmpty:" << m_context.massData->mass_totalEmpty;
+    qDebug() << "  mass_totalInertial:"
+             << m_context.massData->mass_totalInertial;
+    qDebug() << "📋 Verification - Station Data:";
+    qDebug() << "  stat_x_station:" << m_context.stationData->stat_x_station;
+    qDebug() << "  stat_v_limit:" << m_context.stationData->stat_v_limit;
+    qDebug() << "📋 Verification - Moving Data:";
+    qDebug() << "  acc_start:" << m_context.movingData->acc_start;
+    qDebug() << "  v_diffCoast:" << m_context.movingData->v_diffCoast;
+
+    qDebug() << "🎉 Quick initialization successful - simulation ready!";
+  } catch (const std::exception &e) {
+    qCritical() << "💥 Quick init failed:" << e.what();
+    response["status"] = "error";
+    response["message"] = QString("Initialization error: %1").arg(e.what());
+    return QHttpServerResponse(
+        QJsonDocument(response).toJson(),
+        QHttpServerResponse::StatusCode::InternalServerError);
+  }
+
+  return QHttpServerResponse(QJsonDocument(response).toJson(),
+                             QHttpServerResponse::StatusCode::Ok);
 }
 
-QHttpServerResponse ApiHandler::handleUpdateRunningParameters(const QJsonObject &data)
-{
-    Q_UNUSED(data);
-    QJsonObject response;
-    response["status"] = "success";
-    response["message"] = "Running parameters updated - not implemented yet";
-    
-    return QHttpServerResponse(QJsonDocument(response).toJson(),
-                               QHttpServerResponse::StatusCode::Ok);
+QHttpServerResponse ApiHandler::handleDebugContext() {
+  QJsonObject response;
+  QJsonObject trainData;
+  QJsonObject massData;
+  QJsonObject movingData;
+  QJsonObject stationData;
+
+  // Collect current values from AppContext
+  if (m_context.trainData) {
+    trainData["n_tm"] = m_context.trainData->n_tm;
+    trainData["n_car"] = m_context.trainData->n_car;
+    trainData["n_M1"] = m_context.trainData->n_M1;
+    trainData["n_M2"] = m_context.trainData->n_M2;
+    trainData["n_Tc"] = m_context.trainData->n_Tc;
+    trainData["n_T1"] = m_context.trainData->n_T1;
+    trainData["wheel"] = m_context.trainData->wheel;
+    trainData["gearRatio"] = m_context.trainData->gearRatio;
+  }
+
+  if (m_context.massData) {
+    massData["mass_M1"] = m_context.massData->mass_M1;
+    massData["mass_M2"] = m_context.massData->mass_M2;
+    massData["mass_TC"] = m_context.massData->mass_TC;
+    massData["mass_T1"] = m_context.massData->mass_T1;
+    massData["mass_Me"] = m_context.massData->mass_Me;
+    massData["mass_Te"] = m_context.massData->mass_Te;
+    massData["mass_totalEmpty"] = m_context.massData->mass_totalEmpty;
+    massData["mass_totalInertial"] = m_context.massData->mass_totalInertial;
+    massData["i_M"] = m_context.massData->i_M;
+    massData["i_T"] = m_context.massData->i_T;
+  }
+
+  if (m_context.movingData) {
+    movingData["acc_start"] = m_context.movingData->acc_start;
+    movingData["decc_start"] = m_context.movingData->decc_start;
+    movingData["v"] = m_context.movingData->v;
+    movingData["acc"] = m_context.movingData->acc;
+  }
+
+  if (m_context.stationData) {
+    stationData["stat_x_station"] = m_context.stationData->stat_x_station;
+    stationData["stat_v_limit"] = m_context.stationData->stat_v_limit;
+    stationData["stat_dwellTime"] = m_context.stationData->stat_dwellTime;
+  }
+
+  response["trainData"] = trainData;
+  response["massData"] = massData;
+  response["movingData"] = movingData;
+  response["stationData"] = stationData;
+  response["timestamp"] = QDateTime::currentDateTime().toString(Qt::ISODate);
+
+  qDebug() << "🐛 Debug context exported";
+
+  return QHttpServerResponse(QJsonDocument(response).toJson(),
+                             QHttpServerResponse::StatusCode::Ok);
 }
 
-QHttpServerResponse ApiHandler::handleGetTrackParameters()
-{
-    QJsonObject response;
-    response["status"] = "success";
-    response["message"] = "Track parameters endpoint - not implemented yet";
-    response["trackParameters"] = QJsonObject();
-    
-    return QHttpServerResponse(QJsonDocument(response).toJson(),
-                               QHttpServerResponse::StatusCode::Ok);
+QHttpServerResponse ApiHandler::handleCalculateMass(const QJsonObject &data) {
+  return m_trainHandler->handleCalculateMass(data);
 }
 
-QHttpServerResponse ApiHandler::handleUpdateTrackParameters(const QJsonObject &data)
-{
-    Q_UNUSED(data);
-    QJsonObject response;
-    response["status"] = "success";
-    response["message"] = "Track parameters updated - not implemented yet";
-    
-    return QHttpServerResponse(QJsonDocument(response).toJson(),
-                               QHttpServerResponse::StatusCode::Ok);
-}
+// QHttpServerResponse
+// ApiHandler::handleStartOptimization(const QJsonObject &data) {
+//   QJsonObject response;
 
-QHttpServerResponse ApiHandler::handleStartSimulation(const QJsonObject &data)
-{
-    Q_UNUSED(data);
-    QJsonObject response;
-    response["status"] = "success";
-    response["message"] = "Simulation started - not implemented yet";
-    response["simulationId"] = "sim_001";
-    
-    return QHttpServerResponse(QJsonDocument(response).toJson(),
-                               QHttpServerResponse::StatusCode::Ok);
-}
-
-QHttpServerResponse ApiHandler::handleGetSimulationStatus()
-{
-    QJsonObject response;
-    response["status"] = "success";
-    response["simulationStatus"] = "idle";
-    response["progress"] = 0;
-    
-    return QHttpServerResponse(QJsonDocument(response).toJson(),
-                               QHttpServerResponse::StatusCode::Ok);
-}
-
-QHttpServerResponse ApiHandler::handleGetSimulationResults()
-{
-    QJsonObject response;
-    response["status"] = "success";
-    response["results"] = QJsonArray();
-    response["message"] = "No simulation results available yet";
-    
-    return QHttpServerResponse(QJsonDocument(response).toJson(),
-                               QHttpServerResponse::StatusCode::Ok);
-}
-
-// #include "api_handler.h"
-// #include <QJsonDocument>
-// #include <QJsonObject>
-// #include <QJsonArray>
-// #include <QDebug>
-// #include <QHttpServerResponse>
-// #include <QDateTime>
-
-// // Edited here: Fixed constructor to match actual data handler classes and removed non-existent ones
-// ApiHandler::ApiHandler(AppContext &context, QObject *parent)
-//     : QObject(parent), m_context(context)
-// {
-//     // Initialize handlers with context - using actual handler classes from your codebase
-//     m_trainDataHandler = new TrainDataHandler(&context, this);
-//     m_electricalDataHandler = new ElectricalDataHandler(&context, this);
-//     m_runningDataHandler = new RunningDataHandler(&context, this);
-//     m_trackDataHandler = new TrackDataHandler(&context, this);
-//     m_simulationHandler = new TrainSimulationHandler(context, this);
-//     m_csvOutputHandler = new CsvOutputHandler(*context.simulationDatas); // Edited here: Fixed to use simulationDatas not SimulationData
-// }
-
-// QHttpServerResponse ApiHandler::handleHealthCheck()
-// {
-//     QJsonObject response;
-//     response["status"] = "ok";
-//     response["service"] = "Train Simulation Backend";
-//     response["timestamp"] = QDateTime::currentDateTime().toString(Qt::ISODate);
-    
-//     return QHttpServerResponse(QJsonDocument(response).toJson(), 
-//                                QHttpServerResponse::StatusCode::Ok);
-// }
-
-// QHttpServerResponse ApiHandler::handleGetTrainParameters()
-// {
-//     QJsonObject response;
-    
-//     // Edited here: Fixed to use actual TrainData structure variables from your models
-//     if (m_context.trainData) {
-//         QJsonObject trainParams;
-//         trainParams["tractionMotors"] = m_context.trainData->n_tm;
-//         trainParams["axles"] = m_context.trainData->n_axle;
-//         trainParams["cars"] = m_context.trainData->n_car;
-//         trainParams["gearRatio"] = m_context.trainData->gearRatio;
-//         trainParams["wheelDiameter"] = m_context.trainData->wheel;
-//         trainParams["trainsetLength"] = m_context.trainData->trainsetLength;
-//         trainParams["motorCars1"] = m_context.trainData->n_M1;
-//         trainParams["motorCars2"] = m_context.trainData->n_M2;
-//         trainParams["trailerCabCars"] = m_context.trainData->n_Tc;
-//         trainParams["trailerCars1"] = m_context.trainData->n_T1;
-//         trainParams["trailerCars2"] = m_context.trainData->n_T2;
-//         trainParams["trailerCars3"] = m_context.trainData->n_T3;
-//         trainParams["motorCars1Disabled"] = m_context.trainData->n_M1_disabled;
-//         trainParams["motorCars2Disabled"] = m_context.trainData->n_M2_disabled;
-        
-//         response["trainParameters"] = trainParams;
-//         response["status"] = "success";
-//     } else {
-//         response["status"] = "error";
-//         response["message"] = "Train data not initialized";
-//     }
-    
+//   if (!m_context.trainData || !m_context.massData ||
+//       !m_context.simulationDatas) {
+//     response["status"] = "error";
+//     response["message"] = "Context data not initialized";
 //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
-// }
+//                                QHttpServerResponse::StatusCode::BadRequest);
+//   }
 
-// QHttpServerResponse ApiHandler::handleUpdateTrainParameters(const QJsonObject &data)
-// {
-//     QJsonObject response;
-    
-//     try {
-//         if (data.contains("trainParameters")) {
-//             QJsonObject trainParams = data["trainParameters"].toObject();
-            
-//             // Edited here: Update train data using actual TrainData variables
-//             if (trainParams.contains("tractionMotors")) {
-//                 m_context.trainData->n_tm = trainParams["tractionMotors"].toDouble();
-//             }
-//             if (trainParams.contains("axles")) {
-//                 m_context.trainData->n_axle = trainParams["axles"].toDouble();
-//             }
-//             if (trainParams.contains("cars")) {
-//                 m_context.trainData->n_car = trainParams["cars"].toDouble();
-//             }
-//             if (trainParams.contains("gearRatio")) {
-//                 m_context.trainData->gearRatio = trainParams["gearRatio"].toDouble();
-//             }
-//             if (trainParams.contains("wheelDiameter")) {
-//                 m_context.trainData->wheel = trainParams["wheelDiameter"].toDouble();
-//             }
-//             if (trainParams.contains("trainsetLength")) {
-//                 m_context.trainData->trainsetLength = trainParams["trainsetLength"].toDouble();
-//             }
-//             if (trainParams.contains("motorCars1")) {
-//                 m_context.trainData->n_M1 = trainParams["motorCars1"].toDouble();
-//             }
-//             if (trainParams.contains("motorCars2")) {
-//                 m_context.trainData->n_M2 = trainParams["motorCars2"].toDouble();
-//             }
-//             if (trainParams.contains("trailerCabCars")) {
-//                 m_context.trainData->n_Tc = trainParams["trailerCabCars"].toDouble();
-//             }
-//             if (trainParams.contains("trailerCars1")) {
-//                 m_context.trainData->n_T1 = trainParams["trailerCars1"].toDouble();
-//             }
-//             if (trainParams.contains("trailerCars2")) {
-//                 m_context.trainData->n_T2 = trainParams["trailerCars2"].toDouble();
-//             }
-//             if (trainParams.contains("trailerCars3")) {
-//                 m_context.trainData->n_T3 = trainParams["trailerCars3"].toDouble();
-//             }
-//             if (trainParams.contains("motorCars1Disabled")) {
-//                 m_context.trainData->n_M1_disabled = trainParams["motorCars1Disabled"].toDouble();
-//             }
-//             if (trainParams.contains("motorCars2Disabled")) {
-//                 m_context.trainData->n_M2_disabled = trainParams["motorCars2Disabled"].toDouble();
-//             }
-            
-//             response["status"] = "success";
-//             response["message"] = "Train parameters updated successfully";
-//         } else {
-//             response["status"] = "error";
-//             response["message"] = "No train parameters provided";
-//         }
-//     } catch (const std::exception &e) {
-//         response["status"] = "error";
-//         response["message"] = QString("Error updating parameters: %1").arg(e.what());
-//     }
-    
+//   if (m_optimizationHandler->isRunning()) {
+//     response["status"] = "error";
+//     response["message"] = "Optimization already running";
 //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
+//                                QHttpServerResponse::StatusCode::Conflict);
+//   }
+
+//   // Start optimization
+//   m_optimizationHandler->startOptimization(
+//       *m_context.trainData, *m_context.massData, *m_context.simulationDatas);
+
+//   response["status"] = "success";
+//   response["message"] = "Optimization started";
+//   return QHttpServerResponse(QJsonDocument(response).toJson(),
+//                              QHttpServerResponse::StatusCode::Ok);
 // }
 
-// QHttpServerResponse ApiHandler::handleGetElectricalParameters()
-// {
-//     QJsonObject response;
-    
-//     // Edited here: Fixed to use actual powerData and efficiencyData structures from your models
-//     if (m_context.powerData && m_context.efficiencyData) {
-//         QJsonObject electricalParams;
-//         // Using actual variables from PowerData struct
-//         electricalParams["wheelPower"] = m_context.powerData->p_wheel;
-//         electricalParams["motorOutPower"] = m_context.powerData->p_motorOut;
-//         electricalParams["motorInPower"] = m_context.powerData->p_motorIn;
-//         electricalParams["vvvfInPower"] = m_context.powerData->p_vvvfIn;
-//         electricalParams["catenaryPower"] = m_context.powerData->p_catenary;
-//         electricalParams["apsPower"] = m_context.powerData->p_aps;
-//         electricalParams["staticApsPower"] = m_context.powerData->stat_p_aps;
-        
-//         // Using actual variables from EfficiencyData struct
-//         electricalParams["staticGearEfficiency"] = m_context.efficiencyData->stat_eff_gear;
-//         electricalParams["staticMotorEfficiency"] = m_context.efficiencyData->stat_eff_motor;
-//         electricalParams["staticVvvfEfficiency"] = m_context.efficiencyData->stat_eff_vvvf;
-        
-//         response["electricalParameters"] = electricalParams;
-//         response["status"] = "success";
-//     } else {
-//         response["status"] = "error";
-//         response["message"] = "Electrical data not initialized";
-//     }
-    
+// QHttpServerResponse ApiHandler::handleStopOptimization() {
+//   m_optimizationHandler->stopOptimization();
+//   QJsonObject response;
+//   response["status"] = "success";
+//   response["message"] = "Optimization stop requested";
+//   return QHttpServerResponse(QJsonDocument(response).toJson(),
+//                              QHttpServerResponse::StatusCode::Ok);
+// }
+
+// QHttpServerResponse ApiHandler::handleGetOptimizationStatus() {
+//   QJsonObject response;
+
+//   OptimizationResult result = m_optimizationHandler->getResult();
+
+//   response["isRunning"] = m_optimizationHandler->isRunning();
+//   response["iteration"] = result.iterationCount;
+//   response["suitabilityScore"] = result.suitabilityScore;
+//   response["suitabilityLabel"] = result.suitabilityLabel;
+
+//   // Convert score history to array
+//   QJsonArray history;
+//   for (double score : result.scoreHistory) {
+//     history.append(score);
+//   }
+//   response["scoreHistory"] = history;
+
+//   // Optimized Train Data
+//   QJsonObject trainObj;
+//   trainObj["n_tm"] = result.optimizedTrain.n_tm;
+//   trainObj["gearRatio"] = result.optimizedTrain.gearRatio;
+//   // Add other fields if optimized
+//   response["optimizedTrain"] = trainObj;
+
+//   return QHttpServerResponse(QJsonDocument(response).toJson(),
+//                              QHttpServerResponse::StatusCode::Ok);
+// }
+
+// QHttpServerResponse ApiHandler::handleApplyOptimization() {
+//   QJsonObject response;
+
+//   OptimizationResult result = m_optimizationHandler->getResult();
+//   if (result.suitabilityScore <= 0.0) {
+//     response["status"] = "error";
+//     response["message"] = "No valid optimization result to apply";
 //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
+//                                QHttpServerResponse::StatusCode::BadRequest);
+//   }
+
+//   // Apply to context
+//   if (m_context.trainData) {
+//     m_context.trainData->n_tm = result.optimizedTrain.n_tm;
+//     m_context.trainData->gearRatio = result.optimizedTrain.gearRatio;
+//     // Apply other optimized fields
+//   }
+
+//   response["status"] = "success";
+//   response["message"] = "Optimization applied to train parameters";
+//   return QHttpServerResponse(QJsonDocument(response).toJson(),
+//                              QHttpServerResponse::StatusCode::Ok);
 // }
-
-// QHttpServerResponse ApiHandler::handleUpdateElectricalParameters(const QJsonObject &data)
-// {
-//     QJsonObject response;
-    
-//     try {
-//         if (data.contains("electricalParameters")) {
-//             QJsonObject electricalParams = data["electricalParameters"].toObject();
-            
-//             // Edited here: Update actual PowerData variables
-//             if (electricalParams.contains("wheelPower")) {
-//                 m_context.powerData->p_wheel = electricalParams["wheelPower"].toDouble();
-//             }
-//             if (electricalParams.contains("motorOutPower")) {
-//                 m_context.powerData->p_motorOut = electricalParams["motorOutPower"].toDouble();
-//             }
-//             if (electricalParams.contains("motorInPower")) {
-//                 m_context.powerData->p_motorIn = electricalParams["motorInPower"].toDouble();
-//             }
-//             if (electricalParams.contains("vvvfInPower")) {
-//                 m_context.powerData->p_vvvfIn = electricalParams["vvvfInPower"].toDouble();
-//             }
-//             if (electricalParams.contains("catenaryPower")) {
-//                 m_context.powerData->p_catenary = electricalParams["catenaryPower"].toDouble();
-//             }
-//             if (electricalParams.contains("apsPower")) {
-//                 m_context.powerData->p_aps = electricalParams["apsPower"].toDouble();
-//             }
-//             if (electricalParams.contains("staticApsPower")) {
-//                 m_context.powerData->stat_p_aps = electricalParams["staticApsPower"].toDouble();
-//             }
-            
-//             // Edited here: Update actual EfficiencyData variables
-//             if (electricalParams.contains("staticGearEfficiency")) {
-//                 m_context.efficiencyData->stat_eff_gear = electricalParams["staticGearEfficiency"].toDouble();
-//             }
-//             if (electricalParams.contains("staticMotorEfficiency")) {
-//                 m_context.efficiencyData->stat_eff_motor = electricalParams["staticMotorEfficiency"].toDouble();
-//             }
-//             if (electricalParams.contains("staticVvvfEfficiency")) {
-//                 m_context.efficiencyData->stat_eff_vvvf = electricalParams["staticVvvfEfficiency"].toDouble();
-//             }
-            
-//             response["status"] = "success";
-//             response["message"] = "Electrical parameters updated successfully";
-//         } else {
-//             response["status"] = "error";
-//             response["message"] = "No electrical parameters provided";
-//         }
-//     } catch (const std::exception &e) {
-//         response["status"] = "error";
-//         response["message"] = QString("Error updating electrical parameters: %1").arg(e.what());
-//     }
-    
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
-// }
-
-// QHttpServerResponse ApiHandler::handleGetRunningParameters()
-// {
-//     QJsonObject response;
-    
-//     // Edited here: Fixed to use actual LoadData and MassData structures since there's no movingData/resistanceData in models
-//     if (m_context.loadData && m_context.massData) {
-//         QJsonObject runningParams;
-//         // Using actual LoadData variables
-//         runningParams["load"] = m_context.loadData->load;
-//         runningParams["passengerMass"] = m_context.loadData->mass_P;
-//         runningParams["finalPassengerMass"] = m_context.loadData->mass_P_final;
-//         runningParams["passengersM1"] = m_context.loadData->n_PM1;
-//         runningParams["passengersM2"] = m_context.loadData->n_PM2;
-//         runningParams["passengersTc"] = m_context.loadData->n_PTc;
-//         runningParams["passengersT1"] = m_context.loadData->n_PT1;
-//         runningParams["passengersT2"] = m_context.loadData->n_PT2;
-//         runningParams["passengersT3"] = m_context.loadData->n_PT3;
-        
-//         // Using actual MassData variables
-//         runningParams["totalEmptyMass"] = m_context.massData->mass_totalEmpty;
-//         runningParams["totalLoadMass"] = m_context.massData->mass_totalLoad;
-//         runningParams["totalInertialMass"] = m_context.massData->mass_totalInertial;
-        
-//         response["runningParameters"] = runningParams;
-//         response["status"] = "success";
-//     } else {
-//         response["status"] = "error";
-//         response["message"] = "Running data not initialized";
-//     }
-    
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
-// }
-
-// QHttpServerResponse ApiHandler::handleUpdateRunningParameters(const QJsonObject &data)
-// {
-//     QJsonObject response;
-    
-//     try {
-//         if (data.contains("runningParameters")) {
-//             QJsonObject runningParams = data["runningParameters"].toObject();
-            
-//             // Edited here: Update LoadData and MassData directly using actual variables
-//             if (runningParams.contains("load")) {
-//                 m_context.loadData->load = runningParams["load"].toDouble();
-//             }
-//             if (runningParams.contains("passengerMass")) {
-//                 m_context.loadData->mass_P = runningParams["passengerMass"].toDouble();
-//             }
-//             if (runningParams.contains("finalPassengerMass")) {
-//                 m_context.loadData->mass_P_final = runningParams["finalPassengerMass"].toDouble();
-//             }
-//             if (runningParams.contains("passengersM1")) {
-//                 m_context.loadData->n_PM1 = runningParams["passengersM1"].toDouble();
-//             }
-//             if (runningParams.contains("passengersM2")) {
-//                 m_context.loadData->n_PM2 = runningParams["passengersM2"].toDouble();
-//             }
-//             if (runningParams.contains("passengersTc")) {
-//                 m_context.loadData->n_PTc = runningParams["passengersTc"].toDouble();
-//             }
-//             if (runningParams.contains("passengersT1")) {
-//                 m_context.loadData->n_PT1 = runningParams["passengersT1"].toDouble();
-//             }
-//             if (runningParams.contains("passengersT2")) {
-//                 m_context.loadData->n_PT2 = runningParams["passengersT2"].toDouble();
-//             }
-//             if (runningParams.contains("passengersT3")) {
-//                 m_context.loadData->n_PT3 = runningParams["passengersT3"].toDouble();
-//             }
-//             if (runningParams.contains("totalEmptyMass")) {
-//                 m_context.massData->mass_totalEmpty = runningParams["totalEmptyMass"].toDouble();
-//             }
-//             if (runningParams.contains("totalLoadMass")) {
-//                 m_context.massData->mass_totalLoad = runningParams["totalLoadMass"].toDouble();
-//             }
-//             if (runningParams.contains("totalInertialMass")) {
-//                 m_context.massData->mass_totalInertial = runningParams["totalInertialMass"].toDouble();
-//             }
-            
-//             response["status"] = "success";
-//             response["message"] = "Running parameters updated successfully";
-//         } else {
-//             response["status"] = "error";
-//             response["message"] = "No running parameters provided";
-//         }
-//     } catch (const std::exception &e) {
-//         response["status"] = "error";
-//         response["message"] = QString("Error updating running parameters: %1").arg(e.what());
-//     }
-    
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
-// }
-
-// QHttpServerResponse ApiHandler::handleGetTrackParameters()
-// {
-//     QJsonObject response;
-    
-//     // Edited here: Using actual EnergyData structure since stationData is empty in models
-//     if (m_context.energyData) {
-//         QJsonObject trackParams;
-//         trackParams["staticLineVoltage"] = m_context.energyData->stat_vol_line;
-//         trackParams["staticMotorVoltage"] = m_context.energyData->stat_vol_motor;
-//         trackParams["motorEnergy"] = m_context.energyData->e_motor;
-//         trackParams["powerEnergy"] = m_context.energyData->e_pow;
-//         trackParams["regenerativeEnergy"] = m_context.energyData->e_reg;
-//         trackParams["apsEnergy"] = m_context.energyData->e_aps;
-//         trackParams["catenaryEnergy"] = m_context.energyData->e_catenary;
-//         trackParams["catendaryCurrent"] = m_context.energyData->curr_catenary;
-//         trackParams["vvvfCurrent"] = m_context.energyData->curr_vvvf;
-        
-//         response["trackParameters"] = trackParams;
-//         response["status"] = "success";
-//     } else {
-//         response["status"] = "error";
-//         response["message"] = "Track data not initialized";
-//     }
-    
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
-// }
-
-// QHttpServerResponse ApiHandler::handleUpdateTrackParameters(const QJsonObject &data)
-// {
-//     QJsonObject response;
-    
-//     try {
-//         if (data.contains("trackParameters")) {
-//             QJsonObject trackParams = data["trackParameters"].toObject();
-            
-//             // Edited here: Update EnergyData using actual variables
-//             if (trackParams.contains("staticLineVoltage")) {
-//                 m_context.energyData->stat_vol_line = trackParams["staticLineVoltage"].toDouble();
-//             }
-//             if (trackParams.contains("staticMotorVoltage")) {
-//                 m_context.energyData->stat_vol_motor = trackParams["staticMotorVoltage"].toDouble();
-//             }
-//             if (trackParams.contains("motorEnergy")) {
-//                 m_context.energyData->e_motor = trackParams["motorEnergy"].toDouble();
-//             }
-//             if (trackParams.contains("powerEnergy")) {
-//                 m_context.energyData->e_pow = trackParams["powerEnergy"].toDouble();
-//             }
-//             if (trackParams.contains("regenerativeEnergy")) {
-//                 m_context.energyData->e_reg = trackParams["regenerativeEnergy"].toDouble();
-//             }
-//             if (trackParams.contains("apsEnergy")) {
-//                 m_context.energyData->e_aps = trackParams["apsEnergy"].toDouble();
-//             }
-//             if (trackParams.contains("catenaryEnergy")) {
-//                 m_context.energyData->e_catenary = trackParams["catenaryEnergy"].toDouble();
-//             }
-//             if (trackParams.contains("catendaryCurrent")) {
-//                 m_context.energyData->curr_catenary = trackParams["catendaryCurrent"].toDouble();
-//             }
-//             if (trackParams.contains("vvvfCurrent")) {
-//                 m_context.energyData->curr_vvvf = trackParams["vvvfCurrent"].toDouble();
-//             }
-            
-//             response["status"] = "success";
-//             response["message"] = "Track parameters updated successfully";
-//         } else {
-//             response["status"] = "error";
-//             response["message"] = "No track parameters provided";
-//         }
-//     } catch (const std::exception &e) {
-//         response["status"] = "error";
-//         response["message"] = QString("Error updating track parameters: %1").arg(e.what());
-//     }
-    
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
-// }
-
-// QHttpServerResponse ApiHandler::handleStartSimulation(const QJsonObject &data)
-// {
-//     QJsonObject response;
-    
-//     try {
-//         QString simulationType = data.value("type").toString("dynamic");
-        
-//         if (simulationType == "dynamic") {
-//             // Edited here: Use correct method name from TrainSimulationHandler
-//             m_simulationHandler->simulateDynamicTrainMovement();
-            
-//             response["status"] = "success";
-//             response["message"] = "Dynamic simulation started";
-//             response["type"] = "dynamic";
-//         } else {
-//             response["status"] = "error";
-//             response["message"] = "Unknown simulation type";
-//         }
-//     } catch (const std::exception &e) {
-//         response["status"] = "error";
-//         response["message"] = QString("Error starting simulation: %1").arg(e.what());
-//     }
-    
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
-// }
-
-// QHttpServerResponse ApiHandler::handleGetSimulationStatus()
-// {
-//     QJsonObject response;
-    
-//     // Edited here: Simple status response - you may want to add actual status tracking
-//     response["status"] = "success";
-//     response["simulationRunning"] = false;
-//     response["progress"] = 100.0;
-//     response["message"] = "Simulation completed";
-    
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
-// }
-
-// QHttpServerResponse ApiHandler::handleGetSimulationResults()
-// {
-//     QJsonObject response;
-    
-//     try {
-//         // Edited here: Fixed to use actual simulationDatas structure from your codebase
-//         if (m_context.simulationDatas) {
-//             QJsonObject results;
-            
-//             // Convert your simulation results to JSON arrays
-//             QJsonArray timeData, speedData, powerData, currentData;
-//             QJsonArray phaseData, distanceData, accelerationData;
-            
-//             // Edited here: Using actual member variables from your SimulationDatas structure
-//             for (int i = 0; i < m_context.simulationDatas->time.size(); ++i) {
-//                 timeData.append(m_context.simulationDatas->time[i]);
-//                 speedData.append(m_context.simulationDatas->trainSpeeds[i]);
-//                 distanceData.append(m_context.simulationDatas->distance[i]);
-//                 accelerationData.append(m_context.simulationDatas->accelerations[i]);
-//                 phaseData.append(m_context.simulationDatas->phase[i]);
-//             }
-            
-//             for (int i = 0; i < m_context.simulationDatas->powerCatenary.size(); ++i) {
-//                 powerData.append(m_context.simulationDatas->powerCatenary[i]);
-//                 currentData.append(m_context.simulationDatas->currentCatenary[i]);
-//             }
-            
-//             results["time"] = timeData;
-//             results["speed"] = speedData;
-//             results["distance"] = distanceData;
-//             results["acceleration"] = accelerationData;
-//             results["phase"] = phaseData;
-//             results["power"] = powerData;
-//             results["current"] = currentData;
-            
-//             response["status"] = "success";
-//             response["results"] = results;
-//         } else {
-//             response["status"] = "error";
-//             response["message"] = "No simulation results available";
-//         }
-//     } catch (const std::exception &e) {
-//         response["status"] = "error";
-//         response["message"] = QString("Error retrieving results: %1").arg(e.what());
-//     }
-    
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
-// }
-
-// QHttpServerResponse ApiHandler::handleExportResults(const QJsonObject &data)
-// {
-//     QJsonObject response;
-    
-//     try {
-//         QString format = data.value("format").toString("csv");
-        
-//         if (format == "csv") {
-//             // Edited here: Use actual CSV output handler method
-//             m_csvOutputHandler->printSimulationDatas();
-            
-//             response["status"] = "success";
-//             response["message"] = "Results exported to CSV successfully";
-//         } else {
-//             response["status"] = "error";
-//             response["message"] = "Unsupported export format";
-//         }
-//     } catch (const std::exception &e) {
-//         response["status"] = "error";
-//         response["message"] = QString("Error exporting results: %1").arg(e.what());
-//     }
-    
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Ok);
-// }
-
-// // #include "api_handler.h"
-// // #include <QJsonDocument>
-// // #include <QJsonObject>
-// // #include <QJsonArray>
-// // #include <QDebug>
-// // #include <QHttpServerResponse>
-// // #include <QDateTime>
-
-// // // Edited here: Fixed constructor to match actual data handler classes and removed non-existent ones
-// // ApiHandler::ApiHandler(AppContext &context, QObject *parent)
-// //     : QObject(parent), m_context(context)
-// // {
-// //     // Initialize handlers with context - using actual handler classes from your codebase
-// //     m_trainDataHandler = new TrainDataHandler(&context, this);
-// //     m_electricalDataHandler = new ElectricalDataHandler(&context, this);
-// //     m_runningDataHandler = new RunningDataHandler(&context, this);
-// //     m_trackDataHandler = new TrackDataHandler(&context, this);
-// //     m_simulationHandler = new TrainSimulationHandler(context, this);
-// //     m_csvOutputHandler = new CsvOutputHandler(*context.simulationDatas); // Edited here: Fixed to use simulationDatas not SimulationData
-// // }
-
-// // QHttpServerResponse ApiHandler::handleHealthCheck()
-// // {
-// //     QJsonObject response;
-// //     response["status"] = "ok";
-// //     response["service"] = "Train Simulation Backend";
-// //     response["timestamp"] = QDateTime::currentDateTime().toString(Qt::ISODate);
-    
-// //     return QHttpServerResponse(QJsonDocument(response).toJson(), 
-// //                                QHttpServerResponse::StatusCode::Ok);
-// // }
-
-// // QHttpServerResponse ApiHandler::handleGetTrainParameters()
-// // {
-// //     QJsonObject response;
-    
-// //     // Edited here: Fixed to use actual trainData structure from your models
-// //     if (m_context.trainData) {
-// //         QJsonObject trainParams;
-// //         trainParams["tractionMotors"] = m_context.trainData->n_tm;
-// //         trainParams["axles"] = m_context.trainData->n_axle;
-// //         trainParams["wheelDiameter"] = m_context.trainData->wheel;
-// //         trainParams["gearRatio"] = m_context.trainData->gearRatio;
-// //         trainParams["loadPerCar"] = m_context.trainData->load_per_car;
-// //         trainParams["passengerWeight"] = m_context.trainData->passenger_weight;
-// //         trainParams["aerodynamicCoeff"] = m_context.trainData->aerodynamic_coeff;
-// //         trainParams["rollingResistanceCoeff"] = m_context.trainData->rolling_resistance_coeff;
-        
-// //         response["trainParameters"] = trainParams;
-// //         response["status"] = "success";
-// //     } else {
-// //         response["status"] = "error";
-// //         response["message"] = "Train data not initialized";
-// //     }
-    
-// //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-// //                                QHttpServerResponse::StatusCode::Ok);
-// // }
-
-// // QHttpServerResponse ApiHandler::handleUpdateTrainParameters(const QJsonObject &data)
-// // {
-// //     QJsonObject response;
-    
-// //     try {
-// //         if (data.contains("trainParameters")) {
-// //             QJsonObject trainParams = data["trainParameters"].toObject();
-            
-// //             // Edited here: Update train data using direct access to context data
-// //             if (trainParams.contains("tractionMotors")) {
-// //                 m_context.trainData->n_tm = trainParams["tractionMotors"].toDouble();
-// //             }
-// //             if (trainParams.contains("axles")) {
-// //                 m_context.trainData->n_axle = trainParams["axles"].toDouble();
-// //             }
-// //             if (trainParams.contains("wheelDiameter")) {
-// //                 m_context.trainData->wheel = trainParams["wheelDiameter"].toDouble();
-// //             }
-// //             if (trainParams.contains("gearRatio")) {
-// //                 m_context.trainData->gearRatio = trainParams["gearRatio"].toDouble();
-// //             }
-// //             if (trainParams.contains("loadPerCar")) {
-// //                 m_context.trainData->load_per_car = trainParams["loadPerCar"].toDouble();
-// //             }
-// //             if (trainParams.contains("passengerWeight")) {
-// //                 m_context.trainData->passenger_weight = trainParams["passengerWeight"].toDouble();
-// //             }
-// //             if (trainParams.contains("aerodynamicCoeff")) {
-// //                 m_context.trainData->aerodynamic_coeff = trainParams["aerodynamicCoeff"].toDouble();
-// //             }
-// //             if (trainParams.contains("rollingResistanceCoeff")) {
-// //                 m_context.trainData->rolling_resistance_coeff = trainParams["rollingResistanceCoeff"].toDouble();
-// //             }
-            
-// //             // Edited here: Removed storeFormInputs call since it expects QMap<QString, InputWidget*>
-// //             // The data is already stored directly above
-            
-// //             response["status"] = "success";
-// //             response["message"] = "Train parameters updated successfully";
-// //         } else {
-// //             response["status"] = "error";
-// //             response["message"] = "No train parameters provided";
-// //         }
-// //     } catch (const std::exception &e) {
-// //         response["status"] = "error";
-// //         response["message"] = QString("Error updating parameters: %1").arg(e.what());
-// //     }
-    
-// //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-// //                                QHttpServerResponse::StatusCode::Ok);
-// // }
-
-// // QHttpServerResponse ApiHandler::handleGetElectricalParameters()
-// // {
-// //     QJsonObject response;
-    
-// //     // Edited here: Fixed to use actual powerData and efficiencyData structures from your models
-// //     if (m_context.powerData && m_context.efficiencyData) {
-// //         QJsonObject electricalParams;
-// //         // Using actual variables from PowerData struct
-// //         electricalParams["wheelPower"] = m_context.powerData->p_wheel;
-// //         electricalParams["motorOutPower"] = m_context.powerData->p_motorOut;
-// //         electricalParams["motorInPower"] = m_context.powerData->p_motorIn;
-// //         electricalParams["vvvfInPower"] = m_context.powerData->p_vvvfIn;
-// //         electricalParams["catenaryPower"] = m_context.powerData->p_catenary;
-// //         electricalParams["apsPower"] = m_context.powerData->p_aps;
-// //         electricalParams["staticApsPower"] = m_context.powerData->stat_p_aps;
-        
-// //         // Using actual variables from EfficiencyData struct
-// //         electricalParams["staticGearEfficiency"] = m_context.efficiencyData->stat_eff_gear;
-// //         electricalParams["staticMotorEfficiency"] = m_context.efficiencyData->stat_eff_motor;
-// //         electricalParams["staticVvvfEfficiency"] = m_context.efficiencyData->stat_eff_vvvf;
-        
-// //         response["electricalParameters"] = electricalParams;
-// //         response["status"] = "success";
-// //     } else {
-// //         response["status"] = "error";
-// //         response["message"] = "Electrical data not initialized";
-// //     }
-    
-// //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-// //                                QHttpServerResponse::StatusCode::Ok);
-// // }
-
-// // QHttpServerResponse ApiHandler::handleUpdateElectricalParameters(const QJsonObject &data)
-// // {
-// //     QJsonObject response;
-    
-// //     try {
-// //         if (data.contains("electricalParameters")) {
-// //             QJsonObject electricalParams = data["electricalParameters"].toObject();
-            
-// //             // Edited here: Update actual PowerData variables
-// //             if (electricalParams.contains("wheelPower")) {
-// //                 m_context.powerData->p_wheel = electricalParams["wheelPower"].toDouble();
-// //             }
-// //             if (electricalParams.contains("motorOutPower")) {
-// //                 m_context.powerData->p_motorOut = electricalParams["motorOutPower"].toDouble();
-// //             }
-// //             if (electricalParams.contains("motorInPower")) {
-// //                 m_context.powerData->p_motorIn = electricalParams["motorInPower"].toDouble();
-// //             }
-// //             if (electricalParams.contains("vvvfInPower")) {
-// //                 m_context.powerData->p_vvvfIn = electricalParams["vvvfInPower"].toDouble();
-// //             }
-// //             if (electricalParams.contains("catenaryPower")) {
-// //                 m_context.powerData->p_catenary = electricalParams["catenaryPower"].toDouble();
-// //             }
-// //             if (electricalParams.contains("apsPower")) {
-// //                 m_context.powerData->p_aps = electricalParams["apsPower"].toDouble();
-// //             }
-// //             if (electricalParams.contains("staticApsPower")) {
-// //                 m_context.powerData->stat_p_aps = electricalParams["staticApsPower"].toDouble();
-// //             }
-            
-// //             // Edited here: Update actual EfficiencyData variables
-// //             if (electricalParams.contains("staticGearEfficiency")) {
-// //                 m_context.efficiencyData->stat_eff_gear = electricalParams["staticGearEfficiency"].toDouble();
-// //             }
-// //             if (electricalParams.contains("staticMotorEfficiency")) {
-// //                 m_context.efficiencyData->stat_eff_motor = electricalParams["staticMotorEfficiency"].toDouble();
-// //             }
-// //             if (electricalParams.contains("staticVvvfEfficiency")) {
-// //                 m_context.efficiencyData->stat_eff_vvvf = electricalParams["staticVvvfEfficiency"].toDouble();
-// //             }
-            
-// //             response["status"] = "success";
-// //             response["message"] = "Electrical parameters updated successfully";
-// //         } else {
-// //             response["status"] = "error";
-// //             response["message"] = "No electrical parameters provided";
-// //         }
-// //     } catch (const std::exception &e) {
-// //         response["status"] = "error";
-// //         response["message"] = QString("Error updating electrical parameters: %1").arg(e.what());
-// //     }
-    
-// //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-// //                                QHttpServerResponse::StatusCode::Ok);
-// // }
-
-// // QHttpServerResponse ApiHandler::handleGetRunningParameters()
-// // {
-// //     QJsonObject response;
-    
-// //     // Edited here: Fixed to use actual movingData and resistanceData structures
-// //     if (m_context.movingData && m_context.resistanceData) {
-// //         QJsonObject runningParams;
-// //         runningParams["maxSpeed"] = m_context.movingData->v_limit;
-// //         runningParams["initialSpeed"] = m_context.movingData->v;
-// //         runningParams["acceleration"] = m_context.movingData->acc;
-// //         runningParams["deceleration"] = m_context.movingData->decc;
-// //         runningParams["startingResistance"] = m_context.resistanceData->startRes;
-// //         runningParams["weakeningPoint1"] = m_context.movingData->v_p1;
-// //         runningParams["weakeningPoint2"] = m_context.movingData->v_p2;
-// //         runningParams["weakeningPoint3"] = m_context.movingData->v_b1;
-// //         runningParams["weakeningPoint4"] = m_context.movingData->v_b2;
-// //         runningParams["differenceCoastingSpeed"] = m_context.movingData->v_diffCoast;
-// //         runningParams["emergencyBrakeDeceleration"] = m_context.movingData->decc_emergency;
-        
-// //         response["runningParameters"] = runningParams;
-// //         response["status"] = "success";
-// //     } else {
-// //         response["status"] = "error";
-// //         response["message"] = "Running data not initialized";
-// //     }
-    
-// //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-// //                                QHttpServerResponse::StatusCode::Ok);
-// // }
-
-// // QHttpServerResponse ApiHandler::handleUpdateRunningParameters(const QJsonObject &data)
-// // {
-// //     QJsonObject response;
-    
-// //     try {
-// //         if (data.contains("runningParameters")) {
-// //             QJsonObject runningParams = data["runningParameters"].toObject();
-            
-// //             // Edited here: Update movingData and resistanceData directly
-// //             if (runningParams.contains("maxSpeed")) {
-// //                 m_context.movingData->v_limit = runningParams["maxSpeed"].toDouble();
-// //             }
-// //             if (runningParams.contains("initialSpeed")) {
-// //                 m_context.movingData->v = runningParams["initialSpeed"].toDouble();
-// //             }
-// //             if (runningParams.contains("acceleration")) {
-// //                 m_context.movingData->acc = runningParams["acceleration"].toDouble();
-// //             }
-// //             if (runningParams.contains("deceleration")) {
-// //                 m_context.movingData->decc = runningParams["deceleration"].toDouble();
-// //             }
-// //             if (runningParams.contains("startingResistance")) {
-// //                 m_context.resistanceData->startRes = runningParams["startingResistance"].toDouble();
-// //             }
-// //             if (runningParams.contains("weakeningPoint1")) {
-// //                 m_context.movingData->v_p1 = runningParams["weakeningPoint1"].toDouble();
-// //             }
-// //             if (runningParams.contains("weakeningPoint2")) {
-// //                 m_context.movingData->v_p2 = runningParams["weakeningPoint2"].toDouble();
-// //             }
-// //             if (runningParams.contains("weakeningPoint3")) {
-// //                 m_context.movingData->v_b1 = runningParams["weakeningPoint3"].toDouble();
-// //             }
-// //             if (runningParams.contains("weakeningPoint4")) {
-// //                 m_context.movingData->v_b2 = runningParams["weakeningPoint4"].toDouble();
-// //             }
-// //             if (runningParams.contains("differenceCoastingSpeed")) {
-// //                 m_context.movingData->v_diffCoast = runningParams["differenceCoastingSpeed"].toDouble();
-// //             }
-// //             if (runningParams.contains("emergencyBrakeDeceleration")) {
-// //                 m_context.movingData->decc_emergency = runningParams["emergencyBrakeDeceleration"].toDouble();
-// //             }
-            
-// //             response["status"] = "success";
-// //             response["message"] = "Running parameters updated successfully";
-// //         } else {
-// //             response["status"] = "error";
-// //             response["message"] = "No running parameters provided";
-// //         }
-// //     } catch (const std::exception &e) {
-// //         response["status"] = "error";
-// //         response["message"] = QString("Error updating running parameters: %1").arg(e.what());
-// //     }
-    
-// //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-// //                                QHttpServerResponse::StatusCode::Ok);
-// // }
-
-// // QHttpServerResponse ApiHandler::handleGetTrackParameters()
-// // {
-// //     QJsonObject response;
-    
-// //     // Edited here: Added track parameters handling using actual data structures
-// //     if (m_context.stationData && m_context.resistanceData) {
-// //         QJsonObject trackParams;
-// //         trackParams["numberOfStations"] = m_context.stationData->n_station;
-// //         trackParams["stationDistance"] = m_context.movingData->x_station;
-        
-// //         response["trackParameters"] = trackParams;
-// //         response["status"] = "success";
-// //     } else {
-// //         response["status"] = "error";
-// //         response["message"] = "Track data not initialized";
-// //     }
-    
-// //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-// //                                QHttpServerResponse::StatusCode::Ok);
-// // }
-
-// // QHttpServerResponse ApiHandler::handleUpdateTrackParameters(const QJsonObject &data)
-// // {
-// //     QJsonObject response;
-    
-// //     try {
-// //         if (data.contains("trackParameters")) {
-// //             QJsonObject trackParams = data["trackParameters"].toObject();
-            
-// //             // Edited here: Update track data directly
-// //             if (trackParams.contains("numberOfStations")) {
-// //                 m_context.stationData->n_station = trackParams["numberOfStations"].toDouble();
-// //             }
-// //             if (trackParams.contains("stationDistance")) {
-// //                 m_context.movingData->x_station = trackParams["stationDistance"].toDouble();
-// //             }
-            
-// //             response["status"] = "success";
-// //             response["message"] = "Track parameters updated successfully";
-// //         } else {
-// //             response["status"] = "error";
-// //             response["message"] = "No track parameters provided";
-// //         }
-// //     } catch (const std::exception &e) {
-// //         response["status"] = "error";
-// //         response["message"] = QString("Error updating track parameters: %1").arg(e.what());
-// //     }
-    
-// //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-// //                                QHttpServerResponse::StatusCode::Ok);
-// // }
-
-// // QHttpServerResponse ApiHandler::handleStartSimulation(const QJsonObject &data)
-// // {
-// //     QJsonObject response;
-    
-// //     try {
-// //         QString simulationType = data.value("type").toString("dynamic");
-        
-// //         if (simulationType == "dynamic") {
-// //             // Edited here: Use correct method name from TrainSimulationHandler
-// //             m_simulationHandler->simulateDynamicTrainMovement();
-            
-// //             response["status"] = "success";
-// //             response["message"] = "Dynamic simulation started";
-// //             response["type"] = "dynamic";
-// //         } else {
-// //             response["status"] = "error";
-// //             response["message"] = "Unknown simulation type";
-// //         }
-// //     } catch (const std::exception &e) {
-// //         response["status"] = "error";
-// //         response["message"] = QString("Error starting simulation: %1").arg(e.what());
-// //     }
-    
-// //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-// //                                QHttpServerResponse::StatusCode::Ok);
-// // }
-
-// // QHttpServerResponse ApiHandler::handleGetSimulationStatus()
-// // {
-// //     QJsonObject response;
-    
-// //     // Edited here: Simple status response - you may want to add actual status tracking
-// //     response["status"] = "success";
-// //     response["simulationRunning"] = false;
-// //     response["progress"] = 100.0;
-// //     response["message"] = "Simulation completed";
-    
-// //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-// //                                QHttpServerResponse::StatusCode::Ok);
-// // }
-
-// // QHttpServerResponse ApiHandler::handleGetSimulationResults()
-// // {
-// //     QJsonObject response;
-    
-// //     try {
-// //         // Edited here: Fixed to use actual simulationDatas structure from your codebase
-// //         if (m_context.simulationDatas) {
-// //             QJsonObject results;
-            
-// //             // Convert your simulation results to JSON arrays
-// //             QJsonArray timeData, speedData, powerData, currentData;
-// //             QJsonArray phaseData, distanceData, accelerationData;
-            
-// //             // Edited here: Using actual member variables from your SimulationDatas structure
-// //             for (int i = 0; i < m_context.simulationDatas->time.size(); ++i) {
-// //                 timeData.append(m_context.simulationDatas->time[i]);
-// //                 speedData.append(m_context.simulationDatas->trainSpeeds[i]);
-// //                 distanceData.append(m_context.simulationDatas->distance[i]);
-// //                 accelerationData.append(m_context.simulationDatas->accelerations[i]);
-// //                 phaseData.append(m_context.simulationDatas->phase[i]);
-// //             }
-            
-// //             for (int i = 0; i < m_context.simulationDatas->powerCatenary.size(); ++i) {
-// //                 powerData.append(m_context.simulationDatas->powerCatenary[i]);
-// //                 currentData.append(m_context.simulationDatas->currentCatenary[i]);
-// //             }
-            
-// //             results["time"] = timeData;
-// //             results["speed"] = speedData;
-// //             results["distance"] = distanceData;
-// //             results["acceleration"] = accelerationData;
-// //             results["phase"] = phaseData;
-// //             results["power"] = powerData;
-// //             results["current"] = currentData;
-            
-// //             response["status"] = "success";
-// //             response["results"] = results;
-// //         } else {
-// //             response["status"] = "error";
-// //             response["message"] = "No simulation results available";
-// //         }
-// //     } catch (const std::exception &e) {
-// //         response["status"] = "error";
-// //         response["message"] = QString("Error retrieving results: %1").arg(e.what());
-// //     }
-    
-// //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-// //                                QHttpServerResponse::StatusCode::Ok);
-// // }
-
-// // QHttpServerResponse ApiHandler::handleExportResults(const QJsonObject &data)
-// // {
-// //     QJsonObject response;
-    
-// //     try {
-// //         QString format = data.value("format").toString("csv");
-        
-// //         if (format == "csv") {
-// //             // Edited here: Use actual CSV output handler method
-// //             m_csvOutputHandler->printSimulationDatas();
-            
-// //             response["status"] = "success";
-// //             response["message"] = "Results exported to CSV successfully";
-// //         } else {
-// //             response["status"] = "error";
-// //             response["message"] = "Unsupported export format";
-// //         }
-// //     } catch (const std::exception &e) {
-// //         response["status"] = "error";
-// //         response["message"] = QString("Error exporting results: %1").arg(e.what());
-// //     }
-    
-// //     return QHttpServerResponse(QJsonDocument(response).toJson(),
-// //                                QHttpServerResponse::StatusCode::Ok);
-// // }

@@ -120,8 +120,10 @@ install_frontend_deps() {
 start_nextjs_dev() {
     print_msg "$YELLOW" "💻 Starting Next.js dev server..."
     cd "$FRONTEND_DIR"
-    npm run dev > /dev/null 2>&1 &
+    # Redirect output to log file for debugging
+    npm run dev > "$PROJECT_ROOT/frontend.log" 2>&1 &
     FRONTEND_PID=$!
+    print_msg "$BLUE" "📝 Frontend logs redirected to: $PROJECT_ROOT/frontend.log"
     cd "$PROJECT_ROOT"
     
     # Wait for Next.js to be ready
@@ -129,8 +131,8 @@ start_nextjs_dev() {
     local max_attempts=30
     local attempt=0
     while [ $attempt -lt $max_attempts ]; do
-        if curl -s http://localhost:3000 > /dev/null 2>&1; then
-            print_msg "$GREEN" "✅ Next.js dev server ready at http://localhost:3000"
+        if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3254 | grep -q "200"; then
+            print_msg "$GREEN" "✅ Next.js dev server ready at http://127.0.0.1:3254"
             return 0
         fi
         sleep 1
@@ -138,6 +140,10 @@ start_nextjs_dev() {
     done
     
     print_msg "$RED" "❌ Next.js dev server failed to start"
+    if [ -f "$PROJECT_ROOT/frontend.log" ]; then
+        print_msg "$RED" "Last 20 lines of frontend log:"
+        tail -n 20 "$PROJECT_ROOT/frontend.log"
+    fi
     return 1
 }
 
@@ -159,7 +165,7 @@ run_dev() {
     print_msg "$CYAN" "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     print_msg "$GREEN" "🎉 Application ready!"
     print_msg "$MAGENTA" "   Backend API: http://localhost:8080"
-    print_msg "$MAGENTA" "   Frontend:    http://localhost:3000 (Next.js dev server)"
+    print_msg "$MAGENTA" "   Frontend:    http://localhost:3254 (Next.js dev server)"
     print_msg "$MAGENTA" "   Qt Window:   Loading frontend..."
     print_msg "$CYAN" "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
@@ -167,11 +173,23 @@ run_dev() {
     echo ""
     
     # Run Qt application (blocks until closed)
+    # Prefix all output with [BACKEND] for clarity
     cd "$BACKEND_BUILD_DIR"
     if [ -f "bin/TrainSimulationApp" ]; then
         export FONTCONFIG_FILE=/etc/fonts/fonts.conf
         export FONTCONFIG_PATH=/etc/fonts
-        ./bin/TrainSimulationApp
+        export QT_LOGGING_RULES="*.debug=true"
+        export QT_FORCE_STDERR_LOGGING=1
+        print_msg "$BLUE" "🔍 Backend logs will appear below with [BACKEND] prefix:"
+        echo ""
+        # Use unbuffer if available for immediate output, otherwise use stdbuf
+        if command -v unbuffer &> /dev/null; then
+            unbuffer ./bin/TrainSimulationApp 2>&1 | sed 's/^/[BACKEND] /'
+        elif command -v stdbuf &> /dev/null; then
+            stdbuf -oL -eL ./bin/TrainSimulationApp 2>&1 | sed 's/^/[BACKEND] /'
+        else
+            ./bin/TrainSimulationApp 2>&1 | sed 's/^/[BACKEND] /'
+        fi
     else
         print_msg "$RED" "❌ Error: backend executable not found"
         print_msg "$YELLOW" "Expected: $BACKEND_BUILD_DIR/bin/TrainSimulationApp"

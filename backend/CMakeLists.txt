@@ -28,36 +28,41 @@ if(NOT DEFINED Qt6_DIR)
 endif()
 
 # Find Qt6 packages - IMPORTANT: Add WebEngineWidgets for embedding Next.js
-find_package(Qt6 REQUIRED COMPONENTS 
-    Core 
-    Network 
+find_package(Qt6 REQUIRED COMPONENTS
+    Core
+    Network
     HttpServer
     Widgets
     WebEngineWidgets
+    WebEngineWidgets
     WebChannel
+    Concurrent
 )
+find_package(Qt6 REQUIRED COMPONENTS Core)
 
 # Source files - adjust paths as needed
-file(GLOB_RECURSE SOURCES 
+file(GLOB_RECURSE SOURCES
     "src/*.cpp"
     "src/*.h"
 )
 
 # If no sources found in src/, try current directory
 if(NOT SOURCES)
-    file(GLOB_RECURSE SOURCES 
+    file(GLOB_RECURSE SOURCES
         "*.cpp"
         "*.h"
     )
 endif()
 
 set(HTTP_SERVER_SOURCES)
+
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/http_server/http_server.cpp")
     list(APPEND HTTP_SERVER_SOURCES
         "http_server/http_server.h"
         "http_server/http_server.cpp"
     )
 endif()
+
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/http_server/api_handler.cpp")
     list(APPEND HTTP_SERVER_SOURCES
         "http_server/api_handler.h"
@@ -72,6 +77,10 @@ set(PROJECT_SOURCES
     webengine/webengine_window.h
     webengine/webengine_window.cpp
 
+    # File bridge for Qt WebChannel integration
+    webengine/file_bridge.h
+    webengine/file_bridge.cpp
+
     # mainwindow/mainwindow.cpp
     # mainwindow/mainwindow.h
     # mainwindow/mainwindow.ui
@@ -79,19 +88,19 @@ set(PROJECT_SOURCES
     core/appcontext.cpp
 )
 
-set(RESOURCE_SOURCES
-    styles/colors.h
-    styles/text_style.h
-    resources/input_type.h
-    resources/icon_paths.h
-    resources/icons.qrc
-    auth/auth.qrc
-    auth/auth_data.h
-    auth/auth_manager.h
-    auth/auth_manager.cpp
-    auth/user_manager.cpp
-    auth/user_manager.h
-)
+# set(RESOURCE_SOURCES
+#     styles/colors.h
+#     styles/text_style.h
+#     resources/input_type.h
+#     resources/icon_paths.h
+#     resources/icons.qrc
+#     auth/auth.qrc
+#     auth/auth_data.h
+#     auth/auth_manager.h
+#     auth/auth_manager.cpp
+#     auth/user_manager.cpp
+#     auth/user_manager.h
+# )
 
 set(MODEL_SOURCES
     models/train_data.h
@@ -106,6 +115,11 @@ set(MODEL_SOURCES
     models/efficiency_data.h
     models/station_data.h
     models/train_motor_data.h
+)
+
+set(UTILITY_SOURCES
+    utils/fuzzy_engine.h
+    utils/fuzzy_engine.cpp
 )
 
 set(CONTROLLER_SOURCES
@@ -152,6 +166,8 @@ set(CONTROLLER_SOURCES
     controllers/data/track_data_handler.cpp
     controllers/data/train_data_handler.h
     controllers/data/train_data_handler.cpp
+    controllers/optimization/optimization_handler.h
+    controllers/optimization/optimization_handler.cpp
 )
 
 set(HTTP_SERVER
@@ -161,14 +177,32 @@ set(HTTP_SERVER
     http_server/api_handler.h
 )
 
+set(HTTP_SERVER_PARAMS
+    http_server/inputs/electrical_parameter_handler.cpp
+    http_server/inputs/electrical_parameter_handler.h
+    http_server/inputs/running_parameter_handler.cpp
+    http_server/inputs/running_parameter_handler.h
+    http_server/inputs/track_parameter_handler.cpp
+    http_server/inputs/track_parameter_handler.h
+    http_server/inputs/train_parameter_handler.cpp
+    http_server/inputs/train_parameter_handler.h
+)
+
 # if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 qt_add_executable(TrainSimulationApp
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
     ${MODEL_SOURCES}
-    ${RESOURCE_SOURCES}
+    ${UTILITY_SOURCES}
+    # ${RESOURCE_SOURCES}
     ${CONTROLLER_SOURCES}
     ${HTTP_SERVER}
+    ${HTTP_SERVER_PARAMS}
+    http_server/inputs/train_parameter_handler.h http_server/inputs/train_parameter_handler.cpp
+    http_server/inputs/running_parameter_handler.h http_server/inputs/running_parameter_handler.cpp
+    http_server/inputs/electrical_parameter_handler.h http_server/inputs/electrical_parameter_handler.cpp
+    http_server/inputs/track_parameter_handler.h http_server/inputs/track_parameter_handler.cpp
+    http_server/simulations/simulation_handler.h http_server/simulations/simulation_handler.cpp
 )
 
 # Define target properties for Android with Qt 6 as:
@@ -189,7 +223,6 @@ qt_add_executable(TrainSimulationApp
 # )
 # endif()
 # endif()
-
 if(TARGET Qt${QT_VERSION_MAJOR}::HttpServer)
     list(APPEND QT_LIBS Qt${QT_VERSION_MAJOR}::HttpServer)
     target_compile_definitions(TrainSimulationApp PRIVATE HAVE_QT_HTTPSERVER)
@@ -214,8 +247,15 @@ target_link_libraries(TrainSimulationApp PRIVATE
     Qt6::Widgets
     Qt6::WebEngineWidgets
     Qt6::WebChannel
+    Qt6::Concurrent
+
     # Qt6::Charts
 )
+target_link_libraries(TrainSimulationApp PRIVATE Qt6::Core)
+target_link_libraries(TrainSimulationApp PRIVATE Qt6::Core)
+target_link_libraries(TrainSimulationApp PRIVATE Qt6::Core)
+target_link_libraries(TrainSimulationApp PRIVATE Qt6::Core)
+target_link_libraries(TrainSimulationApp PRIVATE Qt6::Core)
 target_include_directories(TrainSimulationApp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -225,13 +265,12 @@ target_include_directories(TrainSimulationApp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR
 # set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.TrainSimulationApp)
 # endif()
 # set_target_properties(TrainSimulationApp PROPERTIES
-#     ${BUNDLE_ID_OPTION}
-#     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-#     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-#     MACOSX_BUNDLE TRUE
-#     WIN32_EXECUTABLE TRUE
+# ${BUNDLE_ID_OPTION}
+# MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+# MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+# MACOSX_BUNDLE TRUE
+# WIN32_EXECUTABLE TRUE
 # )
-
 set_target_properties(TrainSimulationApp PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )

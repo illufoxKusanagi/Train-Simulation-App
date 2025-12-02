@@ -6,7 +6,15 @@
 /frontend/out/
 /frontend/build/
 /backend/widgets/
-/backend/controllers/simulation
+# /backend/controllers/simulation
+/backend/controllers_copy
+/backend/pages
+/backend_copy
+/backend_copy_3
+/frontend_copy
+/backend/auth
+# /backend/utils
+# /backend/controllers/optimization
 
 # Qt build artifacts
 *.idx
@@ -94,7 +102,6 @@ next-env.d.ts
 .vercel
 
 # Project specific
-controllers/simulation
 dummy.txt
 /docs
 

@@ -12,42 +12,48 @@ on:
 jobs:
   build-deb:
     runs-on: ubuntu-latest
-    container:
-      image: fedora:latest
+    # No container needed, use native Ubuntu runner
 
     steps:
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-          dnf install -y \
-            qt6-qtbase-devel \
-            qt6-qtwebengine-devel \
-            qt6-qtwebchannel-devel \
-            qt6-qthttpserver-devel \
-            cmake \
-            gcc-c++ \
-            make \
-            rpm-build \
-            dpkg \
-            nodejs \
-            npm \
-            git
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build libgl1-mesa-dev
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.8.0"
+          host: "linux"
+          target: "desktop"
+          arch: "linux_gcc_64"
+          modules: "qtwebchannel qthttpserver qtwebengine qtpositioning qtwebsockets"
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Build Frontend
-        working-directory: ./frontend
         run: |
+          cd frontend
           npm install
           npm run build
 
       - name: Build Backend
-        working-directory: ./backend
         run: |
-          mkdir -p build
-          cd build
+          mkdir -p backend/build
+          cd backend/build
           cmake -DCMAKE_BUILD_TYPE=Release ..
-          make -j$(nproc)
+          cmake --build . --config Release
+
+      - name: Bundle Frontend with Backend
+        run: |
+          mkdir -p backend/build/bin/frontend
+          cp -r frontend/out/* backend/build/bin/frontend/
 
       - name: Create Debian Package
         run: |
@@ -81,7 +87,7 @@ jobs:
           Section: utils
           Priority: optional
           Architecture: amd64
-          Depends: libqt6core6, libqt6gui6, libqt6widgets6, libqt6webenginecore6, libqt6webenginewidgets6, libqt6webchannel6, libqt6network6, libqt6sql6, libnotify-bin
+          Depends: libqt6core6, libqt6gui6, libqt6widgets6, libqt6webenginecore6, libqt6webenginewidgets6, libqt6webchannel6, libqt6network6, libqt6sql6, libqt6httpserver6, libnotify-bin
           Maintainer: illufoxKusanagi
           Description: Desktop calendar application with reminders
            A desktop calendar application for managing daily activities with reminders,
