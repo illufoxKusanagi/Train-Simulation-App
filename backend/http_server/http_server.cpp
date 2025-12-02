@@ -3,6 +3,9 @@
 #include <QDebug>
 #include <QHostAddress>
 #include <QHttpHeaders>
+#include <QtGlobal>
+
+
 #include <QHttpServerRequest>
 #include <QHttpServerResponder>
 #include <QHttpServerResponse>
@@ -70,6 +73,7 @@ void HttpServer::setupRoutes() {
   // Helper function to add CORS headers to any response
   auto addCorsHeaders = [](QHttpServerResponder &responder,
                            const QHttpServerResponse &response) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     QHttpHeaders headers;
     headers.append("Access-Control-Allow-Origin", "*");
     headers.append("Access-Control-Allow-Methods",
@@ -79,6 +83,21 @@ void HttpServer::setupRoutes() {
     headers.append("Content-Type", "application/json");
     headers.append("Access-Control-Max-Age", "86400");
     responder.write(response.data(), headers, response.statusCode());
+#else
+    QList<QPair<QByteArray, QByteArray>> headers;
+    headers.append(qMakePair(QByteArrayLiteral("Access-Control-Allow-Origin"),
+                             QByteArrayLiteral("*")));
+    headers.append(
+        qMakePair(QByteArrayLiteral("Access-Control-Allow-Methods"),
+                  QByteArrayLiteral("GET, POST, PUT, DELETE, OPTIONS")));
+    headers.append(qMakePair(QByteArrayLiteral("Access-Control-Allow-Headers"),
+                             QByteArrayLiteral("Content-Type, Authorization")));
+    headers.append(qMakePair(QByteArrayLiteral("Content-Type"),
+                             QByteArrayLiteral("application/json")));
+    headers.append(qMakePair(QByteArrayLiteral("Access-Control-Max-Age"),
+                             QByteArrayLiteral("86400")));
+    responder.write(response.data(), headers, response.statusCode());
+#endif
   };
 
   // Handle OPTIONS preflight requests
