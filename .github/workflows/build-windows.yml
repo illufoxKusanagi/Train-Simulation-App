@@ -50,13 +50,13 @@ jobs:
           cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{ env.Qt6_DIR }} ..
           cmake --build . --config Release
 
-          windeployqt.exe --release --no-translations backend/build/bin/TrainSimulationApp.exe
+          windeployqt.exe --release --no-translations bin\TrainSimulationApp.exe
 
           # Create run script
           @"
           @echo off
           start "" "%~dp0TrainSimulationApp.exe"
-          "@ | Out-File -FilePath backend/build/bin/TrainSimulationApp.bat -Encoding ASCII
+          "@ | Out-File -FilePath bin\TrainSimulationApp.bat -Encoding ASCII
 
       - name: Create ZIP archive
         shell: powershell
