@@ -8,7 +8,6 @@
 #include <QTimer>
 #include <QUrl>
 
-
 int main(int argc, char *argv[]) {
   // Parse command line arguments first
   bool headless = false;
