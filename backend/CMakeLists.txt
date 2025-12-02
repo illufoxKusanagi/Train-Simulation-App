@@ -72,35 +72,13 @@ endif()
 
 set(PROJECT_SOURCES
     main.cpp
-
-    # WebEngine window for embedding Next.js
     webengine/webengine_window.h
     webengine/webengine_window.cpp
-
-    # File bridge for Qt WebChannel integration
     webengine/file_bridge.h
     webengine/file_bridge.cpp
-
-    # mainwindow/mainwindow.cpp
-    # mainwindow/mainwindow.h
-    # mainwindow/mainwindow.ui
     core/appcontext.h
     core/appcontext.cpp
 )
-
-# set(RESOURCE_SOURCES
-#     styles/colors.h
-#     styles/text_style.h
-#     resources/input_type.h
-#     resources/icon_paths.h
-#     resources/icons.qrc
-#     auth/auth.qrc
-#     auth/auth_data.h
-#     auth/auth_manager.h
-#     auth/auth_manager.cpp
-#     auth/user_manager.cpp
-#     auth/user_manager.h
-# )
 
 set(MODEL_SOURCES
     models/train_data.h
@@ -147,15 +125,6 @@ set(CONTROLLER_SOURCES
     controllers/simulation/current_handler.cpp
     controllers/output/csv_output_handler.h
     controllers/output/csv_output_handler.cpp
-
-    # controllers/output/save_button_handler.h
-    # controllers/output/save_button_handler.cpp
-    # controllers/output/static_simulation_chart_handler.h
-    # controllers/output/static_simulation_chart_handler.cpp
-    # controllers/output/dynamic_simulation_chart_handler.h
-    # controllers/output/dynamic_simulation_chart_handler.cpp
-    # controllers/output/output_table_handler.h
-    # controllers/output/output_table_handler.cpp
     controllers/simulation/csv_variables_handler.h
     controllers/simulation/csv_variables_handler.cpp
     controllers/data/electrical_data_handler.h
@@ -194,7 +163,6 @@ qt_add_executable(TrainSimulationApp
     ${PROJECT_SOURCES}
     ${MODEL_SOURCES}
     ${UTILITY_SOURCES}
-    # ${RESOURCE_SOURCES}
     ${CONTROLLER_SOURCES}
     ${HTTP_SERVER}
     ${HTTP_SERVER_PARAMS}
