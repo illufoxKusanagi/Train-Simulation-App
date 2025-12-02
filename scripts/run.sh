@@ -129,8 +129,8 @@ start_nextjs_dev() {
     local max_attempts=30
     local attempt=0
     while [ $attempt -lt $max_attempts ]; do
-        if curl -s http://localhost:3000 > /dev/null 2>&1; then
-            print_msg "$GREEN" "✅ Next.js dev server ready at http://localhost:3000"
+        if curl -s http://localhost:3254 > /dev/null 2>&1; then
+            print_msg "$GREEN" "✅ Next.js dev server ready at http://localhost:3254"
             return 0
         fi
         sleep 1
@@ -159,7 +159,7 @@ run_dev() {
     print_msg "$CYAN" "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     print_msg "$GREEN" "🎉 Application ready!"
     print_msg "$MAGENTA" "   Backend API: http://localhost:8080"
-    print_msg "$MAGENTA" "   Frontend:    http://localhost:3000 (Next.js dev server)"
+    print_msg "$MAGENTA" "   Frontend:    http://localhost:3254 (Next.js dev server)"
     print_msg "$MAGENTA" "   Qt Window:   Loading frontend..."
     print_msg "$CYAN" "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""

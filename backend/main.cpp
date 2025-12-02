@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
   bool headless = false;
   bool devMode = false;
   quint16 port = 8080;
-  QString frontendUrl = ""; // Changed default to empty
+  QString frontendUrl = "";
 
   for (int i = 1; i < argc; i++) {
     QString arg(argv[i]);
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
   // Auto-detect frontend URL if not specified
   if (frontendUrl.isEmpty()) {
     if (devMode) {
-      frontendUrl = "http://localhost:3000";
+      frontendUrl = "http://localhost:3254";
     } else {
       // Check for local file in standard locations
       QStringList possiblePaths = {
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
       if (!found) {
         qWarning() << "⚠️ Could not find local frontend file. Defaulting to "
                       "localhost.";
-        frontendUrl = "http://localhost:3000";
+        frontendUrl = "http://localhost:3254";
       }
     }
   }
@@ -100,8 +100,6 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     app.setApplicationName("Train Simulation App");
     app.setOrganizationName("PT INKA Persero");
-    // QCoreApplication::setOrganizationName("PT INKA Persero");
-    // QCoreApplication::setApplicationName("Train Simulation App");
 
     qInfo() << "🚀 Starting Train Simulation App (Desktop Mode)";
     qInfo() << "   Mode:" << (devMode ? "Development" : "Production");
@@ -120,7 +118,7 @@ int main(int argc, char *argv[]) {
     qInfo() << "   --dev             Development mode";
     qInfo() << "   --port=8080       Set backend port";
     qInfo() << "   --frontend=URL    Set frontend URL (default: "
-               "http://localhost:3000)";
+               "http://localhost:3254)";
 
     return app.exec();
   }

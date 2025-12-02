@@ -44,7 +44,6 @@ bool HttpServer::startServer(quint16 port) {
       << "🚀 Train Simulation Backend Server is running on http://localhost:"
       << m_port;
 
-  m_tcpServer.release();
   return true;
 }
 
@@ -70,406 +69,337 @@ QJsonObject HttpServer::parseRequestBody(const QHttpServerRequest &request) {
 
 void HttpServer::setupRoutes() {
   // Helper function to add CORS headers to any response
-  // Helper function to add CORS headers to any response
-  auto addCorsHeaders = [](QHttpServerResponder &responder,
-                           const QHttpServerResponse &response) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-    QHttpHeaders headers;
+  auto addCorsHeaders = [](QHttpServerResponse &&response) {
+    QHttpHeaders headers = response.headers();
     headers.append("Access-Control-Allow-Origin", "*");
     headers.append("Access-Control-Allow-Methods",
                    "GET, POST, PUT, DELETE, OPTIONS");
     headers.append("Access-Control-Allow-Headers",
                    "Content-Type, Authorization");
-    headers.append("Content-Type", "application/json");
     headers.append("Access-Control-Max-Age", "86400");
-    responder.write(response.data(), headers, response.statusCode());
-#else
-    responder.write(response.data(),
-                    {
-                        {QByteArrayLiteral("Access-Control-Allow-Origin"),
-                         QByteArrayLiteral("*")},
-                        {QByteArrayLiteral("Access-Control-Allow-Methods"),
-                         QByteArrayLiteral("GET, POST, PUT, DELETE, OPTIONS")},
-                        {QByteArrayLiteral("Access-Control-Allow-Headers"),
-                         QByteArrayLiteral("Content-Type, Authorization")},
-                        {QByteArrayLiteral("Content-Type"),
-                         QByteArrayLiteral("application/json")},
-                        {QByteArrayLiteral("Access-Control-Max-Age"),
-                         QByteArrayLiteral("86400")},
-                    },
-                    response.statusCode());
-#endif
+    response.setHeaders(headers);
+    return std::move(response);
   };
 
   // Handle OPTIONS preflight requests
-  m_httpServer->route(
-      "/api/health", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        qDebug() << "📋 OPTIONS /api/health";
-        addCorsHeaders(responder, QHttpServerResponse(
-                                      QHttpServerResponse::StatusCode::Ok));
-      });
+  m_httpServer->route("/api/health", QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "📋 OPTIONS /api/health";
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
 
   // Handle OPTIONS for /api/parameters/train
-  m_httpServer->route(
-      "/api/parameters/train", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        qDebug() << "📋 OPTIONS /api/parameters/train";
-        addCorsHeaders(responder, QHttpServerResponse(
-                                      QHttpServerResponse::StatusCode::Ok));
-      });
+  m_httpServer->route("/api/parameters/train",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "📋 OPTIONS /api/parameters/train";
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
 
   // Handle OPTIONS for /api/parameters/electrical
-  m_httpServer->route(
-      "/api/parameters/electrical", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        qDebug() << "📋 OPTIONS /api/parameters/electrical";
-        addCorsHeaders(responder, QHttpServerResponse(
-                                      QHttpServerResponse::StatusCode::Ok));
-      });
+  m_httpServer->route("/api/parameters/electrical",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "📋 OPTIONS /api/parameters/electrical";
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
 
   // Handle OPTIONS for /api/parameters/running
-  m_httpServer->route(
-      "/api/parameters/running", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        qDebug() << "📋 OPTIONS /api/parameters/running";
-        addCorsHeaders(responder, QHttpServerResponse(
-                                      QHttpServerResponse::StatusCode::Ok));
-      });
+  m_httpServer->route("/api/parameters/running",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "📋 OPTIONS /api/parameters/running";
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
 
   // Handle OPTIONS for /api/parameters/track
-  m_httpServer->route(
-      "/api/parameters/track", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        qDebug() << "📋 OPTIONS /api/parameters/track";
-        addCorsHeaders(responder, QHttpServerResponse(
-                                      QHttpServerResponse::StatusCode::Ok));
-      });
+  m_httpServer->route("/api/parameters/track",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "📋 OPTIONS /api/parameters/track";
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
 
   // Handle OPTIONS for /api/simulation/start
-  m_httpServer->route(
-      "/api/simulation/start", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        qDebug() << "📋 OPTIONS /api/simulation/start";
-        addCorsHeaders(responder, QHttpServerResponse(
-                                      QHttpServerResponse::StatusCode::Ok));
-      });
+  m_httpServer->route("/api/simulation/start",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "📋 OPTIONS /api/simulation/start";
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
 
   // Handle OPTIONS for /api/simulation/status
-  m_httpServer->route(
-      "/api/simulation/status", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        qDebug() << "📋 OPTIONS /api/simulation/status";
-        addCorsHeaders(responder, QHttpServerResponse(
-                                      QHttpServerResponse::StatusCode::Ok));
-      });
+  m_httpServer->route("/api/simulation/status",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "📋 OPTIONS /api/simulation/status";
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
 
   // Handle OPTIONS for /api/simulation/results
-  m_httpServer->route(
-      "/api/simulation/results", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        qDebug() << "📋 OPTIONS /api/simulation/results";
-        addCorsHeaders(responder, QHttpServerResponse(
-                                      QHttpServerResponse::StatusCode::Ok));
-      });
+  m_httpServer->route("/api/simulation/results",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "📋 OPTIONS /api/simulation/results";
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
 
   // Handle OPTIONS for /api/export/results
-  m_httpServer->route(
-      "/api/export/results", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        qDebug() << "📋 OPTIONS /api/export/results";
-        addCorsHeaders(responder, QHttpServerResponse(
-                                      QHttpServerResponse::StatusCode::Ok));
-      });
+  m_httpServer->route("/api/export/results",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "📋 OPTIONS /api/export/results";
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
 
   // Handle OPTIONS for /status
-  m_httpServer->route(
-      "/status", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        qDebug() << "📋 OPTIONS /status";
-        addCorsHeaders(responder, QHttpServerResponse(
-                                      QHttpServerResponse::StatusCode::Ok));
-      });
+  m_httpServer->route("/status", QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "📋 OPTIONS /status";
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
 
   // Health check endpoint
   m_httpServer->route("/api/health", QHttpServerRequest::Method::Get,
-                      [this, addCorsHeaders](const QHttpServerRequest &,
-                                             QHttpServerResponder &&responder) {
+                      [this, addCorsHeaders](const QHttpServerRequest &) {
                         qDebug() << "🔍 GET /api/health";
-                        addCorsHeaders(responder,
-                                       m_apiHandler->handleHealthCheck());
+                        return addCorsHeaders(
+                            m_apiHandler->handleHealthCheck());
                       });
 
   // Quick initialization endpoint
-  m_httpServer->route(
-      "/api/init/quick", QHttpServerRequest::Method::Post,
-      [this, addCorsHeaders](const QHttpServerRequest &,
-                             QHttpServerResponder &&responder) {
-        qDebug() << "🔧 POST /api/init/quick - Quick initialization";
-        addCorsHeaders(responder, m_apiHandler->handleQuickInit());
-      });
+  m_httpServer->route("/api/init/quick", QHttpServerRequest::Method::Post,
+                      [this, addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug()
+                            << "🔧 POST /api/init/quick - Quick initialization";
+                        return addCorsHeaders(m_apiHandler->handleQuickInit());
+                      });
 
-  m_httpServer->route(
-      "/api/init/quick", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        addCorsHeaders(responder, QHttpServerResponse(
-                                      QHttpServerResponse::StatusCode::Ok));
-      });
+  m_httpServer->route("/api/init/quick", QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
 
   // Debug endpoint
   m_httpServer->route(
       "/api/debug/context", QHttpServerRequest::Method::Get,
-      [this, addCorsHeaders](const QHttpServerRequest &,
-                             QHttpServerResponder &&responder) {
+      [this, addCorsHeaders](const QHttpServerRequest &) {
         qDebug() << "🐛 GET /api/debug/context - Checking AppContext values";
-        addCorsHeaders(responder, m_apiHandler->handleDebugContext());
+        return addCorsHeaders(m_apiHandler->handleDebugContext());
       });
 
-  m_httpServer->route(
-      "/api/debug/context", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        addCorsHeaders(responder, QHttpServerResponse(
-                                      QHttpServerResponse::StatusCode::Ok));
-      });
+  m_httpServer->route("/api/debug/context", QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
 
   // Train parameters endpoints
-  m_httpServer->route(
-      "/api/parameters/train", QHttpServerRequest::Method::Get,
-      [this, addCorsHeaders](const QHttpServerRequest &,
-                             QHttpServerResponder &&responder) {
-        qDebug() << "🔍 GET /api/parameters/train";
-        addCorsHeaders(responder, m_apiHandler->handleGetTrainParameters());
-      });
-
-  m_httpServer->route("/api/parameters/train", QHttpServerRequest::Method::Post,
-                      [this, addCorsHeaders](const QHttpServerRequest &request,
-                                             QHttpServerResponder &&responder) {
-                        qDebug() << "📝 POST /api/parameters/train";
-                        qDebug() << "📦 Request body:" << request.body();
-                        QJsonObject data = parseRequestBody(request);
-                        qDebug() << "🔧 Parsed JSON:" << data;
-                        addCorsHeaders(
-                            responder,
-                            m_apiHandler->handleUpdateTrainParameters(data));
+  m_httpServer->route("/api/parameters/train", QHttpServerRequest::Method::Get,
+                      [this, addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "🔍 GET /api/parameters/train";
+                        return addCorsHeaders(
+                            m_apiHandler->handleGetTrainParameters());
                       });
 
   m_httpServer->route(
+      "/api/parameters/train", QHttpServerRequest::Method::Post,
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
+        qDebug() << "📝 POST /api/parameters/train";
+        qDebug() << "📦 Request body:" << request.body();
+        QJsonObject data = parseRequestBody(request);
+        qDebug() << "🔧 Parsed JSON:" << data;
+        return addCorsHeaders(m_apiHandler->handleUpdateTrainParameters(data));
+      });
+
+  m_httpServer->route(
       "/api/parameters/electrical", QHttpServerRequest::Method::Get,
-      [this, addCorsHeaders](const QHttpServerRequest &,
-                             QHttpServerResponder &&responder) {
+      [this, addCorsHeaders](const QHttpServerRequest &) {
         qDebug() << "🔍 GET /api/parameters/electrical";
-        addCorsHeaders(responder,
-                       m_apiHandler->handleGetElectricalParameters());
+        return addCorsHeaders(m_apiHandler->handleGetElectricalParameters());
       });
 
   m_httpServer->route(
       "/api/parameters/electrical", QHttpServerRequest::Method::Post,
-      [this, addCorsHeaders](const QHttpServerRequest &request,
-                             QHttpServerResponder &&responder) {
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
         qDebug() << "📝 POST /api/parameters/electrical";
         QJsonObject data = parseRequestBody(request);
-        addCorsHeaders(responder,
-                       m_apiHandler->handleUpdateElectricalParameters(data));
+        return addCorsHeaders(
+            m_apiHandler->handleUpdateElectricalParameters(data));
       });
 
   // Running parameters endpoints
   m_httpServer->route(
       "/api/parameters/running", QHttpServerRequest::Method::Get,
-      [this, addCorsHeaders](const QHttpServerRequest &,
-                             QHttpServerResponder &&responder) {
+      [this, addCorsHeaders](const QHttpServerRequest &) {
         qDebug() << "🔍 GET /api/parameters/running";
-        addCorsHeaders(responder, m_apiHandler->handleGetRunningParameters());
+        return addCorsHeaders(m_apiHandler->handleGetRunningParameters());
       });
 
   m_httpServer->route(
       "/api/parameters/running", QHttpServerRequest::Method::Post,
-      [this, addCorsHeaders](const QHttpServerRequest &request,
-                             QHttpServerResponder &&responder) {
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
         qDebug() << "📝 POST /api/parameters/running";
         QJsonObject data = parseRequestBody(request);
-        addCorsHeaders(responder,
-                       m_apiHandler->handleUpdateRunningParameters(data));
+        return addCorsHeaders(
+            m_apiHandler->handleUpdateRunningParameters(data));
       });
 
   // Track parameters endpoints
-  m_httpServer->route(
-      "/api/parameters/track", QHttpServerRequest::Method::Get,
-      [this, addCorsHeaders](const QHttpServerRequest &,
-                             QHttpServerResponder &&responder) {
-        qDebug() << "🔍 GET /api/parameters/track";
-        addCorsHeaders(responder, m_apiHandler->handleGetTrackParameters());
-      });
-
-  m_httpServer->route("/api/parameters/track", QHttpServerRequest::Method::Post,
-                      [this, addCorsHeaders](const QHttpServerRequest &request,
-                                             QHttpServerResponder &&responder) {
-                        qDebug() << "📝 POST /api/parameters/track";
-                        QJsonObject data = parseRequestBody(request);
-                        addCorsHeaders(
-                            responder,
-                            m_apiHandler->handleUpdateTrackParameters(data));
+  m_httpServer->route("/api/parameters/track", QHttpServerRequest::Method::Get,
+                      [this, addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "🔍 GET /api/parameters/track";
+                        return addCorsHeaders(
+                            m_apiHandler->handleGetTrackParameters());
                       });
+
+  m_httpServer->route(
+      "/api/parameters/track", QHttpServerRequest::Method::Post,
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
+        qDebug() << "📝 POST /api/parameters/track";
+        QJsonObject data = parseRequestBody(request);
+        return addCorsHeaders(m_apiHandler->handleUpdateTrackParameters(data));
+      });
 
   // Mass parameters
-  m_httpServer->route(
-      "/api/parameters/mass", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        addCorsHeaders(
-            responder,
-            QHttpServerResponse(QHttpServerResponse::StatusCode::NoContent));
-      });
+  m_httpServer->route("/api/parameters/mass",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::NoContent));
+                      });
 
   m_httpServer->route("/api/parameters/mass", QHttpServerRequest::Method::Get,
-                      [this, addCorsHeaders](const QHttpServerRequest &,
-                                             QHttpServerResponder &&responder) {
+                      [this, addCorsHeaders](const QHttpServerRequest &) {
                         qDebug() << "🔍 GET /api/parameters/mass";
-                        addCorsHeaders(responder,
-                                       m_apiHandler->handleGetMassParameters());
+                        return addCorsHeaders(
+                            m_apiHandler->handleGetMassParameters());
                       });
 
-  m_httpServer->route("/api/parameters/mass", QHttpServerRequest::Method::Post,
-                      [this, addCorsHeaders](const QHttpServerRequest &request,
-                                             QHttpServerResponder &&responder) {
-                        qDebug() << "📝 POST /api/parameters/mass";
-                        QJsonObject data = parseRequestBody(request);
-                        addCorsHeaders(
-                            responder,
-                            m_apiHandler->handleUpdateMassParameters(data));
-                      });
+  m_httpServer->route(
+      "/api/parameters/mass", QHttpServerRequest::Method::Post,
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
+        qDebug() << "📝 POST /api/parameters/mass";
+        QJsonObject data = parseRequestBody(request);
+        return addCorsHeaders(m_apiHandler->handleUpdateMassParameters(data));
+      });
 
   // Calculate mass endpoint
-  m_httpServer->route(
-      "/api/calculate/mass", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        qDebug() << "📋 OPTIONS /api/calculate/mass";
-        addCorsHeaders(responder, QHttpServerResponse(
-                                      QHttpServerResponse::StatusCode::Ok));
-      });
-
-  m_httpServer->route("/api/calculate/mass", QHttpServerRequest::Method::Post,
-                      [this, addCorsHeaders](const QHttpServerRequest &request,
-                                             QHttpServerResponder &&responder) {
-                        qDebug() << "🧮 POST /api/calculate/mass";
-                        QJsonObject data = parseRequestBody(request);
-                        addCorsHeaders(responder,
-                                       m_apiHandler->handleCalculateMass(data));
+  m_httpServer->route("/api/calculate/mass",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "📋 OPTIONS /api/calculate/mass";
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Car number parameters
   m_httpServer->route(
-      "/api/parameters/carnumber", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        addCorsHeaders(
-            responder,
-            QHttpServerResponse(QHttpServerResponse::StatusCode::NoContent));
+      "/api/calculate/mass", QHttpServerRequest::Method::Post,
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
+        qDebug() << "🧮 POST /api/calculate/mass";
+        QJsonObject data = parseRequestBody(request);
+        return addCorsHeaders(m_apiHandler->handleCalculateMass(data));
       });
+
+  // Car number parameters
+  m_httpServer->route("/api/parameters/carnumber",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::NoContent));
+                      });
 
   m_httpServer->route(
       "/api/parameters/carnumber", QHttpServerRequest::Method::Get,
-      [this, addCorsHeaders](const QHttpServerRequest &,
-                             QHttpServerResponder &&responder) {
+      [this, addCorsHeaders](const QHttpServerRequest &) {
         qDebug() << "🔍 GET /api/parameters/carnumber";
-        addCorsHeaders(responder, m_apiHandler->handleGetCarNumberParameters());
+        return addCorsHeaders(m_apiHandler->handleGetCarNumberParameters());
       });
 
   m_httpServer->route(
       "/api/parameters/carnumber", QHttpServerRequest::Method::Post,
-      [this, addCorsHeaders](const QHttpServerRequest &request,
-                             QHttpServerResponder &&responder) {
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
         qDebug() << "📝 POST /api/parameters/carnumber";
         QJsonObject data = parseRequestBody(request);
-        addCorsHeaders(responder,
-                       m_apiHandler->handleUpdateCarNumberParameters(data));
+        return addCorsHeaders(
+            m_apiHandler->handleUpdateCarNumberParameters(data));
       });
 
   // Passenger parameters
-  m_httpServer->route(
-      "/api/parameters/passenger", QHttpServerRequest::Method::Options,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        addCorsHeaders(
-            responder,
-            QHttpServerResponse(QHttpServerResponse::StatusCode::NoContent));
-      });
+  m_httpServer->route("/api/parameters/passenger",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::NoContent));
+                      });
 
   m_httpServer->route(
       "/api/parameters/passenger", QHttpServerRequest::Method::Get,
-      [this, addCorsHeaders](const QHttpServerRequest &,
-                             QHttpServerResponder &&responder) {
+      [this, addCorsHeaders](const QHttpServerRequest &) {
         qDebug() << "🔍 GET /api/parameters/passenger";
-        addCorsHeaders(responder, m_apiHandler->handleGetPassengerParameters());
+        return addCorsHeaders(m_apiHandler->handleGetPassengerParameters());
       });
 
   m_httpServer->route(
       "/api/parameters/passenger", QHttpServerRequest::Method::Post,
-      [this, addCorsHeaders](const QHttpServerRequest &request,
-                             QHttpServerResponder &&responder) {
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
         qDebug() << "📝 POST /api/parameters/passenger";
         QJsonObject data = parseRequestBody(request);
-        addCorsHeaders(responder,
-                       m_apiHandler->handleUpdatePassengerParameters(data));
+        return addCorsHeaders(
+            m_apiHandler->handleUpdatePassengerParameters(data));
       });
 
   // Simulation control endpoints
   m_httpServer->route(
       "/api/simulation/start", QHttpServerRequest::Method::Post,
-      [this, addCorsHeaders](const QHttpServerRequest &request,
-                             QHttpServerResponder &&responder) {
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
         qDebug() << "🚀 POST /api/simulation/start";
         QJsonObject data = parseRequestBody(request);
-        addCorsHeaders(responder, m_apiHandler->handleStartSimulation(data));
+        return addCorsHeaders(m_apiHandler->handleStartSimulation(data));
       });
 
-  m_httpServer->route(
-      "/api/simulation/status", QHttpServerRequest::Method::Get,
-      [this, addCorsHeaders](const QHttpServerRequest &,
-                             QHttpServerResponder &&responder) {
-        qDebug() << "📊 GET /api/simulation/status";
-        addCorsHeaders(responder, m_apiHandler->handleGetSimulationStatus());
-      });
+  m_httpServer->route("/api/simulation/status", QHttpServerRequest::Method::Get,
+                      [this, addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "📊 GET /api/simulation/status";
+                        return addCorsHeaders(
+                            m_apiHandler->handleGetSimulationStatus());
+                      });
 
   m_httpServer->route(
       "/api/simulation/results", QHttpServerRequest::Method::Get,
-      [this, addCorsHeaders](const QHttpServerRequest &,
-                             QHttpServerResponder &&responder) {
+      [this, addCorsHeaders](const QHttpServerRequest &) {
         qDebug() << "📈 GET /api/simulation/results";
-        addCorsHeaders(responder, m_apiHandler->handleGetSimulationResults());
+        return addCorsHeaders(m_apiHandler->handleGetSimulationResults());
       });
 
   // Export endpoints
-  m_httpServer->route("/api/export/results", QHttpServerRequest::Method::Post,
-                      [this, addCorsHeaders](const QHttpServerRequest &request,
-                                             QHttpServerResponder &&responder) {
-                        qDebug() << "💾 POST /api/export/results";
-                        QJsonObject data = parseRequestBody(request);
-                        addCorsHeaders(responder,
-                                       m_apiHandler->handleExportResults(data));
-                      });
+  m_httpServer->route(
+      "/api/export/results", QHttpServerRequest::Method::Post,
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
+        qDebug() << "💾 POST /api/export/results";
+        QJsonObject data = parseRequestBody(request);
+        return addCorsHeaders(m_apiHandler->handleExportResults(data));
+      });
 
   // Simple status endpoint
-  m_httpServer->route(
-      "/status", QHttpServerRequest::Method::Get,
-      [addCorsHeaders](const QHttpServerRequest &,
-                       QHttpServerResponder &&responder) {
-        qDebug() << "🔍 GET /status";
-        QJsonObject response;
-        response["status"] = "Train Simulation Backend C++ is running!";
-        response["service"] = "Qt Train Simulation HTTP API";
-        addCorsHeaders(responder, QHttpServerResponse(response));
-      });
+  m_httpServer->route("/status", QHttpServerRequest::Method::Get,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "🔍 GET /status";
+                        QJsonObject response;
+                        response["status"] =
+                            "Train Simulation Backend C++ is running!";
+                        response["service"] = "Qt Train Simulation HTTP API";
+                        return addCorsHeaders(QHttpServerResponse(response));
+                      });
 }
