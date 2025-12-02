@@ -5,7 +5,6 @@
 #include <QHttpHeaders>
 #include <QtGlobal>
 
-
 #include <QHttpServerRequest>
 #include <QHttpServerResponder>
 #include <QHttpServerResponse>
@@ -84,7 +83,7 @@ void HttpServer::setupRoutes() {
     headers.append("Access-Control-Max-Age", "86400");
     responder.write(response.data(), headers, response.statusCode());
 #else
-    QList<QPair<QByteArray, QByteArray>> headers;
+    QHttpServerResponder::HeaderList headers;
     headers.append(qMakePair(QByteArrayLiteral("Access-Control-Allow-Origin"),
                              QByteArrayLiteral("*")));
     headers.append(
