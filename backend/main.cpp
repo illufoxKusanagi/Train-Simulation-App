@@ -4,15 +4,17 @@
 #include <QApplication>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QFile> // Added this include
 #include <QTimer>
 #include <QUrl>
+
 
 int main(int argc, char *argv[]) {
   // Parse command line arguments first
   bool headless = false;
   bool devMode = false;
   quint16 port = 8080;
-  QString frontendUrl = "http://localhost:3000";
+  QString frontendUrl = ""; // Changed default to empty
 
   for (int i = 1; i < argc; i++) {
     QString arg(argv[i]);
@@ -24,6 +26,39 @@ int main(int argc, char *argv[]) {
       port = arg.mid(7).toInt();
     } else if (arg.startsWith("--frontend=")) {
       frontendUrl = arg.mid(11);
+    }
+  }
+
+  // Auto-detect frontend URL if not specified
+  if (frontendUrl.isEmpty()) {
+    if (devMode) {
+      frontendUrl = "http://localhost:3000";
+    } else {
+      // Check for local file in standard locations
+      QStringList possiblePaths = {
+          // Windows/Linux local build (relative to executable)
+          QCoreApplication::applicationDirPath() + "/frontend/index.html",
+          // Linux installed (standard path)
+          "/usr/share/daily-reminder/index.html",
+          // Fallback for development structure
+          QCoreApplication::applicationDirPath() +
+              "/../../frontend/out/index.html"};
+
+      bool found = false;
+      for (const QString &path : possiblePaths) {
+        if (QFile::exists(path)) {
+          frontendUrl = QUrl::fromLocalFile(path).toString();
+          qInfo() << "✅ Found local frontend at:" << path;
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        qWarning() << "⚠️ Could not find local frontend file. Defaulting to "
+                      "localhost.";
+        frontendUrl = "http://localhost:3000";
+      }
     }
   }
 

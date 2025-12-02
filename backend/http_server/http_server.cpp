@@ -70,9 +70,10 @@ QJsonObject HttpServer::parseRequestBody(const QHttpServerRequest &request) {
 
 void HttpServer::setupRoutes() {
   // Helper function to add CORS headers to any response
+  // Helper function to add CORS headers to any response
   auto addCorsHeaders = [](QHttpServerResponder &responder,
                            const QHttpServerResponse &response) {
-    // #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     QHttpHeaders headers;
     headers.append("Access-Control-Allow-Origin", "*");
     headers.append("Access-Control-Allow-Methods",
@@ -82,22 +83,22 @@ void HttpServer::setupRoutes() {
     headers.append("Content-Type", "application/json");
     headers.append("Access-Control-Max-Age", "86400");
     responder.write(response.data(), headers, response.statusCode());
-    // #else
-    //     QHttpServerResponder::HeaderList headers;
-    //     headers.append(qMakePair(QByteArrayLiteral("Access-Control-Allow-Origin"),
-    //                              QByteArrayLiteral("*")));
-    //     headers.append(
-    //         qMakePair(QByteArrayLiteral("Access-Control-Allow-Methods"),
-    //                   QByteArrayLiteral("GET, POST, PUT, DELETE, OPTIONS")));
-    //     headers.append(qMakePair(QByteArrayLiteral("Access-Control-Allow-Headers"),
-    //                              QByteArrayLiteral("Content-Type,
-    //                              Authorization")));
-    //     headers.append(qMakePair(QByteArrayLiteral("Content-Type"),
-    //                              QByteArrayLiteral("application/json")));
-    //     headers.append(qMakePair(QByteArrayLiteral("Access-Control-Max-Age"),
-    //                              QByteArrayLiteral("86400")));
-    //     responder.write(response.data(), headers, response.statusCode());
-    // #endif
+#else
+    responder.write(response.data(),
+                    {
+                        {QByteArrayLiteral("Access-Control-Allow-Origin"),
+                         QByteArrayLiteral("*")},
+                        {QByteArrayLiteral("Access-Control-Allow-Methods"),
+                         QByteArrayLiteral("GET, POST, PUT, DELETE, OPTIONS")},
+                        {QByteArrayLiteral("Access-Control-Allow-Headers"),
+                         QByteArrayLiteral("Content-Type, Authorization")},
+                        {QByteArrayLiteral("Content-Type"),
+                         QByteArrayLiteral("application/json")},
+                        {QByteArrayLiteral("Access-Control-Max-Age"),
+                         QByteArrayLiteral("86400")},
+                    },
+                    response.statusCode());
+#endif
   };
 
   // Handle OPTIONS preflight requests
