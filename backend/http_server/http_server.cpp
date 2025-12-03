@@ -5,6 +5,8 @@
 #include <QHttpHeaders>
 #include <QtGlobal>
 
+#include <QDir>
+#include <QFile>
 #include <QHttpServerRequest>
 #include <QHttpServerResponder>
 #include <QHttpServerResponse>
@@ -12,6 +14,7 @@
 #include <QJsonObject>
 #include <QList>
 #include <QPair>
+
 
 HttpServer::HttpServer(AppContext &context, QObject *parent)
     : QObject(parent), m_context(context), m_port(0) {
@@ -423,4 +426,78 @@ void HttpServer::setupRoutes() {
                         response["service"] = "Qt Train Simulation HTTP API";
                         return addCorsHeaders(QHttpServerResponse(response));
                       });
+
+  // Serve static frontend files
+  m_httpServer->route("/", [this](const QHttpServerRequest &request) {
+    QString path = request.url().path();
+
+    // Default to index.html for root
+    if (path == "/" || path.isEmpty()) {
+      path = "/index.html";
+    }
+
+    // Security: prevent directory traversal
+    if (path.contains("..")) {
+      return QHttpServerResponse(QHttpServerResponse::StatusCode::Forbidden);
+    }
+
+    // Determine frontend directory
+    QString frontendDir = QCoreApplication::applicationDirPath() + "/frontend";
+
+    // Check alternative locations if not found
+    if (!QDir(frontendDir).exists()) {
+      frontendDir =
+          QCoreApplication::applicationDirPath() + "/../../frontend/out";
+    }
+
+    QString filePath = frontendDir + path;
+    QFile file(filePath);
+
+    if (!file.exists()) {
+      qWarning() << "File not found:" << filePath;
+      return QHttpServerResponse(QHttpServerResponse::StatusCode::NotFound);
+    }
+
+    if (!file.open(QIODevice::ReadOnly)) {
+      qWarning() << "Cannot open file:" << filePath;
+      return QHttpServerResponse(
+          QHttpServerResponse::StatusCode::InternalServerError);
+    }
+
+    QByteArray data = file.readAll();
+    file.close();
+
+    // Determine content type
+    QString contentType = "application/octet-stream";
+    if (path.endsWith(".html"))
+      contentType = "text/html; charset=utf-8";
+    else if (path.endsWith(".js"))
+      contentType = "application/javascript; charset=utf-8";
+    else if (path.endsWith(".css"))
+      contentType = "text/css; charset=utf-8";
+    else if (path.endsWith(".json"))
+      contentType = "application/json; charset=utf-8";
+    else if (path.endsWith(".png"))
+      contentType = "image/png";
+    else if (path.endsWith(".jpg") || path.endsWith(".jpeg"))
+      contentType = "image/jpeg";
+    else if (path.endsWith(".svg"))
+      contentType = "image/svg+xml";
+    else if (path.endsWith(".ico"))
+      contentType = "image/x-icon";
+    else if (path.endsWith(".woff"))
+      contentType = "font/woff";
+    else if (path.endsWith(".woff2"))
+      contentType = "font/woff2";
+    else if (path.endsWith(".ttf"))
+      contentType = "font/ttf";
+
+    QHttpServerResponse response(data, QHttpServerResponse::StatusCode::Ok);
+    QHttpHeaders headers;
+    headers.append("Content-Type", contentType.toUtf8());
+    headers.append("Cache-Control", "public, max-age=31536000");
+    response.setHeaders(headers);
+
+    return response;
+  });
 }
