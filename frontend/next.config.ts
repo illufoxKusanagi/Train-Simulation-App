@@ -5,6 +5,14 @@ const nextConfig: NextConfig = {
   // Keep it only if you need static HTML export
   output: "export", // Generate static HTML export
 
+  // Required for static export to work with local file system
+  images: {
+    unoptimized: true,
+  },
+  // Use relative paths for assets so they load correctly via file:// protocol
+  assetPrefix: ".",
+
+  // Rewrites don't work in static export, but we keep this for dev mode
   async rewrites() {
     return [
       {
