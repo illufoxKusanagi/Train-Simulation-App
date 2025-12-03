@@ -50,6 +50,9 @@ bool HttpServer::startServer(quint16 port) {
 void HttpServer::stopServer() {
   if (m_httpServer) {
     qInfo() << "🛑 Stopping HTTP server...";
+    if (m_tcpServer) {
+      m_tcpServer->close();
+    }
   }
 }
 

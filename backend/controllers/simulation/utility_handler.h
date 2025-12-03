@@ -3,10 +3,12 @@
 
 #include "core/appcontext.h"
 #include "models/simulation_data.h"
-#include "models/train_data.h"
 #include <QObject>
+#include <qtmetamacros.h>
 
 class UtilityHandler : public QObject {
+  Q_OBJECT
+
 public slots:
   void resetSimulation();
 

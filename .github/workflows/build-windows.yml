@@ -54,6 +54,12 @@ jobs:
           cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{ env.Qt6_DIR }} ..
           cmake --build . --config Release
 
+      - name: Bundle Frontend with Backend
+        shell: bash
+        run: |
+          mkdir -p backend/build/bin/frontend
+          cp -r frontend/out/* backend/build/bin/frontend/
+
       - name: Deploy Qt Dependencies
         shell: powershell
         run: |

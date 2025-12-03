@@ -22,104 +22,61 @@ int main(int argc, char *argv[]) {
     } else if (arg == "--dev") {
       devMode = true;
     } else if (arg.startsWith("--port=")) {
-      port = arg.mid(7).toInt();
-    } else if (arg.startsWith("--frontend=")) {
-      frontendUrl = arg.mid(11);
-    }
-  }
+      QCoreApplication::setApplicationName("Train Simulation App");
 
-  // Auto-detect frontend URL if not specified
-  if (frontendUrl.isEmpty()) {
-    if (devMode) {
-      frontendUrl = "http://127.0.0.1:3254";
+      AppContext context;
+      HttpServer server(context);
+
+      if (server.startServer(port)) {
+        qInfo() << "✅ Train Simulation Backend Server started on port" << port;
+        qInfo() << "Server started successfully on port:" << server.getPort();
+        qInfo() << "Available endpoints:";
+        qInfo() << "  GET  /status - Server status";
+        qInfo() << "  GET  /api/health - Health check";
+        qInfo() << "  GET  /api/parameters/train - Get train parameters";
+        qInfo() << "  POST /api/parameters/train - Update train parameters";
+        qInfo()
+            << "  GET  /api/parameters/electrical - Get electrical parameters";
+        qInfo() << "  POST /api/parameters/electrical - Update electrical "
+                   "parameters";
+        qInfo() << "  GET  /api/parameters/running - Get running parameters";
+        qInfo() << "  POST /api/parameters/running - Update running parameters";
+        qInfo() << "  GET  /api/parameters/track - Get track parameters";
+        qInfo() << "  POST /api/parameters/track - Update track parameters";
+        qInfo() << "  POST /api/simulation/start - Start simulation";
+        qInfo() << "  GET  /api/simulation/status - Get simulation status";
+        qInfo() << "  GET  /api/simulation/results - Get simulation results";
+        qInfo() << "  POST /api/export/results - Export results to CSV";
+        return app.exec();
+      } else {
+        qCritical() << "❌ Failed to start server on port" << port;
+        return 1;
+      }
     } else {
-      // Check for local file in standard locations
-      QStringList possiblePaths = {
-          // Windows/Linux local build (relative to executable)
-          QCoreApplication::applicationDirPath() + "/frontend/index.html",
-          // Linux installed (standard path)
-          "/usr/share/daily-reminder/index.html",
-          // Fallback for development structure
-          QCoreApplication::applicationDirPath() +
-              "/../../frontend/out/index.html"};
+      // GUI mode: Qt WebEngine with embedded Next.js frontend
+      QApplication app(argc, argv);
+      app.setApplicationName("Train Simulation App");
+      app.setOrganizationName("PT INKA Persero");
 
-      bool found = false;
-      for (const QString &path : possiblePaths) {
-        if (QFile::exists(path)) {
-          frontendUrl = QUrl::fromLocalFile(path).toString();
-          qInfo() << "✅ Found local frontend at:" << path;
-          found = true;
-          break;
-        }
-      }
+      qInfo() << "🚀 Starting Train Simulation App (Desktop Mode)";
+      qInfo() << "   Mode:" << (devMode ? "Development" : "Production");
+      qInfo() << "   Frontend:" << frontendUrl;
 
-      if (!found) {
-        qWarning() << "⚠️ Could not find local frontend file. Defaulting to "
-                      "localhost.";
-        frontendUrl = "http://127.0.0.1:3254";
-      }
-    }
-  }
+      // Create main window with embedded web view
+      WebEngineWindow window;
+      window.show();
 
-  if (headless) {
-    // Headless mode: Backend server only (no GUI)
-    QCoreApplication app(argc, argv);
-    QCoreApplication::setOrganizationName("PT INKA Persero");
-    QCoreApplication::setApplicationName("Train Simulation App");
+      // Load frontend
+      window.loadFrontend(QUrl(frontendUrl));
 
-    AppContext context;
-    HttpServer server(context);
+      qInfo() << "✅ Application started successfully";
+      qInfo() << "💡 Usage:";
+      qInfo() << "   --headless        Run backend server only (no GUI)";
+      qInfo() << "   --dev             Development mode";
+      qInfo() << "   --port=8080       Set backend port";
+      qInfo() << "   --frontend=URL    Set frontend URL (default: "
+                 "http://localhost:3254)";
 
-    if (server.startServer(port)) {
-      qInfo() << "✅ Train Simulation Backend Server started on port" << port;
-      qInfo() << "Server started successfully on port:" << server.getPort();
-      qInfo() << "Available endpoints:";
-      qInfo() << "  GET  /status - Server status";
-      qInfo() << "  GET  /api/health - Health check";
-      qInfo() << "  GET  /api/parameters/train - Get train parameters";
-      qInfo() << "  POST /api/parameters/train - Update train parameters";
-      qInfo()
-          << "  GET  /api/parameters/electrical - Get electrical parameters";
-      qInfo()
-          << "  POST /api/parameters/electrical - Update electrical parameters";
-      qInfo() << "  GET  /api/parameters/running - Get running parameters";
-      qInfo() << "  POST /api/parameters/running - Update running parameters";
-      qInfo() << "  GET  /api/parameters/track - Get track parameters";
-      qInfo() << "  POST /api/parameters/track - Update track parameters";
-      qInfo() << "  POST /api/simulation/start - Start simulation";
-      qInfo() << "  GET  /api/simulation/status - Get simulation status";
-      qInfo() << "  GET  /api/simulation/results - Get simulation results";
-      qInfo() << "  POST /api/export/results - Export results to CSV";
       return app.exec();
-    } else {
-      qCritical() << "❌ Failed to start server on port" << port;
-      return 1;
     }
-  } else {
-    // GUI mode: Qt WebEngine with embedded Next.js frontend
-    QApplication app(argc, argv);
-    app.setApplicationName("Train Simulation App");
-    app.setOrganizationName("PT INKA Persero");
-
-    qInfo() << "🚀 Starting Train Simulation App (Desktop Mode)";
-    qInfo() << "   Mode:" << (devMode ? "Development" : "Production");
-    qInfo() << "   Frontend:" << frontendUrl;
-
-    // Create main window with embedded web view
-    WebEngineWindow window;
-    window.show();
-
-    // Load frontend
-    window.loadFrontend(QUrl(frontendUrl));
-
-    qInfo() << "✅ Application started successfully";
-    qInfo() << "💡 Usage:";
-    qInfo() << "   --headless        Run backend server only (no GUI)";
-    qInfo() << "   --dev             Development mode";
-    qInfo() << "   --port=8080       Set backend port";
-    qInfo() << "   --frontend=URL    Set frontend URL (default: "
-               "http://localhost:3254)";
-
-    return app.exec();
   }
-}
