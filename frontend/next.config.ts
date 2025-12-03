@@ -9,8 +9,6 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  // Use relative paths for assets so they load correctly via file:// protocol
-  assetPrefix: ".",
 
   // Rewrites don't work in static export, but we keep this for dev mode
   async rewrites() {
