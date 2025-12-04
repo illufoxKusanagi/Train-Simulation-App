@@ -5,11 +5,6 @@ const nextConfig: NextConfig = {
   // Keep it only if you need static HTML export
   output: "export", // Generate static HTML export
 
-  // Required for static export to work with local file system
-  images: {
-    unoptimized: true,
-  },
-
   async rewrites() {
     return [
       {
