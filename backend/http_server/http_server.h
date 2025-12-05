@@ -12,7 +12,6 @@
 #include <QTcpServer>
 #include <memory>
 
-
 class HttpServer : public QObject {
   Q_OBJECT
 
@@ -22,16 +21,19 @@ public:
       quint16 port = 0); // Edited here: Use 0 to let OS pick available port
   void stopServer();
   quint16 getPort() const;
+  void setStaticRoot(const QString &path);
 
 private:
   void setupRoutes();
   QJsonObject parseRequestBody(const QHttpServerRequest &request);
+  QHttpServerResponse serveStaticFile(const QHttpServerRequest &request);
 
   QHttpServer *m_httpServer;
   std::unique_ptr<QTcpServer> m_tcpServer;
   ApiHandler *m_apiHandler;
   AppContext &m_context;
   quint16 m_port;
+  QString m_staticRoot;
 };
 
 #endif // HTTP_SERVER_H
