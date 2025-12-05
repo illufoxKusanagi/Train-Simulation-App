@@ -423,4 +423,50 @@ void HttpServer::setupRoutes() {
                         response["service"] = "Qt Train Simulation HTTP API";
                         return addCorsHeaders(QHttpServerResponse(response));
                       });
+
+  // Serve static files if configured
+  // We use a catch-all route for everything else
+  m_httpServer->route("/(.*)", QHttpServerRequest::Method::Get,
+                      [this](const QHttpServerRequest &request) {
+                        return serveStaticFile(request);
+                      });
+}
+
+void HttpServer::setStaticRoot(const QString &path) {
+  m_staticRoot = path;
+  qInfo() << "📂 Static root set to:" << m_staticRoot;
+}
+
+QHttpServerResponse
+HttpServer::serveStaticFile(const QHttpServerRequest &request) {
+  if (m_staticRoot.isEmpty()) {
+    return QHttpServerResponse(QHttpServerResponse::StatusCode::NotFound);
+  }
+
+  QString path = request.url().path();
+  if (path == "/") {
+    path = "/index.html";
+  }
+
+  // Prevent directory traversal attacks
+  if (path.contains("..")) {
+    return QHttpServerResponse(QHttpServerResponse::StatusCode::Forbidden);
+  }
+
+  QString fullPath = m_staticRoot + path;
+  QFile file(fullPath);
+
+  if (!file.exists()) {
+    // Try looking for index.html if it's a directory-like path
+    if (QFile::exists(fullPath + "/index.html")) {
+      fullPath += "/index.html";
+      file.setFileName(fullPath);
+    } else {
+      qWarning() << "❌ File not found:" << fullPath;
+      return QHttpServerResponse(QHttpServerResponse::StatusCode::NotFound);
+    }
+  }
+
+  qDebug() << "📂 Serving static file:" << fullPath;
+  return QHttpServerResponse::fromFile(fullPath);
 }
