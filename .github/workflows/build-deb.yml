@@ -2,11 +2,15 @@ name: Build Debian Package
 
 on:
   push:
-    branches: [master, main]
+    branches: 
+      - master
+      - main
     tags:
       - "v*"
   pull_request:
-    branches: [master, main]
+    branches: 
+      - master
+      - main
   workflow_dispatch:
 
 jobs:
@@ -18,7 +22,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake ninja-build libgl1-mesa-dev
+          sudo apt-get install -y build-essential cmake ninja-build libgl1-mesa-dev libcups2-dev
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -58,40 +62,39 @@ jobs:
       - name: Create Debian Package
         run: |
           # Create package structure
-          PKG_DIR="daily-reminder_1.0.0_amd64"
+          PKG_DIR="train-simulation-app_1.0.0_amd64"
           mkdir -p "$PKG_DIR/DEBIAN"
           mkdir -p "$PKG_DIR/usr/bin"
-          mkdir -p "$PKG_DIR/usr/share/daily-reminder"
+          mkdir -p "$PKG_DIR/usr/share/train-simulation-app"
           mkdir -p "$PKG_DIR/usr/share/applications"
 
           # Copy files
-          cp backend/build/backend "$PKG_DIR/usr/bin/daily-reminder"
-          cp -r frontend/out/* "$PKG_DIR/usr/share/daily-reminder/"
+          cp backend/build/bin/TrainSimulationApp "$PKG_DIR/usr/bin/train-simulation-app"
+          cp -r frontend/out/* "$PKG_DIR/usr/share/train-simulation-app/"
 
           # Create desktop entry
-          cat > "$PKG_DIR/usr/share/applications/daily-reminder.desktop" <<'EOF'
+          cat > "$PKG_DIR/usr/share/applications/train-simulation-app.desktop" <<'EOF'
           [Desktop Entry]
-          Name=Daily Reminder
-          Comment=Calendar application with reminders
-          Exec=/usr/bin/daily-reminder
-          Icon=appointment-soon
+          Name=Train Simulation App
+          Comment=Train Simulation Application
+          Exec=/usr/bin/train-simulation-app
+          Icon=utilities-terminal
           Terminal=false
           Type=Application
-          Categories=Office;Calendar;
+          Categories=Education;Simulation;
           EOF
 
           # Create control file
           cat > "$PKG_DIR/DEBIAN/control" <<'EOF'
-          Package: daily-reminder
+          Package: train-simulation-app
           Version: 1.0.0
           Section: utils
           Priority: optional
           Architecture: amd64
-          Depends: libqt6core6, libqt6gui6, libqt6widgets6, libqt6webenginecore6, libqt6webenginewidgets6, libqt6webchannel6, libqt6network6, libqt6sql6, libqt6httpserver6, libnotify-bin
+          Depends: libqt6core6, libqt6gui6, libqt6widgets6, libqt6webenginecore6, libqt6webenginewidgets6, libqt6webchannel6, libqt6network6, libqt6sql6, libqt6httpserver6
           Maintainer: illufoxKusanagi
-          Description: Desktop calendar application with reminders
-           A desktop calendar application for managing daily activities with reminders,
-           built with Qt 6 (backend REST API) and Next.js (frontend UI).
+          Description: Train Simulation Application
+           A train simulation application built with Qt 6 (backend) and Next.js (frontend).
           EOF
 
           # Build the package
@@ -100,7 +103,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DailyReminder-Debian-amd64
+          name: TrainSimulationApp-Debian-amd64
           path: "*.deb"
           retention-days: 30
 

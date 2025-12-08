@@ -2,11 +2,15 @@ name: Build Windows Executable
 
 on:
   push:
-    branches: [master, main]
+    branches: 
+      - master
+      - main
     tags:
       - "v*"
   pull_request:
-    branches: [master, main]
+    branches: 
+      - master
+      - main
   workflow_dispatch:
 
 jobs:
@@ -21,12 +25,12 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: "6.8.0"
           host: "windows"
           target: "desktop"
-          arch: "win64_msvc2019_64"
+          arch: "win64_msvc2022_64"
           modules: "qtwebchannel qthttpserver qtwebengine qtpositioning qtwebsockets"
 
       - name: Install Node.js
@@ -50,31 +54,41 @@ jobs:
           cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{ env.Qt6_DIR }} ..
           cmake --build . --config Release
 
-          windeployqt.exe --release --no-translations output/DailyReminder/backend.exe
+      - name: Bundle Frontend with Backend
+        shell: bash
+        run: |
+          mkdir -p backend/build/bin/frontend
+          cp -r frontend/out/* backend/build/bin/frontend/
+
+      - name: Deploy Qt Dependencies
+        shell: powershell
+        run: |
+          cd backend/build
+          windeployqt.exe --release --no-translations bin\TrainSimulationApp.exe
 
           # Create run script
           @"
           @echo off
-          start "" "%~dp0backend.exe"
-          "@ | Out-File -FilePath output/DailyReminder/DailyReminder.bat -Encoding ASCII
+          start "" "%~dp0TrainSimulationApp.exe"
+          "@ | Out-File -FilePath bin\TrainSimulationApp.bat -Encoding ASCII
 
       - name: Create ZIP archive
         shell: powershell
         run: |
-          Compress-Archive -Path output/DailyReminder/* -DestinationPath DailyReminder-Windows-x64.zip
+          Compress-Archive -Path backend/build/bin/* -DestinationPath TrainSimulationApp-Windows-x64.zip
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DailyReminder-Windows-x64
-          path: DailyReminder-Windows-x64.zip
+          name: TrainSimulationApp-Windows-x64
+          path: TrainSimulationApp-Windows-x64.zip
           retention-days: 30
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v1
         with:
-          files: DailyReminder-Windows-x64.zip
+          files: TrainSimulationApp-Windows-x64.zip
           draft: false
           prerelease: false
         env:

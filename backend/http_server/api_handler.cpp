@@ -291,7 +291,7 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
       qDebug() << "✓ Running parameters initialized";
     }
 
-    if (m_context.powerData) {
+    if (m_context.energyData) {
       m_context.energyData->stat_vol_line = 1500;
       m_context.energyData->stat_vol_motor = 1200;
     }
