@@ -48,6 +48,7 @@ export const constantInputFormDatas: InputType[] = [
     unit: "m",
     type: "field-upload",
     name: "x_station",
+    requiredColumns: 3,
   },
   {
     label: "Slope per Section",

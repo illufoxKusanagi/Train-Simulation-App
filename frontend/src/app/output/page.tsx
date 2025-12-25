@@ -21,6 +21,7 @@ import PowerTab from "./power-tab";
 import CurrentTab from "./current-tab";
 import ForceTab from "./force-tab";
 import DistanceTab from "./distance-tab";
+import DebugTab from "./debug-tab";
 import { toast } from "sonner";
 
 export default function OutputPage() {
@@ -28,16 +29,31 @@ export default function OutputPage() {
   const [activeTab, setActiveTab] = useState<string>("speed");
 
   useEffect(() => {
-    // Load simulation results from sessionStorage
-    const stored = sessionStorage.getItem("simulationResults");
-    if (stored) {
-      try {
-        setResults(JSON.parse(stored));
-      } catch (error) {
-        console.error("Failed to parse simulation results:", error);
+    // Function to load results
+    const loadResults = () => {
+      const stored = sessionStorage.getItem("simulationResults");
+      if (stored) {
+        try {
+          setResults(JSON.parse(stored));
+        } catch (error) {
+          console.error("Failed to parse simulation results:", error);
+        }
       }
-    }
+    };
 
+    // Initial load
+    loadResults();
+
+    // Listen for simulation updates
+    window.addEventListener("simulationUpdated", loadResults);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("simulationUpdated", loadResults);
+    };
+  }, []);
+
+  useEffect(() => {
     // Restore last active tab from localStorage
     const savedTab = localStorage.getItem("outputPageActiveTab");
     if (savedTab) {
@@ -566,12 +582,13 @@ export default function OutputPage() {
           }}
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-5 gap-1">
+          <TabsList className="flex w-full gap-1">
             <TabsTrigger value="speed">Speed</TabsTrigger>
             <TabsTrigger value="power">Power</TabsTrigger>
             <TabsTrigger value="current">Current</TabsTrigger>
             <TabsTrigger value="force">Force</TabsTrigger>
             <TabsTrigger value="distance">Distance</TabsTrigger>
+            <TabsTrigger value="debug">Debug</TabsTrigger>
           </TabsList>
 
           <TabsContent value="speed">
@@ -667,6 +684,10 @@ export default function OutputPage() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="debug">
+            <DebugTab results={results} />
           </TabsContent>
         </Tabs>
 

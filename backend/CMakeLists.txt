@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set Qt paths
 set(CMAKE_PREFIX_PATH
+    /home/illufoxkusanagi/Qt/6.10.1/gcc_64/lib/cmake
     /usr/lib64/cmake
     /usr/lib/cmake
     /usr/local/Qt6/lib/cmake
@@ -27,7 +28,6 @@ if(NOT DEFINED Qt6_DIR)
     endif()
 endif()
 
-# Find Qt6 packages - IMPORTANT: Add WebEngineWidgets for embedding Next.js
 find_package(Qt6 REQUIRED COMPONENTS
     Core
     Network
@@ -35,11 +35,9 @@ find_package(Qt6 REQUIRED COMPONENTS
     Widgets
     PrintSupport
     WebEngineWidgets
-    WebEngineWidgets
     WebChannel
     Concurrent
 )
-find_package(Qt6 REQUIRED COMPONENTS Core)
 
 # Source files - adjust paths as needed
 file(GLOB_RECURSE SOURCES
@@ -156,6 +154,8 @@ set(HTTP_SERVER_PARAMS
     http_server/inputs/track_parameter_handler.h
     http_server/inputs/train_parameter_handler.cpp
     http_server/inputs/train_parameter_handler.h
+    http_server/simulations/simulation_handler.h 
+    http_server/simulations/simulation_handler.cpp
 )
 
 # if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -167,11 +167,6 @@ qt_add_executable(TrainSimulationApp
     ${CONTROLLER_SOURCES}
     ${HTTP_SERVER}
     ${HTTP_SERVER_PARAMS}
-    http_server/inputs/train_parameter_handler.h http_server/inputs/train_parameter_handler.cpp
-    http_server/inputs/running_parameter_handler.h http_server/inputs/running_parameter_handler.cpp
-    http_server/inputs/electrical_parameter_handler.h http_server/inputs/electrical_parameter_handler.cpp
-    http_server/inputs/track_parameter_handler.h http_server/inputs/track_parameter_handler.cpp
-    http_server/simulations/simulation_handler.h http_server/simulations/simulation_handler.cpp
 )
 
 # Define target properties for Android with Qt 6 as:
@@ -220,11 +215,6 @@ target_link_libraries(TrainSimulationApp PRIVATE
 
     # Qt6::Charts
 )
-target_link_libraries(TrainSimulationApp PRIVATE Qt6::Core)
-target_link_libraries(TrainSimulationApp PRIVATE Qt6::Core)
-target_link_libraries(TrainSimulationApp PRIVATE Qt6::Core)
-target_link_libraries(TrainSimulationApp PRIVATE Qt6::Core)
-target_link_libraries(TrainSimulationApp PRIVATE Qt6::Core)
 target_include_directories(TrainSimulationApp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

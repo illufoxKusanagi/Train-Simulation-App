@@ -76,4 +76,8 @@ export interface SimulationResults {
   returnedPoints: number;
   summary: SimulationSummary;
   trackDistanceTable?: TrackDistanceTable;
+  debugInfo?: {
+    simulationType: string;
+    logs: string[];
+  };
 }

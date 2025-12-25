@@ -61,17 +61,52 @@ export default function TrackParameterPage() {
 
       // Add CSV array data if available
       if (csvData.x_station && csvData.x_station.length > 0) {
-        trackParams.x_station_array = csvData.x_station.flat();
+        // Original logic: Col 2 is x_station (Segment), Col 1 is tot_x_station (Cumulative)
+        const stationData = csvData.x_station;
+        if (stationData[0].length >= 3) {
+          trackParams.x_station_array = stationData.map((row) => row[2]);
+          trackParams.tot_x_station_array = stationData.map((row) => row[1]);
+        } else {
+          // Fallback if user uploads single column (unlikely given new constraint but safe)
+          trackParams.x_station_array = csvData.x_station.flat();
+        }
       }
+
+      // Handle 3-column CSVs for Speed Limit, Slope, Radius
+      // Column 0: Start, Column 1: End, Column 2: Value
       if (csvData.v_limit && csvData.v_limit.length > 0) {
-        trackParams.v_limit_array = csvData.v_limit.flat();
+        const v_limitData = csvData.v_limit;
+        if (v_limitData[0].length >= 3) {
+          trackParams.x_v_limitStart_array = v_limitData.map((row) => row[0]);
+          trackParams.x_v_limitEnd_array = v_limitData.map((row) => row[1]);
+          trackParams.v_limit_array = v_limitData.map((row) => row[2]);
+        } else {
+          trackParams.v_limit_array = v_limitData.flat();
+        }
       }
+
       if (csvData.slope && csvData.slope.length > 0) {
-        trackParams.slope_array = csvData.slope.flat();
+        const slopeData = csvData.slope;
+        if (slopeData[0].length >= 3) {
+          trackParams.x_slopeStart_array = slopeData.map((row) => row[0]);
+          trackParams.x_slopeEnd_array = slopeData.map((row) => row[1]);
+          trackParams.slope_array = slopeData.map((row) => row[2]);
+        } else {
+          trackParams.slope_array = slopeData.flat();
+        }
       }
+
       if (csvData.radius && csvData.radius.length > 0) {
-        trackParams.radius_array = csvData.radius.flat();
+        const radiusData = csvData.radius;
+        if (radiusData[0].length >= 3) {
+          trackParams.x_radiusStart_array = radiusData.map((row) => row[0]);
+          trackParams.x_radiusEnd_array = radiusData.map((row) => row[1]);
+          trackParams.radius_array = radiusData.map((row) => row[2]);
+        } else {
+          trackParams.radius_array = radiusData.flat();
+        }
       }
+
       if (csvData.dwellTime && csvData.dwellTime.length > 0) {
         trackParams.dwellTime_array = csvData.dwellTime.flat();
       }

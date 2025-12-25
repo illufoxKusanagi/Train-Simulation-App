@@ -14,7 +14,7 @@ ApiHandler::ApiHandler(AppContext &context, QObject *parent)
   m_runningHandler = new RunningParameterHandler(context, this);
   m_trackHandler = new TrackParameterHandler(context, this);
   m_simulationHandler = new SimulationHandler(context, this);
-  // m_optimizationHandler = new OptimizationHandler(this);
+  m_optimizationHandler = new OptimizationHandler(this);
   // m_exportHandler = new ExportHandler(context, this);
 
   // **FIX: Initialize handlers safely with null checks**
@@ -291,7 +291,7 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
       qDebug() << "✓ Running parameters initialized";
     }
 
-    if (m_context.powerData) {
+    if (m_context.energyData) {
       m_context.energyData->stat_vol_line = 1500;
       m_context.energyData->stat_vol_motor = 1200;
     }
@@ -400,92 +400,97 @@ QHttpServerResponse ApiHandler::handleCalculateMass(const QJsonObject &data) {
   return m_trainHandler->handleCalculateMass(data);
 }
 
-// QHttpServerResponse
-// ApiHandler::handleStartOptimization(const QJsonObject &data) {
-//   QJsonObject response;
+QHttpServerResponse
+ApiHandler::handleStartOptimization(const QJsonObject &data) {
+  QJsonObject response;
 
-//   if (!m_context.trainData || !m_context.massData ||
-//       !m_context.simulationDatas) {
-//     response["status"] = "error";
-//     response["message"] = "Context data not initialized";
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::BadRequest);
-//   }
+  if (!m_context.trainData || !m_context.massData || !m_context.stationData) {
+    response["status"] = "error";
+    response["message"] = "Context data (Train/Mass/Station) not initialized";
+    return QHttpServerResponse(QJsonDocument(response).toJson(),
+                               QHttpServerResponse::StatusCode::BadRequest);
+  }
 
-//   if (m_optimizationHandler->isRunning()) {
-//     response["status"] = "error";
-//     response["message"] = "Optimization already running";
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::Conflict);
-//   }
+  if (m_optimizationHandler->isRunning()) {
+    response["status"] = "error";
+    response["message"] = "Optimization already running";
+    return QHttpServerResponse(QJsonDocument(response).toJson(),
+                               QHttpServerResponse::StatusCode::Conflict);
+  }
 
-//   // Start optimization
-//   m_optimizationHandler->startOptimization(
-//       *m_context.trainData, *m_context.massData, *m_context.simulationDatas);
+  // Start optimization
+  m_optimizationHandler->startOptimization(
+      *m_context.trainData, *m_context.massData, *m_context.stationData);
 
-//   response["status"] = "success";
-//   response["message"] = "Optimization started";
-//   return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                              QHttpServerResponse::StatusCode::Ok);
-// }
+  response["status"] = "success";
+  response["message"] = "Optimization started";
+  return QHttpServerResponse(QJsonDocument(response).toJson(),
+                             QHttpServerResponse::StatusCode::Ok);
+}
 
-// QHttpServerResponse ApiHandler::handleStopOptimization() {
-//   m_optimizationHandler->stopOptimization();
-//   QJsonObject response;
-//   response["status"] = "success";
-//   response["message"] = "Optimization stop requested";
-//   return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                              QHttpServerResponse::StatusCode::Ok);
-// }
+QHttpServerResponse ApiHandler::handleStopOptimization() {
+  m_optimizationHandler->stopOptimization();
+  QJsonObject response;
+  response["status"] = "success";
+  response["message"] = "Optimization stop requested";
+  return QHttpServerResponse(QJsonDocument(response).toJson(),
+                             QHttpServerResponse::StatusCode::Ok);
+}
 
-// QHttpServerResponse ApiHandler::handleGetOptimizationStatus() {
-//   QJsonObject response;
+QHttpServerResponse ApiHandler::handleGetOptimizationStatus() {
+  QJsonObject response;
 
-//   OptimizationResult result = m_optimizationHandler->getResult();
+  OptimizationResult result = m_optimizationHandler->getResult();
 
-//   response["isRunning"] = m_optimizationHandler->isRunning();
-//   response["iteration"] = result.iterationCount;
-//   response["suitabilityScore"] = result.suitabilityScore;
-//   response["suitabilityLabel"] = result.suitabilityLabel;
+  response["isRunning"] = m_optimizationHandler->isRunning();
+  response["iteration"] = result.iterationCount;
+  response["suitabilityScore"] = result.suitabilityScore;
+  response["suitabilityLabel"] = result.suitabilityLabel;
 
-//   // Convert score history to array
-//   QJsonArray history;
-//   for (double score : result.scoreHistory) {
-//     history.append(score);
-//   }
-//   response["scoreHistory"] = history;
+  // Convert score history to array
+  QJsonArray history;
+  for (double score : result.scoreHistory) {
+    history.append(score);
+  }
+  response["scoreHistory"] = history;
 
-//   // Optimized Train Data
-//   QJsonObject trainObj;
-//   trainObj["n_tm"] = result.optimizedTrain.n_tm;
-//   trainObj["gearRatio"] = result.optimizedTrain.gearRatio;
-//   // Add other fields if optimized
-//   response["optimizedTrain"] = trainObj;
+  // Optimized Train Data
+  QJsonObject trainObj;
+  trainObj["n_tm"] = result.optimizedTrain.n_tm;
+  trainObj["gearRatio"] = result.optimizedTrain.gearRatio;
+  // Add other fields if optimized
+  response["optimizedTrain"] = trainObj;
 
-//   return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                              QHttpServerResponse::StatusCode::Ok);
-// }
+  // Debug metrics from result
+  response["debug_acc"] = result.debug_acc;
+  response["debug_wp"] = result.debug_wp;
+  response["debug_grad"] = result.debug_grad;
+  response["debug_speed"] = result.debug_speed;
 
-// QHttpServerResponse ApiHandler::handleApplyOptimization() {
-//   QJsonObject response;
+  return QHttpServerResponse(QJsonDocument(response).toJson(),
+                             QHttpServerResponse::StatusCode::Ok);
+}
 
-//   OptimizationResult result = m_optimizationHandler->getResult();
-//   if (result.suitabilityScore <= 0.0) {
-//     response["status"] = "error";
-//     response["message"] = "No valid optimization result to apply";
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                                QHttpServerResponse::StatusCode::BadRequest);
-//   }
+QHttpServerResponse ApiHandler::handleApplyOptimization() {
+  QJsonObject response;
 
-//   // Apply to context
-//   if (m_context.trainData) {
-//     m_context.trainData->n_tm = result.optimizedTrain.n_tm;
-//     m_context.trainData->gearRatio = result.optimizedTrain.gearRatio;
-//     // Apply other optimized fields
-//   }
+  OptimizationResult result = m_optimizationHandler->getResult();
+  if (result.suitabilityScore <= 0.0) {
+    response["status"] = "error";
+    response["message"] = "No valid optimization result to apply";
+    return QHttpServerResponse(QJsonDocument(response).toJson(),
+                               QHttpServerResponse::StatusCode::BadRequest);
+  }
 
-//   response["status"] = "success";
-//   response["message"] = "Optimization applied to train parameters";
-//   return QHttpServerResponse(QJsonDocument(response).toJson(),
-//                              QHttpServerResponse::StatusCode::Ok);
-// }
+  // Apply to context
+  if (m_context.trainData) {
+    m_context.trainData->n_tm = result.optimizedTrain.n_tm;
+    m_context.trainData->gearRatio = result.optimizedTrain.gearRatio;
+    // Apply other optimized fields
+  }
+
+  response["status"] = "success";
+  response["message"] = "Optimization applied to train parameters";
+  return QHttpServerResponse(QJsonDocument(response).toJson(),
+                             QHttpServerResponse::StatusCode::Ok);
+}

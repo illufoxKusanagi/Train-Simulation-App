@@ -8,7 +8,6 @@
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
 
-
 WebEngineWindow::WebEngineWindow(QWidget *parent)
     : QMainWindow(parent), m_webView(nullptr), m_progressBar(nullptr),
       m_appContext(nullptr), m_httpServer(nullptr), m_webChannel(nullptr),
@@ -198,7 +197,7 @@ void WebEngineWindow::onLoadFinished(bool ok) {
   m_progressBar->hide();
 
   if (ok) {
-    statusBar()->showMessage("Ready", 3000);
+    statusBar()->showMessage("Ready", 3250);
     qInfo() << "✅ Frontend loaded successfully";
   } else {
     statusBar()->showMessage("Failed to load frontend", 5000);

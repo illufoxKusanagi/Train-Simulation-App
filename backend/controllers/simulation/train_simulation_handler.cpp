@@ -96,6 +96,7 @@ void TrainSimulationHandler::simulateDynamicTrainMovement() {
 void TrainSimulationHandler::runDynamicSimulation() {
   clearWarnings();
   clearErrors();
+  clearDebugLogs();
 
   if (!validateDataInitialized()) {
     emit simulationError();
@@ -137,6 +138,25 @@ void TrainSimulationHandler::runDynamicSimulation() {
 
       // Lock mutex for shared data updates
       QMutexLocker locker(m_simulationMutex);
+
+      // DEBUG: Log first few iterations to diagnose start condition
+      if (i < 20) {
+        double targetDist = (stationIndex < stationData->x_station.size())
+                                ? stationData->x_station[stationIndex]
+                                : -1.0;
+        QString logMsg =
+            QString("SIM_DEBUG: i=%1 Phase=%2 Notch=%3 Speed=%4 Odo=%5 "
+                    "StationIndex=%6 TargetDist=%7 Condition=%8")
+                .arg(i)
+                .arg(phase)
+                .arg(notch)
+                .arg(movingData->v)
+                .arg(odo)
+                .arg(stationIndex)
+                .arg(targetDist)
+                .arg(odo < targetDist);
+        m_debugLogs.append(logMsg);
+      }
 
       addStationSimulationDatas();
       addEnergySimulationDatas();

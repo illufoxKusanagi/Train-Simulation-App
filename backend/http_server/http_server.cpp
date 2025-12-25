@@ -50,6 +50,9 @@ bool HttpServer::startServer(quint16 port) {
 void HttpServer::stopServer() {
   if (m_httpServer) {
     qInfo() << "🛑 Stopping HTTP server...";
+    if (m_tcpServer) {
+      m_tcpServer->close();
+    }
   }
 }
 
@@ -400,6 +403,65 @@ void HttpServer::setupRoutes() {
         qDebug() << "📈 GET /api/simulation/results";
         return addCorsHeaders(m_apiHandler->handleGetSimulationResults());
       });
+
+  // Optimization endpoints
+  m_httpServer->route(
+      "/api/optimization/start", QHttpServerRequest::Method::Post,
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
+        qDebug() << "🚀 POST /api/optimization/start";
+        QJsonObject data = parseRequestBody(request);
+        return addCorsHeaders(m_apiHandler->handleStartOptimization(data));
+      });
+
+  m_httpServer->route("/api/optimization/start",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
+
+  m_httpServer->route(
+      "/api/optimization/stop", QHttpServerRequest::Method::Post,
+      [this, addCorsHeaders](const QHttpServerRequest &) {
+        qDebug() << "🛑 POST /api/optimization/stop";
+        return addCorsHeaders(m_apiHandler->handleStopOptimization());
+      });
+
+  m_httpServer->route("/api/optimization/stop",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
+
+  m_httpServer->route(
+      "/api/optimization/status", QHttpServerRequest::Method::Get,
+      [this, addCorsHeaders](const QHttpServerRequest &) {
+        // Log less frequently or just debug info
+        // qDebug() << "📊 GET /api/optimization/status";
+        return addCorsHeaders(m_apiHandler->handleGetOptimizationStatus());
+      });
+
+  m_httpServer->route("/api/optimization/status",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
+
+  m_httpServer->route(
+      "/api/optimization/apply", QHttpServerRequest::Method::Post,
+      [this, addCorsHeaders](const QHttpServerRequest &) {
+        qDebug() << "✅ POST /api/optimization/apply";
+        return addCorsHeaders(m_apiHandler->handleApplyOptimization());
+      });
+
+  m_httpServer->route("/api/optimization/apply",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
 
   // Export endpoints
   m_httpServer->route(

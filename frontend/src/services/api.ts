@@ -275,6 +275,51 @@ export const api = {
       throw new Error(`Failed to get simulation results: ${res.status}`);
     return res.json();
   },
+
+  // ==================== Fuzzy Optimization ====================
+  startOptimization: async (): Promise<{ status: string; message: string }> => {
+    const res = await fetch(`${API_BASE_URL}/api/optimization/start`, {
+      method: "POST",
+    });
+    if (!res.ok) throw new Error(`Failed to start optimization: ${res.status}`);
+    return res.json();
+  },
+
+  stopOptimization: async (): Promise<{ status: string; message: string }> => {
+    const res = await fetch(`${API_BASE_URL}/api/optimization/stop`, {
+      method: "POST",
+    });
+    if (!res.ok) throw new Error(`Failed to stop optimization: ${res.status}`);
+    return res.json();
+  },
+
+  getOptimizationStatus: async (): Promise<{
+    status: string;
+    isRunning: boolean;
+    iteration: number;
+    suitabilityScore: number;
+    suitabilityLabel: string;
+    optimizedTrain: Record<string, number>;
+    scoreHistory: number[];
+    travelTime?: number;
+    maxPowerMotorPerMotor?: number;
+    debug_acc?: number;
+    debug_wp?: number;
+    debug_speed?: number;
+  }> => {
+    const res = await fetch(`${API_BASE_URL}/api/optimization/status`);
+    if (!res.ok)
+      throw new Error(`Failed to get optimization status: ${res.status}`);
+    return res.json();
+  },
+
+  applyOptimization: async (): Promise<{ status: string; message: string }> => {
+    const res = await fetch(`${API_BASE_URL}/api/optimization/apply`, {
+      method: "POST",
+    });
+    if (!res.ok) throw new Error(`Failed to apply optimization: ${res.status}`);
+    return res.json();
+  },
 };
 
 // Re-export types for convenience

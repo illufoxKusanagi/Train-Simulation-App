@@ -119,6 +119,16 @@ install_frontend_deps() {
 # Start Next.js dev server (pattern from dev.sh)
 start_nextjs_dev() {
     print_msg "$YELLOW" "💻 Starting Next.js dev server..."
+    
+    # Kill anything running on port 3254 (Frontend) and 3000 (Default)
+    if command -v fuser &> /dev/null; then
+        fuser -k 3254/tcp > /dev/null 2>&1 || true
+        fuser -k 3000/tcp > /dev/null 2>&1 || true
+    elif command -v lsof &> /dev/null; then
+         lsof -ti:3254 | xargs -r kill -9 || true
+         lsof -ti:3000 | xargs -r kill -9 || true
+    fi
+    
     cd "$FRONTEND_DIR"
     # Redirect output to log file for debugging
     npm run dev > "$PROJECT_ROOT/frontend.log" 2>&1 &

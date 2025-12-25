@@ -46,10 +46,22 @@ export interface TrainNumberParams {
 export interface TrackParams {
   n_station: number;
   x_station: number;
+  x_station_array?: number[];
+  tot_x_station_array?: number[];
   radius: number;
+  radius_array?: number[];
+  x_radiusStart_array?: number[];
+  x_radiusEnd_array?: number[];
   slope: number;
+  slope_array?: number[];
+  x_slopeStart_array?: number[];
+  x_slopeEnd_array?: number[];
   v_limit: number;
+  v_limit_array?: number[];
+  x_v_limitStart_array?: number[];
+  x_v_limitEnd_array?: number[];
   dwellTime: number;
+  dwellTime_array?: number[];
 }
 
 export interface RunningParams {

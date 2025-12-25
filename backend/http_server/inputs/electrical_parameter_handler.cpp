@@ -10,7 +10,8 @@ QHttpServerResponse
 ElectricalParameterHandler::handleGetElectricalParameters() {
   QJsonObject response;
 
-  if (!m_context.powerData || !m_context.efficiencyData) {
+  if (!m_context.powerData || !m_context.efficiencyData ||
+      !m_context.energyData) {
     response["status"] = "error";
     response["message"] = "Electrical data not initialized";
     return QHttpServerResponse(
@@ -38,7 +39,8 @@ ElectricalParameterHandler::handleUpdateElectricalParameters(
     const QJsonObject &data) {
   QJsonObject response;
 
-  if (!m_context.powerData || !m_context.efficiencyData) {
+  if (!m_context.powerData || !m_context.efficiencyData ||
+      !m_context.energyData) {
     response["status"] = "error";
     response["message"] = "Electrical data not initialized";
     return QHttpServerResponse(

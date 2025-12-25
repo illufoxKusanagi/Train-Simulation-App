@@ -66,6 +66,12 @@ QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
     // Add debug info if needed (simplified for now to fix build)
     QJsonObject debugInfo;
     debugInfo["simulationType"] = m_currentSimulationType;
+
+    QJsonArray debugLogs;
+    for (const QString &log : m_trainSimulation->getDebugLogs()) {
+      debugLogs.append(log);
+    }
+    debugInfo["logs"] = debugLogs;
     response["debugInfo"] = debugInfo;
 
     return QHttpServerResponse(QJsonDocument(response).toJson(),

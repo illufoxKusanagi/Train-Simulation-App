@@ -44,6 +44,9 @@ export function SimulationButtons() {
       // Store combined results in sessionStorage for output page
       sessionStorage.setItem("simulationResults", JSON.stringify(response));
 
+      // Notify other components that simulation has updated
+      window.dispatchEvent(new Event("simulationUpdated"));
+
       // Safely get maxSpeed with fallback
       const maxSpeed = statusResult.summary?.maxSpeed ?? 0;
 

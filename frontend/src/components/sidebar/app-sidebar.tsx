@@ -2,11 +2,7 @@
 import {
   Activity,
   BarChart3,
-  Calendar,
-  Home,
   Rocket,
-  Settings,
-  Ticket,
   TrainFront,
   Waypoints,
   Zap,
@@ -41,14 +37,14 @@ export function AppSidebar() {
       icon: TrainFront,
     },
     {
-      title: "Track Parameter",
-      url: "/track-parameter",
-      icon: Waypoints,
-    },
-    {
       title: "Running Parameter",
       url: "/running-parameter",
       icon: Activity,
+    },
+    {
+      title: "Track Parameter",
+      url: "/track-parameter",
+      icon: Waypoints,
     },
     {
       title: "Electrical Parameter",
@@ -70,38 +66,6 @@ export function AppSidebar() {
     },
   ];
 
-  const items = [
-    {
-      title: "Dashboard",
-      url: "/",
-      icon: Home,
-    },
-    {
-      title: "Train Parameter",
-      url: "/train-parameter",
-      icon: Ticket,
-    },
-    {
-      title: "Track Parameter",
-      url: "/track-parameter",
-      icon: Calendar,
-    },
-    {
-      title: "Running Parameter",
-      url: "/running-parameter",
-      icon: Calendar,
-    },
-    {
-      title: "Electrical Parameter",
-      url: "/electrical-parameter",
-      icon: Calendar,
-    },
-    {
-      title: "Output",
-      url: "/output",
-      icon: Settings,
-    },
-  ];
   return (
     <Sidebar variant="floating" collapsible="icon" className="z-50">
       <SidebarTrigger

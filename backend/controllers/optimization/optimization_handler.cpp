@@ -93,13 +93,13 @@ void OptimizationHandler::setupFuzzyEngine() {
 
 void OptimizationHandler::startOptimization(const TrainData &baseTrain,
                                             const MassData &baseMass,
-                                            const SimulationDatas &simData) {
+                                            const StationData &stationData) {
   if (m_isRunning)
     return;
 
   m_baseTrain = baseTrain;
   m_baseMass = baseMass;
-  m_baseSimData = simData;
+  m_baseStationData = stationData;
   m_stopRequested = 0;
   m_isRunning = true;
 
@@ -135,7 +135,7 @@ void OptimizationHandler::runOptimizationLoop() {
 
     // 1. Run Simulation (Headless)
     SimMetrics metrics =
-        runHeadlessSimulation(currentCandidate, m_baseMass, m_baseSimData);
+        runHeadlessSimulation(currentCandidate, m_baseMass, m_baseStationData);
 
     // 2. Evaluate (The Judge)
     m_fuzzyEngine->setInputValue("Acceleration", metrics.acceleration);
@@ -198,7 +198,7 @@ void OptimizationHandler::runOptimizationLoop() {
 OptimizationHandler::SimMetrics
 OptimizationHandler::runHeadlessSimulation(const TrainData &train,
                                            const MassData &mass,
-                                           const SimulationDatas &simData) {
+                                           const StationData &stationData) {
   // Simplified simulation for optimization
   // In a real scenario, this would call TrainSimulationHandler methods.
   // For now, we approximate metrics based on physics formulas to be fast.
@@ -232,9 +232,29 @@ OptimizationHandler::runHeadlessSimulation(const TrainData &train,
   metrics.weakeningPoint =
       35.0 * (850.0 / train.wheel) * (6.0 / train.gearRatio);
 
-  // Track Data (Constant for this track)
-  metrics.maxGradient = 5.0; // Placeholder, should come from SimulationData
-  metrics.speedLimit = 80.0; // Placeholder
+  // Track Data (Scan StationData for Max Gradient and Max Speed Limit)
+  metrics.maxGradient = 0.0;
+  metrics.speedLimit = 0.0;
+
+  if (!stationData.slope.empty()) {
+    for (double s : stationData.slope) {
+      if (std::abs(s) > metrics.maxGradient) {
+        metrics.maxGradient = std::abs(s);
+      }
+    }
+  } else {
+    metrics.maxGradient = 5.0; // Default fallback
+  }
+
+  if (!stationData.v_limit.empty()) {
+    for (double v : stationData.v_limit) {
+      if (v > metrics.speedLimit) {
+        metrics.speedLimit = v;
+      }
+    }
+  } else {
+    metrics.speedLimit = 80.0; // Default fallback
+  }
 
   return metrics;
 }

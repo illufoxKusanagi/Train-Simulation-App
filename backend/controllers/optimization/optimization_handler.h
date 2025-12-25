@@ -4,6 +4,7 @@
 #include "controllers/simulation/train_simulation_handler.h"
 #include "models/mass_data.h"
 #include "models/simulation_data.h"
+#include "models/station_data.h"
 #include "models/train_data.h"
 #include "utils/fuzzy_engine.h"
 #include <QAtomicInt>
@@ -34,7 +35,7 @@ public:
 
   // Main control methods
   void startOptimization(const TrainData &baseTrain, const MassData &baseMass,
-                         const SimulationDatas &simData);
+                         const StationData &stationData);
   void stopOptimization();
   void applyOptimization(); // Emits signal to update main AppContext
 
@@ -70,7 +71,7 @@ private:
     double speedLimit;  // From track data
   };
   SimMetrics runHeadlessSimulation(const TrainData &train, const MassData &mass,
-                                   const SimulationDatas &simData);
+                                   const StationData &stationData);
 
   // State
   QAtomicInt m_stopRequested;
@@ -88,6 +89,7 @@ private:
   TrainData m_baseTrain;
   MassData m_baseMass;
   SimulationDatas m_baseSimData;
+  StationData m_baseStationData;
 };
 
 #endif // OPTIMIZATION_HANDLER_H
