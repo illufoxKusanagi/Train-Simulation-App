@@ -132,6 +132,65 @@ export default function TrackParameterPage() {
     toast("Form has been reset!");
   };
 
+  /**
+   * Handle CSV File Upload (Batch Config)
+   *
+   * Expected CSV Format (Simple Key-Value):
+   * ---------------------------------------
+   * n_station,2
+   * x_station,2000
+   * radius,300
+   * ...
+   */
+  const handleCsvUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      if (!text) return;
+
+      console.log("📂 processing CSV upload...");
+      const lines = text.split(/\r\n|\n/);
+      let successCount = 0;
+      let errorCount = 0;
+
+      const validKeys = Object.keys(TrackFormSchema.shape);
+
+      lines.forEach((line) => {
+        if (!line.trim()) return;
+        const [key, valueStr] = line.split(/,(.+)/);
+        const cleanKey = key?.trim();
+        const cleanValue = valueStr?.trim();
+
+        if (!cleanKey || !cleanValue) return;
+
+        if (validKeys.includes(cleanKey) && !isNaN(Number(cleanValue))) {
+          constantForm.setValue(
+            cleanKey as keyof z.infer<typeof TrackFormSchema>,
+            Number(cleanValue),
+            {
+              shouldDirty: true,
+              shouldValidate: true,
+            }
+          );
+          successCount++;
+          console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
+        } else {
+          console.warn(`⚠️ Skipped invalid item: ${cleanKey}`);
+          errorCount++;
+        }
+      });
+
+      if (successCount > 0) toast.success(`Updated ${successCount} fields`);
+      if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
+      event.target.value = "";
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <PageLayout>
       <Card className="px-6 py-8 min-h-[40rem] h-full w-full max-w-2xl rounded-3xl justify-center">
@@ -184,6 +243,18 @@ export default function TrackParameterPage() {
                 >
                   Reset
                 </Button>
+                <div className="flex-1 relative">
+                  <input
+                    type="file"
+                    accept=".csv"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    onChange={handleCsvUpload}
+                    title="Upload CSV"
+                  />
+                  <Button type="button" variant="secondary" className="w-full">
+                    Upload CSV
+                  </Button>
+                </div>
               </div>
             </form>
           </Form>

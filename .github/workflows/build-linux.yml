@@ -34,11 +34,12 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: "6.8.0"
+          version: "6.7.2"
           host: "linux"
           target: "desktop"
           arch: "linux_gcc_64"
           modules: "qtwebchannel qthttpserver qtwebengine qtpositioning qtwebsockets"
+          cache: true
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -65,11 +66,56 @@ jobs:
         run: |
           # Create installation directory structure
           INSTALL_DIR="rpm-package"
-          mkdir -p "$INSTALL_DIR"/{usr/bin,usr/share/train-simulation-app,usr/share/applications}
+          mkdir -p "$INSTALL_DIR/usr/bin"
+          mkdir -p "$INSTALL_DIR/usr/lib/train-simulation-app"
+          mkdir -p "$INSTALL_DIR/usr/share/train-simulation-app"
+          mkdir -p "$INSTALL_DIR/usr/share/applications"
 
-          # Copy files
-          cp backend/build/bin/TrainSimulationApp "$INSTALL_DIR/usr/bin/train-simulation-app"
+          # Copy executable
+          cp backend/build/bin/TrainSimulationApp "$INSTALL_DIR/usr/lib/train-simulation-app/"
+          
+          # Bundle Qt libraries
+          QT_LIB_PATH="${Qt6_DIR}/../lib"
+          if [ -d "$QT_LIB_PATH" ]; then
+            echo "Copying Qt libraries from $QT_LIB_PATH"
+            cp -L "$QT_LIB_PATH"/libQt6Core.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Gui.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Widgets.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Network.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6WebEngineCore.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6WebEngineWidgets.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6WebChannel.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6HttpServer.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Concurrent.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Positioning.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Qml.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Quick.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6OpenGL.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6PrintSupport.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6WebSockets.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6QmlModels.so.6 "$INSTALL_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            
+            # Copy Qt plugins
+            QT_PLUGIN_PATH="${Qt6_DIR}/../plugins"
+            if [ -d "$QT_PLUGIN_PATH" ]; then
+              mkdir -p "$INSTALL_DIR/usr/lib/train-simulation-app/plugins"
+              cp -r "$QT_PLUGIN_PATH/platforms" "$INSTALL_DIR/usr/lib/train-simulation-app/plugins/" 2>/dev/null || true
+              cp -r "$QT_PLUGIN_PATH/xcbglintegrations" "$INSTALL_DIR/usr/lib/train-simulation-app/plugins/" 2>/dev/null || true
+              cp -r "$QT_PLUGIN_PATH/imageformats" "$INSTALL_DIR/usr/lib/train-simulation-app/plugins/" 2>/dev/null || true
+            fi
+          fi
+          
+          # Copy frontend
           cp -r frontend/out/* "$INSTALL_DIR/usr/share/train-simulation-app/"
+
+          # Create launcher script
+          cat > "$INSTALL_DIR/usr/bin/train-simulation-app" <<'LAUNCHER'
+          #!/bin/bash
+          export LD_LIBRARY_PATH="/usr/lib/train-simulation-app:$LD_LIBRARY_PATH"
+          export QT_PLUGIN_PATH="/usr/lib/train-simulation-app/plugins"
+          exec /usr/lib/train-simulation-app/TrainSimulationApp "$@"
+          LAUNCHER
+          chmod +x "$INSTALL_DIR/usr/bin/train-simulation-app"
 
           # Create desktop entry
           cat > "$INSTALL_DIR/usr/share/applications/train-simulation-app.desktop" <<'EOF'
@@ -102,10 +148,12 @@ jobs:
           URL:            https://github.com/illufoxKusanagi/Train-Simulation-App
           Source0:        %{name}-%{version}.tar.gz
           BuildArch:      x86_64
-          Requires:       qt6-qtbase qt6-qtwebengine
+          AutoReq:        no
+          Requires:       glibc libstdc++ libgcc mesa-libGL libxkbcommon libxcb libX11 nss nspr
 
           %description
           A train simulation application built with Qt 6 (backend) and Next.js (frontend).
+          Qt libraries are bundled with this package.
 
           %prep
           %setup -q -c
@@ -116,12 +164,13 @@ jobs:
 
           %files
           /usr/bin/train-simulation-app
+          /usr/lib/train-simulation-app/*
           /usr/share/train-simulation-app/*
           /usr/share/applications/train-simulation-app.desktop
 
           %changelog
           * Sat Dec 02 2025 Builder <builder@localhost> - 1.0.0-1
-          - Initial RPM release
+          - Initial RPM release with bundled Qt libraries
           SPEC
 
           # Build RPM

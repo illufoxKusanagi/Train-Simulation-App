@@ -206,6 +206,173 @@ export default function TrainParameter() {
     [trainsetForm]
   );
 
+  /**
+   * Handle CSV for CONSTANT PARAMETERS
+   *
+   * Expected CSV Format: Key,Value
+   */
+  /**
+   * Handle CSV for CONSTANT PARAMETERS
+   *
+   * Expected CSV Format: Key,Value
+   * Special case: loadCondition can be 0-4 (mapped to AW0-AW4)
+   */
+  const handleConstantCsvUpload = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      if (!text) return;
+
+      console.log("📂 processing Constant CSV upload...");
+      const lines = text.split(/\r\n|\n/);
+      let successCount = 0;
+      let errorCount = 0;
+
+      const validKeys = Object.keys(ConstantFormSchema.shape);
+
+      lines.forEach((line) => {
+        if (!line.trim()) return;
+        const [key, valueStr] = line.split(/,(.+)/);
+        const cleanKey = key?.trim();
+        const cleanValue = valueStr?.trim();
+
+        if (!cleanKey || !cleanValue) return;
+
+        if (validKeys.includes(cleanKey)) {
+          // Special handling for loadCondition (can be 0-4 or AW0-AW4)
+          if (cleanKey === "loadCondition") {
+            let finalAW: "AW0" | "AW1" | "AW2" | "AW3" | "AW4" | null = null;
+
+            // Check if it's a number 0-4
+            if (!isNaN(Number(cleanValue))) {
+              const val = Number(cleanValue);
+              if (val >= 0 && val <= 4) {
+                finalAW = `AW${val}` as "AW0" | "AW1" | "AW2" | "AW3" | "AW4";
+              }
+            }
+            // Check if it's already a valid string
+            else if (["AW0", "AW1", "AW2", "AW3", "AW4"].includes(cleanValue)) {
+              finalAW = cleanValue as "AW0" | "AW1" | "AW2" | "AW3" | "AW4";
+            }
+
+            if (finalAW) {
+              constantForm.setValue("loadCondition", finalAW, {
+                shouldDirty: true,
+                shouldValidate: true,
+              });
+              successCount++;
+              console.log(`✅ Set loadCondition = ${finalAW}`);
+            } else {
+              console.warn(`⚠️ Skipped invalid loadCondition: ${cleanValue}`);
+              errorCount++;
+            }
+          } else {
+            // All other fields are numbers
+            if (!isNaN(Number(cleanValue))) {
+              constantForm.setValue(
+                cleanKey as keyof Omit<
+                  z.infer<typeof ConstantFormSchema>,
+                  "loadCondition"
+                >,
+                Number(cleanValue),
+                {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                }
+              );
+              successCount++;
+              console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
+            } else {
+              console.warn(
+                `⚠️ Skipped invalid number for ${cleanKey}: ${cleanValue}`
+              );
+              errorCount++;
+            }
+          }
+        } else {
+          console.warn(`⚠️ Skipped invalid item: ${cleanKey}`);
+          errorCount++;
+        }
+      });
+
+      if (successCount > 0)
+        toast.success(`Updated ${successCount} constant fields`);
+      if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
+      event.target.value = "";
+    };
+    reader.readAsText(file);
+  };
+
+  /**
+   * Handle CSV for TRAINSET INPUTS
+   *
+   * Expected CSV Format: Key,Value
+   */
+  const handleTrainsetCsvUpload = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      if (!text) return;
+
+      console.log("📂 processing Trainset CSV upload...");
+      const lines = text.split(/\r\n|\n/);
+      let successCount = 0;
+      let errorCount = 0;
+
+      const validKeys = Object.keys(TrainsetFormSchema.shape);
+
+      lines.forEach((line) => {
+        if (!line.trim()) return;
+        const [key, valueStr] = line.split(/,(.+)/);
+        const cleanKey = key?.trim();
+        const cleanValue = valueStr?.trim();
+
+        if (!cleanKey || !cleanValue) return;
+
+        if (validKeys.includes(cleanKey)) {
+          if (!isNaN(Number(cleanValue))) {
+            trainsetForm.setValue(
+              cleanKey as keyof z.infer<typeof TrainsetFormSchema>,
+              Number(cleanValue),
+              {
+                shouldDirty: true,
+                shouldValidate: true,
+              }
+            );
+            successCount++;
+            console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
+          } else {
+            console.warn(
+              `⚠️ Skipped invalid number for ${cleanKey}: ${cleanValue}`
+            );
+            errorCount++;
+          }
+        } else {
+          console.warn(`⚠️ Skipped invalid item: ${cleanKey}`);
+          errorCount++;
+        }
+      });
+
+      if (successCount > 0)
+        toast.success(`Updated ${successCount} trainset fields`);
+      if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
+      event.target.value = "";
+    };
+    reader.readAsText(file);
+  };
+
   const handleFileLoad = (name: string, data: number[][]) => {
     setCsvData((prev) => ({
       ...prev,
@@ -352,6 +519,56 @@ export default function TrainParameter() {
     return () => subscription.unsubscribe();
   }, [trainsetForm, handleCarNumberChange]);
 
+  // AW Presets (Passenger Counts based on Backend Logic)
+  // Order: Tc, M1, M2, T1, T2, T3
+  const AW_PRESETS: Record<string, { tc: number; other: number }> = {
+    AW0: { tc: 0, other: 0 },
+    AW1: { tc: 10, other: 20 },
+    AW2: { tc: 20, other: 40 },
+    AW3: { tc: 50, other: 100 },
+    AW4: { tc: 100, other: 200 },
+  };
+
+  // Watch loadCondition changes and update PASSENGER parameters
+  useEffect(() => {
+    const subscription = constantForm.watch((value, { name }) => {
+      if (name === "loadCondition" && value.loadCondition) {
+        const preset = AW_PRESETS[value.loadCondition];
+
+        if (preset) {
+          // Update passenger counts in trainsetForm to match AW condition
+          // This aligns with C++ backend logic where AW sets preset passenger inputs.
+          // M1, M2, T1, T2, T3 use 'other' value; Tc uses 'tc' value.
+
+          // Check current values to avoid loops if already set
+          const currentVals = trainsetForm.getValues();
+
+          // Helper to batch updates if needed, but separate calls are fine
+          if (currentVals.n_PTc !== preset.tc)
+            trainsetForm.setValue("n_PTc", preset.tc);
+
+          if (currentVals.n_PM1 !== preset.other)
+            trainsetForm.setValue("n_PM1", preset.other);
+          if (currentVals.n_PM2 !== preset.other)
+            trainsetForm.setValue("n_PM2", preset.other);
+          if (currentVals.n_PT1 !== preset.other)
+            trainsetForm.setValue("n_PT1", preset.other);
+          if (currentVals.n_PT2 !== preset.other)
+            trainsetForm.setValue("n_PT2", preset.other);
+          if (currentVals.n_PT3 !== preset.other)
+            trainsetForm.setValue("n_PT3", preset.other);
+
+          // Also ensure "Load per Car" (override) is 0 so passenger counts are used for calculation
+          constantForm.setValue("load", 0);
+
+          toast.info(`Applied ${value.loadCondition} passenger configuration`);
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [constantForm, trainsetForm]);
+
   useEffect(() => {
     // Watch both trainset AND constant form changes
     const trainsetSubscription = trainsetForm.watch(() => recalculateMass());
@@ -446,11 +663,24 @@ export default function TrainParameter() {
                 >
                   Reset
                 </Button>
+                <div className="flex-1 relative">
+                  <input
+                    type="file"
+                    accept=".csv"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    onChange={handleConstantCsvUpload}
+                    title="Upload CSV for Trainset Params"
+                  />
+                  <Button type="button" variant="outline" className="w-full">
+                    Upload CSV
+                  </Button>
+                </div>
               </div>
             </form>
           </Form>
         </CardContent>
       </Card>
+
       <Card className="px-2 py-8 max-h-[45rem] min-h-[40rem] w-full max-w-2xl rounded-3xl overflow-auto">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Trainset Inputs</CardTitle>
@@ -479,10 +709,28 @@ export default function TrainParameter() {
                   ))}
                   <div
                     className={cn(
-                      "flexcontainer w-4xl h-28 border rounded-lg hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 justify-center items-center"
+                      "flexcontainer w-4xl h-28 border rounded-lg hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 justify-center items-center overflow-hidden p-2"
                     )}
                   >
-                    <p>lorem ipsum</p>
+                    {(() => {
+                      const nCar = trainsetForm.watch("n_car");
+                      const carCount = nCar ? parseInt(nCar.toString()) : 0;
+                      if ([6, 8, 10, 12, 14].includes(carCount)) {
+                        return (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={`/images/trains/${carCount}-train.png`}
+                            alt={`${carCount}-car`}
+                            className="w-full h-full object-contain"
+                          />
+                        );
+                      }
+                      return (
+                        <p className="text-muted-foreground text-sm">
+                          No Diagram
+                        </p>
+                      );
+                    })()}
                   </div>
                 </div>
               ))}
@@ -596,6 +844,18 @@ export default function TrainParameter() {
                 >
                   Reset
                 </Button>
+                <div className="flex-1 relative">
+                  <input
+                    type="file"
+                    accept=".csv"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    onChange={handleTrainsetCsvUpload}
+                    title="Upload CSV for Trainset Params"
+                  />
+                  <Button type="button" variant="secondary" className="w-full">
+                    Upload CSV
+                  </Button>
+                </div>
               </div>
             </form>
           </Form>

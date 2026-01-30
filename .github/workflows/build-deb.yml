@@ -27,11 +27,12 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: "6.8.0"
+          version: "6.7.2"
           host: "linux"
           target: "desktop"
           arch: "linux_gcc_64"
           modules: "qtwebchannel qthttpserver qtwebengine qtpositioning qtwebsockets"
+          cache: true
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -65,12 +66,56 @@ jobs:
           PKG_DIR="train-simulation-app_1.0.0_amd64"
           mkdir -p "$PKG_DIR/DEBIAN"
           mkdir -p "$PKG_DIR/usr/bin"
+          mkdir -p "$PKG_DIR/usr/lib/train-simulation-app"
           mkdir -p "$PKG_DIR/usr/share/train-simulation-app"
           mkdir -p "$PKG_DIR/usr/share/applications"
 
-          # Copy files
-          cp backend/build/bin/TrainSimulationApp "$PKG_DIR/usr/bin/train-simulation-app"
+          # Copy executable
+          cp backend/build/bin/TrainSimulationApp "$PKG_DIR/usr/lib/train-simulation-app/"
+          
+          # Bundle Qt libraries using linuxdeployqt or manually copy dependencies
+          # Copy Qt libraries that the executable needs
+          QT_LIB_PATH="${Qt6_DIR}/../lib"
+          if [ -d "$QT_LIB_PATH" ]; then
+            echo "Copying Qt libraries from $QT_LIB_PATH"
+            cp -L "$QT_LIB_PATH"/libQt6Core.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Gui.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Widgets.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Network.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6WebEngineCore.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6WebEngineWidgets.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6WebChannel.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6HttpServer.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Concurrent.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Positioning.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Qml.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6Quick.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6OpenGL.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6PrintSupport.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6WebSockets.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            cp -L "$QT_LIB_PATH"/libQt6QmlModels.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
+            
+            # Copy Qt plugins
+            QT_PLUGIN_PATH="${Qt6_DIR}/../plugins"
+            if [ -d "$QT_PLUGIN_PATH" ]; then
+              mkdir -p "$PKG_DIR/usr/lib/train-simulation-app/plugins"
+              cp -r "$QT_PLUGIN_PATH/platforms" "$PKG_DIR/usr/lib/train-simulation-app/plugins/" 2>/dev/null || true
+              cp -r "$QT_PLUGIN_PATH/xcbglintegrations" "$PKG_DIR/usr/lib/train-simulation-app/plugins/" 2>/dev/null || true
+              cp -r "$QT_PLUGIN_PATH/imageformats" "$PKG_DIR/usr/lib/train-simulation-app/plugins/" 2>/dev/null || true
+            fi
+          fi
+
+          # Copy frontend
           cp -r frontend/out/* "$PKG_DIR/usr/share/train-simulation-app/"
+
+          # Create launcher script
+          cat > "$PKG_DIR/usr/bin/train-simulation-app" <<'LAUNCHER'
+          #!/bin/bash
+          export LD_LIBRARY_PATH="/usr/lib/train-simulation-app:$LD_LIBRARY_PATH"
+          export QT_PLUGIN_PATH="/usr/lib/train-simulation-app/plugins"
+          exec /usr/lib/train-simulation-app/TrainSimulationApp "$@"
+          LAUNCHER
+          chmod +x "$PKG_DIR/usr/bin/train-simulation-app"
 
           # Create desktop entry
           cat > "$PKG_DIR/usr/share/applications/train-simulation-app.desktop" <<'EOF'
@@ -84,17 +129,18 @@ jobs:
           Categories=Education;Simulation;
           EOF
 
-          # Create control file
+          # Create control file - minimal deps since we bundle Qt
           cat > "$PKG_DIR/DEBIAN/control" <<'EOF'
           Package: train-simulation-app
           Version: 1.0.0
           Section: utils
           Priority: optional
           Architecture: amd64
-          Depends: libqt6core6, libqt6gui6, libqt6widgets6, libqt6webenginecore6, libqt6webenginewidgets6, libqt6webchannel6, libqt6network6, libqt6sql6, libqt6httpserver6
+          Depends: libc6, libstdc++6, libgcc-s1, libgl1, libxkbcommon0, libxcb1, libx11-6, libnss3, libnspr4
           Maintainer: illufoxKusanagi
           Description: Train Simulation Application
            A train simulation application built with Qt 6 (backend) and Next.js (frontend).
+           Qt libraries are bundled with this package.
           EOF
 
           # Build the package

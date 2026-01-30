@@ -27,11 +27,12 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: "6.8.0"
+          version: "6.7.2"
           host: "windows"
           target: "desktop"
-          arch: "win64_msvc2022_64"
+          arch: "win64_msvc2019_64"
           modules: "qtwebchannel qthttpserver qtwebengine qtpositioning qtwebsockets"
+          cache: true
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -44,26 +45,41 @@ jobs:
           cd frontend
           npm install
           npm run build
-
+ 
       - name: Build Backend
         shell: cmd
         run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           mkdir backend\build
           cd backend\build
-          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{ env.Qt6_DIR }} ..
+          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="%Qt6_DIR%" ..
           cmake --build . --config Release
 
       - name: Deploy Qt Dependencies
         shell: powershell
         run: |
           cd backend/build
-          windeployqt.exe --release --no-translations bin\TrainSimulationApp.exe
+          
+          # Check if executable exists
+          if (-not (Test-Path "bin\TrainSimulationApp.exe")) {
+            Write-Error "Executable not found at bin\TrainSimulationApp.exe"
+            Get-ChildItem -Recurse *.exe
+            exit 1
+          }
+          
+          # Run windeployqt with verbose output
+          & windeployqt.exe --release --no-translations --verbose 2 bin\TrainSimulationApp.exe
+          
+          # Copy frontend files
+          if (Test-Path "../../frontend/out") {
+            New-Item -ItemType Directory -Force -Path "bin/frontend"
+            Copy-Item -Recurse "../../frontend/out/*" "bin/frontend/"
+          }
 
           # Create run script
           @"
           @echo off
-          start "" "%~dp0TrainSimulationApp.exe"
+          cd /d "%~dp0"
+          start "" "TrainSimulationApp.exe"
           "@ | Out-File -FilePath bin\TrainSimulationApp.bat -Encoding ASCII
 
       - name: Create ZIP archive

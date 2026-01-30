@@ -37,11 +37,15 @@ int main(int argc, char *argv[]) {
       QStringList possiblePaths = {
           // Windows/Linux local build (relative to executable)
           QCoreApplication::applicationDirPath() + "/frontend/index.html",
-          // Linux installed (standard path)
-          "/usr/share/daily-reminder/index.html",
+          // Linux installed (standard path for train-simulation-app)
+          "/usr/share/train-simulation-app/index.html",
+          // Alternative installed path
+          "/usr/share/train-simulation/index.html",
           // Fallback for development structure
           QCoreApplication::applicationDirPath() +
-              "/../../frontend/out/index.html"};
+              "/../../frontend/out/index.html",
+          // Windows deployed structure
+          QCoreApplication::applicationDirPath() + "/../frontend/index.html"};
 
       bool found = false;
       for (const QString &path : possiblePaths) {

@@ -12,33 +12,60 @@ const chunkArray = <T>(array: T[], chunkSize: number): T[][] => {
 const inputErrorMessage: string = "This Value must be a number";
 
 export const RunningFormSchema = z.object({
-  startRes: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  v_diffCoast: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  acc_start: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  v_p1: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  v_p2: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  decc_start: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  decc_emergency: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  v_b1: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  v_b2: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
+  startRes: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  v_diffCoast: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  acc_start: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  v_p1: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  v_p2: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  decc_start: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  decc_emergency: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  v_b1: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  v_b2: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
 });
 
 export const constantInputFormDatas: InputType[] = [
