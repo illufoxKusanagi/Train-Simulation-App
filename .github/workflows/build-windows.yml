@@ -2,13 +2,13 @@ name: Build Windows Executable
 
 on:
   push:
-    branches: 
+    branches:
       - master
       - main
     tags:
       - "v*"
   pull_request:
-    branches: 
+    branches:
       - master
       - main
   workflow_dispatch:
@@ -45,7 +45,7 @@ jobs:
           cd frontend
           npm install
           npm run build
- 
+
       - name: Build Backend
         shell: cmd
         run: |
@@ -54,21 +54,41 @@ jobs:
           cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="%Qt6_DIR%" ..
           cmake --build . --config Release
 
+      - name: Install OpenSSL
+        shell: powershell
+        run: |
+          choco install openssl --no-progress
+          # Identify OpenSSL DLL location (usually C:\Program Files\OpenSSL-Win64\bin)
+
       - name: Deploy Qt Dependencies
         shell: powershell
         run: |
           cd backend/build
-          
+
           # Check if executable exists
           if (-not (Test-Path "bin\TrainSimulationApp.exe")) {
             Write-Error "Executable not found at bin\TrainSimulationApp.exe"
             Get-ChildItem -Recurse *.exe
             exit 1
           }
-          
+
           # Run windeployqt with verbose output
-          & windeployqt.exe --release --no-translations --verbose 2 bin\TrainSimulationApp.exe
-          
+          # Removed --no-translations to ensure WebEngine locale data is included
+          & windeployqt.exe --release --verbose 2 --compiler-runtime bin\TrainSimulationApp.exe
+
+          # Copy OpenSSL DLLs (OpenSSL 3.x for Qt 6.7)
+          $opensslPath = "C:\Program Files\OpenSSL-Win64\bin"
+          if (Test-Path $opensslPath) {
+            Write-Host "Copying OpenSSL DLLs from $opensslPath"
+            Copy-Item "$opensslPath\libcrypto-3-x64.dll" "bin\" -ErrorAction SilentlyContinue
+            Copy-Item "$opensslPath\libssl-3-x64.dll" "bin\" -ErrorAction SilentlyContinue
+            # Fallback for OpenSSL 1.1 if needed (older Qt)
+            Copy-Item "$opensslPath\libcrypto-1_1-x64.dll" "bin\" -ErrorAction SilentlyContinue
+            Copy-Item "$opensslPath\libssl-1_1-x64.dll" "bin\" -ErrorAction SilentlyContinue
+          } else {
+            Write-Warning "OpenSSL path not found at $opensslPath"
+          }
+
           # Copy frontend files
           if (Test-Path "../../frontend/out") {
             New-Item -ItemType Directory -Force -Path "bin/frontend"
