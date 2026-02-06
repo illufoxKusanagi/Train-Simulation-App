@@ -198,7 +198,8 @@ void TrainSimulationHandler::runDynamicSimulation() {
         simulationDatas.trainSpeeds.append(movingData->v);
         simulationDatas.trainSpeedsSi.append(movingData->v_si);
       } else if (stationIndex < stationData->x_station.size() &&
-                 odo < stationData->x_station[stationIndex] &&
+                 odo < (stationData->x_station[stationIndex] +
+                        stationData->x_deficit) &&
                  notch != Braking) {
         if (notch == Accelerating) {
           if (movingData->v >= m_maxSpeed && resistanceData->f_total > 0) {
@@ -268,8 +269,26 @@ void TrainSimulationHandler::runDynamicSimulation() {
         if (movingData->v <= 0) {
           movingData->v = 0;
           movingData->v_si = 0;
+
+          // COPILOT'S VERSION (Calculate distance deficit when train first
+          // stops and ACCUMULATE it): if (notch != AtStation && stationIndex <
+          // stationData->x_station.size()) {
+          //   double actualStop = stationData->x_odo;  // Where train actually
+          //   stopped double targetStop = stationData->x_station[stationIndex];
+          //   // Where it should stop double currentDeficit = targetStop -
+          //   actualStop;  // Positive if stopped short
+          //   stationData->x_deficit += currentDeficit;  // ACCUMULATE
+          //   the deficit
+          // }
+
           notch = AtStation;
           trainStopTime = 0;
+          // Calculate deficit for THIS station and carry it forward
+          // double currentDeficit =
+          //     stationData->x_station[stationIndex] - stationData->x_odo;
+          stationData->x_deficit =
+              stationData->x_station[stationIndex] -
+              stationData->x_odo; // Save for use in NEXT segment
         }
         if (resistanceData->f_total == 0) {
           isError = true;

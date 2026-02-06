@@ -13,6 +13,7 @@ struct StationData {
   double stat_slope_2;
   double stat_slope_3;
   double x_odo = 0.0;
+  double x_deficit = 0.0;
   int n_station = 2;
   std::vector<double> x_station;
   std::vector<double> tot_x_station;

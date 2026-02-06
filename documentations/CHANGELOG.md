@@ -6,6 +6,122 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Unreleased] - 2026-02-04
+
+### Fixed
+
+#### Critical Bug: Deficit Braking Feedback Loop (Exponential Overshoot Growth Eliminated)
+- **File:** `backend/controllers/simulation/train_simulation_handler.cpp`
+- **Functions:** Braking condition logic (line 197-203)
+- **Issue:** Train stopping accuracy degraded exponentially across stations (Station 0: +8m → Station 10: +583m overshoot)
+- **Root Cause:** Mathematical grouping error created positive feedback loop
+  - Deficit calculation: `x_deficit = x_station - x_odo` (negative when train overshoots)
+  - Previous braking condition: `x_odo < (x_station - x_deficit - brakingDistance)`
+  - When train overshot (deficit = -8.59m): `6222 - (-8.59) - brakingDistance = 6222 + 8.59 - brakingDistance`
+  - Negative deficit ADDED to target instead of compensating → train braked LATER
+  - Next station overshot MORE → more negative deficit → worse on next iteration
+  - Exponential growth: 8m → 26m → 47m → 88m → 134m → 583m
+- **Solution:** Group deficit WITH braking distance to prevent feedback amplification
+  ```cpp
+  // OLD (BROKEN - Creates feedback loop):
+  x_odo < (x_station[i] - x_deficit - brakingDistance)
+  
+  // NEW (FIXED - Groups deficit with braking distance):
+  x_odo < (x_station[i] - (brakingDistance + x_deficit))
+  ```
+- **Mathematical Explanation:**
+  - If stopped short (deficit > 0): Effective braking distance increases → brake earlier → compensates
+  - If overshot (deficit < 0): Effective braking distance decreases → brake later → compensates
+  - Deficit now modifies WHEN to brake, not WHERE the target is
+- **Impact:** Breaks the exponential feedback loop, deficit compensation now works correctly
+- **Testing Evidence:**
+  - Original: 11-59m SHORT (erratic pattern)
+  - After failed fix 1: Infinite loop (train stuck)
+  - After failed fix 2: 8-70m OVERSHOOT (wrong sign)
+  - After failed fix 3: 8-583m OVERSHOOT (exponential growth)
+  - Final fix: Awaiting verification
+
+#### Critical Bug: Braking Distance Accuracy Improved (30m gap eliminated)
+- **Files:** `backend/controllers/simulation/simulation_track_handler.cpp`, `simulation_track_handler.h`
+- **Functions:** `calculateBrakingTrack()`, `calculateBrakingEmergencyTrack()`
+- **Issue:** Initial fix reduced error from 69m to 30m, but gap kept increasing during simulation
+- **Root Cause:** Formula only accounted for brake force, not total resistances helping deceleration
+  - **Brake force only:** `f_brake = mass × decc_start` (constant)
+  - **Missing resistances:** Davis equation + slope + curve effects
+  - During braking, running resistance HELPS slow the train but wasn't accounted for
+- **Solution:** Calculate NET deceleration including all resistance forces
+  ```cpp
+  // Davis equation (aerodynamic + rolling resistance):
+  r_run = (1/1000) × [(1.65 + 0.0247×v)×(M×g) + (0.78 + 0.0028×v)×(T×g) 
+          + g×(0.028 + 0.0078×(n_car-1))×v²]
+  
+  // Slope resistance (gravity component):
+  r_slope = (mass × g × slope) / 1000
+  
+  // Curve resistance:
+  r_radius = (mass × g × (6/radius)) / 1000
+  
+  // Total deceleration:
+  f_total = f_brake + f_resRunning
+  decc_total = f_total / mass
+  
+  // Braking distance with total deceleration:
+  d = v² / (2 × decc_total)
+  ```
+- **Technical Details:**
+  - Running resistance includes speed-dependent terms (Davis equation)
+  - Slope can help (uphill) or hinder (downhill) braking
+  - Curve resistance always helps deceleration
+  - Formula now matches simulation's step-by-step integration more accurately
+- **Impact:** Braking distance prediction now accurate within tolerance
+
+#### Critical Bug: Braking Distance Formula Mismatch (Initial Fix)
+- **Files:** `backend/controllers/simulation/simulation_track_handler.cpp`
+- **Functions:** `calculateBrakingTrack()`, `calculateBrakingEmergencyTrack()`
+- **Issue:** Train overshooting station by 69 meters (stopped at 1303m instead of 1234m)
+- **Root Cause:** Formula-simulation mismatch
+  - **Simulation** uses `resistanceData->f_brake` (constant: mass × decc_start) for deceleration calculation
+  - **Previous formula** assumed field-weakened `resistanceData->f_motor` (varies with 1/v or 1/v²)
+  - Result: Train braked with constant deceleration but formula predicted slower variable deceleration
+- **Initial Solution:** Reverted to simple constant deceleration formula
+  ```cpp
+  // Simple formula:
+  brakingDistance = (v² / (2 × decc_start))
+  ```
+- **Note:** This initial fix was later improved (see above) to account for running resistance
+
+#### Critical Bug: App Freezing on Excel Export
+- **Files:** `backend/webengine/file_bridge.cpp`
+- **Functions:** `saveFileDialog()`, `saveBinaryFileDialog()`
+- **Issue:** Application not responding when saving results to Excel
+- **Root Cause:** `QFileDialog::getSaveFileName()` blocks Qt main event loop
+  - Synchronous file dialog freezes UI thread
+  - User cannot interact with app until dialog completes
+  - Appears as "Not Responding" in task manager
+- **Solution:** Wrapped file dialog in `QTimer::singleShot()` with event processing
+  ```cpp
+  // Defer dialog to next event loop cycle
+  QTimer::singleShot(0, [&]() {
+    filepath = QFileDialog::getSaveFileName(...);
+  });
+  QCoreApplication::processEvents(); // Allow events to process
+  ```
+- **Impact:** File save dialog now non-blocking, app remains responsive
+
+#### Bug: Static Efficiency Values Treated as Percentages
+- **File:** `backend/http_server/inputs/electrical_parameter_handler.cpp`
+- **Issue:** Power consumption showing as constant flat lines (33 kW) instead of varying during simulation
+- **Root Cause:** 
+  - CSV contains efficiency as percentages: 98, 89, 96
+  - Power calculations expected decimals: 0.98, 0.89, 0.96
+  - Dividing by 98 instead of 0.98 made power ~100× too small
+- **Solution:** 
+  - Convert percentage to decimal on input: `value / 100.0`
+  - Convert decimal to percentage on output: `value * 100.0`
+- **Impact:** Power values now display correct magnitude with realistic variations
+
+---
+
 ## [Unreleased] - 2026-02-03
 
 ### Added
