@@ -197,7 +197,7 @@ void WebEngineWindow::onLoadFinished(bool ok) {
   m_progressBar->hide();
 
   if (ok) {
-    statusBar()->showMessage("Ready", 3250);
+    statusBar()->showMessage("Ready", 3000);
     qInfo() << "✅ Frontend loaded successfully";
   } else {
     statusBar()->showMessage("Failed to load frontend", 5000);

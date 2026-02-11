@@ -5,6 +5,7 @@
 #include <QJsonObject>
 #include <QStandardPaths>
 #include <QTimer>
+#include <qeventloop.h>
 
 FileBridge::FileBridge(QObject *parent) : QObject(parent) {
   // Constructor implementation
@@ -18,12 +19,15 @@ QJsonObject FileBridge::saveFileDialog(const QString &data,
   // BUG FIX: Defer file dialog to prevent blocking main thread
   // QFileDialog blocks the event loop causing app freeze during Excel export
   QString filepath;
+  QEventLoop loop;
   QTimer::singleShot(0, [&]() {
     QString suggestedPath =
         QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/" +
         filename;
     filepath = QFileDialog::getSaveFileName(nullptr, "Save File", suggestedPath, filter);
+    loop.quit();
   });
+  loop.exec(); // Start event loop to wait for file dialog to close
   
   // Process events to allow dialog to show
   QCoreApplication::processEvents();
@@ -67,12 +71,15 @@ QJsonObject FileBridge::saveBinaryFileDialog(const QVariantList &data,
 
   // BUG FIX: Defer file dialog to prevent blocking main thread
   QString filepath;
+  QEventLoop loop;
   QTimer::singleShot(0, [&]() {
     QString suggestedPath =
         QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/" +
         filename;
     filepath = QFileDialog::getSaveFileName(nullptr, "Save File", suggestedPath, filter);
+    loop.quit();
   });
+  loop.exec();
   
   // Process events to allow dialog to show
   QCoreApplication::processEvents();

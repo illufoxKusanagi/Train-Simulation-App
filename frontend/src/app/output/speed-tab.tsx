@@ -70,7 +70,7 @@ export default function SpeedTab({
         const result = await window.fileBridge.saveBinaryFileDialog(
           Array.from(bytes),
           "speed_chart.png",
-          "Images (*.png);;All Files (*.*)"
+          "Images (*.png);;All Files (*.*)",
         );
 
         if (result.success) {

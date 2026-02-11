@@ -71,8 +71,8 @@ export default function CurrentTab({
 
         const result = await window.fileBridge.saveBinaryFileDialog(
           Array.from(bytes),
-          "speed_chart.png",
-          "Images (*.png);;All Files (*.*)"
+          "current_chart.png",
+          "Images (*.png);;All Files (*.*)",
         );
 
         if (result.success) {
@@ -83,7 +83,7 @@ export default function CurrentTab({
       } else {
         // Fallback for web browser
         const link = document.createElement("a");
-        link.download = "speed_chart.png";
+        link.download = "current_chart.png";
         link.href = dataUrl;
         link.click();
       }

@@ -26,6 +26,7 @@ void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
   simulationDatas->rpm.append(context->trainMotorData->tm_rpm);
   simulationDatas->powerWheel.append(context->powerData->p_wheel);
   simulationDatas->powerMotorOut.append(context->powerData->p_motorOut);
+  simulationDatas->powerMotorOutPerMotor.append(context->powerData->p_motorOutPerMotor);
   simulationDatas->powerMotorIn.append(context->powerData->p_motorIn);
   simulationDatas->energyConsumptions.append(context->energyData->e_motor);
   simulationDatas->energyPowerings.append(context->energyData->e_pow);
@@ -59,6 +60,7 @@ void UtilityHandler::resetSimulation() {
   context->movingData->v_si = 0;
   context->powerData->p_wheel = 0;
   context->powerData->p_motorOut = 0;
+  context->powerData->p_motorOutPerMotor = 0;
   context->powerData->p_motorIn = 0;
   context->powerData->p_vvvfIn = 0;
   context->powerData->p_catenary = 0;
@@ -101,6 +103,7 @@ void UtilityHandler::clearSimulationDatas() {
   simulationDatas->rpm.clear();
   simulationDatas->powerWheel.clear();
   simulationDatas->powerMotorOut.clear();
+  simulationDatas->powerMotorOutPerMotor.clear();
   simulationDatas->powerMotorIn.clear();
   simulationDatas->distance.clear();
   simulationDatas->time.clear();

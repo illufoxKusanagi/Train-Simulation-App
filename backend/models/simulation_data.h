@@ -29,6 +29,7 @@ struct SimulationDatas {
   QList<double> rpm;
   QList<double> powerWheel;
   QList<double> powerMotorOut;
+  QList<double> powerMotorOutPerMotor;
   QList<double> powerMotorIn;
   QList<double> powerVvvfIn;
   QList<double> powerCatenary;

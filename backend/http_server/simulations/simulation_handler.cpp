@@ -128,6 +128,7 @@ QJsonObject SimulationHandler::getDynamicResults() {
     point["rpm"] = simulationDatas->rpm[i];
     point["powerWheel"] = simulationDatas->powerWheel[i];
     point["powerMotorOut"] = simulationDatas->powerMotorOut[i];
+    point["powerMotorOutputPerMotor"] = simulationDatas->powerMotorOutPerMotor[i];
     point["powerMotorIn"] = simulationDatas->powerMotorIn[i];
     point["vvvfPowers"] = simulationDatas->vvvfPowers[i];
 
@@ -213,6 +214,7 @@ QJsonObject SimulationHandler::getStaticResults() {
     point["rpm"] = simulationDatas->rpm[i];
     point["powerWheel"] = simulationDatas->powerWheel[i];
     point["powerMotorOut"] = simulationDatas->powerMotorOut[i];
+    point["powerMotorOutputPerMotor"] = simulationDatas->powerMotorOutPerMotor[i];
     point["powerMotorIn"] = simulationDatas->powerMotorIn[i];
     point["vvvfPowers"] = simulationDatas->vvvfPowers[i];
 

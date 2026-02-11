@@ -29,7 +29,7 @@ export const ElectricalFormSchema = z.object({
       message: inputErrorMessage,
     })
     .min(0, { message: "Value must be non-negative" })
-    .max(5000, { message: "Value cannot exceed 5000" }),
+    .max(100, { message: "Value cannot exceed 100%" }),
   stat_eff_gear: z.coerce
     .number<number>({
       message: inputErrorMessage,

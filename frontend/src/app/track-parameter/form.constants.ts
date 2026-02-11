@@ -32,8 +32,8 @@ export const TrackFormSchema = z.object({
     .number<number>({
       message: "This Value must be a number",
     })
-    .min(0, { message: "Value must be non-negative" })
-    .max(5000, { message: "Value cannot exceed 5000" }),
+    .min(-50, { message: "Value cannot less than -50" })
+    .max(50, { message: "Value cannot exceed than 50" }),
   v_limit: z.coerce
     .number<number>({
       message: "This Value must be a number",

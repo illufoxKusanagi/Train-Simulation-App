@@ -201,8 +201,8 @@ run_dev() {
     local max_attempts=30
     local attempt=0
     while [ $attempt -lt $max_attempts ]; do
-        if curl -s http://localhost:3250 > /dev/null 2>&1; then
-            print_msg "$GREEN" "✅ Next.js dev server ready at http://localhost:3250"
+        if curl -s http://localhost:3254 > /dev/null 2>&1; then
+            print_msg "$GREEN" "✅ Next.js dev server ready at http://localhost:3254"
             break
         fi
         sleep 1

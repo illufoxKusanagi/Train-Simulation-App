@@ -535,6 +535,8 @@ void TrainSimulationHandler::calculatePowers(double efficiencyGear,
   powerData->p_wheel = m_powerHandler->calculatePowerWheel();
   powerData->p_motorOut =
       m_powerHandler->calculateOutputTractionMotor(efficiencyGear);
+  powerData->p_motorOutPerMotor =
+      m_powerHandler->calculateOutputTractionMotorPerMotor();
   powerData->p_motorIn =
       m_powerHandler->calculateInputTractionMotor(efficiencyMotor);
   powerData->p_vvvfIn =
