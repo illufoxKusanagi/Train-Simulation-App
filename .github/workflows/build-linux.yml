@@ -47,96 +47,110 @@ jobs:
             io.qt.qtwebengine.BaseApp//6.7
 
       - name: Generate Flatpak manifest
+        shell: python3 {0}
         run: |
-          python3 - << 'PYEOF'
-          import json, os
-
-          # Resolve icon: prefer a real PNG from backend/resources, else use a placeholder
-          icon_src = None
-          for root, dirs, files in os.walk("backend/resources"):
-              for f in files:
-                  if f.endswith(".png"):
-                      icon_src = os.path.join(root, f)
-                      break
-              if icon_src:
-                  break
-
-          if icon_src:
-              import shutil
-              shutil.copy(icon_src, "icon.png")
-          else:
-              import struct, zlib
-              def chunk(tag, data):
-                  c = struct.pack(">I", len(data)) + tag + data
-                  return c + struct.pack(">I", zlib.crc32(c[4:]) & 0xFFFFFFFF)
-              sig  = b"\x89PNG\r\n\x1a\n"
-              ihdr = chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0))
-              idat = chunk(b"IDAT", zlib.compress(b"\x00\x1e\x5f\x9f"))
-              iend = chunk(b"IEND", b"")
-              with open("icon.png", "wb") as fh:
-                  fh.write(sig + ihdr + idat + iend)
+          import json, os, shutil, struct, zlib
 
           APP_ID = "io.github.illufoxkusanagi.TrainSimulationApp"
 
+          # Icon: prefer a real PNG from backend/resources, else generate a 1x1 placeholder
+          icon_src = None
+          for root, dirs, files in os.walk("backend/resources"):
+            for f in files:
+              if f.endswith(".png"):
+                icon_src = os.path.join(root, f)
+                break
+            if icon_src:
+              break
+
+          if icon_src:
+            shutil.copy(icon_src, "icon.png")
+          else:
+            def chunk(tag, data):
+              c = struct.pack(">I", len(data)) + tag + data
+              return c + struct.pack(">I", zlib.crc32(c[4:]) & 0xFFFFFFFF)
+            sig  = b"\x89PNG\r\n\x1a\n"
+            ihdr = chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0))
+            idat = chunk(b"IDAT", zlib.compress(b"\x00\x1e\x5f\x9f"))
+            iend = chunk(b"IEND", b"")
+            with open("icon.png", "wb") as fh:
+              fh.write(sig + ihdr + idat + iend)
+
+          # Desktop file
+          with open(f"{APP_ID}.desktop", "w") as fh:
+            fh.write("\n".join([
+              "[Desktop Entry]",
+              "Type=Application",
+              "Name=Train Simulation App",
+              "Comment=Train Simulation Application",
+              "Exec=TrainSimulationApp",
+              f"Icon={APP_ID}",
+              "Categories=Education;Science;",
+              "Terminal=false",
+              "",
+            ]))
+
+          # Staging dir for desktop-integration module (only these two files)
+          os.makedirs("flatpak-extras", exist_ok=True)
+          shutil.copy("icon.png",           f"flatpak-extras/{APP_ID}.png")
+          shutil.copy(f"{APP_ID}.desktop",  f"flatpak-extras/{APP_ID}.desktop")
+
           manifest = {
-              "app-id": APP_ID,
-              "runtime": "org.freedesktop.Platform",
-              "runtime-version": "23.08",
-              "sdk": "org.freedesktop.Sdk",
-              "base": "io.qt.qtwebengine.BaseApp",
-              "base-version": "6.7",
-              "command": "TrainSimulationApp",
-              "finish-args": [
-                  "--share=network",
-                  "--share=ipc",
-                  "--socket=fallback-x11",
-                  "--socket=wayland",
-                  "--device=dri",
-                  "--filesystem=home"
-              ],
-              "modules": [
-                  {
-                      "name": "TrainSimulationApp",
-                      "buildsystem": "cmake-ninja",
-                      "builddir": True,
-                      "config-opts": ["-DCMAKE_BUILD_TYPE=Release"],
-                      "sources": [{"type": "dir", "path": "backend"}]
-                  },
-                  {
-                      "name": "frontend",
-                      "buildsystem": "simple",
-                      "build-commands": [
-                          "mkdir -p /app/share/train-simulation-app",
-                          "cp -r . /app/share/train-simulation-app/frontend"
-                      ],
-                      "sources": [{"type": "dir", "path": "frontend/out"}]
-                  },
-                  {
-                      "name": "desktop-integration",
-                      "buildsystem": "simple",
-                      "build-commands": [
-                          "install -Dm644 " + APP_ID + ".desktop"
-                              + " /app/share/applications/" + APP_ID + ".desktop",
-                          "install -Dm644 icon.png"
-                              + " /app/share/icons/hicolor/256x256/apps/"
-                              + APP_ID + ".png"
-                      ],
-                      "sources": [
-                          {"type": "dir", "path": "."}
-                      ]
-                  }
-              ]
+            "app-id": APP_ID,
+            "runtime": "org.freedesktop.Platform",
+            "runtime-version": "23.08",
+            "sdk": "org.freedesktop.Sdk",
+            "base": "io.qt.qtwebengine.BaseApp",
+            "base-version": "6.7",
+            "command": "TrainSimulationApp",
+            "finish-args": [
+              "--share=network",
+              "--share=ipc",
+              "--socket=fallback-x11",
+              "--socket=wayland",
+              "--device=dri",
+              "--filesystem=home",
+            ],
+            "modules": [
+              {
+                "name": "TrainSimulationApp",
+                "buildsystem": "cmake-ninja",
+                "builddir": True,
+                "config-opts": [
+                  "-DCMAKE_BUILD_TYPE=Release",
+                  # BaseApp puts Qt into /app, not /usr.
+                  # CMAKE_PREFIX_PATH makes find_package search /app/lib/cmake.
+                  # Qt6_DIR prevents the CMakeLists.txt fallback from overriding
+                  # with a hardcoded /usr/lib64/cmake/Qt6 path that doesn't exist.
+                  "-DCMAKE_PREFIX_PATH=/app",
+                  "-DQt6_DIR=/app/lib/cmake/Qt6",
+                ],
+                "sources": [{"type": "dir", "path": "backend"}],
+              },
+              {
+                "name": "frontend",
+                "buildsystem": "simple",
+                "build-commands": [
+                  "mkdir -p /app/share/train-simulation-app/frontend",
+                  "cp -r . /app/share/train-simulation-app/frontend/",
+                ],
+                "sources": [{"type": "dir", "path": "frontend/out"}],
+              },
+              {
+                "name": "desktop-integration",
+                "buildsystem": "simple",
+                "build-commands": [
+                  f"install -Dm644 {APP_ID}.desktop /app/share/applications/{APP_ID}.desktop",
+                  f"install -Dm644 {APP_ID}.png /app/share/icons/hicolor/256x256/apps/{APP_ID}.png",
+                ],
+                "sources": [{"type": "dir", "path": "flatpak-extras"}],
+              },
+            ],
           }
 
           with open(f"{APP_ID}.json", "w") as fh:
-              json.dump(manifest, fh, indent=2)
-          print("Manifest written.")
-          PYEOF
-
-      - name: Write desktop file
-        run: |
-          APP_ID="io.github.illufoxkusanagi.TrainSimulationApp"
-          printf '[Desktop Entry]\nType=Application\nName=Train Simulation App\nComment=Train Simulation Application\nExec=TrainSimulationApp\nIcon=%s\nCategories=Education;Science;\nTerminal=false\n' "$APP_ID" > "${APP_ID}.desktop"
+            json.dump(manifest, fh, indent=2)
+          print(f"Manifest written: {APP_ID}.json")
 
       - name: Build Flatpak
         run: |
