@@ -52,10 +52,9 @@ jobs:
       - name: Generate Flatpak manifest
         shell: python3 {0}
         run: |
-          import json, os, shutil, struct, zlib, urllib.request, hashlib
+          import json, os, shutil, struct, zlib
 
           APP_ID = "io.github.illufoxkusanagi.TrainSimulationApp"
-          QT_VER  = "6.7.2"
 
           # ── Icon ────────────────────────────────────────────────────────────
           icon_src = None
@@ -98,28 +97,22 @@ jobs:
           shutil.copy("icon.png",          f"flatpak-extras/{APP_ID}.png")
           shutil.copy(f"{APP_ID}.desktop", f"flatpak-extras/{APP_ID}.desktop")
 
-          # ── Fetch & hash qthttpserver tarball ───────────────────────────────
-          # QtHttpServer is not included in io.qt.qtwebengine.BaseApp or any
-          # standard Flatpak SDK, so we build it from source into /app.
-          http_url = (
-            f"https://download.qt.io/official_releases/qt/6.7/{QT_VER}"
-            f"/submodules/qthttpserver-everywhere-src-{QT_VER}.tar.xz"
-          )
-          print(f"Fetching {http_url} to compute SHA-256 …")
-          with urllib.request.urlopen(http_url) as resp:
-            tarball_bytes = resp.read()
-          http_sha256 = hashlib.sha256(tarball_bytes).hexdigest()
-          print(f"qthttpserver SHA-256: {http_sha256}")
-
           # ── Manifest ────────────────────────────────────────────────────────
+          # URL verified from download.qt.io/archive directory listing.
+          # SHA-256 pre-computed from the actual tarball (not fetched at CI time).
+          HTTPSERVER_URL = (
+            "https://download.qt.io/archive/qt/6.7/6.7.2/submodules"
+            "/qthttpserver-everywhere-src-6.7.2.tar.xz"
+          )
+          HTTPSERVER_SHA256 = (
+            "0353b9b4f98a83fec8f15046d4ff9d6ef7c874dcbb3664092fe2508f40778b86"
+          )
+
           manifest = {
             "app-id": APP_ID,
-            # org.freedesktop.Sdk is the correct build SDK for the BaseApp.
             "runtime": "org.freedesktop.Platform",
             "runtime-version": "23.08",
             "sdk": "org.freedesktop.Sdk",
-            # BaseApp installs Qt 6.7 (WebEngine, WebChannel, WebSockets …)
-            # into /app.  qthttpserver is added as a source module below.
             "base": "io.qt.qtwebengine.BaseApp",
             "base-version": "6.7",
             "command": "TrainSimulationApp",
@@ -132,7 +125,9 @@ jobs:
               "--filesystem=home",
             ],
             "modules": [
-              # ── Build qthttpserver from Qt source into /app ──────────────
+              # QtHttpServer is not in any Flatpak SDK or the BaseApp.
+              # Build it from the official Qt archive into /app so the main
+              # app finds it alongside the rest of Qt from the BaseApp.
               {
                 "name": "qt6-qthttpserver",
                 "buildsystem": "cmake-ninja",
@@ -144,24 +139,21 @@ jobs:
                 ],
                 "sources": [{
                   "type": "archive",
-                  "url": http_url,
-                  "sha256": http_sha256,
+                  "url": HTTPSERVER_URL,
+                  "sha256": HTTPSERVER_SHA256,
                 }],
               },
-              # ── Main application ─────────────────────────────────────────
               {
                 "name": "TrainSimulationApp",
                 "buildsystem": "cmake-ninja",
                 "builddir": True,
                 "config-opts": [
                   "-DCMAKE_BUILD_TYPE=Release",
-                  # BaseApp + qthttpserver module both install into /app.
                   "-DCMAKE_PREFIX_PATH=/app",
                   "-DQt6_DIR=/app/lib/cmake/Qt6",
                 ],
                 "sources": [{"type": "dir", "path": "backend"}],
               },
-              # ── Frontend static files ────────────────────────────────────
               {
                 "name": "frontend",
                 "buildsystem": "simple",
@@ -171,7 +163,6 @@ jobs:
                 ],
                 "sources": [{"type": "dir", "path": "frontend/out"}],
               },
-              # ── Desktop entry + icon ─────────────────────────────────────
               {
                 "name": "desktop-integration",
                 "buildsystem": "simple",
