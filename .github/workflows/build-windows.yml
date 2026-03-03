@@ -68,102 +68,71 @@ jobs:
         shell: powershell
         run: choco install openssl --no-progress -y
 
-      - name: Bundle Frontend with Backend
-        shell: bash
-        run: |
-          mkdir -p backend/build/bin/frontend
-          cp -r frontend/out/* backend/build/bin/frontend/
-
-      - name: Install OpenSSL
-        shell: powershell
-        run: |
-          choco install openssl --no-progress
-          # Identify OpenSSL DLL location (usually C:\Program Files\OpenSSL-Win64\bin)
-
       - name: Deploy Qt Dependencies
         shell: powershell
         run: |
+          $ErrorActionPreference = "Stop"
 
-          cd backend/build
+          Set-Location "backend\build"
+          $BinDir = Resolve-Path "bin"
+          $QtRoot = $env:QT_ROOT_DIR
+          if (-not $QtRoot) { $QtRoot = Split-Path (Split-Path $env:Qt6_DIR -Parent) -Parent }
 
-          # Check if executable exists
-          if (-not (Test-Path "bin\TrainSimulationApp.exe")) {
-            Write-Error "Executable not found at bin\TrainSimulationApp.exe"
+          # Verify executable exists before proceeding
+          if (-not (Test-Path "$BinDir\TrainSimulationApp.exe")) {
+            Write-Error "Executable not found at $BinDir\TrainSimulationApp.exe"
             Get-ChildItem -Recurse *.exe
             exit 1
           }
 
-          # Run windeployqt with verbose output
-          # Removed --no-translations to ensure WebEngine locale data is included
-          & windeployqt.exe --release --verbose 2 --compiler-runtime bin\TrainSimulationApp.exe
-
-          # Copy OpenSSL DLLs (OpenSSL 3.x for Qt 6.7)
-          $opensslPath = "C:\Program Files\OpenSSL-Win64\bin"
-          if (Test-Path $opensslPath) {
-            Write-Host "Copying OpenSSL DLLs from $opensslPath"
-            Copy-Item "$opensslPath\libcrypto-3-x64.dll" "bin\" -ErrorAction SilentlyContinue
-            Copy-Item "$opensslPath\libssl-3-x64.dll" "bin\" -ErrorAction SilentlyContinue
-            # Fallback for OpenSSL 1.1 if needed (older Qt)
-            Copy-Item "$opensslPath\libcrypto-1_1-x64.dll" "bin\" -ErrorAction SilentlyContinue
-            Copy-Item "$opensslPath\libssl-1_1-x64.dll" "bin\" -ErrorAction SilentlyContinue
-          } else {
-            Write-Warning "OpenSSL path not found at $opensslPath"
-          }
-
-          # Copy frontend files
-          if (Test-Path "../../frontend/out") {
-            New-Item -ItemType Directory -Force -Path "bin/frontend"
-            Copy-Item -Recurse -Force "../../frontend/out/*" "bin/frontend/"
-          }
-
-          & windeployqt.exe --release --compiler-runtime --verbose 1 "$BinDir\\TrainSimulationApp.exe"
+          # Run windeployqt
+          & windeployqt.exe --release --compiler-runtime --verbose 1 "$BinDir\TrainSimulationApp.exe"
+          if ($LASTEXITCODE -ne 0) { throw "windeployqt failed" }
 
           # OpenSSL DLLs (Qt 6.7 needs OpenSSL 3.x)
-          foreach ($dir in @("C:\\Program Files\\OpenSSL-Win64\\bin","C:\\Program Files\\OpenSSL\\bin")) {
+          foreach ($dir in @("C:\Program Files\OpenSSL-Win64\bin", "C:\Program Files\OpenSSL\bin")) {
             if (Test-Path $dir) {
-              foreach ($dll in @("libcrypto-3-x64.dll","libssl-3-x64.dll")) {
-                $src = "$dir\\$dll"
-                if (Test-Path $src) { Copy-Item $src "$BinDir\\" -Force }
+              foreach ($dll in @("libcrypto-3-x64.dll", "libssl-3-x64.dll", "libcrypto-1_1-x64.dll", "libssl-1_1-x64.dll")) {
+                $src = "$dir\$dll"
+                if (Test-Path $src) { Copy-Item $src "$BinDir\" -Force }
               }
               break
             }
           }
 
-          # QtWebEngineProcess.exe (windeployqt should handle, supplement if missing)
-          if (-not (Test-Path "$BinDir\\QtWebEngineProcess.exe")) {
-            $f = Get-ChildItem "$QtRoot" -Recurse -Filter "QtWebEngineProcess.exe" | Select-Object -First 1
-            if ($f) { Copy-Item $f.FullName "$BinDir\\" -Force }
+          # Supplement QtWebEngineProcess.exe if windeployqt missed it
+          if (-not (Test-Path "$BinDir\QtWebEngineProcess.exe")) {
+            $f = Get-ChildItem "$QtRoot" -Recurse -Filter "QtWebEngineProcess.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($f) { Copy-Item $f.FullName "$BinDir\" -Force }
           }
 
           # WebEngine pak/resource files
-          foreach ($pat in @("icudtl.dat","*.pak","v8_context_snapshot*.bin")) {
-            Get-ChildItem "$QtRoot" -Recurse -Filter $pat |
+          foreach ($pat in @("icudtl.dat", "*.pak", "v8_context_snapshot*.bin")) {
+            Get-ChildItem "$QtRoot" -Recurse -Filter $pat -ErrorAction SilentlyContinue |
               Where-Object { $_.DirectoryName -notmatch "locales" } |
               ForEach-Object {
-                if (-not (Test-Path "$BinDir\\$($_.Name)")) {
-                  Copy-Item $_.FullName "$BinDir\\" -Force
+                if (-not (Test-Path "$BinDir\$($_.Name)")) {
+                  Copy-Item $_.FullName "$BinDir\" -Force
                 }
               }
           }
 
           # WebEngine locales
-          $loc = Get-ChildItem "$QtRoot" -Recurse -Filter "qtwebengine_locales" -Directory | Select-Object -First 1
-          if ($loc -and -not (Test-Path "$BinDir\\qtwebengine_locales")) {
-            Copy-Item $loc.FullName "$BinDir\\" -Recurse -Force
+          $loc = Get-ChildItem "$QtRoot" -Recurse -Filter "qtwebengine_locales" -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($loc -and -not (Test-Path "$BinDir\qtwebengine_locales")) {
+            Copy-Item $loc.FullName "$BinDir\" -Recurse -Force
           }
 
-          # Frontend
-          if (Test-Path "frontend\\out") {
-            New-Item -ItemType Directory -Force -Path "$BinDir\\frontend" | Out-Null
-            Copy-Item -Recurse "frontend\\out\\*" "$BinDir\\frontend\\" -Force
-          }
+          # Frontend static files
+          New-Item -ItemType Directory -Force -Path "$BinDir\frontend" | Out-Null
+          Copy-Item -Recurse -Force "..\..\frontend\out\*" "$BinDir\frontend\"
 
-          # qt.conf
-          "[Paths]`nPrefix = ." | Out-File -FilePath "$BinDir\\qt.conf" -Encoding ascii
+          # qt.conf — tells Qt to find plugins relative to the exe
+          "[Paths]`nPrefix = ." | Out-File -FilePath "$BinDir\qt.conf" -Encoding ascii
 
-          # Launcher batch
+          # Launcher batch — disables sandbox (required for WebEngine without GPU sandbox)
           "@echo off`ncd /d `"%~dp0`"`nset QTWEBENGINE_DISABLE_SANDBOX=1`nstart `"`" `"%~dp0TrainSimulationApp.exe`" %*" |
-            Out-File -FilePath "$BinDir\\TrainSimulationApp.bat" -Encoding ASCII
+            Out-File -FilePath "$BinDir\TrainSimulationApp.bat" -Encoding ASCII
 
       - name: Create ZIP archive
         shell: powershell
