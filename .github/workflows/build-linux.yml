@@ -41,22 +41,23 @@ jobs:
 
       - name: Install Flatpak runtimes
         run: |
-          # io.qt.qtwebengine.BaseApp is built on org.kde.Platform//6.7.
-          # org.kde.Sdk//6.7 is the matching SDK — it ships all Qt 6.7 modules
-          # including QtHttpServer, QtWebEngine, QtWebChannel, etc.
+          # org.freedesktop.Sdk is the correct build SDK for io.qt.qtwebengine.BaseApp.
+          # The BaseApp installs Qt (WebEngine, WebChannel, WebSockets, etc.) into /app.
+          # qthttpserver is NOT included in any BaseApp/SDK so we build it from source below.
           flatpak install --user --noninteractive flathub \
-            org.kde.Platform//6.7 \
-            org.kde.Sdk//6.7 \
+            org.freedesktop.Platform//23.08 \
+            org.freedesktop.Sdk//23.08 \
             io.qt.qtwebengine.BaseApp//6.7
 
       - name: Generate Flatpak manifest
         shell: python3 {0}
         run: |
-          import json, os, shutil, struct, zlib
+          import json, os, shutil, struct, zlib, urllib.request, hashlib
 
           APP_ID = "io.github.illufoxkusanagi.TrainSimulationApp"
+          QT_VER  = "6.7.2"
 
-          # Icon: prefer a real PNG from backend/resources, else generate a 1x1 placeholder
+          # ── Icon ────────────────────────────────────────────────────────────
           icon_src = None
           for root, dirs, files in os.walk("backend/resources"):
             for f in files:
@@ -79,7 +80,7 @@ jobs:
             with open("icon.png", "wb") as fh:
               fh.write(sig + ihdr + idat + iend)
 
-          # Desktop file
+          # ── Desktop file ────────────────────────────────────────────────────
           with open(f"{APP_ID}.desktop", "w") as fh:
             fh.write("\n".join([
               "[Desktop Entry]",
@@ -93,16 +94,32 @@ jobs:
               "",
             ]))
 
-          # Staging dir for desktop-integration module (only these two files)
           os.makedirs("flatpak-extras", exist_ok=True)
-          shutil.copy("icon.png",           f"flatpak-extras/{APP_ID}.png")
-          shutil.copy(f"{APP_ID}.desktop",  f"flatpak-extras/{APP_ID}.desktop")
+          shutil.copy("icon.png",          f"flatpak-extras/{APP_ID}.png")
+          shutil.copy(f"{APP_ID}.desktop", f"flatpak-extras/{APP_ID}.desktop")
 
+          # ── Fetch & hash qthttpserver tarball ───────────────────────────────
+          # QtHttpServer is not included in io.qt.qtwebengine.BaseApp or any
+          # standard Flatpak SDK, so we build it from source into /app.
+          http_url = (
+            f"https://download.qt.io/official_releases/qt/6.7/{QT_VER}"
+            f"/submodules/qthttpserver-everywhere-src-{QT_VER}.tar.xz"
+          )
+          print(f"Fetching {http_url} to compute SHA-256 …")
+          with urllib.request.urlopen(http_url) as resp:
+            tarball_bytes = resp.read()
+          http_sha256 = hashlib.sha256(tarball_bytes).hexdigest()
+          print(f"qthttpserver SHA-256: {http_sha256}")
+
+          # ── Manifest ────────────────────────────────────────────────────────
           manifest = {
             "app-id": APP_ID,
-            "runtime": "org.kde.Platform",
-            "runtime-version": "6.7",
-            "sdk": "org.kde.Sdk",
+            # org.freedesktop.Sdk is the correct build SDK for the BaseApp.
+            "runtime": "org.freedesktop.Platform",
+            "runtime-version": "23.08",
+            "sdk": "org.freedesktop.Sdk",
+            # BaseApp installs Qt 6.7 (WebEngine, WebChannel, WebSockets …)
+            # into /app.  qthttpserver is added as a source module below.
             "base": "io.qt.qtwebengine.BaseApp",
             "base-version": "6.7",
             "command": "TrainSimulationApp",
@@ -115,20 +132,36 @@ jobs:
               "--filesystem=home",
             ],
             "modules": [
+              # ── Build qthttpserver from Qt source into /app ──────────────
+              {
+                "name": "qt6-qthttpserver",
+                "buildsystem": "cmake-ninja",
+                "builddir": True,
+                "config-opts": [
+                  "-DCMAKE_BUILD_TYPE=Release",
+                  "-DCMAKE_PREFIX_PATH=/app",
+                  "-DCMAKE_INSTALL_PREFIX=/app",
+                ],
+                "sources": [{
+                  "type": "archive",
+                  "url": http_url,
+                  "sha256": http_sha256,
+                }],
+              },
+              # ── Main application ─────────────────────────────────────────
               {
                 "name": "TrainSimulationApp",
                 "buildsystem": "cmake-ninja",
                 "builddir": True,
                 "config-opts": [
                   "-DCMAKE_BUILD_TYPE=Release",
-                  # KDE SDK installs Qt into /usr inside the sandbox.
-                  # CMAKE_PREFIX_PATH=/usr is now honoured first (CMakeLists.txt
-                  # was fixed to put ${CMAKE_PREFIX_PATH} before local fallbacks).
-                  "-DCMAKE_PREFIX_PATH=/usr",
-                  "-DQt6_DIR=/usr/lib/cmake/Qt6",
+                  # BaseApp + qthttpserver module both install into /app.
+                  "-DCMAKE_PREFIX_PATH=/app",
+                  "-DQt6_DIR=/app/lib/cmake/Qt6",
                 ],
                 "sources": [{"type": "dir", "path": "backend"}],
               },
+              # ── Frontend static files ────────────────────────────────────
               {
                 "name": "frontend",
                 "buildsystem": "simple",
@@ -138,6 +171,7 @@ jobs:
                 ],
                 "sources": [{"type": "dir", "path": "frontend/out"}],
               },
+              # ── Desktop entry + icon ─────────────────────────────────────
               {
                 "name": "desktop-integration",
                 "buildsystem": "simple",
