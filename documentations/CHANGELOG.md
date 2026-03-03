@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+<<<<<<< HEAD
 ## [Unreleased] - 2026-02-04
 
 ### Fixed
@@ -122,6 +123,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+=======
+>>>>>>> 793715b (fix/simulation-and-power-bug)
 ## [Unreleased] - 2026-02-03
 
 ### Added
