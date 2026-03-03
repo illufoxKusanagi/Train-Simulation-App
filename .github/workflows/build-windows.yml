@@ -68,6 +68,12 @@ jobs:
         shell: powershell
         run: choco install openssl --no-progress -y
 
+      - name: Bundle Frontend with Backend
+        shell: bash
+        run: |
+          mkdir -p backend/build/bin/frontend
+          cp -r frontend/out/* backend/build/bin/frontend/
+
       - name: Deploy Qt Dependencies
         shell: powershell
         run: |
