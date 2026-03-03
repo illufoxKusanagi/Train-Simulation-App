@@ -10,12 +10,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set Qt paths
+# ${CMAKE_PREFIX_PATH} comes FIRST so values passed via -DCMAKE_PREFIX_PATH=
+# (e.g. from Flatpak, Docker, or CI) take priority over local machine fallbacks.
 set(CMAKE_PREFIX_PATH
+    ${CMAKE_PREFIX_PATH}
     /home/illufoxkusanagi/Qt/6.10.1/gcc_64/lib/cmake
     /usr/lib64/cmake
     /usr/lib/cmake
     /usr/local/Qt6/lib/cmake
-    ${CMAKE_PREFIX_PATH}
 )
 
 # Alternative approach - set Qt6_DIR explicitly if find_package fails

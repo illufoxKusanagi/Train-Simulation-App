@@ -41,9 +41,12 @@ jobs:
 
       - name: Install Flatpak runtimes
         run: |
+          # io.qt.qtwebengine.BaseApp is built on org.kde.Platform//6.7.
+          # org.kde.Sdk//6.7 is the matching SDK — it ships all Qt 6.7 modules
+          # including QtHttpServer, QtWebEngine, QtWebChannel, etc.
           flatpak install --user --noninteractive flathub \
-            org.freedesktop.Platform//23.08 \
-            org.freedesktop.Sdk//23.08 \
+            org.kde.Platform//6.7 \
+            org.kde.Sdk//6.7 \
             io.qt.qtwebengine.BaseApp//6.7
 
       - name: Generate Flatpak manifest
@@ -97,9 +100,9 @@ jobs:
 
           manifest = {
             "app-id": APP_ID,
-            "runtime": "org.freedesktop.Platform",
-            "runtime-version": "23.08",
-            "sdk": "org.freedesktop.Sdk",
+            "runtime": "org.kde.Platform",
+            "runtime-version": "6.7",
+            "sdk": "org.kde.Sdk",
             "base": "io.qt.qtwebengine.BaseApp",
             "base-version": "6.7",
             "command": "TrainSimulationApp",
@@ -118,12 +121,11 @@ jobs:
                 "builddir": True,
                 "config-opts": [
                   "-DCMAKE_BUILD_TYPE=Release",
-                  # BaseApp puts Qt into /app, not /usr.
-                  # CMAKE_PREFIX_PATH makes find_package search /app/lib/cmake.
-                  # Qt6_DIR prevents the CMakeLists.txt fallback from overriding
-                  # with a hardcoded /usr/lib64/cmake/Qt6 path that doesn't exist.
-                  "-DCMAKE_PREFIX_PATH=/app",
-                  "-DQt6_DIR=/app/lib/cmake/Qt6",
+                  # KDE SDK installs Qt into /usr inside the sandbox.
+                  # CMAKE_PREFIX_PATH=/usr is now honoured first (CMakeLists.txt
+                  # was fixed to put ${CMAKE_PREFIX_PATH} before local fallbacks).
+                  "-DCMAKE_PREFIX_PATH=/usr",
+                  "-DQt6_DIR=/usr/lib/cmake/Qt6",
                 ],
                 "sources": [{"type": "dir", "path": "backend"}],
               },
