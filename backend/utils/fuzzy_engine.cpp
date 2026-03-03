@@ -14,6 +14,12 @@ void FuzzyEngine::addOutputVariable(std::shared_ptr<FuzzyVariable> var) {
 
 void FuzzyEngine::addRule(const FuzzyRule &rule) { m_rules.push_back(rule); }
 
+void FuzzyEngine::clear() {
+  m_inputs.clear();
+  m_outputs.clear();
+  m_rules.clear();
+}
+
 void FuzzyEngine::setInputValue(const QString &varName, double value) {
   if (m_inputs.contains(varName)) {
     m_inputs[varName]->setValue(value);
@@ -78,9 +84,10 @@ double FuzzyEngine::getOutputValue(const QString &varName) {
 
       // If rule is active
       if (activation > 0.0) {
-        // Get the consequent term's membership at x
+        // Get the consequent term's membership at the sampled point x
+        // (NOT getMembership which uses m_value — that was a bug)
         double termMembership =
-            outputVar->getMembership(rule.consequent.second);
+            outputVar->getMembershipAt(rule.consequent.second, x);
 
         // Clip it by activation strength (Mamdani Implication: MIN)
         double clippedMembership = std::min(activation, termMembership);

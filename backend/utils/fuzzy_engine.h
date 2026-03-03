@@ -101,6 +101,17 @@ public:
     return 0.0;
   }
 
+  // Returns the membership of a named term evaluated at an arbitrary point
+  // (used by centroid defuzzification - NOT the same as at m_value)
+  double getMembershipAt(const QString &termName, double at) const {
+    for (const auto &term : m_terms) {
+      if (term->name() == termName) {
+        return term->membership(at);
+      }
+    }
+    return 0.0;
+  }
+
   // Returns the term with the highest membership for the current value
   QString getDominantTerm() const {
     double maxM = -1.0;
@@ -148,6 +159,8 @@ public:
   void addInputVariable(std::shared_ptr<FuzzyVariable> var);
   void addOutputVariable(std::shared_ptr<FuzzyVariable> var);
   void addRule(const FuzzyRule &rule);
+  // Clears all variables and rules so the engine can be reconfigured
+  void clear();
 
   // Operation
   void setInputValue(const QString &varName, double value);

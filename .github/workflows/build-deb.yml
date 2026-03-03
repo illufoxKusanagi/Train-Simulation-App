@@ -2,13 +2,13 @@ name: Build Debian Package
 
 on:
   push:
-    branches: 
+    branches:
       - master
       - main
     tags:
       - "v*"
   pull_request:
-    branches: 
+    branches:
       - master
       - main
   workflow_dispatch:
@@ -16,13 +16,38 @@ on:
 jobs:
   build-deb:
     runs-on: ubuntu-latest
-    # No container needed, use native Ubuntu runner
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake ninja-build libgl1-mesa-dev libcups2-dev
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            ninja-build \
+            libgl1-mesa-dev \
+            libcups2-dev \
+            patchelf \
+            libxkbcommon-x11-0 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-shape0 \
+            libxcb-xinerama0 \
+            libxcb-xkb1 \
+            libxcb-cursor0 \
+            libdbus-1-3 \
+            libnss3 \
+            libnspr4 \
+            libxcomposite1 \
+            libxdamage1 \
+            libxfixes3 \
+            libxrandr2
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -39,9 +64,6 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Build Frontend
         run: |
           cd frontend
@@ -52,99 +74,96 @@ jobs:
         run: |
           mkdir -p backend/build
           cd backend/build
-          cmake -DCMAKE_BUILD_TYPE=Release ..
+          cmake -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH="${QT_ROOT_DIR}" \
+            ..
           cmake --build . --config Release
-
-      - name: Bundle Frontend with Backend
-        run: |
-          mkdir -p backend/build/bin/frontend
-          cp -r frontend/out/* backend/build/bin/frontend/
 
       - name: Create Debian Package
         run: |
-          # Create package structure
           PKG_DIR="train-simulation-app_1.0.0_amd64"
+          APP_LIB="$PKG_DIR/usr/lib/train-simulation-app"
           mkdir -p "$PKG_DIR/DEBIAN"
           mkdir -p "$PKG_DIR/usr/bin"
-          mkdir -p "$PKG_DIR/usr/lib/train-simulation-app"
+          mkdir -p "$APP_LIB/plugins"
           mkdir -p "$PKG_DIR/usr/share/train-simulation-app"
           mkdir -p "$PKG_DIR/usr/share/applications"
+          mkdir -p "$PKG_DIR/usr/share/icons/hicolor/256x256/apps"
 
-          # Copy executable
-          cp backend/build/bin/TrainSimulationApp "$PKG_DIR/usr/lib/train-simulation-app/"
-          
-          # Bundle Qt libraries using linuxdeployqt or manually copy dependencies
-          # Copy Qt libraries that the executable needs
-          QT_LIB_PATH="${Qt6_DIR}/../lib"
-          if [ -d "$QT_LIB_PATH" ]; then
-            echo "Copying Qt libraries from $QT_LIB_PATH"
-            cp -L "$QT_LIB_PATH"/libQt6Core.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6Gui.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6Widgets.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6Network.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6WebEngineCore.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6WebEngineWidgets.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6WebChannel.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6HttpServer.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6Concurrent.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6Positioning.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6Qml.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6Quick.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6OpenGL.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6PrintSupport.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6WebSockets.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            cp -L "$QT_LIB_PATH"/libQt6QmlModels.so.6 "$PKG_DIR/usr/lib/train-simulation-app/" 2>/dev/null || true
-            
-            # Copy Qt plugins
-            QT_PLUGIN_PATH="${Qt6_DIR}/../plugins"
-            if [ -d "$QT_PLUGIN_PATH" ]; then
-              mkdir -p "$PKG_DIR/usr/lib/train-simulation-app/plugins"
-              cp -r "$QT_PLUGIN_PATH/platforms" "$PKG_DIR/usr/lib/train-simulation-app/plugins/" 2>/dev/null || true
-              cp -r "$QT_PLUGIN_PATH/xcbglintegrations" "$PKG_DIR/usr/lib/train-simulation-app/plugins/" 2>/dev/null || true
-              cp -r "$QT_PLUGIN_PATH/imageformats" "$PKG_DIR/usr/lib/train-simulation-app/plugins/" 2>/dev/null || true
-            fi
+          cp backend/build/bin/TrainSimulationApp "$APP_LIB/"
+
+          # Use ldd to discover actual Qt/ICU library dependencies
+          ldd backend/build/bin/TrainSimulationApp \
+            | awk '/ => \// { print $3 }' \
+            | grep -E 'libQt|libicu' \
+            | sort -u \
+            | while read -r lib; do
+                cp -L "$lib" "$APP_LIB/" 2>/dev/null || true
+              done
+
+          # Supplement with Qt libs the binary may dlopen() lazily
+          QT_LIB="${QT_ROOT_DIR}/lib"
+          for lib in \
+            libQt6Core libQt6Gui libQt6Widgets libQt6Network \
+            libQt6WebEngineCore libQt6WebEngineWidgets \
+            libQt6WebChannel libQt6HttpServer \
+            libQt6Concurrent libQt6Positioning \
+            libQt6Qml libQt6QmlModels libQt6Quick \
+            libQt6OpenGL libQt6PrintSupport libQt6WebSockets \
+            libQt6DBus libQt6XcbQpa libQt6Svg; do
+            src="$QT_LIB/${lib}.so.6"
+            [ -f "$src" ] && cp -L "$src" "$APP_LIB/" 2>/dev/null || true
+          done
+
+          # Qt Plugins
+          QT_PLUGINS="${QT_ROOT_DIR}/plugins"
+          for plugin_dir in platforms xcbglintegrations imageformats iconengines platformthemes tls; do
+            [ -d "$QT_PLUGINS/$plugin_dir" ] && \
+              cp -r "$QT_PLUGINS/$plugin_dir" "$APP_LIB/plugins/" 2>/dev/null || true
+          done
+
+          # QtWebEngineProcess helper binary
+          find "${QT_ROOT_DIR}" -name "QtWebEngineProcess" -type f 2>/dev/null \
+            | head -1 | xargs -I{} cp {} "$APP_LIB/" || true
+
+          # WebEngine resource files
+          find "${QT_ROOT_DIR}" \( -name "*.pak" -o -name "v8_context_snapshot*.bin" \) \
+            ! -path "*/qtwebengine_locales/*" 2>/dev/null \
+            | while read -r f; do cp "$f" "$APP_LIB/" 2>/dev/null || true; done
+
+          WE_LOCALES=$(find "${QT_ROOT_DIR}" -type d -name "qtwebengine_locales" 2>/dev/null | head -1)
+          if [ -n "$WE_LOCALES" ]; then
+            mkdir -p "$APP_LIB/qtwebengine_locales"
+            cp "$WE_LOCALES"/*.pak "$APP_LIB/qtwebengine_locales/" 2>/dev/null || true
           fi
 
-          # Copy frontend
+          # qt.conf so Qt finds its bundled plugins
+          printf '[Paths]\nPrefix = /usr\nPlugins = lib/train-simulation-app/plugins\nLibraries = lib/train-simulation-app\n' > "$APP_LIB/qt.conf"
+
+          # Frontend
           cp -r frontend/out/* "$PKG_DIR/usr/share/train-simulation-app/"
 
-          # Create launcher script
-          cat > "$PKG_DIR/usr/bin/train-simulation-app" <<'LAUNCHER'
-          #!/bin/bash
-          export LD_LIBRARY_PATH="/usr/lib/train-simulation-app:$LD_LIBRARY_PATH"
-          export QT_PLUGIN_PATH="/usr/lib/train-simulation-app/plugins"
-          exec /usr/lib/train-simulation-app/TrainSimulationApp "$@"
-          LAUNCHER
+          # Launcher
+          printf '#!/bin/bash\nINSTALL_LIB="/usr/lib/train-simulation-app"\nexport LD_LIBRARY_PATH="${INSTALL_LIB}:${LD_LIBRARY_PATH}"\nexport QT_PLUGIN_PATH="${INSTALL_LIB}/plugins"\nexport QTWEBENGINEPROCESS_PATH="${INSTALL_LIB}/QtWebEngineProcess"\nexport QTWEBENGINE_LOCALES_PATH="${INSTALL_LIB}/qtwebengine_locales"\nexec "${INSTALL_LIB}/TrainSimulationApp" "$@"\n' \
+            > "$PKG_DIR/usr/bin/train-simulation-app"
           chmod +x "$PKG_DIR/usr/bin/train-simulation-app"
 
-          # Create desktop entry
-          cat > "$PKG_DIR/usr/share/applications/train-simulation-app.desktop" <<'EOF'
-          [Desktop Entry]
-          Name=Train Simulation App
-          Comment=Train Simulation Application
-          Exec=/usr/bin/train-simulation-app
-          Icon=utilities-terminal
-          Terminal=false
-          Type=Application
-          Categories=Education;Simulation;
-          EOF
+          # Desktop entry
+          printf '[Desktop Entry]\nName=Train Simulation App\nComment=Train Simulation Application\nExec=/usr/bin/train-simulation-app\nIcon=train-simulation-app\nTerminal=false\nType=Application\nCategories=Education;Simulation;\n' \
+            > "$PKG_DIR/usr/share/applications/train-simulation-app.desktop"
 
-          # Create control file - minimal deps since we bundle Qt
-          cat > "$PKG_DIR/DEBIAN/control" <<'EOF'
-          Package: train-simulation-app
-          Version: 1.0.0
-          Section: utils
-          Priority: optional
-          Architecture: amd64
-          Depends: libc6, libstdc++6, libgcc-s1, libgl1, libxkbcommon0, libxcb1, libx11-6, libnss3, libnspr4
-          Maintainer: illufoxKusanagi
-          Description: Train Simulation Application
-           A train simulation application built with Qt 6 (backend) and Next.js (frontend).
-           Qt libraries are bundled with this package.
-          EOF
+          touch "$PKG_DIR/usr/share/icons/hicolor/256x256/apps/train-simulation-app.png"
 
-          # Build the package
-          dpkg-deb --build "$PKG_DIR"
+          # DEBIAN/control
+          printf 'Package: train-simulation-app\nVersion: 1.0.0\nSection: utils\nPriority: optional\nArchitecture: amd64\nDepends: libc6, libstdc++6, libgcc-s1, libgl1, libxkbcommon0,\n libxkbcommon-x11-0, libxcb1, libx11-6, libnss3, libnspr4,\n libxcb-icccm4, libxcb-image0, libxcb-keysyms1, libxcb-randr0,\n libxcb-render-util0, libxcb-shape0, libxcb-xinerama0, libxcb-xkb1,\n libdbus-1-3, libxcomposite1, libxdamage1, libxfixes3, libxrandr2\nMaintainer: illufoxKusanagi\nDescription: Train Simulation Application\n A train simulation application built with Qt 6 (backend) and Next.js\n (frontend). Qt libraries are bundled with this package.\n' \
+            > "$PKG_DIR/DEBIAN/control"
+
+          find "$APP_LIB" -type f -name "*.so*" -exec chmod 644 {} \;
+          chmod 755 "$APP_LIB/TrainSimulationApp" 2>/dev/null || true
+          chmod 755 "$APP_LIB/QtWebEngineProcess" 2>/dev/null || true
+
+          dpkg-deb --build --root-owner-group "$PKG_DIR"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

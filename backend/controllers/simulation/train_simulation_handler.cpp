@@ -269,18 +269,6 @@ void TrainSimulationHandler::runDynamicSimulation() {
         if (movingData->v <= 0) {
           movingData->v = 0;
           movingData->v_si = 0;
-
-          // COPILOT'S VERSION (Calculate distance deficit when train first
-          // stops and ACCUMULATE it): if (notch != AtStation && stationIndex <
-          // stationData->x_station.size()) {
-          //   double actualStop = stationData->x_odo;  // Where train actually
-          //   stopped double targetStop = stationData->x_station[stationIndex];
-          //   // Where it should stop double currentDeficit = targetStop -
-          //   actualStop;  // Positive if stopped short
-          //   stationData->x_deficit += currentDeficit;  // ACCUMULATE
-          //   the deficit
-          // }
-
           notch = AtStation;
           trainStopTime = 0;
           // Calculate deficit for THIS station and carry it forward
@@ -425,6 +413,13 @@ double TrainSimulationHandler::getMaxSpeed() {
     return 0.0;
   return *std::max_element(simulationDatas.trainSpeeds.begin(),
                            simulationDatas.trainSpeeds.end());
+}
+
+double TrainSimulationHandler::getMaxMotorPowerPerMotor() {
+  if (simulationDatas.powerMotorOutPerMotor.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.powerMotorOutPerMotor.begin(),
+                           simulationDatas.powerMotorOutPerMotor.end());
 }
 
 double TrainSimulationHandler::getMaxVvvfPower() {

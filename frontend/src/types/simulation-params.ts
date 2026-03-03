@@ -59,6 +59,8 @@ export interface SimulationSummary {
   maxPowerTime: number;
   maxEnergyConsumption: number | null;
   maxEnergyPowering: number | null;
+  // maxTrainPerMotor: number | null;
+  maxMotorPowerPerMotor: number | null; // kW/motor — max of powerMotorOutPerMotor[]
   // maxEnergyRegen: number;
   maxEnergyAps: number;
 }

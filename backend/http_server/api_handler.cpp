@@ -5,6 +5,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QtConcurrent>
 
 ApiHandler::ApiHandler(AppContext &context, QObject *parent)
     : QObject(parent), m_context(context) {
@@ -14,7 +15,8 @@ ApiHandler::ApiHandler(AppContext &context, QObject *parent)
   m_runningHandler = new RunningParameterHandler(context, this);
   m_trackHandler = new TrackParameterHandler(context, this);
   m_simulationHandler = new SimulationHandler(context, this);
-  m_optimizationHandler = new OptimizationHandler(this);
+  m_optimizationHandler = new OptimizationHandler(
+      &context, m_simulationHandler->getTrainSimulation(), this);
   // m_exportHandler = new ExportHandler(context, this);
 
   // **FIX: Initialize handlers safely with null checks**
@@ -400,14 +402,81 @@ QHttpServerResponse ApiHandler::handleCalculateMass(const QJsonObject &data) {
   return m_trainHandler->handleCalculateMass(data);
 }
 
+QHttpServerResponse ApiHandler::handleStartOptimization() {
+  QJsonObject response;
+  if (m_optimizationHandler->isRunning()) {
+    response["status"] = "error";
+    response["message"] = "Optimization already running";
+    return QHttpServerResponse(QJsonDocument(response).toJson(),
+                               QHttpServerResponse::StatusCode::Conflict);
+  }
+  // Guard: require a successful simulation before optimizing
+  if (m_simulationHandler->getTrainSimulation()->getMaxSpeed() <= 0.0) {
+    response["status"] = "error";
+    response["message"] = "Run a dynamic simulation first before optimizing";
+    return QHttpServerResponse(QJsonDocument(response).toJson(),
+                               QHttpServerResponse::StatusCode::BadRequest);
+  }
+  // Run on background thread — handleOptimization() is blocking
+  auto future = QtConcurrent::run(
+      [this]() { m_optimizationHandler->handleOptimization(); });
+  Q_UNUSED(future);
+  response["status"] = "success";
+  response["message"] =
+      "Optimization started (20 combinations: 5 acc × 4 v_p1)";
+  return QHttpServerResponse(QJsonDocument(response).toJson(),
+                             QHttpServerResponse::StatusCode::Ok);
+}
+
+QHttpServerResponse ApiHandler::handleGetOptimizationStatus() {
+  QJsonObject response;
+  response["isRunning"] = m_optimizationHandler->isRunning();
+
+  // All sweep results as a JSON array
+  QJsonArray resultsArray;
+  for (const OptResult &r : m_optimizationHandler->getResults()) {
+    QJsonObject row;
+    row["acc_start"] = r.acc_start;
+    row["v_p1"] = r.v_p1;
+    row["peakMotorPower"] = r.peakMotorPower;
+    row["travelTime"] = r.travelTime;
+    row["fuzzyScore"] = r.fuzzyScore;
+    resultsArray.append(row);
+  }
+  response["results"] = resultsArray;
+
+  // Best result (empty object while running)
+  if (!m_optimizationHandler->isRunning() &&
+      !m_optimizationHandler->getResults().isEmpty()) {
+    OptResult best = m_optimizationHandler->getBestResult();
+    QJsonObject bestObj;
+    bestObj["acc_start"] = best.acc_start;
+    bestObj["v_p1"] = best.v_p1;
+    bestObj["peakMotorPower"] = best.peakMotorPower;
+    bestObj["travelTime"] = best.travelTime;
+    bestObj["fuzzyScore"] = best.fuzzyScore;
+    response["best"] = bestObj;
+  } else {
+    response["best"] = QJsonObject();
+  }
+
+  response["totalCombinations"] = 20;
+  response["completedCombinations"] =
+      (int)m_optimizationHandler->getResults().size();
+  return QHttpServerResponse(QJsonDocument(response).toJson(),
+                             QHttpServerResponse::StatusCode::Ok);
+}
+
 // QHttpServerResponse
 // ApiHandler::handleStartOptimization(const QJsonObject &data) {
 //   QJsonObject response;
 
-//   if (!m_context.trainData || !m_context.massData || !m_context.stationData) {
+//   if (!m_context.trainData || !m_context.massData || !m_context.stationData)
+//   {
 //     response["status"] = "error";
-//     response["message"] = "Context data (Train/Mass/Station) not initialized";
-//     return QHttpServerResponse(QJsonDocument(response).toJson(),
+//     response["message"] = "Context data (Train/Mass/Station) not
+//     initialized"; return
+//     QHttpServerResponse(QJsonDocument(response).toJson(),
 //                                QHttpServerResponse::StatusCode::BadRequest);
 //   }
 

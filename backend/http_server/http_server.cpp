@@ -407,10 +407,9 @@ void HttpServer::setupRoutes() {
   // Optimization endpoints
   m_httpServer->route(
       "/api/optimization/start", QHttpServerRequest::Method::Post,
-      [this, addCorsHeaders](const QHttpServerRequest &request) {
+      [this, addCorsHeaders](const QHttpServerRequest &) {
         qDebug() << "🚀 POST /api/optimization/start";
-        QJsonObject data = parseRequestBody(request);
-        return addCorsHeaders(m_apiHandler->handleStartOptimization(data));
+        return addCorsHeaders(m_apiHandler->handleStartOptimization());
       });
 
   m_httpServer->route("/api/optimization/start",
@@ -421,42 +420,12 @@ void HttpServer::setupRoutes() {
                       });
 
   m_httpServer->route(
-      "/api/optimization/stop", QHttpServerRequest::Method::Post,
-      [this, addCorsHeaders](const QHttpServerRequest &) {
-        qDebug() << "🛑 POST /api/optimization/stop";
-        return addCorsHeaders(m_apiHandler->handleStopOptimization());
-      });
-
-  m_httpServer->route("/api/optimization/stop",
-                      QHttpServerRequest::Method::Options,
-                      [addCorsHeaders](const QHttpServerRequest &) {
-                        return addCorsHeaders(QHttpServerResponse(
-                            QHttpServerResponse::StatusCode::Ok));
-                      });
-
-  m_httpServer->route(
       "/api/optimization/status", QHttpServerRequest::Method::Get,
       [this, addCorsHeaders](const QHttpServerRequest &) {
-        // Log less frequently or just debug info
-        // qDebug() << "📊 GET /api/optimization/status";
         return addCorsHeaders(m_apiHandler->handleGetOptimizationStatus());
       });
 
   m_httpServer->route("/api/optimization/status",
-                      QHttpServerRequest::Method::Options,
-                      [addCorsHeaders](const QHttpServerRequest &) {
-                        return addCorsHeaders(QHttpServerResponse(
-                            QHttpServerResponse::StatusCode::Ok));
-                      });
-
-  m_httpServer->route(
-      "/api/optimization/apply", QHttpServerRequest::Method::Post,
-      [this, addCorsHeaders](const QHttpServerRequest &) {
-        qDebug() << "✅ POST /api/optimization/apply";
-        return addCorsHeaders(m_apiHandler->handleApplyOptimization());
-      });
-
-  m_httpServer->route("/api/optimization/apply",
                       QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
                         return addCorsHeaders(QHttpServerResponse(

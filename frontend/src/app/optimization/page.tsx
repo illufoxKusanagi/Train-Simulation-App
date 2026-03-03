@@ -4,320 +4,373 @@ import { useState, useEffect, useRef } from "react";
 import { api } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-} from "recharts";
 import { toast } from "sonner";
 import {
   Play,
-  Square,
-  Check,
   Loader2,
-  TrendingUp,
+  Trophy,
   Zap,
   Clock,
+  Activity,
+  Gauge,
 } from "lucide-react";
 import PageLayout from "@/components/page-layout";
 
+interface OptResult {
+  acc_start: number; // m/s²
+  v_p1: number; // km/h
+  peakMotorPower: number; // kW/motor
+  travelTime: number; // seconds
+  fuzzyScore: number; // 0–100
+}
+
+function scoreColor(score: number): string {
+  if (score >= 75) return "text-green-500";
+  if (score >= 50) return "text-yellow-500";
+  if (score >= 25) return "text-orange-500";
+  return "text-red-500";
+}
+
+function scoreLabel(score: number): string {
+  if (score >= 75) return "Excellent";
+  if (score >= 50) return "Good";
+  if (score >= 25) return "Fair";
+  return "Poor";
+}
+
+function scoreBadgeClass(score: number): string {
+  if (score >= 75)
+    return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+  if (score >= 50)
+    return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+  if (score >= 25)
+    return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200";
+  return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+}
+
 export default function OptimizationPage() {
   const [isRunning, setIsRunning] = useState(false);
-  const [iteration, setIteration] = useState(0);
-  const [score, setScore] = useState(0);
-  const [label, setLabel] = useState("Not Started");
-  const [history, setHistory] = useState<{ iter: number; score: number }[]>([]);
-  const [bestParams, setBestParams] = useState<Record<string, number> | null>(
-    null
-  );
-  const [metrics, setMetrics] = useState<{
-    time: number;
-    powerPerMotor: number;
-  }>({ time: 0, powerPerMotor: 0 });
+  const [hasStarted, setHasStarted] = useState(false);
+  const [results, setResults] = useState<OptResult[]>([]);
+  const [best, setBest] = useState<OptResult | null>(null);
+  const [completed, setCompleted] = useState(0);
+  const [total, setTotal] = useState(20);
 
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  const startOptimization = async () => {
-    try {
-      setIsRunning(true);
-      setHistory([]);
-      await api.startOptimization();
-      toast.success("Optimization started");
-      startPolling();
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to start optimization");
-      setIsRunning(false);
-    }
-  };
-
-  const stopOptimization = async () => {
-    try {
-      await api.stopOptimization();
-      toast.info("Stopping optimization...");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to stop optimization");
-    }
-  };
-
-  const applyOptimization = async () => {
-    try {
-      await api.applyOptimization();
-      toast.success("Optimization results applied to train parameters!");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to apply results");
+  const stopPolling = () => {
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
     }
   };
 
   const startPolling = () => {
-    if (pollingRef.current) clearInterval(pollingRef.current);
+    stopPolling();
     pollingRef.current = setInterval(async () => {
       try {
         const status = await api.getOptimizationStatus();
         setIsRunning(status.isRunning);
-        setIteration(status.iteration);
-        setScore(status.suitabilityScore);
-        setLabel(status.suitabilityLabel);
-        setBestParams(status.optimizedTrain);
+        setResults(status.results);
+        setCompleted(status.completedCombinations);
+        setTotal(status.totalCombinations);
 
-        if (status.travelTime !== undefined) {
-          // Use actual metrics from backend
-          setMetrics({
-            time: status.travelTime || 0,
-            powerPerMotor: status.maxPowerMotorPerMotor || 0,
-          });
-        } else if (status.debug_speed !== undefined) {
-          // Fallback to debug metrics if new fields missing (should not happen after update)
-          setMetrics({
-            time: status.debug_acc || 0,
-            powerPerMotor: status.debug_wp || 0,
-          });
-        }
+        const hasBest =
+          status.best &&
+          typeof status.best === "object" &&
+          "fuzzyScore" in status.best;
+        setBest(hasBest ? (status.best as OptResult) : null);
 
-        // Update chart history
-        const newHistory = status.scoreHistory.map((s, i) => ({
-          iter: i + 1,
-          score: s,
-        }));
-        setHistory(newHistory);
-
-        if (!status.isRunning) {
-          if (pollingRef.current) clearInterval(pollingRef.current);
-          toast.success("Optimization finished!");
+        if (!status.isRunning && status.completedCombinations > 0) {
+          stopPolling();
+          toast.success(
+            `Optimization complete — ${status.completedCombinations} combinations evaluated`,
+          );
         }
       } catch (error) {
         console.error("Polling error", error);
       }
-    }, 500);
+    }, 1500);
   };
 
+  // On mount: restore previous results from backend (survives page navigation).
+  // Backend OptimizationHandler keeps m_results in memory as long as the
+  // Qt process is alive, so switching pages and coming back restores state.
   useEffect(() => {
-    return () => {
-      if (pollingRef.current) clearInterval(pollingRef.current);
-    };
+    api
+      .getOptimizationStatus()
+      .then((status) => {
+        if (status.completedCombinations > 0 || status.isRunning) {
+          setResults(status.results);
+          setCompleted(status.completedCombinations);
+          setTotal(status.totalCombinations);
+          setHasStarted(true);
+          setIsRunning(status.isRunning);
+          const hasBest =
+            status.best &&
+            typeof status.best === "object" &&
+            "fuzzyScore" in status.best;
+          setBest(hasBest ? (status.best as OptResult) : null);
+          if (status.isRunning) startPolling();
+        }
+      })
+      .catch(() => {
+        /* backend not ready yet — ignore */
+      });
+    return () => stopPolling();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleStart = async () => {
+    try {
+      setResults([]);
+      setBest(null);
+      setCompleted(0);
+      setHasStarted(true);
+      await api.startOptimization();
+      toast.success("Optimization started (5 acc × 4 v_p1 = 20 combinations)");
+      setIsRunning(true);
+      startPolling();
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to start optimization",
+      );
+      setIsRunning(false);
+      setHasStarted(false);
+    }
+  };
+
+  const progressPct = total > 0 ? Math.round((completed / total) * 100) : 0;
 
   return (
     <PageLayout>
       <div className="container mx-auto p-6 space-y-6">
-        <div className="flex justify-between items-center">
+        {/* Header */}
+        <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
               Fuzzy Optimization
             </h1>
-            <p className="text-muted-foreground">
-              Optimize train parameters for best Travel Time and Energy
-              Efficiency.
+            <p className="text-muted-foreground mt-1">
+              Parameter sweep: 5 acceleration × 4 field-weakening speed = 20
+              combinations, scored by Mamdani fuzzy logic.
             </p>
           </div>
-          <div className="flex gap-2">
-            {!isRunning ? (
-              <Button
-                onClick={startOptimization}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                <Play className="mr-2 h-4 w-4" /> Start Optimization
-              </Button>
+          <Button
+            onClick={handleStart}
+            disabled={isRunning}
+            className="bg-green-600 hover:bg-green-700 disabled:opacity-60"
+          >
+            {isRunning ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Running…
+              </>
             ) : (
-              <Button onClick={stopOptimization} variant="destructive">
-                <Square className="mr-2 h-4 w-4" /> Stop
-              </Button>
+              <>
+                <Play className="mr-2 h-4 w-4" /> Start Optimization
+              </>
             )}
-            <Button
-              onClick={applyOptimization}
-              disabled={isRunning || !bestParams}
-              variant="secondary"
-            >
-              <Check className="mr-2 h-4 w-4" /> Apply Results
-            </Button>
-          </div>
+          </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Status Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Current Status</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Iteration</span>
-                <span className="text-2xl font-bold">{iteration}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Suitability Score</span>
-                <span
-                  className={`text-2xl font-bold ${
-                    score > 0.8
-                      ? "text-green-500"
-                      : score > 0.5
-                      ? "text-yellow-500"
-                      : "text-red-500"
-                  }`}
-                >
-                  {score.toFixed(4)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Verdict</span>
-                <span className="px-2 py-1 rounded bg-secondary text-secondary-foreground text-sm font-semibold">
-                  {label}
-                </span>
-              </div>
-              {isRunning && (
-                <div className="flex items-center justify-center py-4">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        {/* Progress bar */}
+        {hasStarted && (
+          <div className="space-y-1">
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>Progress</span>
+              <span>
+                {completed} / {total} combinations
+              </span>
+            </div>
+            <div className="w-full bg-secondary rounded-full h-2">
+              <div
+                className="bg-primary h-2 rounded-full transition-all duration-500"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+          </div>
+        )}
 
-          {/* Metrics Card */}
-          <Card>
+        {/* Winner Card */}
+        {best && (
+          <Card className="border-2 border-yellow-400 dark:border-yellow-500">
             <CardHeader>
-              <CardTitle>Best Candidate Metrics</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
-                  <Clock className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Travel Time</p>
-                  <p className="text-xl font-bold">
-                    {metrics.time > 0 ? metrics.time.toFixed(1) : "---"} s
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-full">
-                  <Zap className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Power per Motor
-                  </p>
-                  <p className="text-xl font-bold">
-                    {metrics.powerPerMotor > 0
-                      ? metrics.powerPerMotor.toFixed(2)
-                      : "---"}{" "}
-                    kW
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Parameters Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Optimized Parameters</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
+                <Trophy className="h-6 w-6" />
+                Best Combination
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              {bestParams ? (
-                <div className="space-y-2">
-                  <div className="flex justify-between border-b pb-2">
-                    <span>Gear Ratio</span>
-                    <span className="font-mono font-bold">
-                      {bestParams.gearRatio.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between border-b pb-2">
-                    <span>Motor Count (n_tm)</span>
-                    <span className="font-mono font-bold">
-                      {bestParams.n_tm}
-                    </span>
-                  </div>
-                  {/* Add more params if optimized */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {/* Fuzzy Score */}
+                <div className="flex flex-col items-center p-4 bg-secondary rounded-lg col-span-2 md:col-span-1">
+                  <Activity className="h-6 w-6 mb-2 text-primary" />
+                  <p className="text-xs text-muted-foreground">Fuzzy Score</p>
+                  <p
+                    className={`text-3xl font-black ${scoreColor(best.fuzzyScore)}`}
+                  >
+                    {best.fuzzyScore.toFixed(1)}
+                  </p>
+                  <span
+                    className={`mt-1 text-xs font-semibold px-2 py-0.5 rounded-full ${scoreBadgeClass(
+                      best.fuzzyScore,
+                    )}`}
+                  >
+                    {scoreLabel(best.fuzzyScore)}
+                  </span>
                 </div>
-              ) : (
-                <div className="text-center text-muted-foreground py-8">
-                  No optimization results yet.
+
+                <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
+                  <Gauge className="h-6 w-6 mb-2 text-blue-500" />
+                  <p className="text-xs text-muted-foreground">Accel. Start</p>
+                  <p className="text-2xl font-bold">
+                    {best.acc_start.toFixed(2)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">m/s²</p>
                 </div>
-              )}
+
+                <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
+                  <Activity className="h-6 w-6 mb-2 text-purple-500" />
+                  <p className="text-xs text-muted-foreground">
+                    v_p1 (FW Start)
+                  </p>
+                  <p className="text-2xl font-bold">{best.v_p1.toFixed(1)}</p>
+                  <p className="text-xs text-muted-foreground">km/h</p>
+                </div>
+
+                <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
+                  <Zap className="h-6 w-6 mb-2 text-yellow-500" />
+                  <p className="text-xs text-muted-foreground">
+                    Peak Power/Motor
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {best.peakMotorPower.toFixed(1)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">kW</p>
+                </div>
+
+                <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
+                  <Clock className="h-6 w-6 mb-2 text-green-500" />
+                  <p className="text-xs text-muted-foreground">Travel Time</p>
+                  <p className="text-2xl font-bold">
+                    {best.travelTime.toFixed(0)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">seconds</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        </div>
+        )}
 
-        {/* Chart */}
-        <Card className="col-span-1 md:col-span-3">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" /> Optimization Progress
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="h-[400px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={history}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis
-                  dataKey="iter"
-                  label={{
-                    value: "Iteration",
-                    position: "insideBottomRight",
-                    offset: -5,
-                  }}
-                />
-                <YAxis
-                  domain={[0, 1]}
-                  label={{
-                    value: "Suitability Score",
-                    angle: -90,
-                    position: "insideLeft",
-                  }}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    borderColor: "hsl(var(--border))",
-                  }}
-                  itemStyle={{ color: "hsl(var(--foreground))" }}
-                />
-                <ReferenceLine
-                  y={0.85}
-                  label="Target"
-                  stroke="green"
-                  strokeDasharray="3 3"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="score"
-                  stroke="hsl(var(--primary))"
-                  strokeWidth={3}
-                  dot={false}
-                  activeDot={{ r: 8 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        {/* Results Table */}
+        {results.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                All Combinations ({results.length} / {total})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-muted-foreground">
+                    <th className="text-left py-2 pr-4 font-semibold">#</th>
+                    <th className="text-right py-2 pr-4 font-semibold">
+                      acc_start (m/s²)
+                    </th>
+                    <th className="text-right py-2 pr-4 font-semibold">
+                      v_p1 (km/h)
+                    </th>
+                    <th className="text-right py-2 pr-4 font-semibold">
+                      Peak Power/Motor (kW)
+                    </th>
+                    <th className="text-right py-2 pr-4 font-semibold">
+                      Travel Time (s)
+                    </th>
+                    <th className="text-right py-2 font-semibold">
+                      Fuzzy Score
+                    </th>
+                    <th className="text-center py-2 pl-4 font-semibold">
+                      Grade
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map((r, i) => {
+                    const isBest =
+                      best &&
+                      r.acc_start === best.acc_start &&
+                      r.v_p1 === best.v_p1;
+                    return (
+                      <tr
+                        key={i}
+                        className={`border-b transition-colors ${
+                          isBest
+                            ? "bg-yellow-50 dark:bg-yellow-950 font-semibold"
+                            : "hover:bg-muted/30"
+                        }`}
+                      >
+                        <td className="py-2 pr-4">
+                          {isBest ? (
+                            <span className="flex items-center gap-1">
+                              <Trophy className="h-3 w-3 text-yellow-500" />
+                              {i + 1}
+                            </span>
+                          ) : (
+                            i + 1
+                          )}
+                        </td>
+                        <td className="text-right py-2 pr-4 font-mono">
+                          {r.acc_start.toFixed(2)}
+                        </td>
+                        <td className="text-right py-2 pr-4 font-mono">
+                          {r.v_p1.toFixed(1)}
+                        </td>
+                        <td className="text-right py-2 pr-4 font-mono">
+                          {r.peakMotorPower.toFixed(1)}
+                        </td>
+                        <td className="text-right py-2 pr-4 font-mono">
+                          {r.travelTime.toFixed(0)}
+                        </td>
+                        <td
+                          className={`text-right py-2 pr-2 font-mono font-bold ${scoreColor(
+                            r.fuzzyScore,
+                          )}`}
+                        >
+                          {r.fuzzyScore.toFixed(2)}
+                        </td>
+                        <td className="text-center py-2 pl-4">
+                          <span
+                            className={`text-xs font-semibold px-2 py-0.5 rounded-full ${scoreBadgeClass(
+                              r.fuzzyScore,
+                            )}`}
+                          >
+                            {scoreLabel(r.fuzzyScore)}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Empty state */}
+        {!hasStarted && (
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-16 gap-4 text-muted-foreground">
+              <Activity className="h-12 w-12 opacity-30" />
+              <p className="text-lg font-medium">No optimization results yet</p>
+              <p className="text-sm">
+                Click <strong>Start Optimization</strong> to run the
+                20-combination fuzzy parameter sweep.
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </PageLayout>
   );

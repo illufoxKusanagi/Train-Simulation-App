@@ -61,6 +61,7 @@ public:
   double getMaxSpeed();
   double getMaxVvvfPower();
   double getMaxCatenaryPower();
+  double getMaxMotorPowerPerMotor();
   double getMaxVvvfCurrent();
   double getMaxCatenaryCurrent();
   double getMaxTractionEffort();
@@ -73,6 +74,7 @@ public:
   double getMaxPowTime();
   double getAdhesion();
 
+  void runDynamicSimulation();
   bool validateDataInitialized();
   bool validateCsvVariables();
   void clearWarnings() { m_simulationWarnings->clear(); }
@@ -147,7 +149,6 @@ private:
   void setCsvVariablesData();
   void addEnergySimulationDatas();
   void addStationSimulationDatas();
-  void runDynamicSimulation();
   void runStaticSimulation();
   QMutex *m_simulationMutex;
   QFuture<void> m_simulationFuture;

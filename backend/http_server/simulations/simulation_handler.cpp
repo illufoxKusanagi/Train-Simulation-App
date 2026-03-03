@@ -128,7 +128,8 @@ QJsonObject SimulationHandler::getDynamicResults() {
     point["rpm"] = simulationDatas->rpm[i];
     point["powerWheel"] = simulationDatas->powerWheel[i];
     point["powerMotorOut"] = simulationDatas->powerMotorOut[i];
-    point["powerMotorOutputPerMotor"] = simulationDatas->powerMotorOutPerMotor[i];
+    point["powerMotorOutputPerMotor"] =
+        simulationDatas->powerMotorOutPerMotor[i];
     point["powerMotorIn"] = simulationDatas->powerMotorIn[i];
     point["vvvfPowers"] = simulationDatas->vvvfPowers[i];
 
@@ -214,7 +215,8 @@ QJsonObject SimulationHandler::getStaticResults() {
     point["rpm"] = simulationDatas->rpm[i];
     point["powerWheel"] = simulationDatas->powerWheel[i];
     point["powerMotorOut"] = simulationDatas->powerMotorOut[i];
-    point["powerMotorOutputPerMotor"] = simulationDatas->powerMotorOutPerMotor[i];
+    point["powerMotorOutputPerMotor"] =
+        simulationDatas->powerMotorOutPerMotor[i];
     point["powerMotorIn"] = simulationDatas->powerMotorIn[i];
     point["vvvfPowers"] = simulationDatas->vvvfPowers[i];
 
@@ -340,6 +342,8 @@ QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
         // if (m_currentSimulationType == "dynamic") {
         summary["maxCatenaryPower"] = m_trainSimulation->getMaxCatenaryPower();
         summary["maxVvvfPower"] = m_trainSimulation->getMaxVvvfPower();
+        summary["maxMotorPowerPerMotor"] =
+            m_trainSimulation->getMaxMotorPowerPerMotor();
         summary["maxCatenaryCurrent"] =
             m_trainSimulation->getMaxCatenaryCurrent();
         summary["maxVvvfCurrent"] = m_trainSimulation->getMaxVvvfCurrent();

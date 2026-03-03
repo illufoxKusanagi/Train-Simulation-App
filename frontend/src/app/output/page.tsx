@@ -187,7 +187,7 @@ export default function OutputPage() {
         csvContent.length,
         "chars, ",
         csvRows.length - 1,
-        "data rows)"
+        "data rows)",
       );
 
       // Use native file dialog if available
@@ -196,7 +196,7 @@ export default function OutputPage() {
           const result = await window.fileBridge.saveFileDialog(
             csvContent,
             filename,
-            "CSV Files (*.csv);;All Files (*.*)"
+            "CSV Files (*.csv);;All Files (*.*)",
           );
 
           if (result.success) {
@@ -231,14 +231,14 @@ export default function OutputPage() {
 
       // For now, file goes to Downloads. To enable file picker:
       toast(
-        `✅ CSV file downloaded successfully!\n📁 Location: ~/Downloads/${filename}\n\n🔧 To choose save location, you need Qt WebChannel integration.\nSee: NATIVE-FILE-DIALOG-INTEGRATION.md`
+        `✅ CSV file downloaded successfully!\n📁 Location: ~/Downloads/${filename}\n\n🔧 To choose save location, you need Qt WebChannel integration.\nSee: NATIVE-FILE-DIALOG-INTEGRATION.md`,
       );
     } catch (error) {
       console.error("💥 CSV Download Failed:", error);
       toast(
         `❌ CSV Download Error: ${
           error instanceof Error ? error.message : String(error)
-        }`
+        }`,
       );
     }
   };
@@ -310,7 +310,7 @@ export default function OutputPage() {
       XLSX.utils.book_append_sheet(
         workbook,
         worksheet,
-        "Train Simulation Data"
+        "Train Simulation Data",
       );
 
       // QT WebEngine Desktop Excel Save Integration
@@ -319,7 +319,7 @@ export default function OutputPage() {
       // Check if Qt WebChannel bridge is available
       if (typeof window !== "undefined" && window.fileBridge) {
         console.log(
-          "🔌 Qt WebChannel fileBridge detected - using native Excel file dialog"
+          "🔌 Qt WebChannel fileBridge detected - using native Excel file dialog",
         );
         try {
           const buffer = XLSX.write(workbook, {
@@ -332,12 +332,12 @@ export default function OutputPage() {
           const result = await window.fileBridge.saveBinaryFileDialog(
             dataArray,
             filename,
-            "Excel Files (*.xlsx);;All Files (*.*)"
+            "Excel Files (*.xlsx);;All Files (*.*)",
           );
 
           if (result && result.success) {
             toast(
-              `✅ Excel file saved successfully!\n📁 Location: ${result.filepath}`
+              `✅ Excel file saved successfully!\n📁 Location: ${result.filepath}`,
             );
             return;
           } else if (result && result.error) {
@@ -353,14 +353,14 @@ export default function OutputPage() {
           toast(
             `❌ Qt WebChannel error: ${
               qtError instanceof Error ? qtError.message : String(qtError)
-            }`
+            }`,
           );
           return;
         }
       } else {
         console.log("⚠️ Qt WebChannel fileBridge not available");
         toast(
-          "❌ Native file dialog not available. Qt WebChannel integration required."
+          "❌ Native file dialog not available. Qt WebChannel integration required.",
         );
         return;
       }
@@ -374,14 +374,14 @@ export default function OutputPage() {
 
       // For now, file goes to Downloads. To enable file picker:
       toast(
-        `✅ Excel file downloaded successfully!\n📁 Location: ~/Downloads/${filename}\n\n🔧 To choose save location, you need Qt WebChannel integration.\nSee: NATIVE-FILE-DIALOG-INTEGRATION.md`
+        `✅ Excel file downloaded successfully!\n📁 Location: ~/Downloads/${filename}\n\n🔧 To choose save location, you need Qt WebChannel integration.\nSee: NATIVE-FILE-DIALOG-INTEGRATION.md`,
       );
     } catch (error) {
       console.error("💥 Excel Download Failed:", error);
       toast(
         `❌ Excel Download Error: ${
           error instanceof Error ? error.message : String(error)
-        }`
+        }`,
       );
     }
   };
@@ -464,7 +464,7 @@ export default function OutputPage() {
                   maxPowerTime: 0.8,
                   maxEnergyConsumption: 68,
                   maxEnergyPowering: 63,
-                  // maxEnergyRegen: 0,
+                  maxMotorPowerPerMotor: 320,
                   maxEnergyAps: 5,
                 },
               };
@@ -472,7 +472,7 @@ export default function OutputPage() {
               setResults(mockData);
               sessionStorage.setItem(
                 "simulationResults",
-                JSON.stringify(mockData)
+                JSON.stringify(mockData),
               );
               console.log("Mock data generated:", mockData);
             }}
@@ -539,14 +539,14 @@ export default function OutputPage() {
               </CardTitle>
             </CardHeader>
           </Card>
-          {/* <Card>
+          <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Max Energy Regen</CardDescription>
+              <CardDescription>Max Power per Motor</CardDescription>
               <CardTitle className="text-2xl">
-                {(results.summary?.maxEnergyRegen ?? 0).toFixed(2)} kWh
+                {(results.summary?.maxMotorPowerPerMotor ?? 0).toFixed(2)} kW
               </CardTitle>
             </CardHeader>
-          </Card> */}
+          </Card>
           <Card>
             <CardHeader className="pb-2">
               <CardDescription>Max VVVF Current</CardDescription>
@@ -676,7 +676,7 @@ export default function OutputPage() {
                                   : "N/A"}
                               </td>
                             </tr>
-                          )
+                          ),
                         )}
                       </tbody>
                     </table>
