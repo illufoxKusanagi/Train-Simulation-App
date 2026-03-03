@@ -39,11 +39,12 @@ jobs:
           flatpak remote-add --if-not-exists --user flathub \
             https://dl.flathub.org/repo/flathub.flatpakrepo
 
-      - name: Install KDE Platform & SDK 6.7
+      - name: Install Flatpak runtimes
         run: |
           flatpak install --user --noninteractive flathub \
-            org.kde.Platform//6.7 \
-            org.kde.Sdk//6.7
+            org.freedesktop.Platform//23.08 \
+            org.freedesktop.Sdk//23.08 \
+            io.qt.qtwebengine.BaseApp//6.7
 
       - name: Generate Flatpak manifest
         run: |
@@ -79,10 +80,11 @@ jobs:
 
           manifest = {
               "app-id": APP_ID,
-              "runtime": "org.kde.Platform",
-              "runtime-version": "6.7",
-              "sdk": "org.kde.Sdk",
-              "sdk-version": "6.7",
+              "runtime": "org.freedesktop.Platform",
+              "runtime-version": "23.08",
+              "sdk": "org.freedesktop.Sdk",
+              "base": "io.qt.qtwebengine.BaseApp",
+              "base-version": "6.7",
               "command": "TrainSimulationApp",
               "finish-args": [
                   "--share=network",
