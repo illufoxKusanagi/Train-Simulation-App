@@ -135,6 +135,7 @@ jobs:
                 "config-opts": [
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DCMAKE_PREFIX_PATH=/app",
+                  "-DQt6_DIR=/app/lib/cmake/Qt6",
                   "-DCMAKE_INSTALL_PREFIX=/app",
                 ],
                 "sources": [{
