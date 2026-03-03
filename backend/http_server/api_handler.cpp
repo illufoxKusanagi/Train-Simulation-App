@@ -402,14 +402,13 @@ QHttpServerResponse ApiHandler::handleCalculateMass(const QJsonObject &data) {
   return m_trainHandler->handleCalculateMass(data);
 }
 
+ApiHandler::~ApiHandler() {
+  if (m_optimizationFuture.isRunning())
+    m_optimizationFuture.waitForFinished();
+}
+
 QHttpServerResponse ApiHandler::handleStartOptimization() {
   QJsonObject response;
-  if (m_optimizationHandler->isRunning()) {
-    response["status"] = "error";
-    response["message"] = "Optimization already running";
-    return QHttpServerResponse(QJsonDocument(response).toJson(),
-                               QHttpServerResponse::StatusCode::Conflict);
-  }
   // Guard: require a successful simulation before optimizing
   if (m_simulationHandler->getTrainSimulation()->getMaxSpeed() <= 0.0) {
     response["status"] = "error";
@@ -417,10 +416,10 @@ QHttpServerResponse ApiHandler::handleStartOptimization() {
     return QHttpServerResponse(QJsonDocument(response).toJson(),
                                QHttpServerResponse::StatusCode::BadRequest);
   }
-  // Run on background thread — handleOptimization() is blocking
-  auto future = QtConcurrent::run(
+  // Run on background thread — handleOptimization() is blocking.
+  // The atomic inside handleOptimization() already guards re-entry.
+  m_optimizationFuture = QtConcurrent::run(
       [this]() { m_optimizationHandler->handleOptimization(); });
-  Q_UNUSED(future);
   response["status"] = "success";
   response["message"] =
       "Optimization started (20 combinations: 5 acc × 4 v_p1)";

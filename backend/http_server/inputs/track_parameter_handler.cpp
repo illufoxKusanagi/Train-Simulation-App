@@ -99,14 +99,13 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
             m_context.stationData->x_station.size() + 1;
       }
 
-      std::cout << "DATA_DEBUG: x_station (Segment Distances) size: "
-                << m_context.stationData->x_station.size() << std::endl;
+      qDebug() << "[Track] x_station size:"
+               << m_context.stationData->x_station.size();
       if (!m_context.stationData->x_station.empty()) {
         QString stationsStr;
         for (double val : m_context.stationData->x_station)
           stationsStr += QString::number(val) + ", ";
-        std::cout << "DATA_DEBUG: Segments: " << stationsStr.toStdString()
-                  << std::endl;
+        qDebug() << "[Track] segments:" << stationsStr;
       }
     }
 
@@ -215,23 +214,11 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
       }
     }
 
-    // ADDED: Include debug info in the response message
-    QString debugMsg = "Track parameters updated successfully. ";
-    if (!m_context.stationData->x_station.empty()) {
-      debugMsg += QString("Stations: %1, First: %2")
-                      .arg(m_context.stationData->x_station.size())
-                      .arg(m_context.stationData->x_station[0]);
-    } else {
-      debugMsg += "Warning: No stations in x_station vector.";
-    }
-
     response["status"] = "success";
-    response["message"] = debugMsg;
-    // qDebug() << "✅ Track parameters updated successfully";
+    response["message"] = "Track parameters updated successfully";
+    // qDebug() << "\u2705 Track parameters updated successfully";
   } catch (const std::exception &e) {
-    // qDebug() << "💥 Exception in handleUpdateTrackParameters:" << e.what();
-    std::cout << "Exception in handleUpdateTrackParameters: " << e.what()
-              << std::endl;
+    qDebug() << "Exception in handleUpdateTrackParameters:" << e.what();
     response["status"] = "error";
     response["message"] =
         QString("Error updating parameters: %1").arg(e.what());

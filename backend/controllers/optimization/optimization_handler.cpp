@@ -147,7 +147,10 @@ void OptimizationHandler::handleOptimization() {
   qDebug() << "Optimization sweep — acc:" << accValues
            << "| v_p1:" << vp1Values;
 
-  m_results.clear();
+  {
+    QMutexLocker lk(&m_resultsMutex);
+    m_results.clear();
+  }
 
   // ── PASS 1: simulate all combinations, record raw metrics ──────────────
   qDebug() << "=== Optimization Pass 1: running"
@@ -160,21 +163,24 @@ void OptimizationHandler::handleOptimization() {
 
   for (double acc : accValues) {
     for (double vp1 : vp1Values) {
-      m_movingData->acc_start = acc;
-      m_movingData->v_p1 = vp1;
-      m_trainSimulation->runDynamicSimulation();
-
-      if (m_simulationDatas->powerMotorOutPerMotor.isEmpty() ||
-          m_simulationDatas->timeTotal.isEmpty()) {
-        qWarning() << "Pass1: empty result for acc=" << acc << "vp1=" << vp1;
-        continue;
-      }
-
       RawEntry e;
-      e.acc = acc;
-      e.vp1 = vp1;
-      e.peakPower = findMaximumPowerMotorPerCar();
-      e.travelTime = m_simulationDatas->timeTotal.last();
+      {
+        QMutexLocker locker(m_simulationMutex);
+        m_movingData->acc_start = acc;
+        m_movingData->v_p1 = vp1;
+        m_trainSimulation->runDynamicSimulation();
+
+        if (m_simulationDatas->powerMotorOutPerMotor.isEmpty() ||
+            m_simulationDatas->timeTotal.isEmpty()) {
+          qWarning() << "Pass1: empty result for acc=" << acc << "vp1=" << vp1;
+          continue;
+        }
+
+        e.acc = acc;
+        e.vp1 = vp1;
+        e.peakPower = findMaximumPowerMotorPerCar();
+        e.travelTime = m_simulationDatas->timeTotal.last();
+      } // locker released here
       rawData.append(e);
 
       qDebug()
@@ -188,8 +194,11 @@ void OptimizationHandler::handleOptimization() {
   }
 
   // Always restore user parameters, even if Pass 1 produced zero results
-  m_movingData->acc_start = originalAcc;
-  m_movingData->v_p1 = originalVp1;
+  {
+    QMutexLocker locker(m_simulationMutex);
+    m_movingData->acc_start = originalAcc;
+    m_movingData->v_p1 = originalVp1;
+  }
 
   if (rawData.isEmpty()) {
     qWarning() << "Optimization: no valid results from Pass 1.";
@@ -219,25 +228,29 @@ void OptimizationHandler::handleOptimization() {
   setupFuzzyEngine(minT, maxT, minP, maxP);
 
   qDebug() << "=== Optimization Pass 2: scoring ===";
-  for (const RawEntry &e : rawData) {
-    OptResult r;
-    r.acc_start = e.acc;
-    r.v_p1 = e.vp1;
-    r.peakMotorPower = e.peakPower;
-    r.travelTime = e.travelTime;
-    r.fuzzyScore = evaluateFuzzyScore(e.travelTime, e.peakPower);
-    m_results.append(r);
+  {
+    QMutexLocker lk(&m_resultsMutex);
+    for (const RawEntry &e : rawData) {
+      OptResult r;
+      r.acc_start = e.acc;
+      r.v_p1 = e.vp1;
+      r.peakMotorPower = e.peakPower;
+      r.travelTime = e.travelTime;
+      r.fuzzyScore = evaluateFuzzyScore(e.travelTime, e.peakPower);
+      m_results.append(r);
 
-    qDebug() << QString("  acc=%-4.2f  vp1=%-5.1f  score=%-6.2f")
-                    .arg(e.acc)
-                    .arg(e.vp1)
-                    .arg(r.fuzzyScore);
-  }
+      qDebug() << QString("  acc=%-4.2f  vp1=%-5.1f  score=%-6.2f")
+                      .arg(e.acc)
+                      .arg(e.vp1)
+                      .arg(r.fuzzyScore);
+    }
 
-  m_bestResult = *std::max_element(m_results.begin(), m_results.end(),
-                                   [](const OptResult &a, const OptResult &b) {
-                                     return a.fuzzyScore < b.fuzzyScore;
-                                   });
+    m_bestResult =
+        *std::max_element(m_results.begin(), m_results.end(),
+                          [](const OptResult &a, const OptResult &b) {
+                            return a.fuzzyScore < b.fuzzyScore;
+                          });
+  } // m_resultsMutex released
 
   qDebug() << "=== Optimization Complete ==="
            << "| WINNER: acc=" << m_bestResult.acc_start

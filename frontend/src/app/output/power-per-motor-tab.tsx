@@ -55,7 +55,7 @@ export default function PowerPerMotorTab({
             <LineChart data={results.results}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
-                dataKey="time"
+                dataKey="timeTotal"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}

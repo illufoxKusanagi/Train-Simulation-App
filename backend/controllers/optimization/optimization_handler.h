@@ -11,6 +11,7 @@
 #include "utils/fuzzy_engine.h"
 #include <QAtomicInt>
 #include <QMutex>
+#include <QMutexLocker>
 #include <QObject>
 #include <QThread>
 #include <memory>
@@ -37,8 +38,14 @@ public:
   void handleOptimization();
 
   // Access results after optimization completes
-  QList<OptResult> getResults() const { return m_results; }
-  OptResult getBestResult() const { return m_bestResult; }
+  QList<OptResult> getResults() const {
+    QMutexLocker lk(&m_resultsMutex);
+    return m_results;
+  }
+  OptResult getBestResult() const {
+    QMutexLocker lk(&m_resultsMutex);
+    return m_bestResult;
+  }
   bool isRunning() const { return m_isRunning.loadRelaxed() == 1; }
 
 signals:
@@ -51,7 +58,8 @@ private:
   QMutex *m_simulationMutex;
   FuzzyEngine m_fuzzyEngine;
 
-  // All 20 combo results — persists after handleOptimization() returns
+  mutable QMutex m_resultsMutex; // guards m_results and m_bestResult
+  // All sweep combo results — persists after handleOptimization() returns
   QList<OptResult> m_results;
   OptResult m_bestResult;
   QAtomicInt m_isRunning; // 1 = running, 0 = idle

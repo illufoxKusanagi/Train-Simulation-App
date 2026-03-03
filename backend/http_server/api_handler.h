@@ -13,6 +13,7 @@
 #include "inputs/track_parameter_handler.h"
 #include "inputs/train_parameter_handler.h"
 #include "simulations/simulation_handler.h"
+#include <QFuture>
 #include <QHttpServerResponse>
 #include <QJsonObject>
 #include <QObject>
@@ -22,6 +23,7 @@ class ApiHandler : public QObject {
 
 public:
   explicit ApiHandler(AppContext &context, QObject *parent = nullptr);
+  ~ApiHandler();
 
   // Health check
   QHttpServerResponse handleHealthCheck();
@@ -86,6 +88,7 @@ private:
   // PassengerHandler *m_passengerHandler;
   SimulationHandler *m_simulationHandler;
   OptimizationHandler *m_optimizationHandler;
+  QFuture<void> m_optimizationFuture;
   TrainDataHandler *m_trainDataHandler;
   ElectricalDataHandler *m_electricalDataHandler;
   RunningDataHandler *m_runningDataHandler;

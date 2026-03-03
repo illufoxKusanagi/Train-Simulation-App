@@ -82,8 +82,16 @@ public:
   void clearErrors() { m_simulationErrors->clear(); }
   QStringList getSimulationErrors() const { return *m_simulationErrors; }
   bool isSimulationRunning() const { return m_simulationFuture.isRunning(); }
-  void clearDebugLogs() { m_debugLogs.clear(); }
-  QStringList getDebugLogs() const { return m_debugLogs; }
+  // void clearDebugLogs() { m_debugLogs.clear(); }
+  // QStringList getDebugLogs() const { return m_debugLogs; }
+  void clearDebugLogs() {
+    QMutexLocker locker(m_simulationMutex);
+    m_debugLogs.clear();
+  }
+  QStringList getDebugLogs() const {
+    QMutexLocker locker(m_simulationMutex);
+    return m_debugLogs;
+  }
 
 private:
   enum Notch { AtStation, Accelerating, Coasting, Braking, None };
