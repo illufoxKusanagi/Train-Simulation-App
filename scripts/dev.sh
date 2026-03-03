@@ -218,7 +218,7 @@ run_dev() {
     print_msg "$CYAN" "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     print_msg "$GREEN" "🎉 Application ready!"
     print_msg "$MAGENTA" "   Backend API: http://localhost:8080"
-    print_msg "$MAGENTA" "   Frontend:    http://localhost:3250 (Next.js dev server)"
+    print_msg "$MAGENTA" "   Frontend:    http://localhost:3254 (Next.js dev server)"
     print_msg "$MAGENTA" "   Qt Window:   Loading frontend..."
     print_msg "$CYAN" "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""

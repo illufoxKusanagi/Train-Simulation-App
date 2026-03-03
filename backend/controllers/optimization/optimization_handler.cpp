@@ -163,24 +163,24 @@ void OptimizationHandler::handleOptimization() {
 
   for (double acc : accValues) {
     for (double vp1 : vp1Values) {
+      // Set parameters and run simulation WITHOUT holding the outer mutex.
+      // runDynamicSimulation() acquires m_simulationMutex internally for each
+      // step — holding it here too would deadlock (QMutex is non-recursive).
+      m_movingData->acc_start = acc;
+      m_movingData->v_p1 = vp1;
+      m_trainSimulation->runDynamicSimulation();
+
+      if (m_simulationDatas->powerMotorOutPerMotor.isEmpty() ||
+          m_simulationDatas->timeTotal.isEmpty()) {
+        qWarning() << "Pass1: empty result for acc=" << acc << "vp1=" << vp1;
+        continue;
+      }
+
       RawEntry e;
-      {
-        QMutexLocker locker(m_simulationMutex);
-        m_movingData->acc_start = acc;
-        m_movingData->v_p1 = vp1;
-        m_trainSimulation->runDynamicSimulation();
-
-        if (m_simulationDatas->powerMotorOutPerMotor.isEmpty() ||
-            m_simulationDatas->timeTotal.isEmpty()) {
-          qWarning() << "Pass1: empty result for acc=" << acc << "vp1=" << vp1;
-          continue;
-        }
-
-        e.acc = acc;
-        e.vp1 = vp1;
-        e.peakPower = findMaximumPowerMotorPerCar();
-        e.travelTime = m_simulationDatas->timeTotal.last();
-      } // locker released here
+      e.acc = acc;
+      e.vp1 = vp1;
+      e.peakPower = findMaximumPowerMotorPerCar();
+      e.travelTime = m_simulationDatas->timeTotal.last();
       rawData.append(e);
 
       qDebug()
@@ -193,12 +193,10 @@ void OptimizationHandler::handleOptimization() {
     }
   }
 
-  // Always restore user parameters, even if Pass 1 produced zero results
-  {
-    QMutexLocker locker(m_simulationMutex);
-    m_movingData->acc_start = originalAcc;
-    m_movingData->v_p1 = originalVp1;
-  }
+  // Restore user parameters (no mutex needed — simulation is done and we own
+  // m_movingData exclusively while m_isRunning == 1).
+  m_movingData->acc_start = originalAcc;
+  m_movingData->v_p1 = originalVp1;
 
   if (rawData.isEmpty()) {
     qWarning() << "Optimization: no valid results from Pass 1.";

@@ -81,11 +81,17 @@ export default function OptimizationPage() {
           "fuzzyScore" in status.best;
         setBest(hasBest ? (status.best as OptResult) : null);
 
-        if (!status.isRunning && status.completedCombinations > 0) {
+        if (!status.isRunning) {
           stopPolling();
-          toast.success(
-            `Optimization complete — ${status.completedCombinations} combinations evaluated`,
-          );
+          if (status.completedCombinations > 0) {
+            toast.success(
+              `Optimization complete — ${status.completedCombinations} combinations evaluated`,
+            );
+          } else {
+            toast.error("Optimization failed — no results produced");
+            setIsRunning(false);
+            setHasStarted(false);
+          }
         }
       } catch (error) {
         console.error("Polling error", error);
