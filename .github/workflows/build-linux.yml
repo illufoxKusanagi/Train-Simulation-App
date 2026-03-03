@@ -88,45 +88,6 @@ jobs:
           wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
           chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-qt-x86_64.AppImage
 
-<<<<<<< HEAD
-      - name: Build AppImage
-        run: |
-          mkdir -p AppDir/usr/bin
-          mkdir -p AppDir/usr/share/applications
-          mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
-          mkdir -p AppDir/usr/share/train-simulation-app
-
-          cp backend/build/bin/TrainSimulationApp AppDir/usr/bin/train-simulation-app
-          cp -r frontend/out/* AppDir/usr/share/train-simulation-app/
-
-          printf '[Desktop Entry]\nType=Application\nName=Train Simulation App\nComment=Train Simulation Application\nExec=train-simulation-app\nIcon=train-simulation-app\nCategories=Education;Simulation;\nTerminal=false\n' \
-            > AppDir/usr/share/applications/train-simulation-app.desktop
-
-          if [ -f "backend/resources/icon.png" ]; then
-            cp backend/resources/icon.png AppDir/usr/share/icons/hicolor/256x256/apps/train-simulation-app.png
-          else
-            printf '\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc\xf8\x0f\x00\x00\x01\x01\x00\x05\x18\xd8N\x00\x00\x00\x00IEND\xaeB\x60\x82' \
-              > AppDir/usr/share/icons/hicolor/256x256/apps/train-simulation-app.png
-          fi
-
-          export QMAKE="${QT_ROOT_DIR}/bin/qmake"
-          export QML_SOURCES_PATHS="$(pwd)/frontend"
-          export EXTRA_QT_PLUGINS="webenginewidgets;webenginecore;webchannel;positioning"
-          export APPIMAGE_EXTRACT_AND_RUN=1
-
-          ./linuxdeploy-x86_64.AppImage \
-            --appdir AppDir \
-            --plugin qt \
-            --output appimage \
-            --executable AppDir/usr/bin/train-simulation-app \
-            --desktop-file AppDir/usr/share/applications/train-simulation-app.desktop \
-            --icon-file AppDir/usr/share/icons/hicolor/256x256/apps/train-simulation-app.png
-
-          mv Train_Simulation_App-*.AppImage TrainSimulationApp-Linux-x86_64.AppImage 2>/dev/null || \
-          mv *.AppImage TrainSimulationApp-Linux-x86_64.AppImage 2>/dev/null || true
-          ls -lh TrainSimulationApp-Linux-x86_64.AppImage
-
-=======
       - name: Create AppImage
         run: |
           # Install linuxdeployqt dependencies
@@ -172,7 +133,6 @@ jobs:
           # Rename output
           mv Train_Simulation_App-*.AppImage TrainSimulationApp-Linux-x86_64.AppImage
 
->>>>>>> 793715b (fix/simulation-and-power-bug)
       - name: Upload AppImage Artifact
         uses: actions/upload-artifact@v4
         with:

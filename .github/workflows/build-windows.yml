@@ -83,14 +83,7 @@ jobs:
       - name: Deploy Qt Dependencies
         shell: powershell
         run: |
-<<<<<<< HEAD
-          $QtRoot = $env:QT_ROOT_DIR
-          if (-not $QtRoot) { $QtRoot = Split-Path (Split-Path $env:Qt6_DIR -Parent) -Parent }
-          $BinDir = "backend\\build\\bin"
 
-          if (-not (Test-Path "$BinDir\\TrainSimulationApp.exe")) {
-            Write-Error "Executable not found"; exit 1
-=======
           cd backend/build
 
           # Check if executable exists
@@ -121,7 +114,6 @@ jobs:
           if (Test-Path "../../frontend/out") {
             New-Item -ItemType Directory -Force -Path "bin/frontend"
             Copy-Item -Recurse "../../frontend/out/*" "bin/frontend/"
->>>>>>> 793715b (fix/simulation-and-power-bug)
           }
 
           & windeployqt.exe --release --compiler-runtime --verbose 1 "$BinDir\\TrainSimulationApp.exe"
