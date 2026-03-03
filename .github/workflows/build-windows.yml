@@ -113,7 +113,7 @@ jobs:
           # Copy frontend files
           if (Test-Path "../../frontend/out") {
             New-Item -ItemType Directory -Force -Path "bin/frontend"
-            Copy-Item -Recurse "../../frontend/out/*" "bin/frontend/"
+            Copy-Item -Recurse -Force "../../frontend/out/*" "bin/frontend/"
           }
 
           & windeployqt.exe --release --compiler-runtime --verbose 1 "$BinDir\\TrainSimulationApp.exe"
