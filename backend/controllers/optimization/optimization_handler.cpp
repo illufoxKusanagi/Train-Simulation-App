@@ -1,6 +1,7 @@
 #include "optimization_handler.h"
 #include "controllers/simulation/train_simulation_handler.h"
-#include "utils/fuzzy_engine.h"
+#include "utils/trapezoid_set.h"
+#include "utils/triangle_set.h"
 #include <QDebug>
 #include <algorithm>
 #include <memory>
@@ -16,84 +17,121 @@ OptimizationHandler::OptimizationHandler(
 }
 
 // =============================================================================
-// Fuzzy Engine Setup — called AFTER Pass 1 so ranges come from real data.
-//   minT/maxT : actual min/max travel time across all sweep results (s)
-//   minP/maxP : actual min/max peak motor power across all sweep results (kW)
+// Time Engine Setup — evaluates TravelTime (shaped by acc_start).
+//
+// A shorter travel time means acc_start enabled faster acceleration → better.
+// 3 input terms (Short/Medium/Long) × 1 output (TimeScore 0–100) = 3 rules.
+// Ranges are derived from actual Pass 1 data.
 // =============================================================================
-void OptimizationHandler::setupFuzzyEngine(double minT, double maxT,
-                                           double minP, double maxP) {
-  m_fuzzyEngine.clear();
+void OptimizationHandler::setupTimeEngine(double minT, double maxT) {
+  m_timeEngine.clear();
 
-  // 5% margin so boundary values still get non-zero membership
-  const double mT = (maxT - minT) * 0.05;
-  const double mP = (maxP - minP) * 0.05;
-  minT -= mT;
-  maxT += mT;
-  minP -= mP;
-  maxP += mP;
+  // 5% margin so boundary results still get non-zero membership
+  const double margin = (maxT - minT) * 0.05;
+  minT -= margin;
+  maxT += margin;
+  const double r = maxT - minT;
 
-  const double rT = maxT - minT;
-  const double rP = maxP - minP;
-
-  // ── Input 1: Travel Time — Short=fast(good), Long=slow(bad) ─────────────
+  // ── Input: TravelTime — Short=fast(good), Long=slow(bad) ─────────────────
   auto travelTime = std::make_shared<FuzzyVariable>("TravelTime", minT, maxT);
   travelTime->addTerm(std::make_shared<TrapezoidSet>(
-      "Short", minT, minT, minT + 0.25 * rT, minT + 0.45 * rT));
+      "Short", minT, minT, minT + 0.25 * r, minT + 0.45 * r));
   travelTime->addTerm(std::make_shared<TriangleSet>(
-      "Medium", minT + 0.30 * rT, minT + 0.50 * rT, minT + 0.70 * rT));
+      "Medium", minT + 0.30 * r, minT + 0.50 * r, minT + 0.70 * r));
   travelTime->addTerm(std::make_shared<TrapezoidSet>(
-      "Long", minT + 0.55 * rT, minT + 0.75 * rT, maxT, maxT));
+      "Long", minT + 0.55 * r, minT + 0.75 * r, maxT, maxT));
 
-  // ── Input 2: Motor Power — Low=efficient(good), High=hungry(bad) ─────────
-  auto motorPower = std::make_shared<FuzzyVariable>("MotorPower", minP, maxP);
-  motorPower->addTerm(std::make_shared<TrapezoidSet>(
-      "Low", minP, minP, minP + 0.25 * rP, minP + 0.45 * rP));
-  motorPower->addTerm(std::make_shared<TriangleSet>(
-      "Medium", minP + 0.30 * rP, minP + 0.50 * rP, minP + 0.70 * rP));
-  motorPower->addTerm(std::make_shared<TrapezoidSet>(
-      "High", minP + 0.55 * rP, minP + 0.75 * rP, maxP, maxP));
-
-  // ── Output: Fuzzy Score (0–100) ──────────────────────────────────────────
-  auto fuzzyScore = std::make_shared<FuzzyVariable>("FuzzyScore", 0.0, 100.0);
-  fuzzyScore->addTerm(
+  // ── Output: TimeScore (0–100) ─────────────────────────────────────────────
+  auto timeScore = std::make_shared<FuzzyVariable>("TimeScore", 0.0, 100.0);
+  timeScore->addTerm(
       std::make_shared<TrapezoidSet>("Poor", 0.0, 0.0, 15.0, 30.0));
-  fuzzyScore->addTerm(std::make_shared<TriangleSet>("Fair", 20.0, 38.0, 55.0));
-  fuzzyScore->addTerm(std::make_shared<TriangleSet>("Good", 45.0, 62.0, 78.0));
-  fuzzyScore->addTerm(
+  timeScore->addTerm(std::make_shared<TriangleSet>("Fair", 20.0, 38.0, 55.0));
+  timeScore->addTerm(std::make_shared<TriangleSet>("Good", 45.0, 62.0, 78.0));
+  timeScore->addTerm(
       std::make_shared<TrapezoidSet>("Excellent", 68.0, 82.0, 100.0, 100.0));
 
-  m_fuzzyEngine.addInputVariable(travelTime);
-  m_fuzzyEngine.addInputVariable(motorPower);
-  m_fuzzyEngine.addOutputVariable(fuzzyScore);
+  m_timeEngine.addInputVariable(travelTime);
+  m_timeEngine.addOutputVariable(timeScore);
 
-  // ── 9 Mamdani Rules (3 time × 3 power) ──────────────────────────────────
-  auto makeRule = [](const QString &time, const QString &power,
-                     const QString &score) -> FuzzyRule {
+  // ── 3 Rules for TravelTime ────────────────────────────────────────────────
+  // Rule: IF TravelTime is X → TimeScore is Y
+  auto makeRule = [](const QString &term, const QString &score) -> FuzzyRule {
     FuzzyRule r;
-    r.antecedents["TravelTime"] = time;
-    r.antecedents["MotorPower"] = power;
-    r.consequent = {"FuzzyScore", score};
+    r.antecedents["TravelTime"] = term;
+    r.consequent = {"TimeScore", score};
     return r;
   };
-  m_fuzzyEngine.addRule(makeRule("Short", "Low", "Excellent"));
-  m_fuzzyEngine.addRule(makeRule("Short", "Medium", "Good"));
-  m_fuzzyEngine.addRule(makeRule("Short", "High", "Fair"));
-  m_fuzzyEngine.addRule(makeRule("Medium", "Low", "Good"));
-  m_fuzzyEngine.addRule(makeRule("Medium", "Medium", "Good"));
-  m_fuzzyEngine.addRule(makeRule("Medium", "High", "Fair"));
-  m_fuzzyEngine.addRule(makeRule("Long", "Low", "Fair"));
-  m_fuzzyEngine.addRule(makeRule("Long", "Medium", "Poor"));
-  m_fuzzyEngine.addRule(makeRule("Long", "High", "Poor"));
+  m_timeEngine.addRule(makeRule("Short", "Excellent"));
+  m_timeEngine.addRule(makeRule("Medium", "Good"));
+  m_timeEngine.addRule(makeRule("Long", "Poor"));
 
-  qDebug() << "Fuzzy engine calibrated — TravelTime [" << minT << "–" << maxT
-           << "] s  |  MotorPower [" << minP << "–" << maxP << "] kW";
+  qDebug() << "Time engine calibrated — TravelTime [" << minT << "–" << maxT
+           << "] s";
 }
 
+// =============================================================================
+// Power Engine Setup — evaluates MotorPower (shaped by v_p1).
+//
+// A lower peak power means v_p1 allowed the motor to work more efficiently.
+// 3 input terms (Low/Medium/High) × 1 output (PowerScore 0–100) = 3 rules.
+// Ranges are derived from actual Pass 1 data.
+// =============================================================================
+void OptimizationHandler::setupPowerEngine(double minP, double maxP) {
+  m_powerEngine.clear();
+
+  // 5% margin so boundary results still get non-zero membership
+  const double margin = (maxP - minP) * 0.05;
+  minP -= margin;
+  maxP += margin;
+  const double r = maxP - minP;
+
+  // ── Input: MotorPower — Low=efficient(good), High=hungry(bad) ────────────
+  auto motorPower = std::make_shared<FuzzyVariable>("MotorPower", minP, maxP);
+  motorPower->addTerm(std::make_shared<TrapezoidSet>(
+      "Low", minP, minP, minP + 0.25 * r, minP + 0.45 * r));
+  motorPower->addTerm(std::make_shared<TriangleSet>(
+      "Medium", minP + 0.30 * r, minP + 0.50 * r, minP + 0.70 * r));
+  motorPower->addTerm(std::make_shared<TrapezoidSet>(
+      "High", minP + 0.55 * r, minP + 0.75 * r, maxP, maxP));
+
+  // ── Output: PowerScore (0–100) ────────────────────────────────────────────
+  auto powerScore = std::make_shared<FuzzyVariable>("PowerScore", 0.0, 100.0);
+  powerScore->addTerm(
+      std::make_shared<TrapezoidSet>("Poor", 0.0, 0.0, 15.0, 30.0));
+  powerScore->addTerm(std::make_shared<TriangleSet>("Fair", 20.0, 38.0, 55.0));
+  powerScore->addTerm(std::make_shared<TriangleSet>("Good", 45.0, 62.0, 78.0));
+  powerScore->addTerm(
+      std::make_shared<TrapezoidSet>("Excellent", 68.0, 82.0, 100.0, 100.0));
+
+  m_powerEngine.addInputVariable(motorPower);
+  m_powerEngine.addOutputVariable(powerScore);
+
+  // ── 3 Rules for MotorPower ────────────────────────────────────────────────
+  // Rule: IF MotorPower is X → PowerScore is Y
+  auto makeRule = [](const QString &term, const QString &score) -> FuzzyRule {
+    FuzzyRule r;
+    r.antecedents["MotorPower"] = term;
+    r.consequent = {"PowerScore", score};
+    return r;
+  };
+  m_powerEngine.addRule(makeRule("Low", "Excellent"));
+  m_powerEngine.addRule(makeRule("Medium", "Good"));
+  m_powerEngine.addRule(makeRule("High", "Poor"));
+
+  qDebug() << "Power engine calibrated — MotorPower [" << minP << "–" << maxP
+           << "] kW";
+}
+
+// Final score = average of both sub-scores.
+// This gives equal weight to travel time quality (acc_start contribution)
+// and motor power quality (v_p1 contribution).
 double OptimizationHandler::evaluateFuzzyScore(double travelTime,
                                                double motorPower) {
-  m_fuzzyEngine.setInputValue("TravelTime", travelTime);
-  m_fuzzyEngine.setInputValue("MotorPower", motorPower);
-  return m_fuzzyEngine.getOutputValue("FuzzyScore");
+  m_timeEngine.setInputValue("TravelTime", travelTime);
+  m_powerEngine.setInputValue("MotorPower", motorPower);
+  const double timeScore = m_timeEngine.getOutputValue("TimeScore");
+  const double powerScore = m_powerEngine.getOutputValue("PowerScore");
+  return (timeScore + powerScore) / 2.0;
 }
 
 // =============================================================================
@@ -223,7 +261,8 @@ void OptimizationHandler::handleOptimization() {
     maxP += 1.0;
   }
 
-  setupFuzzyEngine(minT, maxT, minP, maxP);
+  setupTimeEngine(minT, maxT);
+  setupPowerEngine(minP, maxP);
 
   qDebug() << "=== Optimization Pass 2: scoring ===";
   {

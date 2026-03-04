@@ -450,6 +450,7 @@ export default function OutputPage() {
                   motorResistancesFive: 12,
                   motorResistancesTen: 15,
                   motorResistancesTwentyFive: 25,
+                  powerMotorOutputPerMotor: 100 * i,
                 })),
                 summary: {
                   maxSpeed: 105,

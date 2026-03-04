@@ -13,10 +13,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 #include <QObject>
-#include <QThread>
 #include <memory>
-#include <qmutex.h>
-#include <qobject.h>
 
 // One result entry per (acc_start, v_p1) combination
 struct OptResult {
@@ -56,7 +53,11 @@ private:
   MovingData *m_movingData;
   SimulationDatas *m_simulationDatas;
   QMutex *m_simulationMutex;
-  FuzzyEngine m_fuzzyEngine;
+  // Two separate engines — one per optimized parameter.
+  // m_timeEngine  : evaluates TravelTime  (driven by acc_start)
+  // m_powerEngine : evaluates MotorPower  (driven by v_p1)
+  FuzzyEngine m_timeEngine;
+  FuzzyEngine m_powerEngine;
 
   mutable QMutex m_resultsMutex; // guards m_results and m_bestResult
   // All sweep combo results — persists after handleOptimization() returns
@@ -64,11 +65,15 @@ private:
   OptResult m_bestResult;
   QAtomicInt m_isRunning; // 1 = running, 0 = idle
 
-  // Build Travel Time + Motor Power inputs, Fuzzy Score output, and 9 rules.
-  // Ranges are derived from the actual sweep results so any train/track works.
-  void setupFuzzyEngine(double minT, double maxT, double minP, double maxP);
+  // ── Per-parameter engine setup ──────────────────────────────────────────
+  // Each function sets up ONE engine independently:
+  //   setupTimeEngine  : TravelTime input → TimeScore output  (3 rules)
+  //   setupPowerEngine : MotorPower input → PowerScore output (3 rules)
+  // Ranges come from actual Pass 1 data so they adapt to any configuration.
+  void setupTimeEngine(double minT, double maxT);
+  void setupPowerEngine(double minP, double maxP);
 
-  // Feed travelTime + motorPower into the engine, return centroid score 0–100
+  // Run both engines and return the average of TimeScore and PowerScore (0–100)
   double evaluateFuzzyScore(double travelTime, double motorPower);
 
   // Peak motor power from the last simulation run (more meaningful than avg)

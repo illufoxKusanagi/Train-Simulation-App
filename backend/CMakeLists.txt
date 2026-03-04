@@ -97,6 +97,15 @@ set(MODEL_SOURCES
 )
 
 set(UTILITY_SOURCES
+    utils/fuzzy_set.h
+    utils/fuzzy_set.cpp
+    utils/triangle_set.h
+    utils/triangle_set.cpp
+    utils/trapezoid_set.h
+    utils/trapezoid_set.cpp
+    utils/fuzzy_variable.h
+    utils/fuzzy_variable.cpp
+    utils/fuzzy_rule.h
     utils/fuzzy_engine.h
     utils/fuzzy_engine.cpp
 )

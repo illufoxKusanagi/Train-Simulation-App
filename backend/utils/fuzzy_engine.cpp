@@ -1,4 +1,6 @@
 #include "fuzzy_engine.h"
+#include "fuzzy_rule.h"
+#include "fuzzy_variable.h"
 #include <QDebug>
 #include <algorithm>
 
@@ -43,13 +45,6 @@ double FuzzyEngine::getOutputValue(const QString &varName) {
 
   auto outputVar = m_outputs[varName];
 
-  // 1. Inference: Calculate activation strength for each rule
-  // We need to aggregate the output fuzzy sets.
-  // Since we are using Centroid defuzzification, we need to integrate over the
-  // output range. A simplified approach for discrete implementation: Discretize
-  // the output range (e.g., 100 steps) and calculate the aggregated membership
-  // at each step.
-
   double minVal = outputVar->min();
   double maxVal = outputVar->max();
   int steps = 100;
@@ -84,21 +79,17 @@ double FuzzyEngine::getOutputValue(const QString &varName) {
 
       // If rule is active
       if (activation > 0.0) {
-        // Get the consequent term's membership at the sampled point x
-        // (NOT getMembership which uses m_value — that was a bug)
+
         double termMembership =
             outputVar->getMembershipAt(rule.consequent.second, x);
 
-        // Clip it by activation strength (Mamdani Implication: MIN)
         double clippedMembership = std::min(activation, termMembership);
 
-        // Aggregate (MAX)
         aggregatedMembership =
             std::max(aggregatedMembership, clippedMembership);
       }
     }
 
-    // Centroid Calculation Accumulation
     numerator += x * aggregatedMembership;
     denominator += aggregatedMembership;
   }

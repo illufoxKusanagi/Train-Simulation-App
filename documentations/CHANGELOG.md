@@ -6,7 +6,88 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-<<<<<<< HEAD
+## [Unreleased] - 2026-03-04
+
+### Added
+
+#### Fuzzy Logic Optimization Engine
+- **Files:** `backend/utils/fuzzy_engine.h`, `backend/utils/fuzzy_engine.cpp`
+- **What:** Full Mamdani fuzzy inference engine built from scratch in Qt/C++
+  - `FuzzySet` abstract base class with `TriangleSet` and `TrapezoidSet` concrete implementations
+  - `FuzzyVariable` — holds named membership function terms, tracks current crisp value; exposes both `getMembership()` (at current value) and `getMembershipAt(term, x)` (at arbitrary point, required by centroid defuzzification)
+  - `FuzzyRule` — `QMap<QString,QString>` antecedents + `QPair<QString,QString>` consequent
+  - `FuzzyEngine` — Mamdani MIN-AND inference, MAX aggregation, centroid defuzzification over 100-point numerical integration; `clear()` allows full reconfiguration between runs without reconstructing the object
+
+#### Fuzzy Optimization Handler
+- **Files:** `backend/controllers/optimization/optimization_handler.h`, `optimization_handler.cpp`
+- **What:** Two-pass parameter sweep optimizer using the fuzzy engine
+  - `OptResult` struct: `acc_start` (m/s²), `v_p1` (km/h), `peakMotorPower` (kW/motor), `travelTime` (s), `fuzzyScore` (0–100)
+  - **Pass 1:** Sweeps all `acc × v_p1` combinations (up to 5 × 4 = 20), calls `runDynamicSimulation()` for each, records `(travelTime, peakMotorPower)` raw metrics
+  - **Pass 2:** Derives actual min/max ranges from real Pass 1 data, calibrates `setupFuzzyEngine()` with those ranges (+ 5% margin), then scores every result via `evaluateFuzzyScore()`
+  - Engine is never calibrated against hardcoded static ranges — adapts to any train + track configuration
+  - Sweep is centred on user's actual loaded parameters (`acc_start`, `v_p1`); values are clamped to physical limits
+  - `m_resultsMutex` (`QMutex`) guards `m_results` / `m_bestResult`; `m_isRunning` (`QAtomicInt`) prevents concurrent runs
+  - Emits `optimizationComplete(OptResult best)` signal on finish
+- **Fuzzy variable setup (`setupFuzzyEngine`):**
+  - Input 1 — TravelTime: Short (trapezoid), Medium (triangle), Long (trapezoid)
+  - Input 2 — MotorPower: Low (trapezoid), Medium (triangle), High (trapezoid)
+  - Output — FuzzyScore 0–100: Poor, Fair, Good, Excellent
+  - 9 Mamdani rules (3 time × 3 power combinations)
+
+#### Optimization Frontend Page
+- **File:** `frontend/src/app/optimization/page.tsx`
+- **What:** Full optimization UI in Next.js
+  - `OptResult` TypeScript interface matching backend struct field-for-field
+  - `scoreColor()`, `scoreLabel()`, `scoreBadgeClass()` — threshold helpers (≥75 Excellent, ≥50 Good, ≥25 Fair, else Poor)
+  - 1500 ms polling loop via `setInterval` / `pollingRef`; auto-stops when `isRunning` flips false
+  - On-mount restore: fetches current status so results survive page navigation (backend keeps `m_results` in memory while Qt process is alive)
+  - Winner card with trophy icon and 5-metric grid (score, acc, v_p1, peak power, travel time)
+  - All-combinations results table with per-row score badge
+  - Progress bar (completed / total combinations)
+  - Error toast + state reset if `completedCombinations === 0` after run ends
+
+### Fixed
+
+#### Critical Bug: Optimization Deadlock (Double Mutex Lock)
+- **File:** `backend/controllers/optimization/optimization_handler.cpp`
+- **Functions:** Pass 1 sweep loop, post-sweep restore block
+- **Issue:** Optimization would hang indefinitely when started
+- **Root Cause:** The Pass 1 loop wrapped `runDynamicSimulation()` inside `QMutexLocker(m_simulationMutex)`. `runDynamicSimulation()` itself also acquires `m_simulationMutex` internally → non-recursive `QMutex` deadlock on the second lock attempt
+- **Solution:** Removed the outer `QMutexLocker` from the Pass 1 loop and restore block. `runDynamicSimulation()` handles its own locking; no external guard is needed
+
+#### CI: Windows Deployment Step ($BinDir Undefined / UNC Path Error)
+- **File:** `.github/workflows/build-windows.yml`
+- **Step:** Deploy Qt Dependencies
+- **Issues:**
+  1. `$BinDir` was never defined in the step scope → PowerShell silently expanded it to empty string → `windeployqt` received `"\\TrainSimulationApp.exe"` (UNC path) → file not found error
+  2. Two conflicting versions of the step were merged together, creating duplicate "Install OpenSSL" and "Bundle Frontend" sub-blocks
+  3. `Copy-Item` missing `-Force` flag causing `DirectoryExist` IOException
+- **Solution:**
+  - Added `$BinDir = Resolve-Path "bin"` at the top of the step so the variable is always defined
+  - Rewrote the step as a single coherent block with one `windeployqt` call
+  - Removed duplicate "Install OpenSSL" and "Bundle Frontend" sections
+  - Added `-Force` to all `Copy-Item` calls
+
+### Changed
+
+#### CI: Linux Artifact — AppImage → Flatpak
+- **File:** `.github/workflows/build-linux.yml`
+- **Reason:** `linuxdeployqt` is Qt5-only and fails with Qt6 WebEngine; `linuxdeploy-plugin-qt` is unreliable with QtWebEngine
+- **New approach:**
+  - Runtime: `org.freedesktop.Platform//23.08` + `org.freedesktop.Sdk//23.08`
+  - Base: `io.qt.qtwebengine.BaseApp//6.7` (provides Qt 6.7 WebEngine, WebChannel, WebSockets into `/app`)
+  - `qt6-qthttpserver` built from source as its own Flatpak module (not in any Flatpak SDK or BaseApp) — tarball from `download.qt.io/archive`, SHA-256 hardcoded (pre-computed, not fetched at CI time)
+  - Main app and qthttpserver both use `-DCMAKE_PREFIX_PATH=/app -DQt6_DIR=/app/lib/cmake/Qt6`
+  - Manifest generated by a `shell: python3 {0}` step (avoids heredoc indentation issues)
+  - Output: `TrainSimulationApp-Linux.flatpak` bundle
+
+#### CMakeLists.txt: CMAKE_PREFIX_PATH Ordering
+- **File:** `backend/CMakeLists.txt`
+- **Change:** Moved `${CMAKE_PREFIX_PATH}` to the first position in the `set(CMAKE_PREFIX_PATH ...)` list
+- **Reason:** CMake processes `CMAKE_PREFIX_PATH` entries in order; placing the variable first ensures values passed via `-DCMAKE_PREFIX_PATH=...` (e.g. `/app` in CI) take priority over hardcoded local developer paths
+
+---
+
 ## [Unreleased] - 2026-02-04
 
 ### Fixed
@@ -123,8 +204,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-=======
->>>>>>> 793715b (fix/simulation-and-power-bug)
 ## [Unreleased] - 2026-02-03
 
 ### Added

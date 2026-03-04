@@ -28,6 +28,7 @@ export interface SimulationDataPoint {
   rpm: number; // simulationDatas->rpm[i] - RPM
   powerWheel: number; // simulationDatas->powerWheel[i] - P Wheel
   powerMotorOut: number; // simulationDatas->powerMotorOut[i] - P_motor Out
+  powerMotorOutputPerMotor: number; // simulationDatas->powerMotorOutPerMotor[i] - P_motor Out Per Motor
   powerMotorIn: number; // simulationDatas->powerMotorIn[i] - P_motor In
   vvvfPowers: number; // simulationDatas->vvvfPowers[i] - P_vvvf
   catenaryPowers: number; // simulationDatas->catenaryPowers[i] - P_catenary

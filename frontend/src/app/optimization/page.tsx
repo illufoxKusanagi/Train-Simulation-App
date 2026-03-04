@@ -50,6 +50,7 @@ function scoreBadgeClass(score: number): string {
 
 export default function OptimizationPage() {
   const [isRunning, setIsRunning] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [results, setResults] = useState<OptResult[]>([]);
   const [best, setBest] = useState<OptResult | null>(null);
@@ -64,10 +65,12 @@ export default function OptimizationPage() {
       pollingRef.current = null;
     }
   };
-
   const startPolling = () => {
     stopPolling();
+    let inFlight = false;
     pollingRef.current = setInterval(async () => {
+      if (inFlight) return;
+      inFlight = true;
       try {
         const status = await api.getOptimizationStatus();
         setIsRunning(status.isRunning);
@@ -95,6 +98,11 @@ export default function OptimizationPage() {
         }
       } catch (error) {
         console.error("Polling error", error);
+        stopPolling();
+        setIsRunning(false);
+        toast.error("Optimization status polling failed");
+      } finally {
+        inFlight = false;
       }
     }, 1500);
   };
@@ -128,6 +136,8 @@ export default function OptimizationPage() {
   }, []);
 
   const handleStart = async () => {
+    if (isRunning || isStarting) return;
+    setIsStarting(true);
     try {
       setResults([]);
       setBest(null);
@@ -144,6 +154,8 @@ export default function OptimizationPage() {
       );
       setIsRunning(false);
       setHasStarted(false);
+    } finally {
+      setIsStarting(false);
     }
   };
 
@@ -165,7 +177,7 @@ export default function OptimizationPage() {
           </div>
           <Button
             onClick={handleStart}
-            disabled={isRunning}
+            disabled={isRunning || isStarting}
             className="bg-green-600 hover:bg-green-700 disabled:opacity-60"
           >
             {isRunning ? (
@@ -189,7 +201,14 @@ export default function OptimizationPage() {
                 {completed} / {total} combinations
               </span>
             </div>
-            <div className="w-full bg-secondary rounded-full h-2">
+            <div
+              className="w-full bg-secondary rounded-full h-2"
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={total}
+              aria-valuenow={completed}
+              aria-label="Optimization progress"
+            >
               <div
                 className="bg-primary h-2 rounded-full transition-all duration-500"
                 style={{ width: `${progressPct}%` }}
