@@ -127,21 +127,18 @@ jobs:
               "--filesystem=home",
             ],
             "modules": [
-              # QtHttpServer is not shipped by any Flatpak SDK or the BaseApp.
-              # We build it from the official Qt source archive using cmake-ninja.
-              # Both -DCMAKE_PREFIX_PATH=/app and -DQt6_DIR point cmake at the Qt
-              # cmake files the BaseApp installs into /app/lib/cmake/Qt6/.
-              # Qt6_DIR takes priority over PREFIX_PATH path-searching, so it acts
-              # as the reliable anchor even when CMakeLists.txt appends extra paths.
+              # Probe: print where Qt6Config.cmake actually lives in this
+              # BaseApp so the log tells us the real path if cmake fails.
+              # Then build qthttpserver with plain `cmake` (always in the SDK)
+              # using simple buildsystem so we fully control the invocation.
               {
                 "name": "qt6-qthttpserver",
-                "buildsystem": "cmake-ninja",
-                "builddir": True,
-                "config-opts": [
-                  "-DCMAKE_BUILD_TYPE=Release",
-                  "-DCMAKE_INSTALL_PREFIX=/app",
-                  "-DCMAKE_PREFIX_PATH=/app",
-                  "-DQt6_DIR=/app/lib/cmake/Qt6",
+                "buildsystem": "simple",
+                "build-commands": [
+                  "echo '=== Qt6Config.cmake search ===' && find /app -name 'Qt6Config.cmake' 2>/dev/null || echo 'NOT FOUND'",
+                  "QT6_CMAKE=$(find /app -name 'Qt6Config.cmake' 2>/dev/null | head -1 | xargs -I{} dirname {}); echo Qt6_DIR=$QT6_CMAKE; cmake -B _build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/app \"-DQt6_DIR=$QT6_CMAKE\" -DCMAKE_PREFIX_PATH=/app",
+                  "ninja -C _build",
+                  "ninja -C _build install",
                 ],
                 "sources": [{
                   "type": "archive",
@@ -151,13 +148,11 @@ jobs:
               },
               {
                 "name": "TrainSimulationApp",
-                "buildsystem": "cmake-ninja",
-                "builddir": True,
-                "config-opts": [
-                  "-DCMAKE_BUILD_TYPE=Release",
-                  "-DCMAKE_INSTALL_PREFIX=/app",
-                  "-DCMAKE_PREFIX_PATH=/app",
-                  "-DQt6_DIR=/app/lib/cmake/Qt6",
+                "buildsystem": "simple",
+                "build-commands": [
+                  "QT6_CMAKE=$(find /app -name 'Qt6Config.cmake' 2>/dev/null | head -1 | xargs -I{} dirname {}); cmake -B _build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/app \"-DQt6_DIR=$QT6_CMAKE\" -DCMAKE_PREFIX_PATH=/app",
+                  "ninja -C _build",
+                  "ninja -C _build install",
                 ],
                 "sources": [{"type": "dir", "path": "backend"}],
               },
