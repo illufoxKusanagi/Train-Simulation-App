@@ -97,17 +97,17 @@ set(MODEL_SOURCES
 )
 
 set(UTILITY_SOURCES
-    utils/fuzzy_set.h
-    utils/fuzzy_set.cpp
-    utils/triangle_set.h
-    utils/triangle_set.cpp
-    utils/trapezoid_set.h
-    utils/trapezoid_set.cpp
-    utils/fuzzy_variable.h
-    utils/fuzzy_variable.cpp
-    utils/fuzzy_rule.h
-    utils/fuzzy_engine.h
-    utils/fuzzy_engine.cpp
+    controllers/optimization/fuzzy/fuzzy_set.h
+    controllers/optimization/fuzzy/fuzzy_set.cpp
+    controllers/optimization/fuzzy/triangle_set.h
+    controllers/optimization/fuzzy/triangle_set.cpp
+    controllers/optimization/fuzzy/trapezoid_set.h
+    controllers/optimization/fuzzy/trapezoid_set.cpp
+    controllers/optimization/fuzzy/fuzzy_variable.h
+    controllers/optimization/fuzzy/fuzzy_variable.cpp
+    controllers/optimization/fuzzy/fuzzy_rule.h
+    controllers/optimization/fuzzy/fuzzy_engine.h
+    controllers/optimization/fuzzy/fuzzy_engine.cpp
 )
 
 set(CONTROLLER_SOURCES

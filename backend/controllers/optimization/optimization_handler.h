@@ -1,19 +1,15 @@
 #ifndef OPTIMIZATION_HANDLER_H
 #define OPTIMIZATION_HANDLER_H
 
+#include "controllers/optimization/fuzzy/fuzzy_engine.h"
 #include "controllers/simulation/train_simulation_handler.h"
 #include "core/appcontext.h"
-#include "models/mass_data.h"
 #include "models/moving_data.h"
 #include "models/simulation_data.h"
-#include "models/station_data.h"
-#include "models/train_data.h"
-#include "utils/fuzzy_engine.h"
 #include <QAtomicInt>
 #include <QMutex>
 #include <QMutexLocker>
 #include <QObject>
-#include <memory>
 
 // One result entry per (acc_start, v_p1) combination
 struct OptResult {

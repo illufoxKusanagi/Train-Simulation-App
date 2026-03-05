@@ -8,10 +8,10 @@
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
 
-WebEngineWindow::WebEngineWindow(QWidget *parent)
+WebEngineWindow::WebEngineWindow(quint16 port, QWidget *parent)
     : QMainWindow(parent), m_webView(nullptr), m_progressBar(nullptr),
       m_appContext(nullptr), m_httpServer(nullptr), m_webChannel(nullptr),
-      m_fileBridge(nullptr), m_isDevelopmentMode(false) {
+      m_fileBridge(nullptr), m_isDevelopmentMode(false), m_port(port) {
   setupUi();
   setupBackendServer();
   setupWebEngine();
@@ -162,18 +162,25 @@ void WebEngineWindow::setupBackendServer() {
   // Initialize app context
   m_appContext = new AppContext();
 
-  // Create and start HTTP server
+  // Create HTTP server (this is the ONE server for the whole application)
   m_httpServer = new HttpServer(*m_appContext);
 
-  quint16 port = 8080;
-  if (m_httpServer->startServer(port)) {
-    qInfo() << "✅ Backend server started on port" << port;
-    statusBar()->showMessage(QString("Backend ready on port %1").arg(port));
+  // Configure static file serving if a frontend directory was discovered
+  QByteArray staticRoot = qgetenv("TRAIN_APP_STATIC_ROOT");
+  if (!staticRoot.isEmpty()) {
+    m_httpServer->setStaticRoot(QString::fromUtf8(staticRoot));
+  }
+
+  // Use the port requested by main(); pass 0 to let the OS pick a free one
+  if (m_httpServer->startServer(m_port)) {
+    qInfo() << "✅ Backend server started on port" << m_httpServer->getPort();
+    statusBar()->showMessage(
+        QString("Backend ready on port %1").arg(m_httpServer->getPort()));
   } else {
-    qCritical() << "❌ Failed to start backend server on port" << port;
+    qCritical() << "❌ Failed to start backend server on port" << m_port;
     QMessageBox::critical(
         this, "Server Error",
-        QString("Failed to start backend server on port %1").arg(port));
+        QString("Failed to start backend server on port %1").arg(m_port));
   }
 }
 

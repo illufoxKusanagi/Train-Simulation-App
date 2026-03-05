@@ -1,7 +1,7 @@
 #include "optimization_handler.h"
+#include "controllers/optimization/fuzzy/trapezoid_set.h"
+#include "controllers/optimization/fuzzy/triangle_set.h"
 #include "controllers/simulation/train_simulation_handler.h"
-#include "utils/trapezoid_set.h"
-#include "utils/triangle_set.h"
 #include <QDebug>
 #include <algorithm>
 #include <memory>
