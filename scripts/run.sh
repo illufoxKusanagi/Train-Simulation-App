@@ -119,6 +119,16 @@ install_frontend_deps() {
 # Start Next.js dev server (pattern from dev.sh)
 start_nextjs_dev() {
     print_msg "$YELLOW" "💻 Starting Next.js dev server..."
+    
+    # Kill anything running on port 3254 (Frontend) and 3000 (Default)
+    if command -v fuser &> /dev/null; then
+        fuser -k 3254/tcp > /dev/null 2>&1 || true
+        fuser -k 3000/tcp > /dev/null 2>&1 || true
+    elif command -v lsof &> /dev/null; then
+         lsof -ti:3254 | xargs -r kill -9 || true
+         lsof -ti:3000 | xargs -r kill -9 || true
+    fi
+    
     cd "$FRONTEND_DIR"
     # Redirect output to log file for debugging
     npm run dev > "$PROJECT_ROOT/frontend.log" 2>&1 &
@@ -250,6 +260,79 @@ clean_build() {
     print_msg "$GREEN" "✅ Clean complete"
 }
 
+# Package for Linux (AppImage)
+package_appimage() {
+    print_header "Packaging AppImage (Linux)"
+    
+    # Ensure production build exists
+    if [ ! -f "$BACKEND_BUILD_DIR/bin/TrainSimulationApp" ]; then
+        print_msg "$YELLOW" "⚠️  Release build not found. Building now..."
+        build_production
+    fi
+    
+    local dist_dir="$PROJECT_ROOT/dist"
+    local app_dir="$dist_dir/AppDir"
+    
+    # Clean previous package attempt
+    rm -rf "$dist_dir"
+    mkdir -p "$app_dir/usr/bin"
+    mkdir -p "$app_dir/usr/share/train-simulation-app"
+    mkdir -p "$app_dir/usr/share/applications"
+    mkdir -p "$app_dir/usr/share/icons/hicolor/256x256/apps"
+    
+    print_msg "$YELLOW" "📦 Assembling AppDir structure..."
+    
+    # Copy binaries and assets
+    cp "$BACKEND_BUILD_DIR/bin/TrainSimulationApp" "$app_dir/usr/bin/train-simulation-app"
+    cp -r "$FRONTEND_DIR/out"/* "$app_dir/usr/share/train-simulation-app/"
+    
+    # Create valid desktop entry
+    cat > "$app_dir/usr/share/applications/train-simulation-app.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=Train Simulation App
+Comment=Train Simulation Application
+Exec=train-simulation-app
+Icon=utilities-terminal
+Categories=Education;Simulation;
+Terminal=false
+EOF
+
+    # Create dummy icon if missing (required by linuxdeployqt)
+    touch "$app_dir/usr/share/icons/hicolor/256x256/apps/utilities-terminal.png"
+    
+    # Check for linuxdeployqt
+    local deploy_tool="linuxdeployqt-continuous-x86_64.AppImage"
+    if [ ! -f "$PROJECT_ROOT/$deploy_tool" ]; then
+        print_msg "$YELLOW" "⬇️  Downloading linuxdeployqt..."
+        wget -q "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/$deploy_tool" -O "$PROJECT_ROOT/$deploy_tool"
+        chmod +x "$PROJECT_ROOT/$deploy_tool"
+    fi
+    
+    print_msg "$YELLOW" "🎁 Generating AppImage..."
+    
+    # Run linuxdeployqt
+    # Note: We assume qmake is in PATH or automatically found. 
+    # If standard install, it should work. check_prerequisites verifies cmake/npm but not qmake.
+    
+    # Using -appimage -unsupported-allow-new-glibc to maximize compatibility on newer dev machines
+    export VERSION="1.0.0" # Required by linuxdeployqt
+    "$PROJECT_ROOT/$deploy_tool" "$app_dir/usr/share/applications/train-simulation-app.desktop" \
+        -appimage -unsupported-allow-new-glibc \
+        -executable="$app_dir/usr/bin/train-simulation-app"
+        
+    # Move artifact
+    find "$PROJECT_ROOT" -maxdepth 1 -name "Train_Simulation_App-*.AppImage" -exec mv {} "$dist_dir/" \;
+    
+    if ls "$dist_dir"/*.AppImage 1> /dev/null 2>&1; then
+        print_msg "$GREEN" "🎉 AppImage created successfully!"
+        print_msg "$BLUE" "📂 Location: $(ls $dist_dir/*.AppImage)"
+    else
+        print_msg "$RED" "❌ AppImage creation failed. Check logs above."
+        exit 1
+    fi
+}
+
 # Show usage
 show_usage() {
     echo "Usage: $0 [COMMAND]"
@@ -258,14 +341,13 @@ show_usage() {
     echo "  dev        - Build and run in development mode (default)"
     echo "  build      - Build production release"
     echo "  run        - Run production build"
+    echo "  package    - Build and package as AppImage (Linux)"
     echo "  clean      - Clean all build artifacts"
     echo "  help       - Show this help message"
     echo ""
     echo "Examples:"
-    echo "  $0 dev     # Start development (with hot reload)"
-    echo "  $0 build   # Build for production"
-    echo "  $0 run     # Run production build"
-    echo "  $0 clean   # Clean builds"
+    echo "  $0 dev     # Start development"
+    echo "  $0 package # Create AppImage"
 }
 
 # Main logic
@@ -288,6 +370,10 @@ main() {
         run|start)
             check_prerequisites
             run_production
+            ;;
+        package|dist)
+            check_prerequisites
+            package_appimage
             ;;
         clean)
             clean_build

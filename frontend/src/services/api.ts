@@ -66,7 +66,7 @@ export const api = {
   },
 
   updateTrainParameters: async (
-    params: Record<string, number>
+    params: Record<string, number>,
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/train`, {
       method: "POST",
@@ -90,7 +90,7 @@ export const api = {
   },
 
   updateElectricalParameters: async (
-    params: ElectricalParams
+    params: ElectricalParams,
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/electrical`, {
       method: "POST",
@@ -114,7 +114,7 @@ export const api = {
   },
 
   updateRunningParameters: async (
-    params: Record<string, number>
+    params: Record<string, number>,
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/running`, {
       method: "POST",
@@ -138,7 +138,7 @@ export const api = {
   },
 
   updateTrackParameters: async (
-    params: TrackParams | Record<string, number | number[]>
+    params: TrackParams | Record<string, number | number[]>,
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/track`, {
       method: "POST",
@@ -162,7 +162,7 @@ export const api = {
   },
 
   updateMassParameters: async (
-    params: Record<string, number>
+    params: Record<string, number>,
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/mass`, {
       method: "POST",
@@ -176,7 +176,7 @@ export const api = {
 
   calculateMass: async (
     trainset: Record<string, unknown>,
-    constant: Record<string, unknown>
+    constant: Record<string, unknown>,
   ): Promise<{
     massParameters: TrainMassParams;
     status: string;
@@ -202,7 +202,7 @@ export const api = {
   },
 
   updateCarNumberParameters: async (
-    params: TrainNumberParams
+    params: TrainNumberParams,
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/carnumber`, {
       method: "POST",
@@ -226,7 +226,7 @@ export const api = {
   },
 
   updatePassengerParameters: async (
-    params: TrainPassangerParams
+    params: TrainPassangerParams,
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/passenger`, {
       method: "POST",
@@ -240,7 +240,7 @@ export const api = {
 
   // ==================== Simulation Control ====================
   startSimulation: async (
-    config: SimulationConfig
+    config: SimulationConfig,
   ): Promise<{
     status: string;
     message: string;
@@ -273,6 +273,46 @@ export const api = {
     const res = await fetch(`${API_BASE_URL}/api/simulation/results`);
     if (!res.ok)
       throw new Error(`Failed to get simulation results: ${res.status}`);
+    return res.json();
+  },
+
+  // ==================== Fuzzy Optimization ====================
+  startOptimization: async (): Promise<{ status: string; message: string }> => {
+    const res = await fetch(`${API_BASE_URL}/api/optimization/start`, {
+      method: "POST",
+    });
+    const body = await res.json();
+    if (!res.ok)
+      throw new Error(
+        body?.message ?? `Failed to start optimization: ${res.status}`,
+      );
+    return body;
+  },
+
+  getOptimizationStatus: async (): Promise<{
+    isRunning: boolean;
+    results: Array<{
+      acc_start: number; // m/s²
+      v_p1: number; // km/h
+      peakMotorPower: number; // kW/motor
+      travelTime: number; // seconds
+      fuzzyScore: number; // 0–100
+    }>;
+    best:
+      | {
+          acc_start: number;
+          v_p1: number;
+          peakMotorPower: number;
+          travelTime: number;
+          fuzzyScore: number;
+        }
+      | Record<string, never>;
+    totalCombinations: number;
+    completedCombinations: number;
+  }> => {
+    const res = await fetch(`${API_BASE_URL}/api/optimization/status`);
+    if (!res.ok)
+      throw new Error(`Failed to get optimization status: ${res.status}`);
     return res.json();
   },
 };

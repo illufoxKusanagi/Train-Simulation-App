@@ -23,9 +23,9 @@ ElectricalParameterHandler::handleGetElectricalParameters() {
   electricalParams["stat_vol_line"] = m_context.energyData->stat_vol_line;
   electricalParams["stat_vol_motor"] = m_context.energyData->stat_vol_motor;
   electricalParams["p_aps"] = m_context.powerData->p_aps;
-  electricalParams["stat_eff_gear"] = m_context.efficiencyData->stat_eff_gear;
-  electricalParams["stat_eff_motor"] = m_context.efficiencyData->stat_eff_motor;
-  electricalParams["stat_eff_vvvf"] = m_context.efficiencyData->stat_eff_vvvf;
+  electricalParams["stat_eff_gear"] = m_context.efficiencyData->stat_eff_gear * 100.0;
+  electricalParams["stat_eff_motor"] = m_context.efficiencyData->stat_eff_motor * 100.0;
+  electricalParams["stat_eff_vvvf"] = m_context.efficiencyData->stat_eff_vvvf * 100.0;
 
   response["electricalParameters"] = electricalParams;
   response["status"] = "success";
@@ -80,7 +80,7 @@ ElectricalParameterHandler::handleUpdateElectricalParameters(
     }
     if (params.contains("stat_eff_gear")) {
       m_context.efficiencyData->stat_eff_gear =
-          params["stat_eff_gear"].toDouble();
+          params["stat_eff_gear"].toDouble() / 100.0;
       // Verify the value was actually set
       if (m_context.efficiencyData->stat_eff_gear <= 0) {
         m_context.simulationWarnings.append(
@@ -89,7 +89,7 @@ ElectricalParameterHandler::handleUpdateElectricalParameters(
     }
     if (params.contains("stat_eff_motor")) {
       m_context.efficiencyData->stat_eff_motor =
-          params["stat_eff_motor"].toDouble();
+          params["stat_eff_motor"].toDouble() / 100.0;
       // Verify the value was actually set
       if (m_context.efficiencyData->stat_eff_motor <= 0) {
         m_context.simulationWarnings.append(
@@ -98,7 +98,7 @@ ElectricalParameterHandler::handleUpdateElectricalParameters(
     }
     if (params.contains("stat_eff_vvvf")) {
       m_context.efficiencyData->stat_eff_vvvf =
-          params["stat_eff_vvvf"].toDouble();
+          params["stat_eff_vvvf"].toDouble() / 100.0;
       // Verify the value was actually set
       if (m_context.efficiencyData->stat_eff_vvvf <= 0) {
         m_context.simulationWarnings.append(

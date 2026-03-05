@@ -1,8 +1,11 @@
 #include "file_bridge.h"
+#include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
 #include <QJsonObject>
 #include <QStandardPaths>
+#include <QTimer>
+#include <qeventloop.h>
 
 FileBridge::FileBridge(QObject *parent) : QObject(parent) {
   // Constructor implementation
@@ -13,12 +16,21 @@ QJsonObject FileBridge::saveFileDialog(const QString &data,
                                        const QString &filter) {
   QJsonObject result;
 
-  // Show Qt native file save dialog
-  QString suggestedPath =
-      QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/" +
-      filename;
-  QString filepath =
-      QFileDialog::getSaveFileName(nullptr, "Save File", suggestedPath, filter);
+  // BUG FIX: Defer file dialog to prevent blocking main thread
+  // QFileDialog blocks the event loop causing app freeze during Excel export
+  QString filepath;
+  QEventLoop loop;
+  QTimer::singleShot(0, [&]() {
+    QString suggestedPath =
+        QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/" +
+        filename;
+    filepath = QFileDialog::getSaveFileName(nullptr, "Save File", suggestedPath, filter);
+    loop.quit();
+  });
+  loop.exec(); // Start event loop to wait for file dialog to close
+  
+  // Process events to allow dialog to show
+  QCoreApplication::processEvents();
 
   if (filepath.isEmpty()) {
     result["success"] = false;
@@ -57,12 +69,20 @@ QJsonObject FileBridge::saveBinaryFileDialog(const QVariantList &data,
                                              const QString &filter) {
   QJsonObject result;
 
-  // Show Qt native file save dialog
-  QString suggestedPath =
-      QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/" +
-      filename;
-  QString filepath =
-      QFileDialog::getSaveFileName(nullptr, "Save File", suggestedPath, filter);
+  // BUG FIX: Defer file dialog to prevent blocking main thread
+  QString filepath;
+  QEventLoop loop;
+  QTimer::singleShot(0, [&]() {
+    QString suggestedPath =
+        QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/" +
+        filename;
+    filepath = QFileDialog::getSaveFileName(nullptr, "Save File", suggestedPath, filter);
+    loop.quit();
+  });
+  loop.exec();
+  
+  // Process events to allow dialog to show
+  QCoreApplication::processEvents();
 
   if (filepath.isEmpty()) {
     result["success"] = false;

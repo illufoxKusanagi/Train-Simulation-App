@@ -10,24 +10,42 @@ const chunkArray = <T>(array: T[], chunkSize: number): T[][] => {
 };
 
 export const TrackFormSchema = z.object({
-  n_station: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  x_station: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  radius: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  slope: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  v_limit: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  dwellTime: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
+  n_station: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(2, { message: "Must be at least 2 stations" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  x_station: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  radius: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  slope: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(-50, { message: "Value cannot less than -50" })
+    .max(50, { message: "Value cannot exceed than 50" }),
+  v_limit: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  dwellTime: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
 });
 
 export const constantInputFormDatas: InputType[] = [
@@ -48,6 +66,7 @@ export const constantInputFormDatas: InputType[] = [
     unit: "m",
     type: "field-upload",
     name: "x_station",
+    requiredColumns: 3,
   },
   {
     label: "Slope per Section",

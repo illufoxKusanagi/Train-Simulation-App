@@ -4,16 +4,6 @@
 #include "controllers/simulation/train_simulation_handler.h"
 #include "core/appcontext.h"
 #include "models/train_data.h"
-#include "pages/constant_values_page.h"
-#include "pages/electrical_parameter_page.h"
-#include "pages/running_parameter_page.h"
-#include "pages/track_parameter_page.h"
-#include "pages/traction_effort_page.h"
-#include "pages/train_consumption_page.h"
-#include "pages/train_parameter_page.h"
-#include "pages/train_power_page.h"
-#include "pages/train_speed_page.h"
-#include "pages/train_track_page.h"
 #include "widgets/left_panel.h"
 #include <QHBoxLayout>
 #include <QLabel>

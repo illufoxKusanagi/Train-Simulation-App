@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   // Remove 'output: export' for standard web deployment
   // Keep it only if you need static HTML export
   output: "export", // Generate static HTML export
+  images: { unoptimized: true },
 
   async rewrites() {
     return [

@@ -58,5 +58,5 @@
 
 # FORMULAS
 - Velocity        : v += acc * dt 
-- Acceleration    : a = f_tot / m_totalInertial
+- Acceleration    : acc = f_total / mass_totalInertial
 - Distance        : x += v * dt

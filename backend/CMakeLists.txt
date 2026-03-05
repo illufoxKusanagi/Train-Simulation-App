@@ -10,11 +10,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set Qt paths
+# ${CMAKE_PREFIX_PATH} comes FIRST so values passed via -DCMAKE_PREFIX_PATH=
+# (e.g. from Flatpak, Docker, or CI) take priority over local machine fallbacks.
 set(CMAKE_PREFIX_PATH
+    ${CMAKE_PREFIX_PATH}
+    /home/illufoxkusanagi/Qt/6.10.1/gcc_64/lib/cmake
     /usr/lib64/cmake
     /usr/lib/cmake
     /usr/local/Qt6/lib/cmake
-    ${CMAKE_PREFIX_PATH}
 )
 
 # Alternative approach - set Qt6_DIR explicitly if find_package fails
@@ -94,8 +97,17 @@ set(MODEL_SOURCES
 )
 
 set(UTILITY_SOURCES
-    utils/fuzzy_engine.h
-    utils/fuzzy_engine.cpp
+    controllers/optimization/fuzzy/fuzzy_set.h
+    controllers/optimization/fuzzy/fuzzy_set.cpp
+    controllers/optimization/fuzzy/triangle_set.h
+    controllers/optimization/fuzzy/triangle_set.cpp
+    controllers/optimization/fuzzy/trapezoid_set.h
+    controllers/optimization/fuzzy/trapezoid_set.cpp
+    controllers/optimization/fuzzy/fuzzy_variable.h
+    controllers/optimization/fuzzy/fuzzy_variable.cpp
+    controllers/optimization/fuzzy/fuzzy_rule.h
+    controllers/optimization/fuzzy/fuzzy_engine.h
+    controllers/optimization/fuzzy/fuzzy_engine.cpp
 )
 
 set(CONTROLLER_SOURCES

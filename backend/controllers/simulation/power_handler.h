@@ -10,6 +10,7 @@ public:
   explicit PowerHandler(AppContext &context);
   double calculatePowerWheel();
   double calculateOutputTractionMotor(double eff_gear);
+  double calculateOutputTractionMotorPerMotor();
   double calculateInputTractionMotor(double eff_motor);
   double calculatePowerInputOfVvvf(double eff_vvvf);
   double calculatePowerOfCatenary();
@@ -21,6 +22,7 @@ private:
   EfficiencyData *efficiencyData;
   EnergyData *energyData;
   ConstantData *constantData;
+  TrainData *trainData;
 };
 
 #endif // POWER_HANDLER_H

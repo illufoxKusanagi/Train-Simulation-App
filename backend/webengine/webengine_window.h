@@ -10,7 +10,7 @@
 #include <QWebChannel>
 #include <QWebEnginePage>
 #include <QWebEngineView>
-
+#include <QtGlobal>
 
 /**
  * @brief Main window that embeds Next.js frontend using Qt WebEngine
@@ -25,7 +25,12 @@ class WebEngineWindow : public QMainWindow {
   Q_OBJECT
 
 public:
-  explicit WebEngineWindow(QWidget *parent = nullptr);
+  /**
+   * @param port  The TCP port the backend HTTP server should bind to.
+   *              Pass 0 to let the OS pick a free port.
+   * @param parent Parent widget (usually nullptr for a top-level window).
+   */
+  explicit WebEngineWindow(quint16 port = 8080, QWidget *parent = nullptr);
   ~WebEngineWindow();
 
   /**
@@ -71,6 +76,7 @@ private:
   // Settings
   bool m_isDevelopmentMode;
   QString m_frontendUrl;
+  quint16 m_port;
 };
 
 #endif // WEBENGINE_WINDOW_H

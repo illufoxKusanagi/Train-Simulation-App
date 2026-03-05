@@ -10,99 +10,189 @@ const chunkArray = <T>(array: T[], chunkSize: number): T[][] => {
 };
 
 export const TrainsetFormSchema = z.object({
-  n_car: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_M1: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_M2: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_Tc: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_T1: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_T2: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_T3: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_M1_disabled: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_M2_disabled: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  mass_M1: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  mass_M2: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  mass_Tc: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  mass_T1: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  mass_T2: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  mass_T3: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_PM1: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_PM2: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_PTc: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_PT1: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_PT2: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
-  n_PT3: z.coerce.number<number>({
-    message: "This Value must be a number",
-  }),
+  n_car: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_M1: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_M2: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_Tc: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_T1: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_T2: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_T3: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_M1_disabled: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_M2_disabled: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  mass_M1: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  mass_M2: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  mass_Tc: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  mass_T1: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  mass_T2: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  mass_T3: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_PM1: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_PM2: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_PTc: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_PT1: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_PT2: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_PT3: z.coerce
+    .number<number>({
+      message: "This Value must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
 });
 
 export const ConstantFormSchema = z.object({
-  i_T: z.coerce.number<number>({
-    message: "iCt Must be a number or decimal",
-  }),
-  i_M: z.coerce.number<number>({
-    message: "iCm Must be a number or decimal",
-  }),
-  n_axle: z.coerce.number<number>({
-    message: "Number of Axle must be a number",
-  }),
-  n_tm: z.coerce.number<number>({
-    message: "Number of Traction Motor must be a number",
-  }),
-  wheelDiameter: z.coerce.number<number>({
-    message: "Wheel Diameter must be a number",
-  }),
-  mass_P: z.coerce.number<number>({
-    message: "Passenger Weight must be a number",
-  }),
-  gearRatio: z.coerce.number<number>({
-    message: "Gear Ratio must be a number",
-  }),
-  load: z.coerce.number<number>({
-    message: "Load per car must be a number",
-  }),
-  carLength: z.coerce.number<number>({
-    message: "Car Length must be a number",
-  }),
+  i_T: z.coerce
+    .number<number>({
+      message: "iCt Must be a number or decimal",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  i_M: z.coerce
+    .number<number>({
+      message: "iCm Must be a number or decimal",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_axle: z.coerce
+    .number<number>({
+      message: "Number of Axle must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_tm: z.coerce
+    .number<number>({
+      message: "Number of Traction Motor must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  wheelDiameter: z.coerce
+    .number<number>({
+      message: "Wheel Diameter must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  mass_P: z.coerce
+    .number<number>({
+      message: "Passenger Weight must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  gearRatio: z.coerce
+    .number<number>({
+      message: "Gear Ratio must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  load: z.coerce
+    .number<number>({
+      message: "Load per car must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  carLength: z.coerce
+    .number<number>({
+      message: "Car Length must be a number",
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
   loadCondition: z.enum(["AW0", "AW1", "AW2", "AW3", "AW4"], {
     message: "Load Condition must be one of AW0, AW1, AW2, AW3, AW4",
   }),

@@ -96,6 +96,7 @@ void TrainSimulationHandler::simulateDynamicTrainMovement() {
 void TrainSimulationHandler::runDynamicSimulation() {
   clearWarnings();
   clearErrors();
+  clearDebugLogs();
 
   if (!validateDataInitialized()) {
     emit simulationError();
@@ -138,6 +139,25 @@ void TrainSimulationHandler::runDynamicSimulation() {
       // Lock mutex for shared data updates
       QMutexLocker locker(m_simulationMutex);
 
+      // DEBUG: Log first few iterations to diagnose start condition
+      if (i < 20) {
+        double targetDist = (stationIndex < stationData->x_station.size())
+                                ? stationData->x_station[stationIndex]
+                                : -1.0;
+        QString logMsg =
+            QString("SIM_DEBUG: i=%1 Phase=%2 Notch=%3 Speed=%4 Odo=%5 "
+                    "StationIndex=%6 TargetDist=%7 Condition=%8")
+                .arg(i)
+                .arg(phase)
+                .arg(notch)
+                .arg(movingData->v)
+                .arg(odo)
+                .arg(stationIndex)
+                .arg(targetDist)
+                .arg(odo < targetDist);
+        m_debugLogs.append(logMsg);
+      }
+
       addStationSimulationDatas();
       addEnergySimulationDatas();
       simulationDatas.slopes.append(m_slope);
@@ -178,7 +198,8 @@ void TrainSimulationHandler::runDynamicSimulation() {
         simulationDatas.trainSpeeds.append(movingData->v);
         simulationDatas.trainSpeedsSi.append(movingData->v_si);
       } else if (stationIndex < stationData->x_station.size() &&
-                 odo < stationData->x_station[stationIndex] &&
+                 odo < (stationData->x_station[stationIndex] +
+                        stationData->x_deficit) &&
                  notch != Braking) {
         if (notch == Accelerating) {
           if (movingData->v >= m_maxSpeed && resistanceData->f_total > 0) {
@@ -250,6 +271,12 @@ void TrainSimulationHandler::runDynamicSimulation() {
           movingData->v_si = 0;
           notch = AtStation;
           trainStopTime = 0;
+          // Calculate deficit for THIS station and carry it forward
+          // double currentDeficit =
+          //     stationData->x_station[stationIndex] - stationData->x_odo;
+          stationData->x_deficit =
+              stationData->x_station[stationIndex] -
+              stationData->x_odo; // Save for use in NEXT segment
         }
         if (resistanceData->f_total == 0) {
           isError = true;
@@ -388,6 +415,13 @@ double TrainSimulationHandler::getMaxSpeed() {
                            simulationDatas.trainSpeeds.end());
 }
 
+double TrainSimulationHandler::getMaxMotorPowerPerMotor() {
+  if (simulationDatas.powerMotorOutPerMotor.isEmpty())
+    return 0.0;
+  return *std::max_element(simulationDatas.powerMotorOutPerMotor.begin(),
+                           simulationDatas.powerMotorOutPerMotor.end());
+}
+
 double TrainSimulationHandler::getMaxVvvfPower() {
   if (simulationDatas.vvvfPowers.isEmpty())
     return 0.0;
@@ -496,6 +530,8 @@ void TrainSimulationHandler::calculatePowers(double efficiencyGear,
   powerData->p_wheel = m_powerHandler->calculatePowerWheel();
   powerData->p_motorOut =
       m_powerHandler->calculateOutputTractionMotor(efficiencyGear);
+  powerData->p_motorOutPerMotor =
+      m_powerHandler->calculateOutputTractionMotorPerMotor();
   powerData->p_motorIn =
       m_powerHandler->calculateInputTractionMotor(efficiencyMotor);
   powerData->p_vvvfIn =

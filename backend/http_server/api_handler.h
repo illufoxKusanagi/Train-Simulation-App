@@ -5,7 +5,7 @@
 #include "controllers/data/running_data_handler.h"
 #include "controllers/data/track_data_handler.h"
 #include "controllers/data/train_data_handler.h"
-// #include "controllers/optimization/optimization_handler.h"
+#include "controllers/optimization/optimization_handler.h"
 #include "controllers/output/csv_output_handler.h"
 #include "core/appcontext.h"
 #include "inputs/electrical_parameter_handler.h"
@@ -13,6 +13,7 @@
 #include "inputs/track_parameter_handler.h"
 #include "inputs/train_parameter_handler.h"
 #include "simulations/simulation_handler.h"
+#include <QFuture>
 #include <QHttpServerResponse>
 #include <QJsonObject>
 #include <QObject>
@@ -22,6 +23,7 @@ class ApiHandler : public QObject {
 
 public:
   explicit ApiHandler(AppContext &context, QObject *parent = nullptr);
+  ~ApiHandler();
 
   // Health check
   QHttpServerResponse handleHealthCheck();
@@ -61,10 +63,8 @@ public:
   QHttpServerResponse handleGetSimulationResults();
 
   // Optimization control
-  // QHttpServerResponse handleStartOptimization(const QJsonObject &data);
-  // QHttpServerResponse handleStopOptimization();
-  // QHttpServerResponse handleGetOptimizationStatus();
-  // QHttpServerResponse handleApplyOptimization();
+  QHttpServerResponse handleStartOptimization();
+  QHttpServerResponse handleGetOptimizationStatus();
 
   // Export functionality
   QHttpServerResponse handleExportResults(const QJsonObject &data);
@@ -87,7 +87,8 @@ private:
   // CarNumberHandler *m_carNumberHandler;
   // PassengerHandler *m_passengerHandler;
   SimulationHandler *m_simulationHandler;
-  // OptimizationHandler *m_optimizationHandler;
+  OptimizationHandler *m_optimizationHandler;
+  QFuture<void> m_optimizationFuture;
   TrainDataHandler *m_trainDataHandler;
   ElectricalDataHandler *m_electricalDataHandler;
   RunningDataHandler *m_runningDataHandler;

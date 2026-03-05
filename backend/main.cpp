@@ -29,51 +29,25 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  // Auto-detect frontend URL if not specified
-  if (frontendUrl.isEmpty()) {
-    if (devMode) {
-      frontendUrl = "http://127.0.0.1:3254";
-    } else {
-      // Check for local file in standard locations
-      QStringList possiblePaths = {
-          // Windows/Linux local build (relative to executable)
-          QCoreApplication::applicationDirPath() + "/frontend",
-          // Linux installed (standard path)
-          "/usr/share/train-simulation-app",
-          // Fallback for development structure
-          QCoreApplication::applicationDirPath() + "/../../frontend/out"};
-
-      QString foundPath;
-      for (const QString &path : possiblePaths) {
-        if (QDir(path).exists() && QFile::exists(path + "/index.html")) {
-          foundPath = path;
-          qInfo() << "✅ Found local frontend directory at:" << path;
-          break;
-        }
-      }
-
-      if (!foundPath.isEmpty()) {
-        // We found the frontend directory. We will serve it via the backend
-        // server.
-        frontendUrl =
-            "SERVE_STATIC"; // Placeholder to be replaced after server starts
-
-        // Store the found path to configure the server later
-        qputenv("TRAIN_APP_STATIC_ROOT", foundPath.toUtf8());
-      } else {
-        qWarning()
-            << "⚠️ Could not find local frontend directory. Defaulting to "
-               "localhost.";
-        frontendUrl = "http://127.0.0.1:3254";
-      }
-    }
-  }
-
   if (headless) {
     // Headless mode: Backend server only (no GUI)
     QCoreApplication app(argc, argv);
     QCoreApplication::setOrganizationName("PT INKA Persero");
     QCoreApplication::setApplicationName("Train Simulation App");
+
+    // Auto-detect frontend static root (now AFTER QCoreApplication is created)
+    if (frontendUrl.isEmpty()) {
+      QStringList possiblePaths = {
+          QCoreApplication::applicationDirPath() + "/frontend",
+          "/usr/share/train-simulation-app",
+          QCoreApplication::applicationDirPath() + "/../../frontend/out"};
+      for (const QString &path : possiblePaths) {
+        if (QDir(path).exists() && QFile::exists(path + "/index.html")) {
+          qputenv("TRAIN_APP_STATIC_ROOT", path.toUtf8());
+          break;
+        }
+      }
+    }
 
     AppContext context;
     HttpServer server(context);
@@ -116,35 +90,58 @@ int main(int argc, char *argv[]) {
     app.setApplicationName("Train Simulation App");
     app.setOrganizationName("PT INKA Persero");
 
+    // Auto-detect frontend URL now that QApplication exists and
+    // applicationDirPath() is valid.
+    if (frontendUrl.isEmpty()) {
+      if (devMode) {
+        frontendUrl = "http://127.0.0.1:3254";
+      } else {
+        QStringList possiblePaths = {
+            // Relative to the installed/built executable
+            QCoreApplication::applicationDirPath() + "/frontend",
+            // Linux system-wide install (RPM/DEB)
+            "/usr/share/train-simulation-app",
+            // Development build fallback
+            QCoreApplication::applicationDirPath() + "/../../frontend/out"};
+
+        QString foundPath;
+        for (const QString &path : possiblePaths) {
+          if (QDir(path).exists() && QFile::exists(path + "/index.html")) {
+            foundPath = path;
+            qInfo() << "✅ Found local frontend directory at:" << path;
+            break;
+          }
+        }
+
+        if (!foundPath.isEmpty()) {
+          // Store the path so the server can serve the static files
+          qputenv("TRAIN_APP_STATIC_ROOT", foundPath.toUtf8());
+          // Use a placeholder; replaced below once we know the server port
+          frontendUrl = "SERVE_STATIC";
+        } else {
+          qWarning() << "⚠️ Could not find local frontend directory. "
+                        "Defaulting to localhost.";
+          frontendUrl = "http://127.0.0.1:3254";
+        }
+      }
+    }
+
     qInfo() << "🚀 Starting Train Simulation App (Desktop Mode)";
 
-    AppContext context;
-    // We need the server in GUI mode too to serve the API and potentially
-    // static files
-    HttpServer server(context);
+    // WebEngineWindow owns AppContext, HttpServer, and WebChannel.
+    // Do NOT create a second HttpServer here — that would attempt to bind the
+    // same port and fail with "address already in use".
+    WebEngineWindow window(port);
+    window.show();
 
-    // Check if we need to serve static files
-    QByteArray staticRoot = qgetenv("TRAIN_APP_STATIC_ROOT");
-    if (!staticRoot.isEmpty()) {
-      server.setStaticRoot(QString::fromUtf8(staticRoot));
-    }
-
-    if (!server.startServer(port)) {
-      qCritical() << "❌ Failed to start backend server on port" << port;
-      return 1;
-    }
-
-    // Update frontend URL if we are serving static files
+    // Now that the server is running inside the window, resolve the URL.
     if (frontendUrl == "SERVE_STATIC") {
-      frontendUrl = QString("http://127.0.0.1:%1").arg(server.getPort());
+      quint16 actualPort = window.getHttpServer()->getPort();
+      frontendUrl = QString("http://127.0.0.1:%1").arg(actualPort);
     }
 
     qInfo() << "   Mode:" << (devMode ? "Development" : "Production");
     qInfo() << "   Frontend:" << frontendUrl;
-
-    // Create main window with embedded web view
-    WebEngineWindow window;
-    window.show();
 
     // Load frontend
     window.loadFrontend(QUrl(frontendUrl));

@@ -12,27 +12,48 @@ const chunkArray = <T>(array: T[], chunkSize: number): T[][] => {
 const inputErrorMessage: string = "This Value must be a number";
 
 export const ElectricalFormSchema = z.object({
-  stat_vol_line: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  stat_vol_motor: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  stat_pf: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  stat_eff_gear: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  stat_eff_motor: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  stat_eff_vvvf: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
-  p_aps: z.coerce.number<number>({
-    message: inputErrorMessage,
-  }),
+  stat_vol_line: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  stat_vol_motor: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
+  stat_pf: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(100, { message: "Value cannot exceed 100%" }),
+  stat_eff_gear: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(50, { message: "Efficiency must be at least 50%" })
+    .max(100, { message: "Efficiency cannot exceed 100%" }),
+  stat_eff_motor: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(50, { message: "Efficiency must be at least 50%" })
+    .max(100, { message: "Efficiency cannot exceed 100%" }),
+  stat_eff_vvvf: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(50, { message: "Efficiency must be at least 50%" })
+    .max(100, { message: "Efficiency cannot exceed 100%" }),
+  p_aps: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(5000, { message: "Value cannot exceed 5000" }),
 });
 
 export const constantInputFormDatas: InputType[] = [

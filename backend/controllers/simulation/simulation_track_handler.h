@@ -22,6 +22,8 @@ private:
   ConstantData *constantData;
   TrainData *trainData;
   MovingData *movingData;
+  MassData *massData;
+  StationData *stationData;
   SimulationDatas *simulationDatas;
 };
 

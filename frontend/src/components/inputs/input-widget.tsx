@@ -61,7 +61,7 @@ export function InputWidget({
             control={control}
           />
           <InputUpload
-            name={inputType.name}
+            name={inputType.name + "_file"}
             requiredColumns={inputType.requiredColumns}
             control={control}
             onFileLoad={handleFileLoad}

@@ -1,0 +1,6 @@
+n_station,2
+x_station,2000
+radius,300
+slope,0
+v_limit,80
+dwellTime,30

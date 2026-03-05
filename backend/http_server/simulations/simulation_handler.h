@@ -16,6 +16,11 @@ public:
   QHttpServerResponse handleGetSimulationStatus();
   QHttpServerResponse handleGetSimulationResults();
 
+  // Expose the simulation handler so OptimizationHandler can share it
+  TrainSimulationHandler *getTrainSimulation() const {
+    return m_trainSimulation;
+  }
+
 private:
   QJsonObject getStaticResults();
   QJsonObject getDynamicResults();

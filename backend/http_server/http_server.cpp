@@ -404,6 +404,34 @@ void HttpServer::setupRoutes() {
         return addCorsHeaders(m_apiHandler->handleGetSimulationResults());
       });
 
+  // Optimization endpoints
+  m_httpServer->route(
+      "/api/optimization/start", QHttpServerRequest::Method::Post,
+      [this, addCorsHeaders](const QHttpServerRequest &) {
+        qDebug() << "🚀 POST /api/optimization/start";
+        return addCorsHeaders(m_apiHandler->handleStartOptimization());
+      });
+
+  m_httpServer->route("/api/optimization/start",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
+
+  m_httpServer->route(
+      "/api/optimization/status", QHttpServerRequest::Method::Get,
+      [this, addCorsHeaders](const QHttpServerRequest &) {
+        return addCorsHeaders(m_apiHandler->handleGetOptimizationStatus());
+      });
+
+  m_httpServer->route("/api/optimization/status",
+                      QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
+
   // Export endpoints
   m_httpServer->route(
       "/api/export/results", QHttpServerRequest::Method::Post,

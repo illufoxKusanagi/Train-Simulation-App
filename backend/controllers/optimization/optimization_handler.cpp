@@ -1,279 +1,306 @@
 #include "optimization_handler.h"
-#include <QCoreApplication>
+#include "controllers/optimization/fuzzy/trapezoid_set.h"
+#include "controllers/optimization/fuzzy/triangle_set.h"
+#include "controllers/simulation/train_simulation_handler.h"
 #include <QDebug>
+#include <algorithm>
+#include <memory>
 
-OptimizationHandler::OptimizationHandler(QObject *parent)
-    : QObject(parent), m_isRunning(false), m_workerThread(nullptr) {
-  m_stopRequested = 0;
-  m_currentResult.iterationCount = 0;
-  m_currentResult.suitabilityScore = 0.0;
-  m_currentResult.suitabilityLabel = "Not Started";
-  m_currentResult.optimizedTrain = {0};
-  m_currentResult.scoreHistory.clear();
-  qDebug() << "🔧 OptimizationHandler Constructed. Iteration:"
-           << m_currentResult.iterationCount;
-  setupFuzzyEngine();
+OptimizationHandler::OptimizationHandler(
+    AppContext *context, TrainSimulationHandler *simulationHandler,
+    QObject *parent)
+    : QObject(parent), m_simulationDatas(context->simulationDatas.data()),
+      m_movingData(context->movingData.data()),
+      m_trainSimulation(simulationHandler),
+      m_simulationMutex(&context->simulationMutex) {
+  // Fuzzy engine is calibrated from actual sweep data — no static setup here.
 }
 
-OptimizationHandler::~OptimizationHandler() {
-  stopOptimization();
-  if (m_workerThread) {
-    m_workerThread->quit();
-    m_workerThread->wait();
-    delete m_workerThread;
-  }
+// =============================================================================
+// Time Engine Setup — evaluates TravelTime (shaped by acc_start).
+//
+// A shorter travel time means acc_start enabled faster acceleration → better.
+// 3 input terms (Short/Medium/Long) × 1 output (TimeScore 0–100) = 3 rules.
+// Ranges are derived from actual Pass 1 data.
+// =============================================================================
+void OptimizationHandler::setupTimeEngine(double minT, double maxT) {
+  m_timeEngine.clear();
+
+  // 5% margin so boundary results still get non-zero membership
+  const double margin = (maxT - minT) * 0.05;
+  minT -= margin;
+  maxT += margin;
+  const double r = maxT - minT;
+
+  // ── Input: TravelTime — Short=fast(good), Long=slow(bad) ─────────────────
+  auto travelTime = std::make_shared<FuzzyVariable>("TravelTime", minT, maxT);
+  travelTime->addTerm(std::make_shared<TrapezoidSet>(
+      "Short", minT, minT, minT + 0.25 * r, minT + 0.45 * r));
+  travelTime->addTerm(std::make_shared<TriangleSet>(
+      "Medium", minT + 0.30 * r, minT + 0.50 * r, minT + 0.70 * r));
+  travelTime->addTerm(std::make_shared<TrapezoidSet>(
+      "Long", minT + 0.55 * r, minT + 0.75 * r, maxT, maxT));
+
+  // ── Output: TimeScore (0–100) ─────────────────────────────────────────────
+  auto timeScore = std::make_shared<FuzzyVariable>("TimeScore", 0.0, 100.0);
+  timeScore->addTerm(
+      std::make_shared<TrapezoidSet>("Poor", 0.0, 0.0, 15.0, 30.0));
+  timeScore->addTerm(std::make_shared<TriangleSet>("Fair", 20.0, 38.0, 55.0));
+  timeScore->addTerm(std::make_shared<TriangleSet>("Good", 45.0, 62.0, 78.0));
+  timeScore->addTerm(
+      std::make_shared<TrapezoidSet>("Excellent", 68.0, 82.0, 100.0, 100.0));
+
+  m_timeEngine.addInputVariable(travelTime);
+  m_timeEngine.addOutputVariable(timeScore);
+
+  // ── 3 Rules for TravelTime ────────────────────────────────────────────────
+  // Rule: IF TravelTime is X → TimeScore is Y
+  auto makeRule = [](const QString &term, const QString &score) -> FuzzyRule {
+    FuzzyRule r;
+    r.antecedents["TravelTime"] = term;
+    r.consequent = {"TimeScore", score};
+    return r;
+  };
+  m_timeEngine.addRule(makeRule("Short", "Excellent"));
+  m_timeEngine.addRule(makeRule("Medium", "Good"));
+  m_timeEngine.addRule(makeRule("Long", "Poor"));
+
+  qDebug() << "Time engine calibrated — TravelTime [" << minT << "–" << maxT
+           << "] s";
 }
 
-void OptimizationHandler::setupFuzzyEngine() {
-  m_fuzzyEngine = std::make_unique<FuzzyEngine>();
+// =============================================================================
+// Power Engine Setup — evaluates MotorPower (shaped by v_p1).
+//
+// A lower peak power means v_p1 allowed the motor to work more efficiently.
+// 3 input terms (Low/Medium/High) × 1 output (PowerScore 0–100) = 3 rules.
+// Ranges are derived from actual Pass 1 data.
+// =============================================================================
+void OptimizationHandler::setupPowerEngine(double minP, double maxP) {
+  m_powerEngine.clear();
 
-  // 1. Inputs
-  // Acceleration (m/s^2)
-  auto acc = std::make_shared<FuzzyVariable>("Acceleration", 0.0, 3.0);
-  acc->addTerm(std::make_shared<TriangleSet>("Low", 0.0, 0.0, 0.8));
-  acc->addTerm(std::make_shared<TriangleSet>("Medium", 0.5, 1.0, 1.5));
-  acc->addTerm(std::make_shared<TriangleSet>("High", 1.2, 3.0, 3.0));
-  m_fuzzyEngine->addInputVariable(acc);
+  // 5% margin so boundary results still get non-zero membership
+  const double margin = (maxP - minP) * 0.05;
+  minP -= margin;
+  maxP += margin;
+  const double r = maxP - minP;
 
-  // Weakening Point (km/h)
-  auto wp = std::make_shared<FuzzyVariable>("WeakeningPoint", 0.0, 120.0);
-  wp->addTerm(std::make_shared<TriangleSet>("Low", 0.0, 0.0, 35.0));
-  wp->addTerm(std::make_shared<TriangleSet>("Medium", 30.0, 45.0, 60.0));
-  wp->addTerm(std::make_shared<TriangleSet>("High", 50.0, 120.0, 120.0));
-  m_fuzzyEngine->addInputVariable(wp);
+  // ── Input: MotorPower — Low=efficient(good), High=hungry(bad) ────────────
+  auto motorPower = std::make_shared<FuzzyVariable>("MotorPower", minP, maxP);
+  motorPower->addTerm(std::make_shared<TrapezoidSet>(
+      "Low", minP, minP, minP + 0.25 * r, minP + 0.45 * r));
+  motorPower->addTerm(std::make_shared<TriangleSet>(
+      "Medium", minP + 0.30 * r, minP + 0.50 * r, minP + 0.70 * r));
+  motorPower->addTerm(std::make_shared<TrapezoidSet>(
+      "High", minP + 0.55 * r, minP + 0.75 * r, maxP, maxP));
 
-  // Gradient (permil)
-  auto grad = std::make_shared<FuzzyVariable>("Gradient", 0.0, 40.0);
-  grad->addTerm(std::make_shared<TriangleSet>("Low", 0.0, 0.0, 5.0));
-  grad->addTerm(std::make_shared<TriangleSet>("Medium", 2.0, 10.0, 20.0));
-  grad->addTerm(std::make_shared<TriangleSet>("High", 15.0, 40.0, 40.0));
-  m_fuzzyEngine->addInputVariable(grad);
+  // ── Output: PowerScore (0–100) ────────────────────────────────────────────
+  auto powerScore = std::make_shared<FuzzyVariable>("PowerScore", 0.0, 100.0);
+  powerScore->addTerm(
+      std::make_shared<TrapezoidSet>("Poor", 0.0, 0.0, 15.0, 30.0));
+  powerScore->addTerm(std::make_shared<TriangleSet>("Fair", 20.0, 38.0, 55.0));
+  powerScore->addTerm(std::make_shared<TriangleSet>("Good", 45.0, 62.0, 78.0));
+  powerScore->addTerm(
+      std::make_shared<TrapezoidSet>("Excellent", 68.0, 82.0, 100.0, 100.0));
 
-  // Speed Limit (km/h)
-  auto speed = std::make_shared<FuzzyVariable>("SpeedLimit", 0.0, 160.0);
-  speed->addTerm(std::make_shared<TriangleSet>("Low", 0.0, 0.0, 60.0));
-  speed->addTerm(std::make_shared<TriangleSet>("Medium", 50.0, 80.0, 110.0));
-  speed->addTerm(std::make_shared<TriangleSet>("High", 100.0, 160.0, 160.0));
-  m_fuzzyEngine->addInputVariable(speed);
+  m_powerEngine.addInputVariable(motorPower);
+  m_powerEngine.addOutputVariable(powerScore);
 
-  // 2. Output: Suitability
-  auto suit = std::make_shared<FuzzyVariable>("Suitability", 0.0, 1.0);
-  suit->addTerm(std::make_shared<TriangleSet>("NotSuitable", 0.0, 0.0, 0.4));
-  suit->addTerm(std::make_shared<TriangleSet>("QuiteSuitable", 0.3, 0.5, 0.7));
-  suit->addTerm(std::make_shared<TriangleSet>("VerySuitable", 0.6, 1.0, 1.0));
-  m_fuzzyEngine->addOutputVariable(suit);
+  // ── 3 Rules for MotorPower ────────────────────────────────────────────────
+  // Rule: IF MotorPower is X → PowerScore is Y
+  auto makeRule = [](const QString &term, const QString &score) -> FuzzyRule {
+    FuzzyRule r;
+    r.antecedents["MotorPower"] = term;
+    r.consequent = {"PowerScore", score};
+    return r;
+  };
+  m_powerEngine.addRule(makeRule("Low", "Excellent"));
+  m_powerEngine.addRule(makeRule("Medium", "Good"));
+  m_powerEngine.addRule(makeRule("High", "Poor"));
 
-  // 3. Rules (Examples from Thesis + Logic)
-  // Rule 1: Low Acc + High Grade -> Not Suitable
-  m_fuzzyEngine->addRule({{{"Acceleration", "Low"}, {"Gradient", "High"}},
-                          {"Suitability", "NotSuitable"}});
-
-  // Rule 2: Medium Acc + Medium WP + Medium Grade -> Quite Suitable
-  m_fuzzyEngine->addRule({{{"Acceleration", "Medium"},
-                           {"WeakeningPoint", "Medium"},
-                           {"Gradient", "Medium"}},
-                          {"Suitability", "QuiteSuitable"}});
-
-  // Rule 3: High Acc + High WP -> Very Suitable
-  m_fuzzyEngine->addRule(
-      {{{"Acceleration", "High"}, {"WeakeningPoint", "High"}},
-       {"Suitability", "VerySuitable"}});
-
-  // Rule 4: Low WP + High SpeedLimit -> Not Suitable
-  m_fuzzyEngine->addRule({{{"WeakeningPoint", "Low"}, {"SpeedLimit", "High"}},
-                          {"Suitability", "NotSuitable"}});
-
-  // Rule 5 (From Thesis Example): WP Medium + Speed Medium + Grad Medium ->
-  // Quite Suitable
-  m_fuzzyEngine->addRule({{{"WeakeningPoint", "Medium"},
-                           {"SpeedLimit", "Medium"},
-                           {"Gradient", "Medium"}},
-                          {"Suitability", "QuiteSuitable"}});
+  qDebug() << "Power engine calibrated — MotorPower [" << minP << "–" << maxP
+           << "] kW";
 }
 
-void OptimizationHandler::startOptimization(const TrainData &baseTrain,
-                                            const MassData &baseMass,
-                                            const SimulationDatas &simData) {
-  if (m_isRunning)
+// Final score = average of both sub-scores.
+// This gives equal weight to travel time quality (acc_start contribution)
+// and motor power quality (v_p1 contribution).
+double OptimizationHandler::evaluateFuzzyScore(double travelTime,
+                                               double motorPower) {
+  m_timeEngine.setInputValue("TravelTime", travelTime);
+  m_powerEngine.setInputValue("MotorPower", motorPower);
+  const double timeScore = m_timeEngine.getOutputValue("TimeScore");
+  const double powerScore = m_powerEngine.getOutputValue("PowerScore");
+  return (timeScore + powerScore) / 2.0;
+}
+
+// =============================================================================
+// Main Optimization Loop — TWO PASS
+//   Pass 1: run all 20 simulations, collect (travelTime, peakPower) per combo
+//   Pass 2: calibrate fuzzy engine from actual observed ranges, then score
+// This makes the engine work with ANY train + track configuration.
+// =============================================================================
+void OptimizationHandler::handleOptimization() {
+  if (m_isRunning.testAndSetRelaxed(0, 1) == false) {
+    qWarning() << "Optimization already running, ignoring request.";
     return;
+  }
 
-  m_baseTrain = baseTrain;
-  m_baseMass = baseMass;
-  m_baseSimData = simData;
-  m_stopRequested = 0;
-  m_isRunning = true;
+  // Require at least one successful simulation to have valid parameters
+  if (m_trainSimulation->getMaxSpeed() <= 0.0) {
+    qWarning() << "Optimization aborted: run a dynamic simulation first.";
+    m_isRunning.storeRelaxed(0);
+    return;
+  }
 
-  // Move to worker thread
-  m_workerThread = new QThread;
-  this->moveToThread(m_workerThread);
+  // Save and restore user's original parameters
+  const double originalAcc = m_movingData->acc_start;
+  const double originalVp1 = m_movingData->v_p1;
 
-  connect(m_workerThread, &QThread::started, this,
-          &OptimizationHandler::runOptimizationLoop);
-  connect(this, &OptimizationHandler::optimizationFinished, m_workerThread,
-          &QThread::quit);
-  connect(m_workerThread, &QThread::finished, m_workerThread,
-          &QThread::deleteLater);
+  // Build sweep centered on the user's ACTUAL loaded parameters.
+  // This makes the optimizer adapt to any train configuration.
+  //   acc  : 5 values, 0.1 m/s² step, centred at originalAcc, clamped
+  //   [0.3, 1.5] v_p1 : 4 values at -15, -5, +5, +15 km/h from originalVp1,
+  //          clamped to [20, v_limit - 5)
+  QList<double> accValues;
+  for (int i = -2; i <= 2; ++i) {
+    const double v =
+        std::round((originalAcc + i * 0.1) * 10.0) / 10.0; // avoid FP drift
+    if (v >= 0.3 && v <= 1.5)
+      accValues.append(v);
+  }
+  if (accValues.isEmpty())
+    accValues.append(originalAcc);
 
-  m_workerThread->start();
-  std::cerr << "🚀 Optimization Thread Started" << std::endl;
-  emit optimizationStarted();
-}
+  const double vLimitKmh = m_movingData->v_limit;
+  QList<double> vp1Values;
+  for (int delta : {-15, -5, 5, 15}) {
+    const double v = originalVp1 + delta;
+    if (v >= 20.0 && v < vLimitKmh - 5.0)
+      vp1Values.append(v);
+  }
+  if (vp1Values.isEmpty())
+    vp1Values.append(originalVp1);
 
-void OptimizationHandler::stopOptimization() { m_stopRequested = 1; }
+  qDebug() << "Optimization sweep — acc:" << accValues
+           << "| v_p1:" << vp1Values;
 
-void OptimizationHandler::runOptimizationLoop() {
-  TrainData currentCandidate = m_baseTrain;
-  TrainData bestCandidate = m_baseTrain;
-  double bestScore = -1.0;
-  int maxIterations = 50;
+  {
+    QMutexLocker lk(&m_resultsMutex);
+    m_results.clear();
+  }
 
-  m_currentResult.scoreHistory.clear();
+  // ── PASS 1: simulate all combinations, record raw metrics ──────────────
+  qDebug() << "=== Optimization Pass 1: running"
+           << accValues.size() * vp1Values.size() << "simulations ===";
 
-  for (int i = 0; i < maxIterations; ++i) {
-    if (m_stopRequested)
-      break;
+  struct RawEntry {
+    double acc, vp1, peakPower, travelTime;
+  };
+  QList<RawEntry> rawData;
 
-    // 1. Run Simulation (Headless)
-    SimMetrics metrics =
-        runHeadlessSimulation(currentCandidate, m_baseMass, m_baseSimData);
+  for (double acc : accValues) {
+    for (double vp1 : vp1Values) {
+      // Set parameters and run simulation WITHOUT holding the outer mutex.
+      // runDynamicSimulation() acquires m_simulationMutex internally for each
+      // step — holding it here too would deadlock (QMutex is non-recursive).
+      m_movingData->acc_start = acc;
+      m_movingData->v_p1 = vp1;
+      m_trainSimulation->runDynamicSimulation();
 
-    // 2. Evaluate (The Judge)
-    m_fuzzyEngine->setInputValue("Acceleration", metrics.acceleration);
-    m_fuzzyEngine->setInputValue("WeakeningPoint", metrics.weakeningPoint);
-    m_fuzzyEngine->setInputValue("Gradient", metrics.maxGradient);
-    m_fuzzyEngine->setInputValue("SpeedLimit", metrics.speedLimit);
-
-    double score = m_fuzzyEngine->getOutputValue("Suitability");
-
-    std::cerr << "Iter " << i << ": Acc=" << metrics.acceleration
-              << " WP=" << metrics.weakeningPoint
-              << " Grad=" << metrics.maxGradient
-              << " Speed=" << metrics.speedLimit << " -> Score=" << score
-              << std::endl;
-
-    // Update Result
-    {
-      QMutexLocker locker(&m_resultMutex);
-      m_currentResult.scoreHistory.push_back(score);
-      m_currentResult.debug_acc = metrics.acceleration;
-      m_currentResult.debug_wp = metrics.weakeningPoint;
-      m_currentResult.debug_grad = metrics.maxGradient;
-      m_currentResult.debug_speed = metrics.speedLimit;
-      if (score > bestScore) {
-        bestScore = score;
-        bestCandidate = currentCandidate;
-        m_currentResult.optimizedTrain = bestCandidate;
-        m_currentResult.suitabilityScore = bestScore;
+      if (m_simulationDatas->powerMotorOutPerMotor.isEmpty() ||
+          m_simulationDatas->timeTotal.isEmpty()) {
+        qWarning() << "Pass1: empty result for acc=" << acc << "vp1=" << vp1;
+        continue;
       }
+
+      RawEntry e;
+      e.acc = acc;
+      e.vp1 = vp1;
+      e.peakPower = findMaximumPowerMotorPerCar();
+      e.travelTime = m_simulationDatas->timeTotal.last();
+      rawData.append(e);
+
+      qDebug()
+          << QString(
+                 "  acc=%-4.2f  vp1=%-5.1f  peakPwr=%-8.1f kW  time=%-8.1f s")
+                 .arg(acc)
+                 .arg(vp1)
+                 .arg(e.peakPower)
+                 .arg(e.travelTime);
     }
-
-    emit optimizationProgress(i + 1, score, bestScore);
-
-    // 3. Stop if good enough
-    if (score >= 0.85)
-      break;
-
-    // 4. Adjust (The Mechanic)
-    // Find out WHY it's bad
-    QString accTerm = m_fuzzyEngine->getDominantInputTerm("Acceleration");
-    QString wpTerm = m_fuzzyEngine->getDominantInputTerm("WeakeningPoint");
-
-    QString deficit = "";
-    if (accTerm == "Low")
-      deficit = "LowAcceleration";
-    else if (wpTerm == "Low")
-      deficit = "LowWeakening";
-
-    adjustCandidate(currentCandidate, deficit);
-
-    // Sleep slightly to not freeze UI if running on main thread (though we are
-    // on worker)
-    QThread::msleep(50);
   }
 
-  m_isRunning = false;
-  emit optimizationFinished(m_currentResult);
-}
+  // Restore user parameters (no mutex needed — simulation is done and we own
+  // m_movingData exclusively while m_isRunning == 1).
+  m_movingData->acc_start = originalAcc;
+  m_movingData->v_p1 = originalVp1;
 
-OptimizationHandler::SimMetrics
-OptimizationHandler::runHeadlessSimulation(const TrainData &train,
-                                           const MassData &mass,
-                                           const SimulationDatas &simData) {
-  // Simplified simulation for optimization
-  // In a real scenario, this would call TrainSimulationHandler methods.
-  // For now, we approximate metrics based on physics formulas to be fast.
-
-  SimMetrics metrics;
-
-  // Calculate Acceleration (F = ma)
-  // Tractive Effort approx = (Power / Speed) * Efficiency
-  // But at start, TE is limited by adhesion or motor max torque.
-  // Let's use a simplified model:
-
-  double totalMass = mass.mass_totalLoad * 1000; // kg
-  if (totalMass < 1000.0) {
-    // Fallback: Estimate mass if totalLoad is not set
-    // Approx 35 tons per car (empty + load)
-    totalMass = train.n_car * 35.0 * 1000;
+  if (rawData.isEmpty()) {
+    qWarning() << "Optimization: no valid results from Pass 1.";
+    m_isRunning.storeRelaxed(0);
+    return;
   }
 
-  double totalPower = train.n_tm * 190 * 1000; // Assuming 190kW per motor
-  double force = (totalPower / 15.0);          // Force at low speed (approx)
-  force = force * train.gearRatio / 5.0;       // Adjust by gear ratio
-
-  metrics.acceleration = force / totalMass;
-
-  // Weakening Point approx
-  // Speed where voltage limit is hit. Proportional to Wheel Diameter / Gear
-  // Ratio
-  metrics.weakeningPoint =
-      (train.wheel * 3.14 * 60 * 1000) / (train.gearRatio * 1000);
-  // Normalize to reasonable range
-  metrics.weakeningPoint =
-      35.0 * (850.0 / train.wheel) * (6.0 / train.gearRatio);
-
-  // Track Data (Constant for this track)
-  metrics.maxGradient = 5.0; // Placeholder, should come from SimulationData
-  metrics.speedLimit = 80.0; // Placeholder
-
-  return metrics;
-}
-
-void OptimizationHandler::adjustCandidate(TrainData &candidate,
-                                          const QString &dominantDeficit) {
-  // The Mechanic Logic
-  if (dominantDeficit == "LowAcceleration") {
-    // Need more torque: Increase Gear Ratio OR More Motors
-    if (candidate.gearRatio < 10.0) {
-      candidate.gearRatio += 0.2;
-    } else {
-      candidate.n_tm += 1;
-    }
-  } else if (dominantDeficit == "LowWeakening") {
-    // Need more speed range: Decrease Gear Ratio
-    if (candidate.gearRatio > 3.0) {
-      candidate.gearRatio -= 0.2;
-    }
-  } else {
-    // Random mutation if no clear deficit (Exploration)
-    if (rand() % 2 == 0)
-      candidate.gearRatio += ((rand() % 10) - 5) * 0.05;
-    else
-      candidate.n_tm += (rand() % 3) - 1;
+  // ── PASS 2: derive ranges from actual data, calibrate engine, score ─────
+  double minT = rawData[0].travelTime, maxT = rawData[0].travelTime;
+  double minP = rawData[0].peakPower, maxP = rawData[0].peakPower;
+  for (const RawEntry &e : rawData) {
+    minT = std::min(minT, e.travelTime);
+    maxT = std::max(maxT, e.travelTime);
+    minP = std::min(minP, e.peakPower);
+    maxP = std::max(maxP, e.peakPower);
+  }
+  // Avoid degenerate (all-same) range
+  if (maxT - minT < 1.0) {
+    minT -= 1.0;
+    maxT += 1.0;
+  }
+  if (maxP - minP < 1.0) {
+    minP -= 1.0;
+    maxP += 1.0;
   }
 
-  // Bounds check
-  if (candidate.n_tm < 1)
-    candidate.n_tm = 1;
-  if (candidate.gearRatio < 1.0)
-    candidate.gearRatio = 1.0;
+  setupTimeEngine(minT, maxT);
+  setupPowerEngine(minP, maxP);
+
+  qDebug() << "=== Optimization Pass 2: scoring ===";
+  {
+    QMutexLocker lk(&m_resultsMutex);
+    for (const RawEntry &e : rawData) {
+      OptResult r;
+      r.acc_start = e.acc;
+      r.v_p1 = e.vp1;
+      r.peakMotorPower = e.peakPower;
+      r.travelTime = e.travelTime;
+      r.fuzzyScore = evaluateFuzzyScore(e.travelTime, e.peakPower);
+      m_results.append(r);
+
+      qDebug() << QString("  acc=%-4.2f  vp1=%-5.1f  score=%-6.2f")
+                      .arg(e.acc)
+                      .arg(e.vp1)
+                      .arg(r.fuzzyScore);
+    }
+
+    m_bestResult =
+        *std::max_element(m_results.begin(), m_results.end(),
+                          [](const OptResult &a, const OptResult &b) {
+                            return a.fuzzyScore < b.fuzzyScore;
+                          });
+  } // m_resultsMutex released
+
+  qDebug() << "=== Optimization Complete ==="
+           << "| WINNER: acc=" << m_bestResult.acc_start
+           << "vp1=" << m_bestResult.v_p1
+           << "score=" << m_bestResult.fuzzyScore;
+
+  emit optimizationComplete(m_bestResult);
+  m_isRunning.storeRelaxed(0);
 }
 
-#include <iostream>
-
-OptimizationResult OptimizationHandler::getResult() const {
-  QMutexLocker locker(&m_resultMutex);
-  std::cerr << "🔍 getResult called on " << this
-            << ". Iteration: " << m_currentResult.iterationCount << std::endl;
-  return m_currentResult;
+double OptimizationHandler::findMaximumPowerMotorPerCar() {
+  if (m_simulationDatas->powerMotorOutPerMotor.isEmpty())
+    return 0.0;
+  return *std::max_element(m_simulationDatas->powerMotorOutPerMotor.begin(),
+                           m_simulationDatas->powerMotorOutPerMotor.end());
 }

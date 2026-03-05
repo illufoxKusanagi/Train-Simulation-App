@@ -61,6 +61,7 @@ public:
   double getMaxSpeed();
   double getMaxVvvfPower();
   double getMaxCatenaryPower();
+  double getMaxMotorPowerPerMotor();
   double getMaxVvvfCurrent();
   double getMaxCatenaryCurrent();
   double getMaxTractionEffort();
@@ -73,6 +74,7 @@ public:
   double getMaxPowTime();
   double getAdhesion();
 
+  void runDynamicSimulation();
   bool validateDataInitialized();
   bool validateCsvVariables();
   void clearWarnings() { m_simulationWarnings->clear(); }
@@ -80,6 +82,16 @@ public:
   void clearErrors() { m_simulationErrors->clear(); }
   QStringList getSimulationErrors() const { return *m_simulationErrors; }
   bool isSimulationRunning() const { return m_simulationFuture.isRunning(); }
+  // void clearDebugLogs() { m_debugLogs.clear(); }
+  // QStringList getDebugLogs() const { return m_debugLogs; }
+  void clearDebugLogs() {
+    QMutexLocker locker(m_simulationMutex);
+    m_debugLogs.clear();
+  }
+  QStringList getDebugLogs() const {
+    QMutexLocker locker(m_simulationMutex);
+    return m_debugLogs;
+  }
 
 private:
   enum Notch { AtStation, Accelerating, Coasting, Braking, None };
@@ -96,6 +108,7 @@ private:
   StationData *stationData;
   QStringList *m_simulationWarnings;
   QStringList *m_simulationErrors;
+  QStringList m_debugLogs;
   // QSet<QString> m_simulationWarnings;
   // QSet<QString> m_simulationErrors;
 
@@ -144,7 +157,6 @@ private:
   void setCsvVariablesData();
   void addEnergySimulationDatas();
   void addStationSimulationDatas();
-  void runDynamicSimulation();
   void runStaticSimulation();
   QMutex *m_simulationMutex;
   QFuture<void> m_simulationFuture;

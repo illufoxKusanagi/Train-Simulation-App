@@ -4,6 +4,7 @@
 struct PowerData {
   double p_wheel = 0;
   double p_motorOut = 0;
+  double p_motorOutPerMotor = 0;
   double p_motorIn = 0;
   double p_vvvfIn = 0;
   double p_catenary = 0;

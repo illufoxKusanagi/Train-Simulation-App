@@ -6,7 +6,8 @@ PowerHandler::PowerHandler(AppContext &context)
       movingData(context.movingData.data()),
       efficiencyData(context.efficiencyData.data()),
       energyData(context.energyData.data()),
-      constantData(context.constantData.data()) {}
+      constantData(context.constantData.data()),
+      trainData(context.trainData.data()) {}
 
 double PowerHandler::calculatePowerWheel() {
   powerData->p_wheel =
@@ -17,6 +18,15 @@ double PowerHandler::calculatePowerWheel() {
 double PowerHandler::calculateOutputTractionMotor(double eff_gear) {
   powerData->p_motorOut = powerData->p_wheel / eff_gear;
   return powerData->p_motorOut;
+}
+
+double PowerHandler::calculateOutputTractionMotorPerMotor() {
+  if (trainData->n_tm > 0) {
+    powerData->p_motorOutPerMotor = powerData->p_motorOut / trainData->n_tm;
+  } else {
+    powerData->p_motorOutPerMotor = 0;
+  }
+  return powerData->p_motorOutPerMotor;
 }
 
 double PowerHandler::calculateInputTractionMotor(double eff_motor) {

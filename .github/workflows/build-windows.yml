@@ -2,13 +2,13 @@ name: Build Windows Executable
 
 on:
   push:
-    branches: 
+    branches:
       - master
       - main
     tags:
       - "v*"
   pull_request:
-    branches: 
+    branches:
       - master
       - main
   workflow_dispatch:
@@ -27,11 +27,12 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: "6.8.0"
+          version: "6.7.2"
           host: "windows"
           target: "desktop"
-          arch: "win64_msvc2022_64"
+          arch: "win64_msvc2019_64"
           modules: "qtwebchannel qthttpserver qtwebengine qtpositioning qtwebsockets"
+          cache: true
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -46,36 +47,97 @@ jobs:
           npm run build
 
       - name: Build Backend
-        shell: cmd
+        shell: powershell
         run: |
-          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          mkdir backend\build
-          cd backend\build
-          cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=${{ env.Qt6_DIR }} ..
-          cmake --build . --config Release
+          $QtRoot = $env:QT_ROOT_DIR
+          if (-not $QtRoot) { $QtRoot = Split-Path (Split-Path $env:Qt6_DIR -Parent) -Parent }
 
-      - name: Bundle Frontend with Backend
-        shell: bash
-        run: |
-          mkdir -p backend/build/bin/frontend
-          cp -r frontend/out/* backend/build/bin/frontend/
+          New-Item -ItemType Directory -Force -Path "backend\\build" | Out-Null
+          Set-Location "backend\\build"
+
+          & cmake -G Ninja `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_PREFIX_PATH="$QtRoot" `
+            ..
+          if ($LASTEXITCODE -ne 0) { throw "CMake configure failed" }
+
+          & cmake --build . --config Release
+          if ($LASTEXITCODE -ne 0) { throw "CMake build failed" }
+
+      - name: Install OpenSSL
+        shell: powershell
+        run: choco install openssl --no-progress -y
 
       - name: Deploy Qt Dependencies
         shell: powershell
         run: |
-          cd backend/build
-          windeployqt.exe --release --no-translations bin\TrainSimulationApp.exe
+          $ErrorActionPreference = "Stop"
 
-          # Create run script
-          @"
-          @echo off
-          start "" "%~dp0TrainSimulationApp.exe"
-          "@ | Out-File -FilePath bin\TrainSimulationApp.bat -Encoding ASCII
+          Set-Location "backend\build"
+          $BinDir = Resolve-Path "bin"
+          $QtRoot = $env:QT_ROOT_DIR
+          if (-not $QtRoot) { $QtRoot = Split-Path (Split-Path $env:Qt6_DIR -Parent) -Parent }
+
+          # Verify executable exists before proceeding
+          if (-not (Test-Path "$BinDir\TrainSimulationApp.exe")) {
+            Write-Error "Executable not found at $BinDir\TrainSimulationApp.exe"
+            Get-ChildItem -Recurse *.exe
+            exit 1
+          }
+
+          # Run windeployqt
+          & windeployqt.exe --release --compiler-runtime --verbose 1 "$BinDir\TrainSimulationApp.exe"
+          if ($LASTEXITCODE -ne 0) { throw "windeployqt failed" }
+
+          # OpenSSL DLLs (Qt 6.7 needs OpenSSL 3.x)
+          foreach ($dir in @("C:\Program Files\OpenSSL-Win64\bin", "C:\Program Files\OpenSSL\bin")) {
+            if (Test-Path $dir) {
+              foreach ($dll in @("libcrypto-3-x64.dll", "libssl-3-x64.dll", "libcrypto-1_1-x64.dll", "libssl-1_1-x64.dll")) {
+                $src = "$dir\$dll"
+                if (Test-Path $src) { Copy-Item $src "$BinDir\" -Force }
+              }
+              break
+            }
+          }
+
+          # Supplement QtWebEngineProcess.exe if windeployqt missed it
+          if (-not (Test-Path "$BinDir\QtWebEngineProcess.exe")) {
+            $f = Get-ChildItem "$QtRoot" -Recurse -Filter "QtWebEngineProcess.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($f) { Copy-Item $f.FullName "$BinDir\" -Force }
+          }
+
+          # WebEngine pak/resource files
+          foreach ($pat in @("icudtl.dat", "*.pak", "v8_context_snapshot*.bin")) {
+            Get-ChildItem "$QtRoot" -Recurse -Filter $pat -ErrorAction SilentlyContinue |
+              Where-Object { $_.DirectoryName -notmatch "locales" } |
+              ForEach-Object {
+                if (-not (Test-Path "$BinDir\$($_.Name)")) {
+                  Copy-Item $_.FullName "$BinDir\" -Force
+                }
+              }
+          }
+
+          # WebEngine locales
+          $loc = Get-ChildItem "$QtRoot" -Recurse -Filter "qtwebengine_locales" -Directory -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($loc -and -not (Test-Path "$BinDir\qtwebengine_locales")) {
+            Copy-Item $loc.FullName "$BinDir\" -Recurse -Force
+          }
+
+          # Frontend static files
+          New-Item -ItemType Directory -Force -Path "$BinDir\frontend" | Out-Null
+          Copy-Item -Recurse -Force "..\..\frontend\out\*" "$BinDir\frontend\"
+
+          # qt.conf — tells Qt to find plugins relative to the exe
+          "[Paths]`nPrefix = ." | Out-File -FilePath "$BinDir\qt.conf" -Encoding ascii
+
+          # Launcher batch — disables sandbox (required for WebEngine without GPU sandbox)
+          "@echo off`ncd /d `"%~dp0`"`nset QTWEBENGINE_DISABLE_SANDBOX=1`nstart `"`" `"%~dp0TrainSimulationApp.exe`" %*" |
+            Out-File -FilePath "$BinDir\TrainSimulationApp.bat" -Encoding ASCII
 
       - name: Create ZIP archive
         shell: powershell
         run: |
-          Compress-Archive -Path backend/build/bin/* -DestinationPath TrainSimulationApp-Windows-x64.zip
+          Compress-Archive -Path "backend\\build\\bin\\*" -DestinationPath "TrainSimulationApp-Windows-x64.zip" -Force
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

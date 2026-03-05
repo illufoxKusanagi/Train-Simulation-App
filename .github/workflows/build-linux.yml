@@ -1,47 +1,30 @@
-name: Build Linux RPM
+name: Build Linux Flatpak
 
 on:
   push:
-    branches: 
+    branches:
       - master
       - main
     tags:
       - "v*"
   pull_request:
-    branches: 
-      - master 
+    branches:
+      - master
       - main
   workflow_dispatch:
 
 jobs:
-  build-rpm:
+  build-flatpak:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            cmake \
-            git \
-            nodejs \
-            npm \
-            rpm \
-            libgl1-mesa-dev \
-            libcups2-dev
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: "6.8.0"
-          host: "linux"
-          target: "desktop"
-          arch: "linux_gcc_64"
-          modules: "qtwebchannel qthttpserver qtwebengine qtpositioning qtwebsockets"
-
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
       - name: Build Frontend
         run: |
@@ -49,99 +32,184 @@ jobs:
           npm install
           npm run build
 
-      - name: Build Backend
+      - name: Install Flatpak tools
         run: |
-          mkdir -p backend/build
-          cd backend/build
-          cmake -DCMAKE_BUILD_TYPE=Release ..
-          cmake --build . --config Release
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+          flatpak remote-add --if-not-exists --user flathub \
+            https://dl.flathub.org/repo/flathub.flatpakrepo
 
-      - name: Bundle Frontend with Backend
+      - name: Install Flatpak runtimes
         run: |
-          mkdir -p backend/build/bin/frontend
-          cp -r frontend/out/* backend/build/bin/frontend/
+          # org.freedesktop.Sdk is the correct build SDK for io.qt.qtwebengine.BaseApp.
+          # The BaseApp installs Qt (WebEngine, WebChannel, WebSockets, etc.) into /app.
+          # qthttpserver is NOT included in any BaseApp/SDK so we build it from source below.
+          flatpak install --user --noninteractive flathub \
+            org.freedesktop.Platform//23.08 \
+            org.freedesktop.Sdk//23.08 \
+            io.qt.qtwebengine.BaseApp//6.7
 
-      - name: Create RPM package
+      - name: Generate Flatpak manifest
+        shell: python3 {0}
         run: |
-          # Create installation directory structure
-          INSTALL_DIR="rpm-package"
-          mkdir -p "$INSTALL_DIR"/{usr/bin,usr/share/train-simulation-app,usr/share/applications}
+          import json, os, shutil, struct, zlib
 
-          # Copy files
-          cp backend/build/bin/TrainSimulationApp "$INSTALL_DIR/usr/bin/train-simulation-app"
-          cp -r frontend/out/* "$INSTALL_DIR/usr/share/train-simulation-app/"
+          APP_ID = "io.github.illufoxkusanagi.TrainSimulationApp"
 
-          # Create desktop entry
-          cat > "$INSTALL_DIR/usr/share/applications/train-simulation-app.desktop" <<'EOF'
-          [Desktop Entry]
-          Name=Train Simulation App
-          Comment=Train Simulation Application
-          Exec=/usr/bin/train-simulation-app
-          Icon=utilities-terminal
-          Terminal=false
-          Type=Application
-          Categories=Education;Simulation;
-          EOF
+          # ── Icon ────────────────────────────────────────────────────────────
+          icon_src = None
+          for root, dirs, files in os.walk("backend/resources"):
+            for f in files:
+              if f.endswith(".png"):
+                icon_src = os.path.join(root, f)
+                break
+            if icon_src:
+              break
 
-          # Create tarball
-          tar czf train-simulation-app-1.0.0.tar.gz -C rpm-package .
+          if icon_src:
+            shutil.copy(icon_src, "icon.png")
+          else:
+            def chunk(tag, data):
+              c = struct.pack(">I", len(data)) + tag + data
+              return c + struct.pack(">I", zlib.crc32(c[4:]) & 0xFFFFFFFF)
+            sig  = b"\x89PNG\r\n\x1a\n"
+            ihdr = chunk(b"IHDR", struct.pack(">IIBBBBB", 1, 1, 8, 2, 0, 0, 0))
+            idat = chunk(b"IDAT", zlib.compress(b"\x00\x1e\x5f\x9f"))
+            iend = chunk(b"IEND", b"")
+            with open("icon.png", "wb") as fh:
+              fh.write(sig + ihdr + idat + iend)
 
-          # Setup rpmbuild directories
-          mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-          cp train-simulation-app-1.0.0.tar.gz ~/rpmbuild/SOURCES/
+          # ── Desktop file ────────────────────────────────────────────────────
+          with open(f"{APP_ID}.desktop", "w") as fh:
+            fh.write("\n".join([
+              "[Desktop Entry]",
+              "Type=Application",
+              "Name=Train Simulation App",
+              "Comment=Train Simulation Application",
+              "Exec=TrainSimulationApp",
+              f"Icon={APP_ID}",
+              "Categories=Education;Science;",
+              "Terminal=false",
+              "",
+            ]))
 
-          # Create spec file
-          cat > ~/rpmbuild/SPECS/train-simulation-app.spec <<'SPEC'
-          %global debug_package %{nil}
+          os.makedirs("flatpak-extras", exist_ok=True)
+          shutil.copy("icon.png",          f"flatpak-extras/{APP_ID}.png")
+          shutil.copy(f"{APP_ID}.desktop", f"flatpak-extras/{APP_ID}.desktop")
 
-          Name:           train-simulation-app
-          Version:        1.0.0
-          Release:        1%{?dist}
-          Summary:        Train Simulation Application
-          License:        MIT
-          URL:            https://github.com/illufoxKusanagi/Train-Simulation-App
-          Source0:        %{name}-%{version}.tar.gz
-          BuildArch:      x86_64
-          Requires:       qt6-qtbase qt6-qtwebengine
+          # ── Manifest ────────────────────────────────────────────────────────
+          # URL verified from download.qt.io/archive directory listing.
+          # SHA-256 pre-computed from the actual tarball (not fetched at CI time).
+          HTTPSERVER_URL = (
+            "https://download.qt.io/archive/qt/6.7/6.7.2/submodules"
+            "/qthttpserver-everywhere-src-6.7.2.tar.xz"
+          )
+          HTTPSERVER_SHA256 = (
+            "0353b9b4f98a83fec8f15046d4ff9d6ef7c874dcbb3664092fe2508f40778b86"
+          )
 
-          %description
-          A train simulation application built with Qt 6 (backend) and Next.js (frontend).
+          manifest = {
+            "app-id": APP_ID,
+            "runtime": "org.freedesktop.Platform",
+            "runtime-version": "23.08",
+            "sdk": "org.freedesktop.Sdk",
+            "base": "io.qt.qtwebengine.BaseApp",
+            "base-version": "6.7",
+            "command": "TrainSimulationApp",
+            "finish-args": [
+              "--share=network",
+              "--share=ipc",
+              "--socket=fallback-x11",
+              "--socket=wayland",
+              "--device=dri",
+              "--filesystem=home",
+            ],
+            "modules": [
+              # QtHttpServer is not in any Flatpak SDK or the BaseApp.
+              # Build it from the official Qt archive into /app so the main
+              # app finds it alongside the rest of Qt from the BaseApp.
+              {
+                "name": "qt6-qthttpserver",
+                "buildsystem": "cmake-ninja",
+                "builddir": True,
+                "config-opts": [
+                  "-DCMAKE_BUILD_TYPE=Release",
+                  "-DCMAKE_PREFIX_PATH=/app",
+                  "-DQt6_DIR=/app/lib/cmake/Qt6",
+                  "-DCMAKE_INSTALL_PREFIX=/app",
+                ],
+                "sources": [{
+                  "type": "archive",
+                  "url": HTTPSERVER_URL,
+                  "sha256": HTTPSERVER_SHA256,
+                }],
+              },
+              {
+                "name": "TrainSimulationApp",
+                "buildsystem": "cmake-ninja",
+                "builddir": True,
+                "config-opts": [
+                  "-DCMAKE_BUILD_TYPE=Release",
+                  "-DCMAKE_PREFIX_PATH=/app",
+                  "-DQt6_DIR=/app/lib/cmake/Qt6",
+                ],
+                "sources": [{"type": "dir", "path": "backend"}],
+              },
+              {
+                "name": "frontend",
+                "buildsystem": "simple",
+                "build-commands": [
+                  "mkdir -p /app/share/train-simulation-app/frontend",
+                  "cp -r . /app/share/train-simulation-app/frontend/",
+                ],
+                "sources": [{"type": "dir", "path": "frontend/out"}],
+              },
+              {
+                "name": "desktop-integration",
+                "buildsystem": "simple",
+                "build-commands": [
+                  f"install -Dm644 {APP_ID}.desktop /app/share/applications/{APP_ID}.desktop",
+                  f"install -Dm644 {APP_ID}.png /app/share/icons/hicolor/256x256/apps/{APP_ID}.png",
+                ],
+                "sources": [{"type": "dir", "path": "flatpak-extras"}],
+              },
+            ],
+          }
 
-          %prep
-          %setup -q -c
+          with open(f"{APP_ID}.json", "w") as fh:
+            json.dump(manifest, fh, indent=2)
+          print(f"Manifest written: {APP_ID}.json")
 
-          %install
-          mkdir -p %{buildroot}
-          cp -a * %{buildroot}/
+      - name: Build Flatpak
+        run: |
+          APP_ID="io.github.illufoxkusanagi.TrainSimulationApp"
+          flatpak-builder \
+            --user \
+            --install-deps-from=flathub \
+            --force-clean \
+            --repo=flatpak-repo \
+            flatpak-build \
+            "${APP_ID}.json"
 
-          %files
-          /usr/bin/train-simulation-app
-          /usr/share/train-simulation-app/*
-          /usr/share/applications/train-simulation-app.desktop
+      - name: Export Flatpak bundle
+        run: |
+          flatpak build-bundle \
+            flatpak-repo \
+            TrainSimulationApp-Linux.flatpak \
+            io.github.illufoxkusanagi.TrainSimulationApp
 
-          %changelog
-          * Sat Dec 02 2025 Builder <builder@localhost> - 1.0.0-1
-          - Initial RPM release
-          SPEC
-
-          # Build RPM
-          rpmbuild -bb ~/rpmbuild/SPECS/train-simulation-app.spec
-
-          # Copy RPM to workspace
-          cp ~/rpmbuild/RPMS/x86_64/train-simulation-app-*.rpm .
-
-      - name: Upload RPM Artifact
+      - name: Upload Flatpak Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TrainSimulationApp-Linux-RPM
-          path: "*.rpm"
+          name: TrainSimulationApp-Linux-Flatpak
+          path: TrainSimulationApp-Linux.flatpak
           retention-days: 30
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          files: "*.rpm"
+          files: TrainSimulationApp-Linux.flatpak
           draft: false
           prerelease: false
         env:

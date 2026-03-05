@@ -1,93 +1,79 @@
 #ifndef OPTIMIZATION_HANDLER_H
 #define OPTIMIZATION_HANDLER_H
 
+#include "controllers/optimization/fuzzy/fuzzy_engine.h"
 #include "controllers/simulation/train_simulation_handler.h"
-#include "models/mass_data.h"
+#include "core/appcontext.h"
+#include "models/moving_data.h"
 #include "models/simulation_data.h"
-#include "models/train_data.h"
-#include "utils/fuzzy_engine.h"
 #include <QAtomicInt>
 #include <QMutex>
+#include <QMutexLocker>
 #include <QObject>
-#include <QThread>
-#include <memory>
 
-// Struct to hold optimization results
-struct OptimizationResult {
-  TrainData optimizedTrain;
-  double suitabilityScore;
-  QString suitabilityLabel;
-  int iterationCount;
-  QVector<double> scoreHistory;
-  double debug_acc;
-  double debug_wp;
-  double debug_grad;
-  double debug_speed;
+// One result entry per (acc_start, v_p1) combination
+struct OptResult {
+  double acc_start; // m/s²
+  double v_p1;      // km/h — field weakening point 1 (powering)
+  double
+      peakMotorPower; // kW/motor — peak during full-power phase (fuzzy input 1)
+  double travelTime;  // seconds  — total trip duration (fuzzy input 2)
+  double fuzzyScore;  // 0–100 (centroid defuzzified)
 };
 
 class OptimizationHandler : public QObject {
   Q_OBJECT
 
 public:
-  explicit OptimizationHandler(QObject *parent = nullptr);
-  ~OptimizationHandler();
+  explicit OptimizationHandler(AppContext *context,
+                               TrainSimulationHandler *simulationHandler,
+                               QObject *parent = nullptr);
+  void handleOptimization();
 
-  // Main control methods
-  void startOptimization(const TrainData &baseTrain, const MassData &baseMass,
-                         const SimulationDatas &simData);
-  void stopOptimization();
-  void applyOptimization(); // Emits signal to update main AppContext
-
-  // Status
-  bool isRunning() const { return m_isRunning; }
-  OptimizationResult getResult() const;
+  // Access results after optimization completes
+  QList<OptResult> getResults() const {
+    QMutexLocker lk(&m_resultsMutex);
+    return m_results;
+  }
+  OptResult getBestResult() const {
+    QMutexLocker lk(&m_resultsMutex);
+    return m_bestResult;
+  }
+  bool isRunning() const { return m_isRunning.loadRelaxed() == 1; }
 
 signals:
-  void optimizationStarted();
-  void optimizationFinished(const OptimizationResult &result);
-  void optimizationProgress(int iteration, double currentScore,
-                            double bestScore);
-  void optimizationError(const QString &message);
-
-private slots:
-  void runOptimizationLoop();
+  void optimizationComplete(OptResult best);
 
 private:
-  // The "Judge"
-  void setupFuzzyEngine();
-  double evaluateCandidate(const TrainData &candidate,
-                           const SimulationDatas &simData);
+  TrainSimulationHandler *m_trainSimulation;
+  MovingData *m_movingData;
+  SimulationDatas *m_simulationDatas;
+  QMutex *m_simulationMutex;
+  // Two separate engines — one per optimized parameter.
+  // m_timeEngine  : evaluates TravelTime  (driven by acc_start)
+  // m_powerEngine : evaluates MotorPower  (driven by v_p1)
+  FuzzyEngine m_timeEngine;
+  FuzzyEngine m_powerEngine;
 
-  // The "Mechanic"
-  void adjustCandidate(TrainData &candidate, const QString &dominantDeficit);
+  mutable QMutex m_resultsMutex; // guards m_results and m_bestResult
+  // All sweep combo results — persists after handleOptimization() returns
+  QList<OptResult> m_results;
+  OptResult m_bestResult;
+  QAtomicInt m_isRunning; // 1 = running, 0 = idle
 
-  // Helper to run a headless simulation
-  // Returns key metrics: Acc, WeakeningPoint, MaxSpeed, etc.
-  struct SimMetrics {
-    double acceleration;
-    double weakeningPoint;
-    double maxGradient; // From track data
-    double speedLimit;  // From track data
-  };
-  SimMetrics runHeadlessSimulation(const TrainData &train, const MassData &mass,
-                                   const SimulationDatas &simData);
+  // ── Per-parameter engine setup ──────────────────────────────────────────
+  // Each function sets up ONE engine independently:
+  //   setupTimeEngine  : TravelTime input → TimeScore output  (3 rules)
+  //   setupPowerEngine : MotorPower input → PowerScore output (3 rules)
+  // Ranges come from actual Pass 1 data so they adapt to any configuration.
+  void setupTimeEngine(double minT, double maxT);
+  void setupPowerEngine(double minP, double maxP);
 
-  // State
-  QAtomicInt m_stopRequested;
-  bool m_isRunning;
-  OptimizationResult m_currentResult;
-  mutable QMutex m_resultMutex;
+  // Run both engines and return the average of TimeScore and PowerScore (0–100)
+  double evaluateFuzzyScore(double travelTime, double motorPower);
 
-  // Components
-  std::unique_ptr<FuzzyEngine> m_fuzzyEngine;
-
-  // Threading
-  QThread *m_workerThread;
-
-  // Data copies for the worker thread
-  TrainData m_baseTrain;
-  MassData m_baseMass;
-  SimulationDatas m_baseSimData;
+  // Peak motor power from the last simulation run (more meaningful than avg)
+  double findMaximumPowerMotorPerCar();
 };
 
 #endif // OPTIMIZATION_HANDLER_H
