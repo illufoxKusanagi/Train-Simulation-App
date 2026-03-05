@@ -81,6 +81,8 @@ void UtilityHandler::resetSimulation() {
   context->resistanceData->f_resRunningTen = 0;
   context->resistanceData->f_resRunningTwentyFive = 0;
   context->resistanceData->f_res = 0;
+  context->stationData->x_odo = 0.0;
+  context->stationData->x_deficit = 0.0;
 }
 
 void UtilityHandler::clearSimulationDatas() {
