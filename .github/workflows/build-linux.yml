@@ -98,15 +98,22 @@ jobs:
           shutil.copy(f"{APP_ID}.desktop", f"flatpak-extras/{APP_ID}.desktop")
 
           # ── Manifest ────────────────────────────────────────────────────────
-          # URL verified from download.qt.io/archive directory listing.
-          # SHA-256 pre-computed from the actual tarball (not fetched at CI time).
+          # qthttpserver version MUST match the Qt version inside the BaseApp.
+          # io.qt.qtwebengine.BaseApp//6.7 ships Qt 6.7.3.
+          # SHA-256 sourced from https://download.qt.io/archive/qt/6.7/6.7.3/submodules/sha256sums.txt
+          HTTPSERVER_VERSION = "6.7.3"
           HTTPSERVER_URL = (
-            "https://download.qt.io/archive/qt/6.7/6.7.2/submodules"
-            "/qthttpserver-everywhere-src-6.7.2.tar.xz"
+            f"https://download.qt.io/archive/qt/6.7/{HTTPSERVER_VERSION}/submodules"
+            f"/qthttpserver-everywhere-src-{HTTPSERVER_VERSION}.tar.xz"
           )
           HTTPSERVER_SHA256 = (
-            "0353b9b4f98a83fec8f15046d4ff9d6ef7c874dcbb3664092fe2508f40778b86"
+            "7f2317c7e52b6b634a5be9a9c917066fb707b905ec618f047cc57b8093f4deff"
           )
+
+          # cmake env vars use ":" as separator on Linux (same as shell PATH).
+          # This covers both the standard Flatpak path (/app/lib/cmake/Qt6) and
+          # the Debian-style arch-specific path (/app/lib/x86_64-linux-gnu/cmake/Qt6).
+          QT_CMAKE_PREFIX = "/app:/app/lib/x86_64-linux-gnu"
 
           manifest = {
             "app-id": APP_ID,
@@ -124,6 +131,15 @@ jobs:
               "--device=dri",
               "--filesystem=home",
             ],
+            # Top-level build-options: set CMAKE_PREFIX_PATH as an *environment*
+            # variable so all cmake-ninja modules inherit it. Passing it only as
+            # a -D config-opt is not reliable in all flatpak-builder versions.
+            "build-options": {
+              "prepend-pkg-config-path": "/app/lib/pkgconfig:/app/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig",
+              "env": {
+                "CMAKE_PREFIX_PATH": QT_CMAKE_PREFIX,
+              },
+            },
             "modules": [
               # QtHttpServer is not in any Flatpak SDK or the BaseApp.
               # Build it from the official Qt archive into /app so the main
@@ -132,11 +148,20 @@ jobs:
                 "name": "qt6-qthttpserver",
                 "buildsystem": "cmake-ninja",
                 "builddir": True,
+                # Module-level build-options provide Qt6_DIR via env so cmake
+                # can locate Qt6Config.cmake regardless of the exact path layout
+                # chosen by the BaseApp (standard vs arch-specific).
+                "build-options": {
+                  "env": {
+                    "CMAKE_PREFIX_PATH": QT_CMAKE_PREFIX,
+                    "Qt6_DIR": "/app/lib/cmake/Qt6",
+                  },
+                },
                 "config-opts": [
                   "-DCMAKE_BUILD_TYPE=Release",
-                  "-DCMAKE_PREFIX_PATH=/app",
-                  "-DQt6_DIR=/app/lib/cmake/Qt6",
                   "-DCMAKE_INSTALL_PREFIX=/app",
+                  f"-DCMAKE_PREFIX_PATH={QT_CMAKE_PREFIX.replace(':', ';')}",
+                  "-DQt6_DIR=/app/lib/cmake/Qt6",
                 ],
                 "sources": [{
                   "type": "archive",
@@ -148,9 +173,15 @@ jobs:
                 "name": "TrainSimulationApp",
                 "buildsystem": "cmake-ninja",
                 "builddir": True,
+                "build-options": {
+                  "env": {
+                    "CMAKE_PREFIX_PATH": QT_CMAKE_PREFIX,
+                    "Qt6_DIR": "/app/lib/cmake/Qt6",
+                  },
+                },
                 "config-opts": [
                   "-DCMAKE_BUILD_TYPE=Release",
-                  "-DCMAKE_PREFIX_PATH=/app",
+                  f"-DCMAKE_PREFIX_PATH={QT_CMAKE_PREFIX.replace(':', ';')}",
                   "-DQt6_DIR=/app/lib/cmake/Qt6",
                 ],
                 "sources": [{"type": "dir", "path": "backend"}],
