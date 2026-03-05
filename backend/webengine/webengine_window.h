@@ -7,11 +7,10 @@
 #include <QMainWindow>
 #include <QProgressBar>
 #include <QStatusBar>
-#include <QtGlobal>
 #include <QWebChannel>
 #include <QWebEnginePage>
 #include <QWebEngineView>
-
+#include <QtGlobal>
 
 /**
  * @brief Main window that embeds Next.js frontend using Qt WebEngine
