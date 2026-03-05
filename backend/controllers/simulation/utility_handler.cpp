@@ -26,7 +26,8 @@ void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
   simulationDatas->rpm.append(context->trainMotorData->tm_rpm);
   simulationDatas->powerWheel.append(context->powerData->p_wheel);
   simulationDatas->powerMotorOut.append(context->powerData->p_motorOut);
-  simulationDatas->powerMotorOutPerMotor.append(context->powerData->p_motorOutPerMotor);
+  simulationDatas->powerMotorOutPerMotor.append(
+      context->powerData->p_motorOutPerMotor);
   simulationDatas->powerMotorIn.append(context->powerData->p_motorIn);
   simulationDatas->energyConsumptions.append(context->energyData->e_motor);
   simulationDatas->energyPowerings.append(context->energyData->e_pow);
