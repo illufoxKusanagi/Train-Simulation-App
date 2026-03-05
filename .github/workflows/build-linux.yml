@@ -143,7 +143,7 @@ jobs:
                 "buildsystem": "simple",
                 "build-commands": [
                   "mkdir -p _build",
-                  "/app/bin/qt-cmake -G Ninja -B _build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/app",
+                  "/app/lib/qt6/bin/qt-cmake -G Ninja -B _build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/app",
                   "ninja -C _build",
                   "ninja -C _build install",
                 ],
@@ -158,7 +158,7 @@ jobs:
                 "buildsystem": "simple",
                 "build-commands": [
                   "mkdir -p _build",
-                  "/app/bin/qt-cmake -G Ninja -B _build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/app",
+                  "/app/lib/qt6/bin/qt-cmake -G Ninja -B _build -S . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/app",
                   "ninja -C _build",
                   "ninja -C _build install",
                 ],
