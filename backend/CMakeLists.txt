@@ -20,10 +20,12 @@ set(CMAKE_PREFIX_PATH
     /usr/local/Qt6/lib/cmake
 )
 
-# Alternative approach - set Qt6_DIR explicitly if find_package fails
+# Detect Qt6_DIR from common install locations when not explicitly set.
+# /app/lib/cmake/Qt6 is the Flatpak BaseApp path and is checked first.
 if(NOT DEFINED Qt6_DIR)
-    # Try common Fedora/Nobara locations
-    if(EXISTS "/usr/lib64/cmake/Qt6")
+    if(EXISTS "/app/lib/cmake/Qt6")
+        set(Qt6_DIR "/app/lib/cmake/Qt6")
+    elseif(EXISTS "/usr/lib64/cmake/Qt6")
         set(Qt6_DIR "/usr/lib64/cmake/Qt6")
     elseif(EXISTS "/usr/lib/cmake/Qt6")
         set(Qt6_DIR "/usr/lib/cmake/Qt6")
