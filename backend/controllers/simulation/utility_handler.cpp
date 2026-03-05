@@ -1,5 +1,6 @@
 #include "utility_handler.h"
 #include <qdebug.h>
+#include <qmutex.h>
 
 UtilityHandler::UtilityHandler(AppContext &context)
     : context(&context), simulationDatas(context.simulationDatas.data()) {}
@@ -45,6 +46,7 @@ void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
 }
 
 void UtilityHandler::resetSimulation() {
+  QMutex *locker(&context->simulationMutex);
   context->resistanceData->f_resStart = 0;
   context->resistanceData->f_resRunning = 0;
   context->resistanceData->f_motor = 0;
