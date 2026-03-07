@@ -129,7 +129,7 @@ jobs:
           ./linuxdeploy \
             --appdir AppDir \
             --plugin qt \
-            --executable AppDir/usr/bin/TrainSimulationApp \
+            --executable AppDir/usr/local/bin/TrainSimulationApp \
             --desktop-file AppDir/usr/share/applications/io.github.illufoxkusanagi.TrainSimulationApp.desktop \
             --output appimage
 
