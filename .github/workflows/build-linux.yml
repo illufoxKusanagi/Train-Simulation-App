@@ -28,7 +28,7 @@ jobs:
           host: linux
           target: desktop
           # qthttpserver, qtwebengine, qtwebchannel are not in the base Qt install
-          modules: qtwebengine qtwebchannel qthttpserver qtwebsockets qtpositioning
+          modules: qtwebengine qtwebchannel qthttpserver qtwebsockets
 
       - name: Install system dependencies
         run: |
