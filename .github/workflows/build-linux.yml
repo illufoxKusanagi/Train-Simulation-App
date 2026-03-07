@@ -27,8 +27,10 @@ jobs:
           version: "6.7.3"
           host: linux
           target: desktop
-          # qthttpserver, qtwebengine, qtwebchannel are not in the base Qt install
-          modules: qtwebengine qtwebchannel qthttpserver qtwebsockets
+          # qthttpserver, qtwebengine, qtwebchannel are not in the base Qt install.
+          # qtpositioning is a required dependency of qtwebengine.
+          # qtserialport is needed by the qtpositioning nmea plugin at deploy time.
+          modules: qtwebengine qtwebchannel qthttpserver qtwebsockets qtpositioning qtserialport
 
       - name: Install system dependencies
         run: |
