@@ -36,23 +36,49 @@ jobs:
           sudo apt-get install -y \
             ninja-build \
             libgl1-mesa-dev \
+            libgl-dev \
             libegl-dev \
+            libegl1-mesa-dev \
             libgles2-mesa-dev \
+            libgbm-dev \
+            libdrm-dev \
             libxkbcommon-dev \
             libxkbcommon-x11-dev \
-            libxcb-util0-dev \
+            libxcb1-dev \
+            libxcb-util-dev \
             libxcb-icccm4-dev \
             libxcb-image0-dev \
             libxcb-keysyms1-dev \
             libxcb-randr0-dev \
             libxcb-render-util0-dev \
             libxcb-shape0-dev \
+            libxcb-shm0-dev \
+            libxcb-sync-dev \
             libxcb-xfixes0-dev \
             libxcb-xinerama0-dev \
+            libxcb-xkb-dev \
+            libxcb-glx0-dev \
+            libx11-dev \
+            libx11-xcb-dev \
+            libxext-dev \
+            libxfixes-dev \
+            libxi-dev \
+            libxrender-dev \
+            libxcomposite-dev \
+            libxdamage-dev \
+            libxrandr-dev \
+            libxshmfence-dev \
+            libfontconfig1-dev \
+            libfreetype6-dev \
+            libatk1.0-dev \
+            libatk-bridge2.0-dev \
+            libcups2-dev \
+            libpango1.0-dev \
             libnss3-dev \
             libnspr4-dev \
             libasound2-dev \
-            libdbus-1-dev
+            libdbus-1-dev \
+            libpulse-dev
 
       - name: Install Node.js
         uses: actions/setup-node@v4

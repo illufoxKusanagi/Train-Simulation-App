@@ -37,7 +37,7 @@ find_package(Qt6 REQUIRED COMPONENTS
     Network
     HttpServer
     Widgets
-    # WebEngineWidgets
+    WebEngineWidgets
     WebChannel
     Concurrent
 )
@@ -221,7 +221,7 @@ target_link_libraries(TrainSimulationApp PRIVATE
     Qt6::Network
     Qt6::HttpServer
     Qt6::Widgets
-    # Qt6::WebEngineWidgets
+    Qt6::WebEngineWidgets
     Qt6::WebChannel
     Qt6::Concurrent
 )
