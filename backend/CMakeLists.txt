@@ -37,7 +37,6 @@ find_package(Qt6 REQUIRED COMPONENTS
     Network
     HttpServer
     Widgets
-    PrintSupport
     WebEngineWidgets
     WebChannel
     Concurrent
@@ -225,8 +224,6 @@ target_link_libraries(TrainSimulationApp PRIVATE
     Qt6::WebEngineWidgets
     Qt6::WebChannel
     Qt6::Concurrent
-
-    # Qt6::Charts
 )
 target_include_directories(TrainSimulationApp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
