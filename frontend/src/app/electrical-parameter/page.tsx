@@ -131,7 +131,7 @@ export default function ElectricalParameterPage() {
             {
               shouldDirty: true,
               shouldValidate: true,
-            }
+            },
           );
           successCount++;
           console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
@@ -178,7 +178,7 @@ export default function ElectricalParameterPage() {
                       Array.from({ length: 2 - row.length }).map(
                         (_, emptyIndex) => (
                           <div key={`empty-${rowIndex}-${emptyIndex}`} />
-                        )
+                        ),
                       )}
                   </div>
                 ))}

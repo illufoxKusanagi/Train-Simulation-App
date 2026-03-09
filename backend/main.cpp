@@ -17,7 +17,12 @@ static void silentMessageHandler(QtMsgType, const QMessageLogContext &,
 int main(int argc, char *argv[]) {
   // Parse command line arguments first
   bool headless = false;
+  // Automatically enable dev mode in Debug builds; Release builds = production
+#ifdef NDEBUG
   bool devMode = false;
+#else
+  bool devMode = true;
+#endif
   quint16 port = 8080;
   QString frontendUrl = "";
 
