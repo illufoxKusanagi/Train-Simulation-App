@@ -4,13 +4,10 @@ import { z } from "zod";
 const inputErrorMessage: string = "This Value must be a number";
 
 const membershipField = (max: number) =>
-  z.preprocess(
-    (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),
-    z.coerce
-      .number<number>({ error: inputErrorMessage })
-      .min(0, { error: "Value must be non-negative" })
-      .max(max, { error: `Value cannot exceed ${max}` }),
-  );
+  z.coerce
+    .number<number>({ error: inputErrorMessage })
+    .min(0, { error: "Value must be non-negative" })
+    .max(max, { error: `Value cannot exceed ${max}` });
 
 export const OptimizationFormSchema = z.object({
   // Acceleration membership peaks (m/s²)

@@ -164,8 +164,13 @@ export default function OptimizationPage() {
       setBest(null);
       setCompleted(0);
       setHasStarted(true);
-      await api.startOptimization(constantForm.getValues());
-      toast.success("Optimization started (3 acc × 3 v_p1 = 9 combinations)");
+      const vals = constantForm.getValues();
+      const nAcc = Math.round((vals.accelHigh - vals.accelLow) / 0.05) + 1;
+      const nVp1 = Math.round((vals.weakeningHigh - vals.weakeningLow) / 5) + 1;
+      await api.startOptimization(vals);
+      toast.success(
+        `Optimization started — ${nAcc} acc × ${nVp1} v_p1 = ${nAcc * nVp1} combinations`,
+      );
       setIsRunning(true);
       startPolling();
     } catch (error) {
@@ -184,17 +189,36 @@ export default function OptimizationPage() {
 
   return (
     <PageLayout>
-      <div className="flex flex-col h-full py-6">
+      <div className="flex flex-col w-full h-full p-6 gap-4">
         {/* Header */}
-        <div className="flex justify-between items-start">
-          <div>
-            <p className="heading-2 tracking-tight">Fuzzy Optimization</p>
-            <p className="text-muted-foreground mt-1">
-              Parameter sweep for each combinations, scored by Mamdani fuzzy
-              logic.
-            </p>
-            <div>
-              <Card>
+        <div className="flex justify-between w-full">
+          <div className="w-full">
+            <div className="flex flex-row justify-between w-full">
+              <div className="flex flex-col">
+                <p className="heading-2 tracking-tight">Fuzzy Optimization</p>
+                <p className="text-muted-foreground mt-1">
+                  Parameter sweep for each combinations, scored by Mamdani fuzzy
+                  logic.
+                </p>
+              </div>
+              <Button
+                onClick={handleStart}
+                disabled={isRunning || isStarting}
+                className="bg-primary disabled:opacity-60"
+              >
+                {isRunning ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Running…
+                  </>
+                ) : (
+                  <>
+                    <Play className="mr-2 h-4 w-4" /> Start Optimization
+                  </>
+                )}
+              </Button>
+            </div>
+            <div className="w-full">
+              <Card className="w-full">
                 <CardHeader>
                   <p className="heading-3">Fuzzy Membership Ranges</p>
                   <p className="text-muted-foreground">
@@ -239,21 +263,6 @@ export default function OptimizationPage() {
               </Card>
             </div>
           </div>
-          <Button
-            onClick={handleStart}
-            disabled={isRunning || isStarting}
-            className="bg-green-600 hover:bg-green-700 disabled:opacity-60"
-          >
-            {isRunning ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Running…
-              </>
-            ) : (
-              <>
-                <Play className="mr-2 h-4 w-4" /> Start Optimization
-              </>
-            )}
-          </Button>
         </div>
 
         {/* Progress bar */}
@@ -454,8 +463,8 @@ export default function OptimizationPage() {
               <Activity className="h-12 w-12 opacity-30" />
               <p className="text-lg font-medium">No optimization results yet</p>
               <p className="text-sm">
-                Click <strong>Start Optimization</strong> to run the
-                20-combination fuzzy parameter sweep.
+                Click <strong>Start Optimization</strong> to run the full fuzzy
+                parameter sweep across all acc/v_p1 step combinations.
               </p>
             </CardContent>
           </Card>

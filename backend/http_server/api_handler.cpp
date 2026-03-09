@@ -419,31 +419,33 @@ ApiHandler::handleStartOptimization(const QJsonObject &data) {
                                QHttpServerResponse::StatusCode::BadRequest);
   }
 
-  // Parse sweep candidates from the request body.
-  // accelLow/Medium/High → acc_start candidates (m/s²)
-  // weakeningLow/Medium/High → v_p1 candidates (km/h)
-  // If all values are absent or zero the vector stays empty and
-  // handleOptimization() falls back to the user's current parameters.
+  // Build sweep candidates from the request body.
+  // accelLow → accelHigh swept in 0.05 m/s² steps (acc_start candidates)
+  // weakeningLow → weakeningHigh swept in 5 km/h steps (v_p1 candidates)
+  // Falls back to the user's current parameters when fields are absent.
   QList<double> accValues;
   QList<double> vp1Values;
 
-  const QStringList accKeys = {"accelLow", "accelMedium", "accelHigh"};
-  for (const QString &key : accKeys) {
-    if (data.contains(key)) {
-      const double v = data[key].toDouble();
-      if (v > 0.0)
-        accValues.append(v);
-    }
+  const double accLow =
+      data.contains("accelLow") ? data["accelLow"].toDouble() : 0.0;
+  const double accHigh =
+      data.contains("accelHigh") ? data["accelHigh"].toDouble() : 0.0;
+  if (accLow > 0.0 && accHigh >= accLow) {
+    constexpr double kAccStep = 0.05; // m/s²
+    const int steps = qRound((accHigh - accLow) / kAccStep);
+    for (int i = 0; i <= steps; ++i)
+      accValues.append(accLow + i * kAccStep);
   }
 
-  const QStringList vp1Keys = {"weakeningLow", "weakeningMedium",
-                               "weakeningHigh"};
-  for (const QString &key : vp1Keys) {
-    if (data.contains(key)) {
-      const double v = data[key].toDouble();
-      if (v > 0.0)
-        vp1Values.append(v);
-    }
+  const double vp1Low =
+      data.contains("weakeningLow") ? data["weakeningLow"].toDouble() : 0.0;
+  const double vp1High =
+      data.contains("weakeningHigh") ? data["weakeningHigh"].toDouble() : 0.0;
+  if (vp1Low > 0.0 && vp1High >= vp1Low) {
+    constexpr double kVp1Step = 5.0; // km/h
+    const int steps = qRound((vp1High - vp1Low) / kVp1Step);
+    for (int i = 0; i <= steps; ++i)
+      vp1Values.append(vp1Low + i * kVp1Step);
   }
 
   const int nAcc = accValues.isEmpty() ? 1 : accValues.size();
