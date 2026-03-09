@@ -14,7 +14,7 @@ interface QtFileBridge {
   saveFileDialog: (
     data: string,
     filename: string,
-    filter: string
+    filter: string,
   ) => Promise<{
     success: boolean;
     filepath?: string;
@@ -23,10 +23,19 @@ interface QtFileBridge {
   saveBinaryFileDialog: (
     data: number[],
     filename: string,
-    filter: string
+    filter: string,
   ) => Promise<{
     success: boolean;
     filepath?: string;
+    error?: string;
+  }>;
+  openFileDialog: (
+    title: string,
+    filter: string,
+  ) => Promise<{
+    success: boolean;
+    content?: string;
+    filename?: string;
     error?: string;
   }>;
 }
@@ -34,7 +43,7 @@ interface QtFileBridge {
 interface QWebChannelClass {
   new (
     transport: unknown,
-    callback: (channel: { objects?: { fileBridge?: QtFileBridge } }) => void
+    callback: (channel: { objects?: { fileBridge?: QtFileBridge } }) => void,
   ): unknown;
 }
 
@@ -89,7 +98,7 @@ export function initializeQtWebChannel(): Promise<void> {
           console.log("🎯 Qt WebChannel initialized successfully");
           console.log(
             "📋 Available channel objects:",
-            Object.keys(channel.objects || {})
+            Object.keys(channel.objects || {}),
           );
 
           // Register the file bridge object
@@ -99,7 +108,7 @@ export function initializeQtWebChannel(): Promise<void> {
             console.log("✅ FileBridge registered and ready for use");
             console.log(
               "🔍 FileBridge methods:",
-              Object.keys(window.fileBridge)
+              Object.keys(window.fileBridge),
             );
             resolve();
           } else {
@@ -130,7 +139,7 @@ export function isQtWebChannelReady(): boolean {
 export function getFileBridge(): QtFileBridge {
   if (!isQtWebChannelReady()) {
     throw new Error(
-      "Qt WebChannel not ready - call initializeQtWebChannel() first"
+      "Qt WebChannel not ready - call initializeQtWebChannel() first",
     );
   }
   return window.fileBridge;
@@ -142,7 +151,7 @@ export function getFileBridge(): QtFileBridge {
 export async function saveFileWithDialog(
   data: string,
   filename: string,
-  filter: string = "All Files (*.*)"
+  filter: string = "All Files (*.*)",
 ): Promise<{
   success: boolean;
   filepath?: string;
@@ -167,12 +176,34 @@ export async function saveFileWithDialog(
     const result = await window.fileBridge.saveFileDialog(
       data,
       filename,
-      filter
+      filter,
     );
     console.log("📤 FileBridge response:", result);
     return result;
   } catch (error) {
     console.error("💥 FileBridge error:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+export async function openFileWithDialog(
+  title: string,
+  filter: string = "CSV Files (*.csv)",
+): Promise<{
+  success: boolean;
+  content?: string;
+  filename?: string;
+  error?: string;
+}> {
+  if (!isQtWebChannelReady()) {
+    return { success: false, error: "Qt WebChannel not ready" };
+  }
+  try {
+    return await window.fileBridge.openFileDialog(title, filter);
+  } catch (error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error),
@@ -198,6 +229,7 @@ const qtWebChannelExports = {
   isQtWebChannelReady,
   getFileBridge,
   saveFileWithDialog,
+  openFileWithDialog,
 };
 
 export default qtWebChannelExports;

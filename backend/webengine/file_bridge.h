@@ -27,6 +27,14 @@ public slots:
                              const QString &filter);
 
   /**
+   * @brief Show native Qt file open dialog and return file content
+   * @param title Dialog window title (e.g. "Select Motor Efficiency CSV File")
+   * @param filter File filter (e.g., "CSV Files (*.csv)")
+   * @return JSON object with success status and file content as string
+   */
+  QJsonObject openFileDialog(const QString &title, const QString &filter);
+
+  /**
    * @brief Save binary data (Excel files) using native dialog
    * @param data Binary data as QVariantList (JavaScript array converted to Qt)
    * @param filename Suggested filename

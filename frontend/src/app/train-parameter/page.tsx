@@ -6,7 +6,9 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { Spinner } from "@/components/ui/spinner";
+import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
 import {
   Card,
   CardContent,
@@ -119,6 +121,9 @@ const carPresets: Record<
 
 export default function TrainParameter() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const constantCsvInputRef = useRef<HTMLInputElement>(null);
+  const trainsetCsvInputRef = useRef<HTMLInputElement>(null);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
   const { saveFormData, loadFormData } = useFormPersistence();
 
@@ -203,7 +208,7 @@ export default function TrainParameter() {
         console.log(`Applied preset for ${value}-car configuration:`, preset);
       }
     },
-    [trainsetForm]
+    [trainsetForm],
   );
 
   /**
@@ -218,95 +223,65 @@ export default function TrainParameter() {
    * Special case: loadCondition can be 0-4 (mapped to AW0-AW4)
    */
   const handleConstantCsvUpload = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
-
     reader.onload = (e) => {
       const text = e.target?.result as string;
       if (!text) return;
-
-      console.log("📂 processing Constant CSV upload...");
-      const lines = text.split(/\r\n|\n/);
-      let successCount = 0;
-      let errorCount = 0;
-
-      const validKeys = Object.keys(ConstantFormSchema.shape);
-
-      lines.forEach((line) => {
-        if (!line.trim()) return;
-        const [key, valueStr] = line.split(/,(.+)/);
-        const cleanKey = key?.trim();
-        const cleanValue = valueStr?.trim();
-
-        if (!cleanKey || !cleanValue) return;
-
-        if (validKeys.includes(cleanKey)) {
-          // Special handling for loadCondition (can be 0-4 or AW0-AW4)
-          if (cleanKey === "loadCondition") {
-            let finalAW: "AW0" | "AW1" | "AW2" | "AW3" | "AW4" | null = null;
-
-            // Check if it's a number 0-4
-            if (!isNaN(Number(cleanValue))) {
-              const val = Number(cleanValue);
-              if (val >= 0 && val <= 4) {
-                finalAW = `AW${val}` as "AW0" | "AW1" | "AW2" | "AW3" | "AW4";
-              }
-            }
-            // Check if it's already a valid string
-            else if (["AW0", "AW1", "AW2", "AW3", "AW4"].includes(cleanValue)) {
-              finalAW = cleanValue as "AW0" | "AW1" | "AW2" | "AW3" | "AW4";
-            }
-
-            if (finalAW) {
-              constantForm.setValue("loadCondition", finalAW, {
-                shouldDirty: true,
-                shouldValidate: true,
-              });
-              successCount++;
-              console.log(`✅ Set loadCondition = ${finalAW}`);
-            } else {
-              console.warn(`⚠️ Skipped invalid loadCondition: ${cleanValue}`);
-              errorCount++;
-            }
-          } else {
-            // All other fields are numbers
-            if (!isNaN(Number(cleanValue))) {
-              constantForm.setValue(
-                cleanKey as keyof Omit<
-                  z.infer<typeof ConstantFormSchema>,
-                  "loadCondition"
-                >,
-                Number(cleanValue),
-                {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                }
-              );
-              successCount++;
-              console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
-            } else {
-              console.warn(
-                `⚠️ Skipped invalid number for ${cleanKey}: ${cleanValue}`
-              );
-              errorCount++;
-            }
-          }
-        } else {
-          console.warn(`⚠️ Skipped invalid item: ${cleanKey}`);
-          errorCount++;
-        }
-      });
-
-      if (successCount > 0)
-        toast.success(`Updated ${successCount} constant fields`);
-      if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
+      processConstantCsvText(text);
       event.target.value = "";
     };
     reader.readAsText(file);
+  };
+
+  const processConstantCsvText = (text: string) => {
+    console.log("📂 processing Constant CSV upload...");
+    const lines = text.split(/\r\n|\n/);
+    let successCount = 0;
+    let errorCount = 0;
+    const validKeys = Object.keys(ConstantFormSchema.shape);
+    lines.forEach((line) => {
+      if (!line.trim()) return;
+      const [key, valueStr] = line.split(/,(.+)/);
+      const cleanKey = key?.trim();
+      const cleanValue = valueStr?.trim();
+      if (!cleanKey || !cleanValue) return;
+      if (validKeys.includes(cleanKey)) {
+        if (cleanKey === "loadCondition") {
+          let finalAW: "AW0" | "AW1" | "AW2" | "AW3" | "AW4" | null = null;
+          if (!isNaN(Number(cleanValue))) {
+            const val = Number(cleanValue);
+            if (val >= 0 && val <= 4)
+              finalAW = `AW${val}` as "AW0" | "AW1" | "AW2" | "AW3" | "AW4";
+          } else if (["AW0", "AW1", "AW2", "AW3", "AW4"].includes(cleanValue)) {
+            finalAW = cleanValue as "AW0" | "AW1" | "AW2" | "AW3" | "AW4";
+          }
+          if (finalAW) {
+            constantForm.setValue("loadCondition", finalAW, {
+              shouldDirty: true,
+              shouldValidate: true,
+            });
+            successCount++;
+          } else errorCount++;
+        } else if (!isNaN(Number(cleanValue))) {
+          constantForm.setValue(
+            cleanKey as keyof Omit<
+              z.infer<typeof ConstantFormSchema>,
+              "loadCondition"
+            >,
+            Number(cleanValue),
+            { shouldDirty: true, shouldValidate: true },
+          );
+          successCount++;
+        } else errorCount++;
+      } else errorCount++;
+    });
+    if (successCount > 0)
+      toast.success(`Updated ${successCount} constant fields`);
+    if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
   };
 
   /**
@@ -315,62 +290,44 @@ export default function TrainParameter() {
    * Expected CSV Format: Key,Value
    */
   const handleTrainsetCsvUpload = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
-
     reader.onload = (e) => {
       const text = e.target?.result as string;
       if (!text) return;
-
-      console.log("📂 processing Trainset CSV upload...");
-      const lines = text.split(/\r\n|\n/);
-      let successCount = 0;
-      let errorCount = 0;
-
-      const validKeys = Object.keys(TrainsetFormSchema.shape);
-
-      lines.forEach((line) => {
-        if (!line.trim()) return;
-        const [key, valueStr] = line.split(/,(.+)/);
-        const cleanKey = key?.trim();
-        const cleanValue = valueStr?.trim();
-
-        if (!cleanKey || !cleanValue) return;
-
-        if (validKeys.includes(cleanKey)) {
-          if (!isNaN(Number(cleanValue))) {
-            trainsetForm.setValue(
-              cleanKey as keyof z.infer<typeof TrainsetFormSchema>,
-              Number(cleanValue),
-              {
-                shouldDirty: true,
-                shouldValidate: true,
-              }
-            );
-            successCount++;
-            console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
-          } else {
-            console.warn(
-              `⚠️ Skipped invalid number for ${cleanKey}: ${cleanValue}`
-            );
-            errorCount++;
-          }
-        } else {
-          console.warn(`⚠️ Skipped invalid item: ${cleanKey}`);
-          errorCount++;
-        }
-      });
-
-      if (successCount > 0)
-        toast.success(`Updated ${successCount} trainset fields`);
-      if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
+      processTrainsetCsvText(text);
       event.target.value = "";
     };
     reader.readAsText(file);
+  };
+
+  const processTrainsetCsvText = (text: string) => {
+    console.log("📂 processing Trainset CSV upload...");
+    const lines = text.split(/\r\n|\n/);
+    let successCount = 0;
+    let errorCount = 0;
+    const validKeys = Object.keys(TrainsetFormSchema.shape);
+    lines.forEach((line) => {
+      if (!line.trim()) return;
+      const [key, valueStr] = line.split(/,(.+)/);
+      const cleanKey = key?.trim();
+      const cleanValue = valueStr?.trim();
+      if (!cleanKey || !cleanValue) return;
+      if (validKeys.includes(cleanKey) && !isNaN(Number(cleanValue))) {
+        trainsetForm.setValue(
+          cleanKey as keyof z.infer<typeof TrainsetFormSchema>,
+          Number(cleanValue),
+          { shouldDirty: true, shouldValidate: true },
+        );
+        successCount++;
+      } else errorCount++;
+    });
+    if (successCount > 0)
+      toast.success(`Updated ${successCount} trainset fields`);
+    if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
   };
 
   const handleFileLoad = (name: string, data: number[][]) => {
@@ -587,15 +544,15 @@ export default function TrainParameter() {
         // Update calculated mass form
         calculatedMassForm.setValue(
           "mass_totalEmpty",
-          data.massParameters.totalEmptyMass
+          data.massParameters.totalEmptyMass,
         );
         calculatedMassForm.setValue(
           "mass_totalLoad",
-          data.massParameters.totalLoadMass
+          data.massParameters.totalLoadMass,
         );
         calculatedMassForm.setValue(
           "mass_totalInertial",
-          data.massParameters.totalInertialMass
+          data.massParameters.totalInertialMass,
         );
       } catch (error) {
         console.error("Failed to calculate mass:", error);
@@ -641,7 +598,7 @@ export default function TrainParameter() {
                       Array.from({ length: 3 - row.length }).map(
                         (_, emptyIndex) => (
                           <div key={`empty-${rowIndex}-${emptyIndex}`} />
-                        )
+                        ),
                       )}
                   </div>
                 ))}
@@ -653,7 +610,14 @@ export default function TrainParameter() {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Saving..." : "Save"}
+                  {isSubmitting ? (
+                    <>
+                      <Spinner />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
                 </Button>
                 <Button
                   type="button"
@@ -665,14 +629,40 @@ export default function TrainParameter() {
                 </Button>
                 <div className="flex-1 relative">
                   <input
+                    ref={constantCsvInputRef}
                     type="file"
                     accept=".csv"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    className="hidden"
                     onChange={handleConstantCsvUpload}
-                    title="Upload CSV for Trainset Params"
                   />
-                  <Button type="button" variant="outline" className="w-full">
-                    Upload CSV
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    disabled={isUploading}
+                    onClick={async () => {
+                      if (isQtWebChannelReady()) {
+                        setIsUploading(true);
+                        const result = await openFileWithDialog(
+                          "Select Train Constant Parameters CSV File",
+                          "CSV Files (*.csv);;All Files (*)",
+                        );
+                        if (result.success && result.content)
+                          processConstantCsvText(result.content);
+                        setIsUploading(false);
+                      } else {
+                        constantCsvInputRef.current?.click();
+                      }
+                    }}
+                  >
+                    {isUploading ? (
+                      <>
+                        <Spinner className="mr-2" />
+                        Uploading...
+                      </>
+                    ) : (
+                      "Upload CSV"
+                    )}
                   </Button>
                 </div>
               </div>
@@ -709,7 +699,7 @@ export default function TrainParameter() {
                   ))}
                   <div
                     className={cn(
-                      "flexcontainer w-4xl h-28 border rounded-lg hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 justify-center items-center overflow-hidden p-2"
+                      "flexcontainer w-4xl h-28 border rounded-lg hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 justify-center items-center overflow-hidden p-2",
                     )}
                   >
                     {(() => {
@@ -834,7 +824,14 @@ export default function TrainParameter() {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Saving..." : "Save Data"}
+                  {isSubmitting ? (
+                    <>
+                      <Spinner />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Data"
+                  )}
                 </Button>
                 <Button
                   type="button"
@@ -846,14 +843,40 @@ export default function TrainParameter() {
                 </Button>
                 <div className="flex-1 relative">
                   <input
+                    ref={trainsetCsvInputRef}
                     type="file"
                     accept=".csv"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    className="hidden"
                     onChange={handleTrainsetCsvUpload}
-                    title="Upload CSV for Trainset Params"
                   />
-                  <Button type="button" variant="secondary" className="w-full">
-                    Upload CSV
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="w-full"
+                    disabled={isUploading}
+                    onClick={async () => {
+                      if (isQtWebChannelReady()) {
+                        setIsUploading(true);
+                        const result = await openFileWithDialog(
+                          "Select Trainset Parameters CSV File",
+                          "CSV Files (*.csv);;All Files (*)",
+                        );
+                        if (result.success && result.content)
+                          processTrainsetCsvText(result.content);
+                        setIsUploading(false);
+                      } else {
+                        trainsetCsvInputRef.current?.click();
+                      }
+                    }}
+                  >
+                    {isUploading ? (
+                      <>
+                        <Spinner className="mr-2" />
+                        Uploading...
+                      </>
+                    ) : (
+                      "Upload CSV"
+                    )}
                   </Button>
                 </div>
               </div>

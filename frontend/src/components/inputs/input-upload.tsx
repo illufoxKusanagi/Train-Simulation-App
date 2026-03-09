@@ -13,9 +13,11 @@ import { useState, useRef } from "react";
 import { Upload, File, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { InputUploadProps } from "../../types/input-types";
+import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
 
 export function InputUpload({
   label,
+  showLabel = true,
   name,
   requiredColumns = 0,
   control,
@@ -46,7 +48,7 @@ export function InputUpload({
             i + 1
           } doesn't have enough columns (required: ${requiredColumns}, found: ${
             values.length
-          })`
+          })`,
         );
       }
 
@@ -61,10 +63,45 @@ export function InputUpload({
     return data;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleQtFileOpen = async (field: any) => {
+    const dialogTitle = label ? `Select ${label} CSV File` : "Select CSV File";
+    const result = await openFileWithDialog(
+      dialogTitle,
+      "CSV Files (*.csv);;All Files (*)",
+    );
+    if (!result.success || !result.content) {
+      if (result.error !== "User cancelled file dialog") {
+        toast.error("Upload Error", { description: result.error });
+      }
+      return;
+    }
+    try {
+      const data = parseCsvData(result.content);
+      if (data.length === 0) throw new Error("File contains no valid data");
+      setFileName(result.filename ?? "file.csv");
+      setIsLoaded(true);
+      setError(null);
+      field.onChange(result.filename ?? "file.csv");
+      onFileLoad?.(result.filename ?? "file.csv", data);
+      toast.success("File loaded successfully", {
+        description: `${data.length} rows loaded from ${result.filename}`,
+      });
+    } catch (err) {
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to read CSV file";
+      setError(errorMsg);
+      setFileName("Failed to load file");
+      setIsLoaded(false);
+      field.onChange("");
+      toast.error("Upload Error", { description: errorMsg });
+    }
+  };
+
   const handleFileSelect = async (
     event: React.ChangeEvent<HTMLInputElement>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    field: any
+    field: any,
   ) => {
     const file = event.target.files?.[0];
     if (!file) {
@@ -117,14 +154,21 @@ export function InputUpload({
       name={name}
       render={({ field }) => (
         <FormItem className="w-full">
-          <FormLabel>{label}</FormLabel>
+          {showLabel && <FormLabel>{label}</FormLabel>}
           <FormControl>
             <div className="flex items-center gap-3">
               <Button
                 type="button"
                 variant="outline"
                 size="lg"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(e) => {
+                  if (isQtWebChannelReady()) {
+                    e.preventDefault();
+                    handleQtFileOpen(field);
+                  } else {
+                    fileInputRef.current?.click();
+                  }
+                }}
                 className="flex items-center gap-2"
               >
                 <Upload size={16} />
@@ -145,8 +189,8 @@ export function InputUpload({
                     isLoaded
                       ? "text-gray-700"
                       : error
-                      ? "text-red-600"
-                      : "text-gray-500"
+                        ? "text-red-600"
+                        : "text-gray-500"
                   }`}
                 >
                   {fileName}

@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Download, AlertCircle } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { SimulationResults } from "@/services/api";
 import * as XLSX from "xlsx";
@@ -27,6 +28,8 @@ import { toast } from "sonner";
 export default function OutputPage() {
   const [results, setResults] = useState<SimulationResults | null>(null);
   const [activeTab, setActiveTab] = useState<string>("speed");
+  const [isExportingCSV, setIsExportingCSV] = useState(false);
+  const [isExportingExcel, setIsExportingExcel] = useState(false);
 
   useEffect(() => {
     // Function to load results
@@ -709,21 +712,41 @@ export default function OutputPage() {
         <div className="flex justify-end gap-2 flex-wrap">
           <Button
             variant="outline"
-            onClick={() =>
-              downloadCSV(results.results, "train_simulation_all_data.csv")
-            }
+            disabled={isExportingCSV}
+            onClick={async () => {
+              setIsExportingCSV(true);
+              await downloadCSV(
+                results.results,
+                "train_simulation_all_data.csv",
+              );
+              setIsExportingCSV(false);
+            }}
           >
-            <Download className="h-4 w-4 mr-2" />
-            Download All Data (CSV)
+            {isExportingCSV ? (
+              <Spinner className="h-4 w-4 mr-2" />
+            ) : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
+            {isExportingCSV ? "Saving..." : "Download All Data (CSV)"}
           </Button>
 
           <Button
-            onClick={() =>
-              downloadExcel(results.results, "train_simulation_all_data.xlsx")
-            }
+            disabled={isExportingExcel}
+            onClick={async () => {
+              setIsExportingExcel(true);
+              await downloadExcel(
+                results.results,
+                "train_simulation_all_data.xlsx",
+              );
+              setIsExportingExcel(false);
+            }}
           >
-            <Download className="h-4 w-4 mr-2" />
-            Download All Data (Excel)
+            {isExportingExcel ? (
+              <Spinner className="h-4 w-4 mr-2" />
+            ) : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
+            {isExportingExcel ? "Saving..." : "Download All Data (Excel)"}
           </Button>
         </div>
       </div>

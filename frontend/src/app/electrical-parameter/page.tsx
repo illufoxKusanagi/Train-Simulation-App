@@ -18,10 +18,15 @@ import z from "zod";
 import { constantFormRows, ElectricalFormSchema } from "./form.constants";
 import { Form } from "@/components/ui/form";
 import { api } from "@/services/api";
+import { Spinner } from "@/components/ui/spinner";
+import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
+import { useRef } from "react";
 
 export default function ElectricalParameterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   const constantForm = useForm<z.infer<typeof ElectricalFormSchema>>({
     resolver: zodResolver(ElectricalFormSchema),
@@ -108,44 +113,47 @@ export default function ElectricalParameterPage() {
     reader.onload = (e) => {
       const text = e.target?.result as string;
       if (!text) return;
-
-      console.log("📂 processing CSV upload...");
-      const lines = text.split(/\r\n|\n/);
-      let successCount = 0;
-      let errorCount = 0;
-
-      const validKeys = Object.keys(ElectricalFormSchema.shape);
-
-      lines.forEach((line) => {
-        if (!line.trim()) return;
-        const [key, valueStr] = line.split(/,(.+)/);
-        const cleanKey = key?.trim();
-        const cleanValue = valueStr?.trim();
-
-        if (!cleanKey || !cleanValue) return;
-
-        if (validKeys.includes(cleanKey) && !isNaN(Number(cleanValue))) {
-          constantForm.setValue(
-            cleanKey as keyof z.infer<typeof ElectricalFormSchema>,
-            Number(cleanValue),
-            {
-              shouldDirty: true,
-              shouldValidate: true,
-            },
-          );
-          successCount++;
-          console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
-        } else {
-          console.warn(`⚠️ Skipped invalid item: ${cleanKey}`);
-          errorCount++;
-        }
-      });
-
-      if (successCount > 0) toast.success(`Updated ${successCount} fields`);
-      if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
+      processCsvText(text);
       event.target.value = "";
     };
     reader.readAsText(file);
+  };
+
+  const processCsvText = (text: string) => {
+    console.log("📂 processing CSV upload...");
+    const lines = text.split(/\r\n|\n/);
+    let successCount = 0;
+    let errorCount = 0;
+
+    const validKeys = Object.keys(ElectricalFormSchema.shape);
+
+    lines.forEach((line) => {
+      if (!line.trim()) return;
+      const [key, valueStr] = line.split(/,(.+)/);
+      const cleanKey = key?.trim();
+      const cleanValue = valueStr?.trim();
+
+      if (!cleanKey || !cleanValue) return;
+
+      if (validKeys.includes(cleanKey) && !isNaN(Number(cleanValue))) {
+        constantForm.setValue(
+          cleanKey as keyof z.infer<typeof ElectricalFormSchema>,
+          Number(cleanValue),
+          {
+            shouldDirty: true,
+            shouldValidate: true,
+          },
+        );
+        successCount++;
+        console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
+      } else {
+        console.warn(`⚠️ Skipped invalid item: ${cleanKey}`);
+        errorCount++;
+      }
+    });
+
+    if (successCount > 0) toast.success(`Updated ${successCount} fields`);
+    if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
   };
 
   return (
@@ -190,7 +198,14 @@ export default function ElectricalParameterPage() {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Saving..." : "Save"}
+                  {isSubmitting ? (
+                    <>
+                      <Spinner className="mr-2" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
                 </Button>
                 <Button
                   type="button"
@@ -202,14 +217,40 @@ export default function ElectricalParameterPage() {
                 </Button>
                 <div className="flex-1 relative">
                   <input
+                    ref={csvInputRef}
                     type="file"
                     accept=".csv"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    className="hidden"
                     onChange={handleCsvUpload}
-                    title="Upload CSV"
                   />
-                  <Button type="button" variant="secondary" className="w-full">
-                    Upload CSV
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="w-full"
+                    disabled={isUploading}
+                    onClick={async () => {
+                      if (isQtWebChannelReady()) {
+                        setIsUploading(true);
+                        const result = await openFileWithDialog(
+                          "Select Electrical Parameters CSV File",
+                          "CSV Files (*.csv);;All Files (*)",
+                        );
+                        if (result.success && result.content)
+                          processCsvText(result.content);
+                        setIsUploading(false);
+                      } else {
+                        csvInputRef.current?.click();
+                      }
+                    }}
+                  >
+                    {isUploading ? (
+                      <>
+                        <Spinner className="mr-2" />
+                        Uploading...
+                      </>
+                    ) : (
+                      "Upload CSV"
+                    )}
                   </Button>
                 </div>
               </div>

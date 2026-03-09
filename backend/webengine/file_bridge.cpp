@@ -24,11 +24,12 @@ QJsonObject FileBridge::saveFileDialog(const QString &data,
     QString suggestedPath =
         QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/" +
         filename;
-    filepath = QFileDialog::getSaveFileName(nullptr, "Save File", suggestedPath, filter);
+    filepath = QFileDialog::getSaveFileName(nullptr, "Save File", suggestedPath,
+                                            filter);
     loop.quit();
   });
   loop.exec(); // Start event loop to wait for file dialog to close
-  
+
   // Process events to allow dialog to show
   QCoreApplication::processEvents();
 
@@ -76,11 +77,12 @@ QJsonObject FileBridge::saveBinaryFileDialog(const QVariantList &data,
     QString suggestedPath =
         QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/" +
         filename;
-    filepath = QFileDialog::getSaveFileName(nullptr, "Save File", suggestedPath, filter);
+    filepath = QFileDialog::getSaveFileName(nullptr, "Save File", suggestedPath,
+                                            filter);
     loop.quit();
   });
   loop.exec();
-  
+
   // Process events to allow dialog to show
   QCoreApplication::processEvents();
 
@@ -125,6 +127,48 @@ QJsonObject FileBridge::saveBinaryFileDialog(const QVariantList &data,
     qDebug() << "Failed to save binary file:" << filepath;
   }
 
+  return result;
+}
+
+QJsonObject FileBridge::openFileDialog(const QString &title,
+                                       const QString &filter) {
+  QJsonObject result;
+
+  QString filepath;
+  QEventLoop loop;
+  QTimer::singleShot(0, [&]() {
+    filepath = QFileDialog::getOpenFileName(
+        nullptr, title,
+        QStandardPaths::writableLocation(QStandardPaths::HomeLocation), filter);
+    loop.quit();
+  });
+  loop.exec();
+
+  if (filepath.isEmpty()) {
+    result["success"] = false;
+    result["error"] = "User cancelled file dialog";
+    result["content"] = "";
+    return result;
+  }
+
+  QFile file(filepath);
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    result["success"] = false;
+    result["error"] = "Could not open file for reading";
+    result["content"] = "";
+    return result;
+  }
+
+  QTextStream in(&file);
+  in.setEncoding(QStringConverter::Utf8);
+  QString content = in.readAll();
+  file.close();
+
+  QFileInfo info(filepath);
+  result["success"] = true;
+  result["content"] = content;
+  result["filename"] = info.fileName();
+  result["error"] = "";
   return result;
 }
 
