@@ -1,5 +1,6 @@
 #include "utility_handler.h"
 #include <qdebug.h>
+#include <qmutex.h>
 
 UtilityHandler::UtilityHandler(AppContext &context)
     : context(&context), simulationDatas(context.simulationDatas.data()) {}
@@ -26,7 +27,8 @@ void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
   simulationDatas->rpm.append(context->trainMotorData->tm_rpm);
   simulationDatas->powerWheel.append(context->powerData->p_wheel);
   simulationDatas->powerMotorOut.append(context->powerData->p_motorOut);
-  simulationDatas->powerMotorOutPerMotor.append(context->powerData->p_motorOutPerMotor);
+  simulationDatas->powerMotorOutPerMotor.append(
+      context->powerData->p_motorOutPerMotor);
   simulationDatas->powerMotorIn.append(context->powerData->p_motorIn);
   simulationDatas->energyConsumptions.append(context->energyData->e_motor);
   simulationDatas->energyPowerings.append(context->energyData->e_pow);
@@ -44,6 +46,7 @@ void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
 }
 
 void UtilityHandler::resetSimulation() {
+  QMutex *locker(&context->simulationMutex);
   context->resistanceData->f_resStart = 0;
   context->resistanceData->f_resRunning = 0;
   context->resistanceData->f_motor = 0;
@@ -81,6 +84,8 @@ void UtilityHandler::resetSimulation() {
   context->resistanceData->f_resRunningTen = 0;
   context->resistanceData->f_resRunningTwentyFive = 0;
   context->resistanceData->f_res = 0;
+  context->stationData->x_odo = 0.0;
+  context->stationData->x_deficit = 0.0;
 }
 
 void UtilityHandler::clearSimulationDatas() {

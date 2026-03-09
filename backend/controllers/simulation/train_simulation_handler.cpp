@@ -53,9 +53,26 @@ void TrainSimulationHandler::initData() {
     massData->mass_totalLoad = m_massHandler->countMassWithLoad();
     massData->mass_totalInertial = m_massHandler->countInertialMass();
   }
-  movingData->v = 0.0;
-  movingData->acc = movingData->acc_start;
-  movingData->decc = movingData->decc_start * constantData->cV;
+  // Reset kinematic state so each run starts from a clean slate,
+  // regardless of whether the async resetSimulation() signal from the
+  // previous run has been processed yet.
+  {
+    QMutex *locker(m_simulationMutex);
+    movingData->v = 0.0;
+    movingData->v_si = 0.0;
+    movingData->acc = movingData->acc_start;
+    movingData->acc_si = movingData->acc_start;
+    movingData->decc = movingData->decc_start * constantData->cV;
+    movingData->x = 0.0;
+    movingData->x_total = 0.0;
+    movingData->time = 0.0;
+    movingData->time_total = 0.0;
+    // x_odo and x_deficit carry state between runs if not explicitly cleared.
+    // x_deficit left over from a previous run shifts the braking trigger point,
+    // producing different distances and speeds for identical inputs.
+    stationData->x_odo = 0.0;
+    stationData->x_deficit = 0.0;
+  }
 }
 
 double TrainSimulationHandler::calculateTotalTime(int i) {
