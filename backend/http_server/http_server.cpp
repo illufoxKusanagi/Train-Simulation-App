@@ -407,9 +407,10 @@ void HttpServer::setupRoutes() {
   // Optimization endpoints
   m_httpServer->route(
       "/api/optimization/start", QHttpServerRequest::Method::Post,
-      [this, addCorsHeaders](const QHttpServerRequest &) {
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
         qDebug() << "🚀 POST /api/optimization/start";
-        return addCorsHeaders(m_apiHandler->handleStartOptimization());
+        QJsonObject data = parseRequestBody(request);
+        return addCorsHeaders(m_apiHandler->handleStartOptimization(data));
       });
 
   m_httpServer->route("/api/optimization/start",

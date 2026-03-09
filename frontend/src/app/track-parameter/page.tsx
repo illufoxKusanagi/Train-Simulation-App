@@ -32,6 +32,10 @@ export default function TrackParameterPage() {
       slope: 0,
       v_limit: 80,
       dwellTime: 30,
+      slope_option1: 0,
+      slope_option2: 5,
+      slope_option3: 10,
+      slope_option4: 25,
     },
   });
 
@@ -174,7 +178,7 @@ export default function TrackParameterPage() {
             {
               shouldDirty: true,
               shouldValidate: true,
-            }
+            },
           );
           successCount++;
           console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
@@ -221,7 +225,7 @@ export default function TrackParameterPage() {
                       Array.from({ length: 2 - row.length }).map(
                         (_, emptyIndex) => (
                           <div key={`empty-${rowIndex}-${emptyIndex}`} />
-                        )
+                        ),
                       )}
                   </div>
                 ))}

@@ -408,7 +408,8 @@ ApiHandler::~ApiHandler() {
     m_optimizationFuture.waitForFinished();
 }
 
-QHttpServerResponse ApiHandler::handleStartOptimization() {
+QHttpServerResponse
+ApiHandler::handleStartOptimization(const QJsonObject &data) {
   QJsonObject response;
   // Guard: require a successful simulation before optimizing
   if (m_simulationHandler->getTrainSimulation()->getMaxSpeed() <= 0.0) {
@@ -417,13 +418,48 @@ QHttpServerResponse ApiHandler::handleStartOptimization() {
     return QHttpServerResponse(QJsonDocument(response).toJson(),
                                QHttpServerResponse::StatusCode::BadRequest);
   }
+
+  // Parse sweep candidates from the request body.
+  // accelLow/Medium/High → acc_start candidates (m/s²)
+  // weakeningLow/Medium/High → v_p1 candidates (km/h)
+  // If all values are absent or zero the vector stays empty and
+  // handleOptimization() falls back to the user's current parameters.
+  QList<double> accValues;
+  QList<double> vp1Values;
+
+  const QStringList accKeys = {"accelLow", "accelMedium", "accelHigh"};
+  for (const QString &key : accKeys) {
+    if (data.contains(key)) {
+      const double v = data[key].toDouble();
+      if (v > 0.0)
+        accValues.append(v);
+    }
+  }
+
+  const QStringList vp1Keys = {"weakeningLow", "weakeningMedium",
+                               "weakeningHigh"};
+  for (const QString &key : vp1Keys) {
+    if (data.contains(key)) {
+      const double v = data[key].toDouble();
+      if (v > 0.0)
+        vp1Values.append(v);
+    }
+  }
+
+  const int nAcc = accValues.isEmpty() ? 1 : accValues.size();
+  const int nVp1 = vp1Values.isEmpty() ? 1 : vp1Values.size();
+
   // Run on background thread — handleOptimization() is blocking.
   // The atomic inside handleOptimization() already guards re-entry.
-  m_optimizationFuture = QtConcurrent::run(
-      [this]() { m_optimizationHandler->handleOptimization(); });
+  m_optimizationFuture = QtConcurrent::run([this, accValues, vp1Values]() {
+    m_optimizationHandler->handleOptimization(accValues, vp1Values);
+  });
   response["status"] = "success";
   response["message"] =
-      "Optimization started (20 combinations: 5 acc × 4 v_p1)";
+      QString("Optimization started (%1 combinations: %2 acc × %3 v_p1)")
+          .arg(nAcc * nVp1)
+          .arg(nAcc)
+          .arg(nVp1);
   return QHttpServerResponse(QJsonDocument(response).toJson(),
                              QHttpServerResponse::StatusCode::Ok);
 }
@@ -460,7 +496,7 @@ QHttpServerResponse ApiHandler::handleGetOptimizationStatus() {
     response["best"] = QJsonObject();
   }
 
-  response["totalCombinations"] = 20;
+  response["totalCombinations"] = m_optimizationHandler->getTotalCombinations();
   response["completedCombinations"] =
       (int)m_optimizationHandler->getResults().size();
   return QHttpServerResponse(QJsonDocument(response).toJson(),

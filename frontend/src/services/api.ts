@@ -277,9 +277,18 @@ export const api = {
   },
 
   // ==================== Fuzzy Optimization ====================
-  startOptimization: async (): Promise<{ status: string; message: string }> => {
+  startOptimization: async (params: {
+    accelLow: number;
+    accelMedium: number;
+    accelHigh: number;
+    weakeningLow: number;
+    weakeningMedium: number;
+    weakeningHigh: number;
+  }): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/optimization/start`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
     });
     const body = await res.json();
     if (!res.ok)

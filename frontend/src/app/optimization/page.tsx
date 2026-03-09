@@ -164,8 +164,8 @@ export default function OptimizationPage() {
       setBest(null);
       setCompleted(0);
       setHasStarted(true);
-      await api.startOptimization();
-      toast.success("Optimization started (5 acc × 4 v_p1 = 20 combinations)");
+      await api.startOptimization(constantForm.getValues());
+      toast.success("Optimization started (3 acc × 3 v_p1 = 9 combinations)");
       setIsRunning(true);
       startPolling();
     } catch (error) {
@@ -190,7 +190,7 @@ export default function OptimizationPage() {
           <div>
             <p className="heading-2 tracking-tight">Fuzzy Optimization</p>
             <p className="text-muted-foreground mt-1">
-              Parameter sweep: 5 acceleration × 4 field-weakening speed = 20
+              Parameter sweep: 3 acceleration × 3 field-weakening speed = 9
               combinations, scored by Mamdani fuzzy logic.
             </p>
             <div>

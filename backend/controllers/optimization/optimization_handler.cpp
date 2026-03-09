@@ -140,7 +140,8 @@ double OptimizationHandler::evaluateFuzzyScore(double travelTime,
 //   Pass 2: calibrate fuzzy engine from actual observed ranges, then score
 // This makes the engine work with ANY train + track configuration.
 // =============================================================================
-void OptimizationHandler::handleOptimization() {
+void OptimizationHandler::handleOptimization(
+    const QList<double> &accCandidates, const QList<double> &vp1Candidates) {
   if (m_isRunning.testAndSetRelaxed(0, 1) == false) {
     qWarning() << "Optimization already running, ignoring request.";
     return;
@@ -157,30 +158,14 @@ void OptimizationHandler::handleOptimization() {
   const double originalAcc = m_movingData->acc_start;
   const double originalVp1 = m_movingData->v_p1;
 
-  // Build sweep centered on the user's ACTUAL loaded parameters.
-  // This makes the optimizer adapt to any train configuration.
-  //   acc  : 5 values, 0.1 m/s² step, centred at originalAcc, clamped
-  //   [0.3, 1.5] v_p1 : 4 values at -15, -5, +5, +15 km/h from originalVp1,
-  //          clamped to [20, v_limit - 5)
-  QList<double> accValues;
-  for (int i = -2; i <= 2; ++i) {
-    const double v =
-        std::round((originalAcc + i * 0.1) * 10.0) / 10.0; // avoid FP drift
-    if (v >= 0.3 && v <= 1.5)
-      accValues.append(v);
-  }
-  if (accValues.isEmpty())
-    accValues.append(originalAcc);
+  // Use the caller-supplied candidates directly.
+  // Fallback to the user's current parameters if the lists are empty.
+  QList<double> accValues =
+      accCandidates.isEmpty() ? QList<double>{originalAcc} : accCandidates;
+  QList<double> vp1Values =
+      vp1Candidates.isEmpty() ? QList<double>{originalVp1} : vp1Candidates;
 
-  const double vLimitKmh = m_movingData->v_limit;
-  QList<double> vp1Values;
-  for (int delta : {-15, -5, 5, 15}) {
-    const double v = originalVp1 + delta;
-    if (v >= 20.0 && v < vLimitKmh - 5.0)
-      vp1Values.append(v);
-  }
-  if (vp1Values.isEmpty())
-    vp1Values.append(originalVp1);
+  m_totalCombinations.storeRelaxed(accValues.size() * vp1Values.size());
 
   qDebug() << "Optimization sweep — acc:" << accValues
            << "| v_p1:" << vp1Values;

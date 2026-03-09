@@ -10,6 +10,64 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+#### Fuzzy Membership Ranges: Form Connected to Backend Sweep
+- **Files affected:**
+  - `frontend/src/app/optimization/page.tsx`
+  - `frontend/src/services/api.ts`
+  - `backend/http_server/http_server.cpp`
+  - `backend/http_server/api_handler.h`
+  - `backend/http_server/api_handler.cpp`
+  - `backend/controllers/optimization/optimization_handler.h`
+  - `backend/controllers/optimization/optimization_handler.cpp`
+- **Issue:** The "Fuzzy Membership Ranges" form on the optimization page (fields `accelLow`, `accelMedium`, `accelHigh`, `weakeningLow`, `weakeningMedium`, `weakeningHigh`) was purely decorative — values were validated by the form schema but never sent to the backend. The backend had hardcoded auto-centered sweep logic.
+- **Root Cause (multi-layer):**
+  1. `page.tsx handleStart()` called `api.startOptimization()` with no arguments — form values were never read
+  2. `api.ts startOptimization` had no parameters and sent an empty POST body
+  3. `http_server.cpp` POST route ignored the request body entirely (`const QHttpServerRequest &` not parsed)
+  4. `api_handler.cpp handleStartOptimization()` accepted no parameters
+  5. `optimization_handler.cpp handleOptimization()` built its own `accValues`/`vp1Values` from a fixed ±0.1 centered sweep around user's current `acc_start`, and ±{15,5,-5,-15} km/h around `v_p1`
+- **Solution:**
+  - `handleOptimization()` signature changed to `handleOptimization(const QList<double> &accCandidates, const QList<double> &vp1Candidates)`; auto-sweep building replaced with the passed candidates
+  - `m_totalCombinations` (`QAtomicInt`) added to `OptimizationHandler` — set to `accCandidates.size() × vp1Candidates.size()` at the start of each run; exposed via `getTotalCombinations()`
+  - `api_handler.cpp handleStartOptimization(const QJsonObject &data)` parses `accelLow/Medium/High` → `accValues` and `weakeningLow/Medium/High` → `vp1Values`; passes them to `handleOptimization()`; falls back to user's current loaded parameters if all 6 fields are missing/zero
+  - `handleGetOptimizationStatus()` reads `getTotalCombinations()` instead of hardcoding 20
+  - `http_server.cpp` POST route now parses request body via `parseRequestBody(request)` and forwards `QJsonObject` to `handleStartOptimization(data)`
+  - `api.ts startOptimization` now accepts `params: { accelLow, accelMedium, accelHigh, weakeningLow, weakeningMedium, weakeningHigh }` and sends them as JSON body
+  - `page.tsx handleStart()` calls `constantForm.getValues()` and passes the result to `api.startOptimization()`; description text updated to "3 acc × 3 v_p1 = 9 combinations"
+- **Behaviour after fix:** User-defined Low/Medium/High values for acceleration (m/s²) and weakening point (km/h) are the exact discrete candidates swept. 3 × 3 = 9 combinations scored by the Mamdani fuzzy engine.
+
+#### Force-Speed Chart: Running Resistance Option Lines
+- **File:** `frontend/src/app/output/force-tab.tsx`
+- **What:** Added 4 dashed `<Line>` components (`motorResistancesOption1-4`) and the base `motorResistance` line, each with a `chartConfig` entry (colour + label). Previously only traction/braking force lines were shown; running resistance options from custom slope inputs were not charted even though they were computed in the backend.
+
+### Fixed
+
+#### Running Resistance Zeros in Static Simulation (3 Simultaneous Bugs)
+- **Files affected:**
+  - `backend/controllers/simulation/train_simulation_handler.cpp`
+  - `backend/http_server/inputs/track_parameter_handler.cpp`
+  - `backend/http_server/simulations/simulation_handler.cpp`
+
+**Bug 1 — Circular guard deadlock in `calculateRunningResEachSlope()`:**
+- **Function:** `train_simulation_handler.cpp: calculateRunningResEachSlope()`
+- **Issue:** Guard condition `f_resRunningOption{n} > 0` prevented the function from ever computing — the result was zero, so the guard blocked recomputation, keeping it zero.
+- **Solution:** Removed the `&& f_resRunningOption{n} > 0` half of each condition. The function is only gated on `stat_slope_option{n} != 0.0` (or similar physics precondition).
+
+**Bug 2 — Boolean trap on zero-slope flat track:**
+- **Function:** `train_simulation_handler.cpp: calculateRunningResEachSlope()`
+- **Issue:** Condition `if (stat_slope_option1 && ...)` evaluates `false` when the slope is exactly `0.0` (flat track), because `0.0` is falsy in C++. This caused the function to skip the flat-track running resistance calculation entirely.
+- **Solution:** Replaced `if (stat_slope_option1 && ...)` with `if (stat_slope_option1 != 0.0 || ...)` or restructured the calculation to not gate on the slope value.
+
+**Bug 3 — Update handler never saved slope_option inputs:**
+- **Function:** `backend/http_server/inputs/track_parameter_handler.cpp: handleUpdateTrackParameters()`
+- **Issue:** PUT requests containing `slope_option1/2/3/4` from the frontend form were silently ignored — the handler parsed only the base track fields and never wrote `slope_option1-4` to `AppContext`.
+- **Solution:** Added four `data["slope_option1"].toDouble()` read/assign blocks in `handleUpdateTrackParameters()` to persist the custom slope values.
+
+**Key serialization bug — Field name mismatch in `getStaticResults()`:**
+- **Function:** `backend/http_server/simulations/simulation_handler.cpp: getStaticResults()`
+- **Issue:** Serialized the 4 option vectors under keys `motorResistancesZero/Five/Ten/TwentyFive`, but the frontend expected `motorResistancesOption1/2/3/4`.
+- **Solution:** Renamed the JSON keys to `motorResistancesOption1/2/3/4`. Also added bounds-safe ternary access (`!vec.isEmpty() ? vec[0] : 0.0`) in both `getStaticResults()` and `getDynamicResults()`.
+
 #### Fuzzy Membership Function Visualization Script
 - **File:** `scripts/generate_fuzzy_membership_graphs.py`
 - **What:** Python/Colab script that exactly mirrors the C++ fuzzy engine's membership function logic and produces 8 labeled plots
