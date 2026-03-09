@@ -361,6 +361,7 @@ QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
             m_trainSimulation->getMaxCatenaryCurrent();
         summary["maxVvvfCurrent"] = m_trainSimulation->getMaxVvvfCurrent();
         // summary["maxEnergyRegen"] = m_trainSimulation->getMaxEnergyRegen();
+        summary["maxPowerTime"] = m_trainSimulation->getMaxPowTime();
         summary["adhesion"] = m_trainSimulation->getAdhesion();
         // }
 

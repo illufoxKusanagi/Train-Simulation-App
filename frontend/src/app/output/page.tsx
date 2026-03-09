@@ -492,7 +492,7 @@ export default function OutputPage() {
 
   return (
     <PageLayout>
-      <div className="flex flex-col gap-6 w-full">
+      <div className="flex flex-col gap-6 h-full w-full p-6">
         {/* Summary Cards - All 8 fields from backend */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
@@ -572,6 +572,14 @@ export default function OutputPage() {
               <CardDescription>Adhesion Coefficient</CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.adhesion ?? 0).toFixed(3)}
+              </CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription>Time at Peak Power</CardDescription>
+              <CardTitle className="text-2xl">
+                {(results.summary?.maxPowerTime ?? 0).toFixed(2)} s
               </CardTitle>
             </CardHeader>
           </Card>
