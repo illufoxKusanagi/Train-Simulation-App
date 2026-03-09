@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { api } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
 import {
   Play,
@@ -15,6 +16,15 @@ import {
   Gauge,
 } from "lucide-react";
 import PageLayout from "@/components/page-layout";
+import { InputWidget } from "@/components/inputs/input-widget";
+import {
+  accelerationFormDatas,
+  weakeningFormDatas,
+  OptimizationFormSchema,
+} from "./form.constants";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface OptResult {
   acc_start: number; // m/s²
@@ -56,6 +66,17 @@ export default function OptimizationPage() {
   const [best, setBest] = useState<OptResult | null>(null);
   const [completed, setCompleted] = useState(0);
   const [total, setTotal] = useState(20);
+  const constantForm = useForm<z.infer<typeof OptimizationFormSchema>>({
+    resolver: zodResolver(OptimizationFormSchema),
+    defaultValues: {
+      accelLow: 0.6,
+      accelMedium: 1.0,
+      accelHigh: 1.2,
+      weakeningLow: 70,
+      weakeningMedium: 85,
+      weakeningHigh: 100,
+    },
+  });
 
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -167,13 +188,56 @@ export default function OptimizationPage() {
         {/* Header */}
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Fuzzy Optimization
-            </h1>
+            <p className="heading-2 tracking-tight">Fuzzy Optimization</p>
             <p className="text-muted-foreground mt-1">
               Parameter sweep: 5 acceleration × 4 field-weakening speed = 20
               combinations, scored by Mamdani fuzzy logic.
             </p>
+            <div>
+              <Card>
+                <CardHeader>
+                  <p className="heading-3">Fuzzy Membership Ranges</p>
+                  <p className="text-muted-foreground">
+                    Set the peak value for each membership level (Low / Medium /
+                    High) used in the fuzzy evaluation.
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <Form {...constantForm}>
+                    {/* Acceleration */}
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold">
+                        Acceleration (m/s²)
+                      </p>
+                      <div className="grid grid-cols-3 gap-4">
+                        {accelerationFormDatas.map((formData) => (
+                          <InputWidget
+                            key={formData.name}
+                            inputType={formData}
+                            control={constantForm.control}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    {/* Weakening */}
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold">
+                        Weakening Point (km/h)
+                      </p>
+                      <div className="grid grid-cols-3 gap-4">
+                        {weakeningFormDatas.map((formData) => (
+                          <InputWidget
+                            key={formData.name}
+                            inputType={formData}
+                            control={constantForm.control}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </Form>
+                </CardContent>
+              </Card>
+            </div>
           </div>
           <Button
             onClick={handleStart}

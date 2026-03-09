@@ -27,6 +27,10 @@ QHttpServerResponse TrackParameterHandler::handleGetTrackParameters() {
   trackParams["slope"] = m_context.stationData->stat_slope;
   trackParams["v_limit"] = m_context.stationData->stat_v_limit;
   trackParams["dwellTime"] = m_context.stationData->stat_dwellTime;
+  trackParams["slope_option1"] = m_context.stationData->stat_slope_option1;
+  trackParams["slope_option2"] = m_context.stationData->stat_slope_option2;
+  trackParams["slope_option3"] = m_context.stationData->stat_slope_option3;
+  trackParams["slope_option4"] = m_context.stationData->stat_slope_option4;
 
   response["trackParameters"] = trackParams;
   response["status"] = "success";
@@ -74,6 +78,22 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
     if (trackParams.contains("dwellTime")) {
       m_context.stationData->stat_dwellTime =
           trackParams["dwellTime"].toDouble();
+    }
+    if (trackParams.contains("slope_option1")) {
+      m_context.stationData->stat_slope_option1 =
+          trackParams["slope_option1"].toDouble();
+    }
+    if (trackParams.contains("slope_option2")) {
+      m_context.stationData->stat_slope_option2 =
+          trackParams["slope_option2"].toDouble();
+    }
+    if (trackParams.contains("slope_option3")) {
+      m_context.stationData->stat_slope_option3 =
+          trackParams["slope_option3"].toDouble();
+    }
+    if (trackParams.contains("slope_option4")) {
+      m_context.stationData->stat_slope_option4 =
+          trackParams["slope_option4"].toDouble();
     }
 
     // Handle CSV array data for vectors

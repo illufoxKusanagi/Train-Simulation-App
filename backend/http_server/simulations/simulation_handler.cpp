@@ -254,11 +254,22 @@ QJsonObject SimulationHandler::getStaticResults() {
     point["energyRegenerations"] = simulationDatas->energyRegenerations[i];
     point["energyAps"] = simulationDatas->energyAps[i];
     point["energyCatenaries"] = simulationDatas->energyCatenaries[i];
-    point["motorResistancesZero"] = simulationDatas->motorResistancesZero[i];
-    point["motorResistancesFive"] = simulationDatas->motorResistancesFive[i];
-    point["motorResistancesTen"] = simulationDatas->motorResistancesTen[i];
-    point["motorResistancesTwentyFive"] =
-        simulationDatas->motorResistancesTwentyFive[i];
+    point["motorResistancesOption1"] =
+        i < simulationDatas->motorResistancesOption1.size()
+            ? simulationDatas->motorResistancesOption1[i]
+            : 0.0;
+    point["motorResistancesOption2"] =
+        i < simulationDatas->motorResistancesOption2.size()
+            ? simulationDatas->motorResistancesOption2[i]
+            : 0.0;
+    point["motorResistancesOption3"] =
+        i < simulationDatas->motorResistancesOption3.size()
+            ? simulationDatas->motorResistancesOption3[i]
+            : 0.0;
+    point["motorResistancesOption4"] =
+        i < simulationDatas->motorResistancesOption4.size()
+            ? simulationDatas->motorResistancesOption4[i]
+            : 0.0;
 
     resultsArray.append(point);
   }

@@ -268,9 +268,10 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
 
     // Station data - STATIC simulation values
     if (m_context.stationData) {
-      m_context.stationData->stat_slope_1 = 0.0;
-      m_context.stationData->stat_slope_2 = 10.0;
-      m_context.stationData->stat_slope_3 = 10.0;
+      m_context.stationData->stat_slope_option1 = 0.0;
+      m_context.stationData->stat_slope_option2 = 5.0;
+      m_context.stationData->stat_slope_option3 = 10.0;
+      m_context.stationData->stat_slope_option4 = 25.0;
       m_context.stationData->stat_radius = 2000;
       m_context.stationData->stat_x_station = 2000.0; // 2km
       m_context.stationData->stat_v_limit = 70.0;     // 100 km/h

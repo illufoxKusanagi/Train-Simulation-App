@@ -6,6 +6,43 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Unreleased] - 2026-03-09
+
+### Added
+
+#### Fuzzy Membership Function Visualization Script
+- **File:** `scripts/generate_fuzzy_membership_graphs.py`
+- **What:** Python/Colab script that exactly mirrors the C++ fuzzy engine's membership function logic and produces 8 labeled plots
+  - `trapezoid_mf(x, m_min, m_peak1, m_peak2, m_max)` — mirrors `TrapezoidSet::membership()` with strict boundary inequalities (endpoints return 0.0)
+  - `triangle_mf(x, m_min, m_peak, m_max)` — mirrors `TriangleSet::membership()`
+  - `compute_input_breakpoints(raw_min, raw_max)` — applies 5% margin then derives fractional breakpoints: Short/Low = Trapezoid(lo, lo, lo+0.25·vr, lo+0.45·vr), Medium = Triangle(lo+0.30·vr, lo+0.50·vr, lo+0.70·vr), Long/High = Trapezoid(lo+0.55·vr, lo+0.75·vr, hi, hi)
+  - Fixed output terms on [0,100]: Poor = Trapezoid(0,0,15,30), Fair = Triangle(20,38,55), Good = Triangle(45,62,78), Excellent = Trapezoid(68,82,100,100)
+  - `eval_term` + `cog_defuzzify` — Mamdani MIN implication, MAX aggregation, COG over 101 sample points
+  - `plot_time_engine` / `plot_power_engine` — full engine plots with optional COG walkthrough example
+  - `plot_acceleration_membership` — hypothetical acc_start MFs over [0.3, 1.5] m/s² (reference; parameter is swept discretely, not fuzzified)
+  - `plot_weakening_speed_membership` — hypothetical v_p1 MFs over [20, v_limit−5] km/h with candidate lines marked (reference; same reason)
+  - `plot_sweep_candidates` — bar chart of 5 acc_start + 4 v_p1 candidate grid (the actual discrete sweep values)
+  - `plot_final_score_sweep` — 4×5 score heatmap grid for all 20 parameter combinations
+  - `plot_overview_grid` — 2×3 summary figure
+  - Saves all plots to `fuzzy_graphs/` as both PNG and PDF
+- **Usage:** Run `main()` in Colab or locally; all parameters (min/max time, min/max power, example inputs, candidate values, v_limit) are configurable via `main()` arguments
+
+### Fixed
+
+#### Missing TypeScript Field: `powerMotorOutputPerMotor` in `SimulationDataPoint`
+- **File:** `frontend/src/types/simulation-params.ts`
+- **Issue:** `powerMotorOutputPerMotor` was referenced in `frontend/src/app/output/power-per-motor-tab.tsx` (lines 24, 74, 75) but absent from the `SimulationDataPoint` interface — causing a silent TypeScript type gap where the field would be `undefined` at runtime even though the backend sends it
+- **Root Cause:** Field was omitted when the interface was originally written; `powerMotorOut` and `powerMotorIn` were present but the per-motor breakdown field was skipped
+- **Solution:** Added the missing field between `powerMotorOut` and `powerMotorIn`:
+  ```typescript
+  powerMotorOut: number;               // P_motor Out
+  powerMotorOutputPerMotor: number;    // P_motor Out Per Motor
+  powerMotorIn: number;                // P_motor In
+  ```
+- **Impact:** `power-per-motor-tab.tsx` chart now correctly reads the per-motor power value from the API response without data loss
+
+---
+
 ## [Unreleased] - 2026-03-04
 
 ### Added

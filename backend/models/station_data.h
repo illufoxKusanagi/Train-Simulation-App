@@ -9,9 +9,10 @@ struct StationData {
   double stat_slope = 0.0;
   double stat_radius = 0.0;
   double stat_dwellTime = 0.0;
-  double stat_slope_1;
-  double stat_slope_2;
-  double stat_slope_3;
+  double stat_slope_option1;
+  double stat_slope_option2;
+  double stat_slope_option3;
+  double stat_slope_option4;
   double x_odo = 0.0;
   double x_deficit = 0.0;
   int n_station = 2;

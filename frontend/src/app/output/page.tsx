@@ -168,10 +168,10 @@ export default function OutputPage() {
           // item.energyRegenerations || 0,
           item.energyAps || 0,
           item.energyCatenaries || 0,
-          item.motorResistancesZero || 0,
-          item.motorResistancesFive || 0,
-          item.motorResistancesTen || 0,
-          item.motorResistancesTwentyFive || 0,
+          item.motorResistancesOption1 || 0,
+          item.motorResistancesOption2 || 0,
+          item.motorResistancesOption3 || 0,
+          item.motorResistancesOption4 || 0,
         ].map((value) => {
           if (typeof value === "string" && value.includes(",")) {
             return `"${value.replace(/"/g, '""')}"`;
@@ -295,10 +295,10 @@ export default function OutputPage() {
           // "Energy Regen": item.energyRegenerations || 0,
           "Energy of APS": item.energyAps || 0,
           "Energy Catenary": item.energyCatenaries || 0,
-          "Run res at 0": item.motorResistancesZero || 0,
-          "Run res at 5": item.motorResistancesFive || 0,
-          "Run res at 10": item.motorResistancesTen || 0,
-          "Run res at 25": item.motorResistancesTwentyFive || 0,
+          "Run res at 0": item.motorResistancesOption1 || 0,
+          "Run res at 5": item.motorResistancesOption2 || 0,
+          "Run res at 10": item.motorResistancesOption3 || 0,
+          "Run res at 25": item.motorResistancesOption4 || 0,
         };
       });
 
@@ -446,10 +446,10 @@ export default function OutputPage() {
                   // energyRegenerations: 0,
                   energyAps: 5,
                   energyCatenaries: 50 + i * 2,
-                  motorResistancesZero: 10,
-                  motorResistancesFive: 12,
-                  motorResistancesTen: 15,
-                  motorResistancesTwentyFive: 25,
+                  motorResistancesOption1: 0,
+                  motorResistancesOption2: 5,
+                  motorResistancesOption3: 15,
+                  motorResistancesOption4: 25,
                   powerMotorOutputPerMotor: 100 * i,
                 })),
                 summary: {

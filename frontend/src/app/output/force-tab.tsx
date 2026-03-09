@@ -33,6 +33,26 @@ const chartConfig = {
     label: "Total Resistance (N)",
     color: "var(--chart-2)",
   },
+  motorResistance: {
+    label: "F Resistance (N)",
+    color: "var(--chart-3)",
+  },
+  motorResistancesOption1: {
+    label: "Run Res Option 1 (N)",
+    color: "var(--chart-4)",
+  },
+  motorResistancesOption2: {
+    label: "Run Res Option 2 (N)",
+    color: "var(--chart-5)",
+  },
+  motorResistancesOption3: {
+    label: "Run Res Option 3 (N)",
+    color: "#10b981",
+  },
+  motorResistancesOption4: {
+    label: "Run Res Option 4 (N)",
+    color: "#f43f5e",
+  },
 } satisfies ChartConfig;
 
 interface ForceTabProps {
@@ -74,7 +94,7 @@ export default function ForceTab({
         const result = await window.fileBridge.saveBinaryFileDialog(
           Array.from(bytes),
           "force_chart.png",
-          "Images (*.png);;All Files (*.*)"
+          "Images (*.png);;All Files (*.*)",
         );
 
         if (result.success) {
@@ -158,6 +178,38 @@ export default function ForceTab({
                 stroke="var(--color-totalResistance)"
                 strokeWidth={2}
                 dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="motorResistancesOption1"
+                stroke="var(--color-motorResistancesOption1)"
+                strokeWidth={1.5}
+                dot={false}
+                strokeDasharray="4 2"
+              />
+              <Line
+                type="monotone"
+                dataKey="motorResistancesOption2"
+                stroke="var(--color-motorResistancesOption2)"
+                strokeWidth={1.5}
+                dot={false}
+                strokeDasharray="4 2"
+              />
+              <Line
+                type="monotone"
+                dataKey="motorResistancesOption3"
+                stroke="var(--color-motorResistancesOption3)"
+                strokeWidth={1.5}
+                dot={false}
+                strokeDasharray="4 2"
+              />
+              <Line
+                type="monotone"
+                dataKey="motorResistancesOption4"
+                stroke="var(--color-motorResistancesOption4)"
+                strokeWidth={1.5}
+                dot={false}
+                strokeDasharray="4 2"
               />
             </LineChart>
           </ChartContainer>
