@@ -21,12 +21,14 @@ import { api } from "@/services/api";
 import { Spinner } from "@/components/ui/spinner";
 import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
 import { useRef } from "react";
+import { useFormPersistence } from "@/contexts/FormPersistenceContext";
 
 export default function ElectricalParameterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
   const csvInputRef = useRef<HTMLInputElement>(null);
+  const { saveFormData, loadFormData } = useFormPersistence();
 
   const constantForm = useForm<z.infer<typeof ElectricalFormSchema>>({
     resolver: zodResolver(ElectricalFormSchema),
@@ -42,15 +44,26 @@ export default function ElectricalParameterPage() {
   });
 
   useEffect(() => {
-    api
-      .getElectricalParameters()
-      .then((data) => constantForm.reset(data.electricalParameters))
-      .catch((err) => {
-        console.error("Failed to load electrical parameters:", err);
-        toast.error("Could not load saved parameters — using defaults");
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const savedData = loadFormData("electrical-params");
+    if (savedData) {
+      constantForm.reset(savedData as z.infer<typeof ElectricalFormSchema>);
+    } else {
+      api
+        .getElectricalParameters()
+        .then((data) => constantForm.reset(data.electricalParameters))
+        .catch((err) => {
+          console.error("Failed to load electrical parameters:", err);
+          toast.error("Could not load saved parameters — using defaults");
+        });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const subscription = constantForm.watch((data) => {
+      saveFormData("electrical-params", data as Record<string, unknown>);
+    });
+    return () => subscription.unsubscribe();
+  }, [constantForm, saveFormData]);
 
   const handleFileLoad = (name: string, data: number[][]) => {
     setCsvData((prev) => ({

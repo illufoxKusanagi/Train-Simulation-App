@@ -13,7 +13,9 @@ import {
 } from "@/components/ui/card";
 import { Download, AlertCircle } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { api } from "@/services/api";
 import type { SimulationResults } from "@/services/api";
 import * as XLSX from "xlsx";
 import { initializeQtWebChannel } from "@/lib/qt-webchannel";
@@ -28,19 +30,23 @@ import { toast } from "sonner";
 export default function OutputPage() {
   const [results, setResults] = useState<SimulationResults | null>(null);
   const [activeTab, setActiveTab] = useState<string>("speed");
+  const [isLoading, setIsLoading] = useState(true);
   const [isExportingCSV, setIsExportingCSV] = useState(false);
   const [isExportingExcel, setIsExportingExcel] = useState(false);
 
   useEffect(() => {
-    // Function to load results
-    const loadResults = () => {
-      const stored = sessionStorage.getItem("simulationResults");
-      if (stored) {
-        try {
-          setResults(JSON.parse(stored));
-        } catch (error) {
-          console.error("Failed to parse simulation results:", error);
+    // Function to load results directly from the backend
+    const loadResults = async () => {
+      try {
+        const statusResponse = await api.getSimulationStatus();
+        if (statusResponse.summary) {
+          const resultsResponse = await api.getSimulationResults();
+          setResults({ ...resultsResponse, summary: statusResponse.summary });
         }
+      } catch (error) {
+        console.error("Failed to load simulation results:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -396,6 +402,22 @@ export default function OutputPage() {
     Array.isArray(results.results) &&
     results.results.length > 0;
 
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className="flex flex-col gap-6 h-full w-full p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-24 w-full rounded-xl" />
+            ))}
+          </div>
+          <Skeleton className="h-10 w-72 rounded-lg" />
+          <Skeleton className="h-[360px] w-full rounded-xl" />
+        </div>
+      </PageLayout>
+    );
+  }
+
   if (!hasValidResults) {
     return (
       <PageLayout>
@@ -474,10 +496,6 @@ export default function OutputPage() {
               };
 
               setResults(mockData);
-              sessionStorage.setItem(
-                "simulationResults",
-                JSON.stringify(mockData),
-              );
               console.log("Mock data generated:", mockData);
             }}
             variant="outline"

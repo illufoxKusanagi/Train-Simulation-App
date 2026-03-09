@@ -21,11 +21,13 @@ import { api } from "@/services/api";
 import { Spinner } from "@/components/ui/spinner";
 import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
 import { useRef } from "react";
+import { useFormPersistence } from "@/contexts/FormPersistenceContext";
 
 export default function RunningPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const csvInputRef = useRef<HTMLInputElement>(null);
+  const { saveFormData, loadFormData } = useFormPersistence();
 
   const constantForm = useForm<z.infer<typeof RunningFormSchema>>({
     resolver: zodResolver(RunningFormSchema),
@@ -43,15 +45,26 @@ export default function RunningPage() {
   });
 
   useEffect(() => {
-    api
-      .getRunningParameters()
-      .then((data) => constantForm.reset(data.runningParameters))
-      .catch((err) => {
-        console.error("Failed to load running parameters:", err);
-        toast.error("Could not load saved parameters — using defaults");
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const savedData = loadFormData("running-params");
+    if (savedData) {
+      constantForm.reset(savedData as z.infer<typeof RunningFormSchema>);
+    } else {
+      api
+        .getRunningParameters()
+        .then((data) => constantForm.reset(data.runningParameters))
+        .catch((err) => {
+          console.error("Failed to load running parameters:", err);
+          toast.error("Could not load saved parameters — using defaults");
+        });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const subscription = constantForm.watch((data) => {
+      saveFormData("running-params", data as Record<string, unknown>);
+    });
+    return () => subscription.unsubscribe();
+  }, [constantForm, saveFormData]);
 
   async function onSubmit(data: z.infer<typeof RunningFormSchema>) {
     setIsSubmitting(true);

@@ -191,7 +191,18 @@ void OptimizationHandler::handleOptimization(
       // step — holding it here too would deadlock (QMutex is non-recursive).
       m_movingData->acc_start = acc;
       m_movingData->v_p1 = vp1;
+
+      // Block signals so simulationCompleted is NOT emitted during the sweep.
+      // Without this, each runDynamicSimulation() posts a queued
+      // resetSimulation() to the main thread (cross-thread signal). Those
+      // queued slots can fire mid-loop of the NEXT combo's simulation,
+      // corrupting movingData->v, energyData->e_pow, etc. and producing
+      // different scores on repeated runs. initData() + clearSimulationDatas()
+      // inside runDynamicSimulation() already reset all state we need; we don't
+      // need the signal-triggered reset here.
+      m_trainSimulation->blockSignals(true);
       m_trainSimulation->runDynamicSimulation();
+      m_trainSimulation->blockSignals(false);
 
       if (m_simulationDatas->powerMotorOutPerMotor.isEmpty() ||
           m_simulationDatas->timeTotal.isEmpty()) {

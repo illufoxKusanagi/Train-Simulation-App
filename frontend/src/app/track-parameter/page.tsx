@@ -13,6 +13,7 @@ import { api } from "@/services/api";
 import { Spinner } from "@/components/ui/spinner";
 import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
 import { useRef } from "react";
+import { useFormPersistence } from "@/contexts/FormPersistenceContext";
 import PageLayout from "@/components/page-layout";
 import {
   Card,
@@ -31,6 +32,7 @@ export default function TrackParameterPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
   const csvInputRef = useRef<HTMLInputElement>(null);
+  const { saveFormData, loadFormData } = useFormPersistence();
 
   const constantForm = useForm<z.infer<typeof TrackFormSchema>>({
     resolver: zodResolver(TrackFormSchema),
@@ -49,19 +51,48 @@ export default function TrackParameterPage() {
   });
 
   useEffect(() => {
-    api
-      .getTrackParameters()
-      .then((data) =>
-        constantForm.reset(
-          data.trackParameters as z.infer<typeof TrackFormSchema>,
-        ),
-      )
-      .catch((err) => {
-        console.error("Failed to load track parameters:", err);
-        toast.error("Could not load saved parameters — using defaults");
-      });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const savedData = loadFormData("track-params");
+    if (savedData) {
+      constantForm.reset(savedData as z.infer<typeof TrackFormSchema>);
+    } else {
+      api
+        .getTrackParameters()
+        .then((data) =>
+          constantForm.reset(
+            data.trackParameters as z.infer<typeof TrackFormSchema>,
+          ),
+        )
+        .catch((err) => {
+          console.error("Failed to load track parameters:", err);
+          toast.error("Could not load saved parameters — using defaults");
+        });
+    }
+    // Restore uploaded CSV array data
+    const savedCsvData = localStorage.getItem("track-csv-data");
+    if (savedCsvData) {
+      try {
+        setCsvData(JSON.parse(savedCsvData));
+      } catch (e) {
+        console.error("Failed to restore track CSV data:", e);
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Persist csvData whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem("track-csv-data", JSON.stringify(csvData));
+    } catch (e) {
+      console.error("Failed to save track CSV data:", e);
+    }
+  }, [csvData]);
+
+  useEffect(() => {
+    const subscription = constantForm.watch((data) => {
+      saveFormData("track-params", data as Record<string, unknown>);
+    });
+    return () => subscription.unsubscribe();
+  }, [constantForm, saveFormData]);
 
   const handleFileLoad = (name: string, data: number[][]) => {
     setCsvData((prev) => ({
@@ -161,6 +192,7 @@ export default function TrackParameterPage() {
   const handleReset = () => {
     constantForm.reset();
     setCsvData({});
+    localStorage.removeItem("track-csv-data");
     toast("Form has been reset!");
   };
 

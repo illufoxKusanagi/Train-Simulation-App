@@ -32,18 +32,6 @@ export function SimulationButtons() {
         statusResult = await api.getSimulationStatus();
       }
 
-      // Fetch detailed results
-      const resultsResponse = await api.getSimulationResults();
-
-      // Combine summary from status with results from getResults
-      const response = {
-        ...resultsResponse,
-        summary: statusResult.summary, // Use summary from status endpoint
-      };
-
-      // Store combined results in sessionStorage for output page
-      sessionStorage.setItem("simulationResults", JSON.stringify(response));
-
       // Notify other components that simulation has updated
       window.dispatchEvent(new Event("simulationUpdated"));
 
@@ -52,7 +40,7 @@ export function SimulationButtons() {
 
       toast.success(
         `${type === "static" ? "Static" : "Dynamic"} simulation completed!`,
-        { description: `Max speed: ${maxSpeed.toFixed(2)} km/h` }
+        { description: `Max speed: ${maxSpeed.toFixed(2)} km/h` },
       );
 
       // Display warnings
@@ -81,7 +69,7 @@ export function SimulationButtons() {
       console.error("Simulation failed:", error);
       toast.error(
         "Simulation failed!",
-        "Make sure all parameters are set correctly."
+        "Make sure all parameters are set correctly.",
       );
     } finally {
       setLoading(false);
