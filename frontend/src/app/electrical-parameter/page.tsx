@@ -11,7 +11,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
@@ -35,6 +35,14 @@ export default function ElectricalParameterPage() {
       p_aps: 30,
     },
   });
+
+  useEffect(() => {
+    api
+      .getElectricalParameters()
+      .then((data) => constantForm.reset(data.electricalParameters))
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFileLoad = (name: string, data: number[][]) => {
     setCsvData((prev) => ({

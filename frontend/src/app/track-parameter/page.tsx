@@ -3,7 +3,7 @@
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { constantFormRows, TrackFormSchema } from "./form.constants";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { api } from "@/services/api";
 import PageLayout from "@/components/page-layout";
@@ -38,6 +38,18 @@ export default function TrackParameterPage() {
       slope_option4: 25,
     },
   });
+
+  useEffect(() => {
+    api
+      .getTrackParameters()
+      .then((data) =>
+        constantForm.reset(
+          data.trackParameters as z.infer<typeof TrackFormSchema>,
+        ),
+      )
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFileLoad = (name: string, data: number[][]) => {
     setCsvData((prev) => ({

@@ -572,6 +572,19 @@ export default function OutputPage() {
               </CardTitle>
             </CardHeader>
           </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription>Travel Time</CardDescription>
+              <CardTitle className="text-2xl">
+                {results.results.length > 0
+                  ? results.results[
+                      results.results.length - 1
+                    ].timeTotal.toFixed(1)
+                  : "0.0"}{" "}
+                s
+              </CardTitle>
+            </CardHeader>
+          </Card>
         </div>
 
         {/* Charts */}

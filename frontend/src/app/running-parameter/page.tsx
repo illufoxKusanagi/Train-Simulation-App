@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { constantFormRows, RunningFormSchema } from "./form.constants";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -36,6 +36,14 @@ export default function RunningPage() {
       v_b2: 70,
     },
   });
+
+  useEffect(() => {
+    api
+      .getRunningParameters()
+      .then((data) => constantForm.reset(data.runningParameters))
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function onSubmit(data: z.infer<typeof RunningFormSchema>) {
     setIsSubmitting(true);
@@ -136,7 +144,7 @@ export default function RunningPage() {
         // Check if key is valid and value is a number
         if (
           validKeys.includes(
-            cleanKey as keyof z.infer<typeof RunningFormSchema>
+            cleanKey as keyof z.infer<typeof RunningFormSchema>,
           ) &&
           !isNaN(Number(cleanValue))
         ) {
@@ -147,7 +155,7 @@ export default function RunningPage() {
             {
               shouldDirty: true,
               shouldValidate: true,
-            }
+            },
           );
           successCount++;
           console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
@@ -205,7 +213,7 @@ export default function RunningPage() {
                       Array.from({ length: 3 - row.length }).map(
                         (_, emptyIndex) => (
                           <div key={`empty-${rowIndex}-${emptyIndex}`} />
-                        )
+                        ),
                       )}
                   </div>
                 ))}
