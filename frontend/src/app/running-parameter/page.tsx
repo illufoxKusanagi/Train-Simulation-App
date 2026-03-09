@@ -170,7 +170,7 @@ export default function RunningPage() {
 
   return (
     <PageLayout>
-      <Card className="px-6 py-8 min-h-[40rem] h-full w-full max-w-2xl rounded-3xl justify-center">
+      <Card className="px-6 py-8 min-h-[40rem] h-fit w-full max-w-2xl rounded-3xl justify-center">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Running Parameter</CardTitle>
           <CardDescription>
@@ -218,14 +218,6 @@ export default function RunningPage() {
                     "Save"
                   )}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handleReset}
-                >
-                  Reset
-                </Button>
                 <div className="flex-1 relative">
                   <input
                     ref={csvInputRef}
@@ -236,7 +228,7 @@ export default function RunningPage() {
                   />
                   <Button
                     type="button"
-                    variant="secondary"
+                    variant="default"
                     className="w-full"
                     disabled={isUploading}
                     onClick={async () => {
@@ -264,6 +256,14 @@ export default function RunningPage() {
                     )}
                   </Button>
                 </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleReset}
+                >
+                  Reset
+                </Button>
               </div>
             </form>
           </Form>

@@ -619,14 +619,6 @@ export default function TrainParameter() {
                     "Save"
                   )}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handleReset}
-                >
-                  Reset
-                </Button>
                 <div className="flex-1 relative">
                   <input
                     ref={constantCsvInputRef}
@@ -637,7 +629,7 @@ export default function TrainParameter() {
                   />
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="default"
                     className="w-full"
                     disabled={isUploading}
                     onClick={async () => {
@@ -665,6 +657,14 @@ export default function TrainParameter() {
                     )}
                   </Button>
                 </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleReset}
+                >
+                  Reset
+                </Button>
               </div>
             </form>
           </Form>
@@ -833,14 +833,6 @@ export default function TrainParameter() {
                     "Save Data"
                   )}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handleReset}
-                >
-                  Reset
-                </Button>
                 <div className="flex-1 relative">
                   <input
                     ref={trainsetCsvInputRef}
@@ -851,7 +843,7 @@ export default function TrainParameter() {
                   />
                   <Button
                     type="button"
-                    variant="secondary"
+                    variant="default"
                     className="w-full"
                     disabled={isUploading}
                     onClick={async () => {
@@ -879,6 +871,14 @@ export default function TrainParameter() {
                     )}
                   </Button>
                 </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleReset}
+                >
+                  Reset
+                </Button>
               </div>
             </form>
           </Form>

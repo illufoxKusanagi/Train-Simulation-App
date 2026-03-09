@@ -70,14 +70,18 @@ export function AppSidebar() {
     <Sidebar variant="floating" collapsible="icon" className="z-50">
       <SidebarTrigger
         size={"lg"}
-        className={cn("absolute", open ? "top-6 left-6" : "top-4 left-4")}
+        className={cn(
+          "absolute",
+          "bg-sidebar text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+          open ? "top-6 left-6" : "top-4 left-4",
+        )}
       />
       <SidebarHeader
         className={cn(
           "overflow-hidden transition-all duration-500 ease-in-out",
           open
             ? "px-4 pt-4 block opacity-100"
-            : "px-2 pt-4 flex items-center justify-center opacity-100"
+            : "px-2 pt-4 flex items-center justify-center opacity-100",
         )}
       >
         {open ? (
@@ -143,8 +147,8 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter
         className={cn(
-          "w-full bg-accent/50 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-300",
-          open ? "p-4" : "p-2"
+          "w-full bg-sidebar-accent backdrop-blur supports-[backdrop-filter]:bg-sidebar-accent transition-all duration-300 rounded-b-lg",
+          open ? "p-4" : "p-2",
         )}
       >
         {open ? (
