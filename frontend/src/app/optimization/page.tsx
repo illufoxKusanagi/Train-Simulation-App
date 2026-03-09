@@ -184,14 +184,14 @@ export default function OptimizationPage() {
 
   return (
     <PageLayout>
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="flex flex-col h-full py-6">
         {/* Header */}
         <div className="flex justify-between items-start">
           <div>
             <p className="heading-2 tracking-tight">Fuzzy Optimization</p>
             <p className="text-muted-foreground mt-1">
-              Parameter sweep: 3 acceleration × 3 field-weakening speed = 9
-              combinations, scored by Mamdani fuzzy logic.
+              Parameter sweep for each combinations, scored by Mamdani fuzzy
+              logic.
             </p>
             <div>
               <Card>

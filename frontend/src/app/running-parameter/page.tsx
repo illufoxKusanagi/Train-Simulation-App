@@ -46,7 +46,10 @@ export default function RunningPage() {
     api
       .getRunningParameters()
       .then((data) => constantForm.reset(data.runningParameters))
-      .catch(() => {});
+      .catch((err) => {
+        console.error("Failed to load running parameters:", err);
+        toast.error("Could not load saved parameters — using defaults");
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

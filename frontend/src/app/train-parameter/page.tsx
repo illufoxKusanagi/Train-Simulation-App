@@ -310,6 +310,10 @@ export default function TrainParameter() {
     let successCount = 0;
     let errorCount = 0;
     const validKeys = Object.keys(TrainsetFormSchema.shape);
+
+    // Collect all valid entries first so we can control application order.
+    const updates: Array<[keyof z.infer<typeof TrainsetFormSchema>, number]> =
+      [];
     lines.forEach((line) => {
       if (!line.trim()) return;
       const [key, valueStr] = line.split(/,(.+)/);
@@ -317,14 +321,27 @@ export default function TrainParameter() {
       const cleanValue = valueStr?.trim();
       if (!cleanKey || !cleanValue) return;
       if (validKeys.includes(cleanKey) && !isNaN(Number(cleanValue))) {
-        trainsetForm.setValue(
+        updates.push([
           cleanKey as keyof z.infer<typeof TrainsetFormSchema>,
           Number(cleanValue),
-          { shouldDirty: true, shouldValidate: true },
-        );
+        ]);
         successCount++;
       } else errorCount++;
     });
+
+    // Apply n_car first so the preset watcher fires before individual car-count
+    // fields are set, preventing the preset from overwriting explicit CSV values.
+    const nCarEntry = updates.find(([key]) => key === "n_car");
+    const rest = updates.filter(([key]) => key !== "n_car");
+    const ordered = nCarEntry ? [nCarEntry, ...rest] : rest;
+
+    ordered.forEach(([key, value]) => {
+      trainsetForm.setValue(key, value, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    });
+
     if (successCount > 0)
       toast.success(`Updated ${successCount} trainset fields`);
     if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);

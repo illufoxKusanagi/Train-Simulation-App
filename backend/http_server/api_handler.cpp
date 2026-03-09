@@ -449,8 +449,18 @@ ApiHandler::handleStartOptimization(const QJsonObject &data) {
   const int nAcc = accValues.isEmpty() ? 1 : accValues.size();
   const int nVp1 = vp1Values.isEmpty() ? 1 : vp1Values.size();
 
+  // Guard against concurrent optimization runs: check BEFORE dispatching the
+  // background task so the caller receives an immediate 409 Conflict rather
+  // than silently starting a second run that is blocked by the inner atomic.
+  if (m_optimizationHandler->isRunning()) {
+    response["status"] = "error";
+    response["message"] = "Optimization is already running";
+    return QHttpServerResponse(QJsonDocument(response).toJson(),
+                               QHttpServerResponse::StatusCode::Conflict);
+  }
+
   // Run on background thread — handleOptimization() is blocking.
-  // The atomic inside handleOptimization() already guards re-entry.
+  // The atomic inside handleOptimization() additionally guards re-entry.
   m_optimizationFuture = QtConcurrent::run([this, accValues, vp1Values]() {
     m_optimizationHandler->handleOptimization(accValues, vp1Values);
   });

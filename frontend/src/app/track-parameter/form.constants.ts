@@ -72,6 +72,33 @@ export const TrackFormSchema = z.object({
     .max(5000, { error: "Value cannot exceed 5000" }),
 });
 
+export const SlopeFormSchema = z.object({
+  slope_option1: z.coerce
+    .number<number>({
+      error: "This value must be a number",
+    })
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
+  slope_option2: z.coerce
+    .number<number>({
+      error: "This value must be a number",
+    })
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
+  slope_option3: z.coerce
+    .number<number>({
+      error: "This value must be a number",
+    })
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
+  slope_option4: z.coerce
+    .number<number>({
+      error: "This value must be a number",
+    })
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
+});
+
 export const constantInputFormDatas: InputType[] = [
   {
     label: "Number of Station",
@@ -110,33 +137,33 @@ export const constantInputFormDatas: InputType[] = [
     type: "field-upload",
     name: "dwellTime",
   },
-  {
-    label: "Custom Slope 1",
-    unit: "‰",
-    type: "field",
-    name: "slope_option1",
-  },
-  {
-    label: "Custom Slope 2",
-    unit: "‰",
-    type: "field",
-    name: "slope_option2",
-  },
-  {
-    label: "Custom Slope 3",
-    unit: "‰",
-    type: "field",
-    name: "slope_option3",
-  },
-  {
-    label: "Custom Slope 4",
-    unit: "‰",
-    type: "field",
-    name: "slope_option4",
-  },
+  // {
+  //   label: "Custom Slope 1",
+  //   unit: "‰",
+  //   type: "field",
+  //   name: "slope_option1",
+  // },
+  // {
+  //   label: "Custom Slope 2",
+  //   unit: "‰",
+  //   type: "field",
+  //   name: "slope_option2",
+  // },
+  // {
+  //   label: "Custom Slope 3",
+  //   unit: "‰",
+  //   type: "field",
+  //   name: "slope_option3",
+  // },
+  // {
+  //   label: "Custom Slope 4",
+  //   unit: "‰",
+  //   type: "field",
+  //   name: "slope_option4",
+  // },
 ];
 
-export const staticSlopeInputFormDatas: InputType[] = [
+export const slopeInputFormDatas: InputType[] = [
   {
     label: "Custom Slope 1",
     unit: "‰",
@@ -164,3 +191,4 @@ export const staticSlopeInputFormDatas: InputType[] = [
 ];
 
 export const constantFormRows = chunkArray(constantInputFormDatas, 2);
+export const slopeFormRows = chunkArray(slopeInputFormDatas, 2);

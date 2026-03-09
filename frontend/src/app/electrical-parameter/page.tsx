@@ -45,7 +45,10 @@ export default function ElectricalParameterPage() {
     api
       .getElectricalParameters()
       .then((data) => constantForm.reset(data.electricalParameters))
-      .catch(() => {});
+      .catch((err) => {
+        console.error("Failed to load electrical parameters:", err);
+        toast.error("Could not load saved parameters — using defaults");
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
