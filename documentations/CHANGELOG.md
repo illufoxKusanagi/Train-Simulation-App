@@ -10,7 +10,77 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-#### Fuzzy Membership Ranges: Form Connected to Backend Sweep
+#### UI: Color Scheme and Typography
+- **Files affected:**
+  - `frontend/src/app/globals.css`
+  - `frontend/src/app/layout.tsx`
+  - `frontend/src/components/app-sidebar.tsx`
+- Applied `colors.h` Primary/Secondary palette and `text_style.h` Roboto typography system to the frontend.
+  - Light mode: Primary500 cyan for primary actions, Secondary100 for borders.
+  - Dark mode: default shadcn surfaces retained; sidebar uses Secondary500 navy same as light mode.
+  - Font swapped from Geist → Roboto with exact px sizes from `text_style.h`.
+  - `SidebarTrigger` in `app-sidebar.tsx` now uses sidebar CSS variable tokens (`bg-sidebar`, `text-sidebar-foreground`, `border-sidebar-border`, `hover:bg-sidebar-accent`) for visual consistency.
+
+#### Optimization: Step-Based Parameter Sweep (replaces 3-point discrete)
+- **Files affected:**
+  - `backend/http_server/api_handler.cpp`
+  - `frontend/src/app/optimization/page.tsx`
+- Replaced the 3-point (Low/Medium/High) discrete sweep with a continuous step-based range generator:
+  - Acceleration: `accelLow → accelHigh` in **0.05 m/s²** steps.
+  - Weakening speed: `weakeningLow → weakeningHigh` in **5 km/h** steps.
+  - Step count computed with `qRound((high - low) / step)` to avoid floating-point drift.
+  - `accelMedium` / `weakeningMedium` fields remain in the UI as visual midpoint references but are no longer consumed by the backend.
+- Toast message now dynamically computes and displays the actual combination count at submit time: `${nAcc} acc × ${nVp1} v_p1 = ${nAcc * nVp1} combinations`.
+- Empty-state text updated to remove the hardcoded "20-combination" reference.
+
+#### Output Page: "Time at Peak Power" Summary Card
+- **Files affected:**
+  - `backend/http_server/simulations/simulation_handler.cpp`
+  - `frontend/src/app/output/page.tsx`
+- `getMaxPowTime()` existed in `TrainSimulationHandler` (sums `time[i]` wherever `vvvfPowers[i]` equals its maximum within ε = 0.001) but was never emitted in the API response.
+- Added `summary["maxPowerTime"] = m_trainSimulation->getMaxPowTime()` to the status response's summary object.
+- Added "Time at Peak Power" summary card in the output page displaying `results.summary?.maxPowerTime` in seconds. The `maxPowerTime` field already existed in the `SimulationSummary` TypeScript type but was not wired end-to-end.
+
+### Fixed
+
+#### Track Parameter: Custom Slope Options Not Saved or Submitted
+- **File:** `frontend/src/app/track-parameter/page.tsx`
+- `slope_option1–4` belonged to `TrackFormSchema` and were rendered via `slopeFormRows` inside `constantForm`, but a dead parallel `slopeForm` (backed by `SlopeFormSchema`) was also instantiated without ever being submitted. The `onSubmit` payload omitted all four slope option fields.
+- **Solution:** Removed the dead `slopeForm` / `SlopeFormSchema` entirely. Added `slope_option1–4` default values to `constantForm` and included them explicitly in the `trackParams` payload sent to the backend.
+
+#### Backend: Optimization Re-entry Guard Race Condition
+- **File:** `backend/http_server/api_handler.cpp`
+- The atomic re-entry guard (`testAndSetRelaxed`) inside `handleOptimization()` ran on the background thread dispatched by `QtConcurrent::run()`. Two simultaneous POST requests would both successfully call `QtConcurrent::run()` and receive HTTP 200 before either thread checked the guard — the second thread would then silently return with no error visible to the caller.
+- **Solution:** Added `m_optimizationHandler->isRunning()` check **before** the `QtConcurrent::run()` dispatch. Returns HTTP 409 Conflict immediately, so no second background task is ever spawned.
+
+#### Backend: Malformed JSON Payload Silently Starts Optimization
+- **Files affected:**
+  - `backend/http_server/http_server.h`
+  - `backend/http_server/http_server.cpp`
+- `parseRequestBody()` returned an empty `QJsonObject{}` on **both** genuine JSON parse failures and intentionally empty bodies — indistinguishable downstream. A malformed body caused `handleStartOptimization({})` to fall back to current parameters and silently start optimization.
+- **Solution:** Added `bool *parseOk = nullptr` out-param to `parseRequestBody`. Empty body → `*parseOk = true`, returns `{}`. Parse failure → `*parseOk = false`, returns `{}`. The `/api/optimization/start` route checks `parseOk` and returns HTTP 400 Bad Request when the body is non-empty but fails to parse.
+
+#### Backend: DevTools Window Memory Leak
+- **File:** `backend/webengine/webengine_window.cpp`
+- `QWebEngineView *devToolsView = new QWebEngineView()` was allocated with no parent and no `WA_DeleteOnClose` attribute. Closing the DevTools window orphaned the allocation; every subsequent DevTools open added another leak.
+- **Solution:** Added `devToolsView->setAttribute(Qt::WA_DeleteOnClose, true)` before `show()`.
+
+#### Frontend: Swallowed Initial Fetch Errors on Parameter Pages
+- **Files affected:**
+  - `frontend/src/app/electrical-parameter/page.tsx`
+  - `frontend/src/app/running-parameter/page.tsx`
+  - `frontend/src/app/track-parameter/page.tsx`
+- All three parameter pages had `.catch(() => {})` on the `useEffect` fetch that loads saved parameters from the backend. A network or backend failure was silently swallowed — the form used hardcoded defaults with no indication to the user.
+- **Solution:** Replaced empty catches with `.catch((err) => { console.error(...); toast.error("Could not load saved parameters — using defaults"); })`.
+
+#### Frontend: Trainset CSV Import Order-Dependent
+- **File:** `frontend/src/app/train-parameter/page.tsx`
+- `processTrainsetCsvText` applied CSV rows sequentially. If `n_M1`, `n_M2`, etc. appeared before `n_car` in the file, setting `n_car` later would trigger the `watch` preset watcher (which overwrites car counts with AW preset values), silently discarding the explicit earlier values.
+- **Solution:** Parse all valid lines into an `updates[]` array first, then pull `n_car` out and place it at the front before applying in order. The preset watcher fires first, and all subsequent fields (including explicit car counts) correctly overwrite it.
+
+---
+
+
 - **Files affected:**
   - `frontend/src/app/optimization/page.tsx`
   - `frontend/src/services/api.ts`
