@@ -1,46 +1,59 @@
 name: Create Release
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version (e.g., v2.0.1)"
-        required: true
+        description: "Version (e.g., v2.1.0). Leave empty to auto-increment patch from latest v2.x.x tag."
+        required: false
         type: string
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ -n "${{ inputs.version }}" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            LATEST=$(git tag --sort=-v:refname | grep -E '^v2\.' | head -1)
+            if [ -z "$LATEST" ]; then
+              VERSION="v2.0.0"
+            else
+              MAJOR=$(echo "$LATEST" | cut -d. -f1)
+              MINOR=$(echo "$LATEST" | cut -d. -f2)
+              PATCH=$(echo "$LATEST" | cut -d. -f3)
+              VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
+            fi
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Next release: $VERSION"
+
   build-windows:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (startsWith(github.ref, 'refs/tags/') &&
-       (github.event.base_ref == 'refs/heads/main' ||
-        github.event.base_ref == 'refs/heads/master'))
+    needs: prepare
     uses: ./.github/workflows/build-windows.yml
     secrets: inherit
 
   build-fedora:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (startsWith(github.ref, 'refs/tags/') &&
-       (github.event.base_ref == 'refs/heads/main' ||
-        github.event.base_ref == 'refs/heads/master'))
+    needs: prepare
     uses: ./.github/workflows/build-fedora.yml
     secrets: inherit
 
   build-deb:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (startsWith(github.ref, 'refs/tags/') &&
-       (github.event.base_ref == 'refs/heads/main' ||
-        github.event.base_ref == 'refs/heads/master'))
+    needs: prepare
     uses: ./.github/workflows/build-deb.yml
     secrets: inherit
 
   create-release:
-    needs: [build-windows, build-fedora, build-deb]
+    needs: [prepare, build-windows, build-fedora, build-deb]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -58,8 +71,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
-          name: Train Simulation App ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+          tag_name: ${{ needs.prepare.outputs.version }}
+          name: Train Simulation App ${{ needs.prepare.outputs.version }}
           generate_release_notes: true
           files: |
             artifacts/TrainSimulationApp-Windows-x64.zip
