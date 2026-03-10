@@ -122,6 +122,9 @@ const carPresets: Record<
 export default function TrainParameter() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadingTarget, setUploadingTarget] = useState<
+    "constant" | "trainset" | null
+  >(null);
   const constantCsvInputRef = useRef<HTMLInputElement>(null);
   const trainsetCsvInputRef = useRef<HTMLInputElement>(null);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
@@ -243,6 +246,8 @@ export default function TrainParameter() {
     let successCount = 0;
     let errorCount = 0;
     const validKeys = Object.keys(ConstantFormSchema.shape);
+    const updates: Partial<z.infer<typeof ConstantFormSchema>> = {};
+
     lines.forEach((line) => {
       if (!line.trim()) return;
       const [key, valueStr] = line.split(/,(.+)/);
@@ -260,27 +265,22 @@ export default function TrainParameter() {
             finalAW = cleanValue as "AW0" | "AW1" | "AW2" | "AW3" | "AW4";
           }
           if (finalAW) {
-            constantForm.setValue("loadCondition", finalAW, {
-              shouldDirty: true,
-              shouldValidate: true,
-            });
+            updates.loadCondition = finalAW;
             successCount++;
           } else errorCount++;
         } else if (!isNaN(Number(cleanValue))) {
-          constantForm.setValue(
-            cleanKey as keyof Omit<
-              z.infer<typeof ConstantFormSchema>,
-              "loadCondition"
-            >,
-            Number(cleanValue),
-            { shouldDirty: true, shouldValidate: true },
-          );
+          (updates as Record<string, unknown>)[cleanKey] = Number(cleanValue);
           successCount++;
         } else errorCount++;
       } else errorCount++;
     });
-    if (successCount > 0)
+
+    if (successCount > 0) {
+      // Apply all updates in one reset so watch subscriptions fire only once,
+      // triggering a single api.calculateMass() instead of one per CSV row.
+      constantForm.reset({ ...constantForm.getValues(), ...updates });
       toast.success(`Updated ${successCount} constant fields`);
+    }
     if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
   };
 
@@ -310,10 +310,8 @@ export default function TrainParameter() {
     let successCount = 0;
     let errorCount = 0;
     const validKeys = Object.keys(TrainsetFormSchema.shape);
+    const updates: Partial<z.infer<typeof TrainsetFormSchema>> = {};
 
-    // Collect all valid entries first so we can control application order.
-    const updates: Array<[keyof z.infer<typeof TrainsetFormSchema>, number]> =
-      [];
     lines.forEach((line) => {
       if (!line.trim()) return;
       const [key, valueStr] = line.split(/,(.+)/);
@@ -321,29 +319,18 @@ export default function TrainParameter() {
       const cleanValue = valueStr?.trim();
       if (!cleanKey || !cleanValue) return;
       if (validKeys.includes(cleanKey) && !isNaN(Number(cleanValue))) {
-        updates.push([
-          cleanKey as keyof z.infer<typeof TrainsetFormSchema>,
-          Number(cleanValue),
-        ]);
+        (updates as Record<string, unknown>)[cleanKey] = Number(cleanValue);
         successCount++;
       } else errorCount++;
     });
 
-    // Apply n_car first so the preset watcher fires before individual car-count
-    // fields are set, preventing the preset from overwriting explicit CSV values.
-    const nCarEntry = updates.find(([key]) => key === "n_car");
-    const rest = updates.filter(([key]) => key !== "n_car");
-    const ordered = nCarEntry ? [nCarEntry, ...rest] : rest;
-
-    ordered.forEach(([key, value]) => {
-      trainsetForm.setValue(key, value, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    });
-
-    if (successCount > 0)
+    if (successCount > 0) {
+      // Apply all updates in one reset so watch subscriptions fire only once.
+      // CSV values are applied directly — no need to trigger the n_car preset
+      // watcher because the CSV already contains the explicit field values.
+      trainsetForm.reset({ ...trainsetForm.getValues(), ...updates });
       toast.success(`Updated ${successCount} trainset fields`);
+    }
     if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
   };
 
@@ -648,23 +635,25 @@ export default function TrainParameter() {
                     type="button"
                     variant="default"
                     className="w-full"
-                    disabled={isUploading}
+                    disabled={uploadingTarget == "constant"}
                     onClick={async () => {
                       if (isQtWebChannelReady()) {
-                        setIsUploading(true);
+                        // setIsUploading(true);
+                        setUploadingTarget("constant");
                         const result = await openFileWithDialog(
                           "Select Train Constant Parameters CSV File",
                           "CSV Files (*.csv);;All Files (*)",
                         );
                         if (result.success && result.content)
                           processConstantCsvText(result.content);
-                        setIsUploading(false);
+                        // setIsUploading(false);
+                        setUploadingTarget(null);
                       } else {
                         constantCsvInputRef.current?.click();
                       }
                     }}
                   >
-                    {isUploading ? (
+                    {uploadingTarget === "constant" ? (
                       <>
                         <Spinner className="mr-2" />
                         Uploading...
@@ -862,23 +851,23 @@ export default function TrainParameter() {
                     type="button"
                     variant="default"
                     className="w-full"
-                    disabled={isUploading}
+                    disabled={uploadingTarget === "trainset"}
                     onClick={async () => {
                       if (isQtWebChannelReady()) {
-                        setIsUploading(true);
+                        setUploadingTarget("trainset");
                         const result = await openFileWithDialog(
                           "Select Trainset Parameters CSV File",
                           "CSV Files (*.csv);;All Files (*)",
                         );
                         if (result.success && result.content)
                           processTrainsetCsvText(result.content);
-                        setIsUploading(false);
+                        setUploadingTarget(null);
                       } else {
                         trainsetCsvInputRef.current?.click();
                       }
                     }}
                   >
-                    {isUploading ? (
+                    {uploadingTarget === "trainset" ? (
                       <>
                         <Spinner className="mr-2" />
                         Uploading...

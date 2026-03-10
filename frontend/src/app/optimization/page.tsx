@@ -25,6 +25,7 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useFormPersistence } from "@/contexts/FormPersistenceContext";
 
 interface OptResult {
   acc_start: number; // m/s²
@@ -66,6 +67,7 @@ export default function OptimizationPage() {
   const [best, setBest] = useState<OptResult | null>(null);
   const [completed, setCompleted] = useState(0);
   const [total, setTotal] = useState(20);
+  const { saveFormData, loadFormData } = useFormPersistence();
   const constantForm = useForm<z.infer<typeof OptimizationFormSchema>>({
     resolver: zodResolver(OptimizationFormSchema),
     defaultValues: {
@@ -77,6 +79,22 @@ export default function OptimizationPage() {
       weakeningHigh: 100,
     },
   });
+
+  // Restore persisted fuzzy range values on mount
+  useEffect(() => {
+    const saved = loadFormData("optimization-params");
+    if (saved) {
+      constantForm.reset(saved as z.infer<typeof OptimizationFormSchema>);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Persist whenever the user edits a value
+  useEffect(() => {
+    const subscription = constantForm.watch((data) => {
+      saveFormData("optimization-params", data as Record<string, unknown>);
+    });
+    return () => subscription.unsubscribe();
+  }, [constantForm, saveFormData]);
 
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
