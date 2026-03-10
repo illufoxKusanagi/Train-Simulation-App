@@ -1,5 +1,4 @@
 #include "energy_handler.h"
-#include <cmath>
 
 EnergyHandler::EnergyHandler(AppContext &context)
     : simulationDatas(context.simulationDatas.data()),
@@ -20,7 +19,7 @@ double EnergyHandler::calculateEnergyOfPowering(int i) {
 double EnergyHandler::calculateEnergyRegeneration(int i) {
   if (i < 0 || i >= simulationDatas->time.size())
     return 0;
-  return std::abs(powerData->p_vvvfIn) / 3600 * simulationDatas->time[i];
+  return powerData->p_catenary / 3600 * simulationDatas->time[i];
 }
 
 double EnergyHandler::calculateEnergyOfAps(int i) {

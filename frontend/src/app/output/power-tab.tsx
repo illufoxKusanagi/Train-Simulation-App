@@ -102,6 +102,26 @@ export default function PowerTab({
     return t;
   }, [maxTime, tickInterval]);
 
+  const exportData = useMemo(
+    () =>
+      data.map((raw) => {
+        const d = raw as unknown as Record<string, unknown>;
+        return {
+          phase: d.phase,
+          iteration: d.iteration,
+          time: d.time,
+          timeTotal: d.timeTotal,
+          speeds: d.speeds,
+          powerWheel: d.powerWheel,
+          powerMotorOut: d.powerMotorOut,
+          powerMotorIn: d.powerMotorIn,
+          vvvfPowers: d.vvvfPowers,
+          catenaryPowers: d.catenaryPowers,
+        };
+      }),
+    [data],
+  );
+
   return (
     <div ref={chartRef} className="space-y-4">
       <Card>
@@ -158,16 +178,14 @@ export default function PowerTab({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => onDownloadCSV(results.results, "power_data.csv")}
+              onClick={() => onDownloadCSV(exportData, "power_data.csv")}
             >
               <Download className="h-4 w-4 mr-2" />
               CSV
             </Button>
             <Button
               size="sm"
-              onClick={() =>
-                onDownloadExcel(results.results, "power_data.xlsx")
-              }
+              onClick={() => onDownloadExcel(exportData, "power_data.xlsx")}
             >
               <Download className="h-4 w-4 mr-2" />
               Excel

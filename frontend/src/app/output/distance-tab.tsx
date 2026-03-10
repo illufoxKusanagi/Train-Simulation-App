@@ -98,6 +98,26 @@ export default function DistanceTab({
     return t;
   }, [maxTime, tickInterval]);
 
+  const exportData = useMemo(
+    () =>
+      data.map((raw) => {
+        const d = raw as unknown as Record<string, unknown>;
+        return {
+          phase: d.phase,
+          iteration: d.iteration,
+          time: d.time,
+          timeTotal: d.timeTotal,
+          distances: d.distances,
+          distancesTotal: d.distancesTotal,
+          odos: d.odos,
+          brakingDistances: d.brakingDistances,
+          slopes: d.slopes,
+          radiuses: d.radiuses,
+        };
+      }),
+    [data],
+  );
+
   return (
     <div ref={chartRef} className="space-y-4">
       <Card>
@@ -147,18 +167,14 @@ export default function DistanceTab({
             <Button
               size="sm"
               variant="outline"
-              onClick={() =>
-                onDownloadCSV(results.results, "distance_data.csv")
-              }
+              onClick={() => onDownloadCSV(exportData, "distance_data.csv")}
             >
               <Download className="h-4 w-4 mr-2" />
               CSV
             </Button>
             <Button
               size="sm"
-              onClick={() =>
-                onDownloadExcel(results.results, "distance_data.xlsx")
-              }
+              onClick={() => onDownloadExcel(exportData, "distance_data.xlsx")}
             >
               <Download className="h-4 w-4 mr-2" />
               Excel

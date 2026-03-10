@@ -97,7 +97,7 @@ export const constantInputFormDatas: InputType[] = [
     label: "Auxiliary Power",
     unit: "kW",
     type: "field",
-    name: "stat_aps",
+    name: "p_aps",
   },
 ];
 

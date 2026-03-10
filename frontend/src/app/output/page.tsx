@@ -26,6 +26,7 @@ import ForceTab from "./force-tab";
 import DistanceTab from "./distance-tab";
 import DebugTab from "./debug-tab";
 import { toast } from "sonner";
+import PowerPerMotorTab from "./power-per-motor-tab";
 
 export default function OutputPage() {
   const [results, setResults] = useState<SimulationResults | null>(null);
@@ -79,6 +80,49 @@ export default function OutputPage() {
       });
   }, []);
 
+  // Maps API field names to human-readable CSV column headers
+  const CSV_HEADER_MAP: Record<string, string> = {
+    phase: "Phase",
+    iteration: "Iteration",
+    time: "Time (s)",
+    timeTotal: "Total time (s)",
+    distances: "Distance (m)",
+    distancesTotal: "TotalDistance (m)",
+    odos: "Odo (m)",
+    brakingDistances: "Braking Distance",
+    slopes: "Slope",
+    radiuses: "Radius",
+    speeds: "Speed (km/h)",
+    speedLimits: "Speed Limit(km/h)",
+    speedsSi: "Speed (m/s)",
+    accelerations: "Acceleration (km/h/s)",
+    accelerationsSi: "Acceleration (m/s2)",
+    motorForce: "F Motor",
+    motorResistance: "F Res",
+    totalResistance: "F Total",
+    tractionForcePerMotor: "F Motor /TM",
+    resistancePerMotor: "F Res / TM",
+    torque: "Torque",
+    rpm: "RPM",
+    powerWheel: "P Wheel",
+    powerMotorOut: "P_motor Out",
+    powerMotorIn: "P_motor In",
+    vvvfPowers: "P_vvvf",
+    catenaryPowers: "P_catenary",
+    catenaryCurrents: "Catenary current",
+    vvvfCurrents: "VVVF current",
+    energyConsumptions: "Energy Consumption",
+    energyPowerings: "Energy of Powering",
+    energyRegenerations: "Energy Regen",
+    energyAps: "Energy of APS",
+    energyCatenaries: "Energy Catenary",
+    motorResistancesOption1: "Run res at 0",
+    motorResistancesOption2: "Run res at 5",
+    motorResistancesOption3: "Run res at 10",
+    motorResistancesOption4: "Run res at 25",
+    powerMotorOutputPerMotor: "P_motor Out / TM",
+  };
+
   const downloadCSV = async (data: unknown[], filename: string) => {
     console.log("🚀 === QT WEBENGINE CSV DOWNLOAD ===");
     console.log("Data points:", data?.length);
@@ -89,99 +133,20 @@ export default function OutputPage() {
     }
 
     try {
-      // Generate CSV content matching your C++ format exactly
       const firstItem = data[0] as Record<string, unknown>;
       if (!firstItem || typeof firstItem !== "object") {
         throw new Error("Invalid simulation data structure");
       }
 
-      // Use exact same headers as your C++ csv_output_handler.cpp
-      const csvHeaders = [
-        "Phase",
-        "Iteration",
-        "Time (s)",
-        "Total time (s)",
-        "Distance (m)",
-        "TotalDistance (m)",
-        "Odo (m)",
-        "Braking Distance",
-        "Slope",
-        "Radius",
-        "Speed (km/h)",
-        "Speed Limit(km/h)",
-        "Speed (m/s)",
-        "Acceleration (km/h/s)",
-        "Acceleration (m/s2)",
-        "F Motor",
-        "F Res",
-        "F Total",
-        "F Motor /TM",
-        "F Res / TM",
-        "Torque",
-        "RPM",
-        "P Wheel",
-        "P_motor Out",
-        "P_motor In",
-        "P_vvvf",
-        "P_catenary",
-        "Catenary current",
-        "VVVF current",
-        "Energy Consumption",
-        "Energy of Powering",
-        // "Energy Regen",
-        "Energy of APS",
-        "Energy Catenary",
-        "Run res at 0",
-        "Run res at 5",
-        "Run res at 10",
-        "Run res at 25",
-      ];
-
-      // Map API field names to CSV data (matching your C++ field mapping)
+      // Derive columns dynamically from the keys present in the data
+      const keys = Object.keys(firstItem);
+      const csvHeaders = keys.map((k) => CSV_HEADER_MAP[k] ?? k);
       const csvRows = [csvHeaders.join(",")];
 
-      for (let i = 0; i < data.length; i++) {
-        const item = data[i] as Record<string, unknown>;
-        const csvRow = [
-          item.phase || `Phase ${i + 1}`,
-          item.iteration || i + 1,
-          item.time || 0,
-          item.timeTotal || 0,
-          item.distances || 0, // API: distances -> CSV: Distance (m)
-          item.distancesTotal || 0, // API: distancesTotal -> CSV: TotalDistance (m)
-          item.odos || 0,
-          item.brakingDistances || 0,
-          item.slopes || 0,
-          item.radiuses || 0,
-          item.speeds || 0, // API: speeds -> CSV: Speed (km/h)
-          item.speedLimits || 0,
-          item.speedsSi || 0, // API: speedsSi -> CSV: Speed (m/s)
-          item.accelerations || 0,
-          item.accelerationsSi || 0,
-          item.motorForce || 0,
-          item.motorResistance || 0,
-          item.totalResistance || 0,
-          item.tractionForcePerMotor || 0,
-          item.resistancePerMotor || 0,
-          item.torque || 0,
-          item.rpm || 0,
-          item.powerWheel || 0,
-          item.powerMotorOut || 0,
-          item.powerMotorIn || 0,
-          item.vvvfPowers || 0, // API field names
-          item.catenaryPowers || 0, // API field names
-          item.catenaryCurrents || 0,
-          item.vvvfCurrents || 0,
-          item.energyConsumptions || 0,
-          item.energyPowerings || 0,
-          // item.energyRegenerations || 0,
-          item.energyAps || 0,
-          item.energyCatenaries || 0,
-          item.motorResistancesOption1 || 0,
-          item.motorResistancesOption2 || 0,
-          item.motorResistancesOption3 || 0,
-          item.motorResistancesOption4 || 0,
-        ].map((value) => {
+      for (const rawItem of data) {
+        const item = rawItem as Record<string, unknown>;
+        const csvRow = keys.map((k) => {
+          const value = item[k] ?? 0;
           if (typeof value === "string" && value.includes(",")) {
             return `"${value.replace(/"/g, '""')}"`;
           }
@@ -266,49 +231,12 @@ export default function OutputPage() {
         throw new Error("XLSX library not loaded");
       }
 
-      // Transform data to match your C++ structure for Excel
-      const excelData = data.map((rawItem: unknown, index) => {
+      // Derive Excel columns dynamically from the keys present in the data
+      const excelData = data.map((rawItem: unknown) => {
         const item = rawItem as Record<string, unknown>;
-        return {
-          Phase: item.phase || `Phase ${index + 1}`,
-          Iteration: item.iteration || index + 1,
-          "Time (s)": item.time || 0,
-          "Total time (s)": item.timeTotal || 0,
-          "Distance (m)": item.distances || 0, // API field mapping
-          "TotalDistance (m)": item.distancesTotal || 0, // API field mapping
-          "Odo (m)": item.odos || 0,
-          "Braking Distance": item.brakingDistances || 0,
-          Slope: item.slopes || 0,
-          Radius: item.radiuses || 0,
-          "Speed (km/h)": item.speeds || 0, // API field mapping
-          "Speed Limit(km/h)": item.speedLimits || 0,
-          "Speed (m/s)": item.speedsSi || 0, // API field mapping
-          "Acceleration (km/h/s)": item.accelerations || 0,
-          "Acceleration (m/s2)": item.accelerationsSi || 0,
-          "F Motor": item.motorForce || 0,
-          "F Res": item.motorResistance || 0,
-          "F Total": item.totalResistance || 0,
-          "F Motor /TM": item.tractionForcePerMotor || 0,
-          "F Res / TM": item.resistancePerMotor || 0,
-          Torque: item.torque || 0,
-          RPM: item.rpm || 0,
-          "P Wheel": item.powerWheel || 0,
-          "P_motor Out": item.powerMotorOut || 0,
-          "P_motor In": item.powerMotorIn || 0,
-          P_vvvf: item.vvvfPowers || 0, // API field names
-          P_catenary: item.catenaryPowers || 0, // API field names
-          "Catenary current": item.catenaryCurrents || 0,
-          "VVVF current": item.vvvfCurrents || 0,
-          "Energy Consumption": item.energyConsumptions || 0,
-          "Energy of Powering": item.energyPowerings || 0,
-          // "Energy Regen": item.energyRegenerations || 0,
-          "Energy of APS": item.energyAps || 0,
-          "Energy Catenary": item.energyCatenaries || 0,
-          "Run res at 0": item.motorResistancesOption1 || 0,
-          "Run res at 5": item.motorResistancesOption2 || 0,
-          "Run res at 10": item.motorResistancesOption3 || 0,
-          "Run res at 25": item.motorResistancesOption4 || 0,
-        };
+        return Object.fromEntries(
+          Object.keys(item).map((k) => [CSV_HEADER_MAP[k] ?? k, item[k] ?? 0]),
+        );
       });
 
       console.log("📈 Creating Excel workbook with", excelData.length, "rows");
@@ -510,7 +438,7 @@ export default function OutputPage() {
 
   return (
     <PageLayout>
-      <div className="flex flex-col gap-6 h-full w-full p-6">
+      <div className="flex flex-col gap-6 h-full w-full p-6 overflow-y-auto custom-scrollbar">
         {/* Summary Cards - All 8 fields from backend */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
@@ -628,6 +556,9 @@ export default function OutputPage() {
           <TabsList className="flex w-full gap-1">
             <TabsTrigger value="speed">Speed</TabsTrigger>
             <TabsTrigger value="power">Power</TabsTrigger>
+            <TabsTrigger value="power-per-motor">
+              Power Per Motor Train
+            </TabsTrigger>
             <TabsTrigger value="current">Current</TabsTrigger>
             <TabsTrigger value="force">Force</TabsTrigger>
             <TabsTrigger value="distance">Distance</TabsTrigger>
@@ -644,6 +575,14 @@ export default function OutputPage() {
 
           <TabsContent value="power">
             <PowerTab
+              results={results}
+              onDownloadCSV={downloadCSV}
+              onDownloadExcel={downloadExcel}
+            />
+          </TabsContent>
+
+          <TabsContent value="power-per-motor">
+            <PowerPerMotorTab
               results={results}
               onDownloadCSV={downloadCSV}
               onDownloadExcel={downloadExcel}

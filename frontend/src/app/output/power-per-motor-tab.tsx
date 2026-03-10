@@ -38,6 +38,18 @@ export default function PowerPerMotorTab({
   onDownloadCSV,
   onDownloadExcel,
 }: PowerPerMotorTabProps) {
+  const exportData = (results.results || []).map((raw) => {
+    const d = raw as unknown as Record<string, unknown>;
+    return {
+      phase: d.phase,
+      iteration: d.iteration,
+      time: d.time,
+      timeTotal: d.timeTotal,
+      speeds: d.speeds,
+      powerMotorOutputPerMotor: d.powerMotorOutputPerMotor,
+    };
+  });
+
   return (
     <div className="space-y-4">
       <Card>
@@ -83,7 +95,7 @@ export default function PowerPerMotorTab({
               size="sm"
               variant="outline"
               onClick={() =>
-                onDownloadCSV(results.results, "power_per_motor_data.csv")
+                onDownloadCSV(exportData, "power_per_motor_data.csv")
               }
             >
               <Download className="h-4 w-4 mr-2" />
@@ -93,7 +105,7 @@ export default function PowerPerMotorTab({
               size="sm"
               variant="outline"
               onClick={() =>
-                onDownloadExcel(results.results, "power_per_motor_data.xlsx")
+                onDownloadExcel(exportData, "power_per_motor_data.xlsx")
               }
             >
               <Download className="h-4 w-4 mr-2" />
