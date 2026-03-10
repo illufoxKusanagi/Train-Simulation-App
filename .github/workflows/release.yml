@@ -15,65 +15,7 @@ on:
         type: string
 
 jobs:
-  create-release:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      version: ${{ steps.get_version.outputs.version }}
-    steps:
-      - name: Get version
-        id: get_version
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
-          else
-            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.get_version.outputs.version }}
-          release_name: Daily Reminder ${{ steps.get_version.outputs.version }}
-          body: |
-            ## Daily Reminder Release ${{ steps.get_version.outputs.version }}
-
-            ### Downloads
-            - **Windows**: DailyReminder-Windows-x64.zip
-            - **Linux (Fedora/RHEL)**: daily-reminder-*.rpm
-
-            ### Installation
-
-            **Windows:**
-            1. Download `DailyReminder-Windows-x64.zip`
-            2. Extract the ZIP file
-            3. Run `DailyReminder.bat` or `backend.exe`
-
-            **Linux (RPM):**
-            ```bash
-            sudo rpm -ivh daily-reminder-*.rpm
-            daily-reminder
-            ```
-
-            ### Features
-            - 📅 Calendar view with daily activities
-            - ⏰ Reminder notifications
-            - 🔔 System tray support
-            - 🎨 Dark/Light theme toggle
-            - 💾 SQLite database storage
-
-            ### Changes
-            See commits for detailed changes.
-          draft: false
-          prerelease: false
-
   build-windows:
-    needs: create-release
     runs-on: windows-latest
     permissions:
       contents: write
@@ -122,18 +64,36 @@ jobs:
           "@ | Out-File -FilePath output/DailyReminder/DailyReminder.bat -Encoding ASCII
           Compress-Archive -Path output/DailyReminder/* -DestinationPath DailyReminder-Windows-x64.zip
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v2
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: DailyReminder-Windows-x64.zip
+          body: |
+            ## Daily Reminder Release ${{ github.ref_name }}
+
+            ### Downloads
+            - **Windows**: DailyReminder-Windows-x64.zip
+            - **Linux (Fedora/RHEL)**: daily-reminder-*.rpm
+
+            ### Installation
+
+            **Windows:**
+            1. Download `DailyReminder-Windows-x64.zip`
+            2. Extract the ZIP file
+            3. Run `DailyReminder.bat` or `backend.exe`
+
+            **Linux (RPM):**
+            ```bash
+            sudo rpm -ivh daily-reminder-*.rpm
+            daily-reminder
+            ```
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./DailyReminder-Windows-x64.zip
-          asset_name: DailyReminder-Windows-x64.zip
-          asset_content_type: application/zip
 
   build-linux:
-    needs: create-release
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -168,12 +128,12 @@ jobs:
           chmod +x build-rpm-new.sh
           ./build-rpm-new.sh
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v2
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./output/daily-reminder-1.0.0-1.fc*.x86_64.rpm
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./output/daily-reminder-1.0.0-1.fc*.x86_64.rpm
-          asset_name: daily-reminder-1.0.0-linux-x86_64.rpm
-          asset_content_type: application/x-rpm
