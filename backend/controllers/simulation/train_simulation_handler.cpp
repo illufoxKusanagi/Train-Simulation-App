@@ -1,4 +1,5 @@
 #include "train_simulation_handler.h"
+#include <qmutex.h>
 
 using namespace std;
 
@@ -57,7 +58,7 @@ void TrainSimulationHandler::initData() {
   // regardless of whether the async resetSimulation() signal from the
   // previous run has been processed yet.
   {
-    QMutex *locker(m_simulationMutex);
+    QMutexLocker locker(m_simulationMutex);
     movingData->v = 0.0;
     movingData->v_si = 0.0;
     movingData->acc = movingData->acc_start;
@@ -289,18 +290,18 @@ void TrainSimulationHandler::runDynamicSimulation() {
           notch = AtStation;
           trainStopTime = 0;
           // Calculate deficit for THIS station and carry it forward
-          // double currentDeficit =
-          //     stationData->x_station[stationIndex] - stationData->x_odo;
+          double currentDeficit =
+              stationData->x_station[stationIndex] - stationData->x_odo;
           stationData->x_deficit =
               stationData->x_station[stationIndex] -
               stationData->x_odo; // Save for use in NEXT segment
         }
-        if (resistanceData->f_total == 0) {
-          isError = true;
-          m_simulationErrors->append(
-              "Total force is less than zero. Please check the train mass");
-          break;
-        }
+        // if (resistanceData->f_total == 0) {
+        //   isError = true;
+        //   m_simulationErrors->append(
+        //       "Total force is less than zero. Please check the train mass");
+        //   break;
+        // }
       }
       energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
       energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
@@ -417,7 +418,8 @@ void TrainSimulationHandler::runStaticSimulation() {
     if (energyData->curr_vvvf > maxVvvfCurrent) {
       maxVvvfCurrent = energyData->curr_vvvf;
     }
-    if (powerData->p_motorOut > maxVvvfPower) {
+    // if (powerData->p_motorOut > maxVvvfPower) {
+    if (powerData->p_vvvfIn > maxVvvfPower) {
       maxVvvfPower = powerData->p_vvvfIn;
     }
     i++;
@@ -581,7 +583,7 @@ void TrainSimulationHandler::addEnergySimulationDatas() {
   m_effGearIndex =
       m_csvVariableHandler->setEffGearIndex(m_effGearIndex, movingData->v);
   m_effMotorIndex =
-      m_csvVariableHandler->setEffMotorIndex(m_efficiencyMotor, movingData->v);
+      m_csvVariableHandler->setEffMotorIndex(m_effMotorIndex, movingData->v);
   m_lineVoltageIndex = m_csvVariableHandler->setLineVoltageIndex(
       m_lineVoltageIndex, movingData->v);
   m_motorVoltageIndex = m_csvVariableHandler->setMotorVoltageIndex(

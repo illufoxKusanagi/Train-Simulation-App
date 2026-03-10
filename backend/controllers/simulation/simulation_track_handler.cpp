@@ -24,39 +24,40 @@ double SimulationTrackHandler::calculateBrakingTrack(double speed) {
 
   double totalDistance = 0.0;
 
-  // Case 1: Current speed is below first weakening point
-  // Braking force is constant, use simple formula
+  // --- CLASSIC CONSTANT DECELERATION FORMULA ---
+  // Assumes deceleration is constant throughout braking, ignores field
+  // weakening zones. d = v² / (2 × a)
+  // totalDistance = (v_current * v_current) / (2.0 * decc);
+
+  // --- VARIABLE DECELERATION (field weakening zones) ---
+  // Deceleration varies with speed in each zone — must integrate F=ma via
+  // chain
+  // rule. Case 1: v <= v_b1 → decc constant → d = v² / 2a  (same as
+  // classic
+  // // above)
   if (v_current <= v_b1) {
     totalDistance = (v_current * v_current) / (2.0 * decc);
   }
-  // Case 2: Current speed is between v_b1 and v_b2
-  // Braking force = f_brake × (v_b1 / v), need to integrate
+  // // Case 2: v_b1 < v <= v_b2 → F ∝ v_b1/v → a = decc·v_b1/v
+  // v·dv/dx = -decc·v_b1/v  →  v²dv = -decc·v_b1 dx
+  // d_weakening  = (v_current³ - v_b1³) / (3 × decc × v_b1)
+  // d_constant   = v_b1² / (2 × decc)
   else if (v_current > v_b1 && v_current <= v_b2) {
-    // Distance from v_current to v_b1 (field weakening region)
-    // Using integration: ∫(v/a) dv where a = decc × (v_b1/v)
-    // Result: (v² - v_b1²) / (2 × decc)
-    double d_weakening = (v_current * v_current - v_b1 * v_b1) / (2.0 * decc);
-
-    // Distance from v_b1 to 0 (constant deceleration)
+    double d_weakening =
+        (pow(v_current, 3) - pow(v_b1, 3)) / (3.0 * decc * v_b1);
     double d_constant = (v_b1 * v_b1) / (2.0 * decc);
-
     totalDistance = d_weakening + d_constant;
   }
-  // Case 3: Current speed is above v_b2
-  // Braking force = f_brake × (v_b1 × v_b2 / v²), need to integrate
+  // Case 3: v > v_b2 → F ∝ v_b1·v_b2/v² → a = decc·v_b1·v_b2/v²
+  // v·dv/dx = -decc·v_b1·v_b2/v²  →  v³dv = -decc·v_b1·v_b2 dx
+  // d_weakening2 = (v_current⁴ - v_b2⁴) / (4 × decc × v_b1 × v_b2)
+  // d_weakening1 = (v_b2³ - v_b1³) / (3 × decc × v_b1)
+  // d_constant   = v_b1² / (2 × decc)
   else {
-    // Distance from v_current to v_b2 (second weakening region)
-    // Using integration: ∫(v/a) dv where a = decc × (v_b1 × v_b2 / v²)
-    // Result: (v³ - v_b2³) / (3 × decc × v_b1 × v_b2)
     double d_weakening2 =
-        (pow(v_current, 3) - pow(v_b2, 3)) / (3.0 * decc * v_b1 * v_b2);
-
-    // Distance from v_b2 to v_b1 (first weakening region)
-    double d_weakening1 = (v_b2 * v_b2 - v_b1 * v_b1) / (2.0 * decc);
-
-    // Distance from v_b1 to 0 (constant deceleration)
+        (pow(v_current, 4) - pow(v_b2, 4)) / (4.0 * decc * v_b1 * v_b2);
+    double d_weakening1 = (pow(v_b2, 3) - pow(v_b1, 3)) / (3.0 * decc * v_b1);
     double d_constant = (v_b1 * v_b1) / (2.0 * decc);
-
     totalDistance = d_weakening2 + d_weakening1 + d_constant;
   }
 
