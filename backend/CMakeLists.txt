@@ -242,6 +242,9 @@ target_include_directories(TrainSimulationApp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR
 # )
 set_target_properties(TrainSimulationApp PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    # Prevent a console/cmd window from appearing on Windows when deployed as .exe.
+    # WIN32_EXECUTABLE=TRUE sets /SUBSYSTEM:WINDOWS on the linker; ignored on Linux/macOS.
+    WIN32_EXECUTABLE TRUE
 )
 
 # Debug info

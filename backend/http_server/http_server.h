@@ -25,7 +25,8 @@ public:
 
 private:
   void setupRoutes();
-  QJsonObject parseRequestBody(const QHttpServerRequest &request);
+  QJsonObject parseRequestBody(const QHttpServerRequest &request,
+                               bool *parseOk = nullptr);
   QHttpServerResponse serveStaticFile(const QHttpServerRequest &request);
 
   QHttpServer *m_httpServer;

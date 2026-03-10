@@ -9,10 +9,20 @@
 #include <QTimer>
 #include <QUrl>
 
+static void silentMessageHandler(QtMsgType, const QMessageLogContext &,
+                                 const QString &) {
+  // Production: discard all Qt log output (no console window side-effects)
+}
+
 int main(int argc, char *argv[]) {
   // Parse command line arguments first
   bool headless = false;
+  // Automatically enable dev mode in Debug builds; Release builds = production
+#ifdef NDEBUG
   bool devMode = false;
+#else
+  bool devMode = true;
+#endif
   quint16 port = 8080;
   QString frontendUrl = "";
 
@@ -27,6 +37,10 @@ int main(int argc, char *argv[]) {
     } else if (arg.startsWith("--frontend=")) {
       frontendUrl = arg.mid(11);
     }
+  }
+
+  if (!devMode) {
+    qInstallMessageHandler(silentMessageHandler);
   }
 
   if (headless) {
@@ -131,7 +145,7 @@ int main(int argc, char *argv[]) {
     // WebEngineWindow owns AppContext, HttpServer, and WebChannel.
     // Do NOT create a second HttpServer here — that would attempt to bind the
     // same port and fail with "address already in use".
-    WebEngineWindow window(port);
+    WebEngineWindow window(port, devMode);
     window.show();
 
     // Now that the server is running inside the window, resolve the URL.

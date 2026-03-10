@@ -12,7 +12,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Download, AlertCircle } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { api } from "@/services/api";
 import type { SimulationResults } from "@/services/api";
 import * as XLSX from "xlsx";
 import { initializeQtWebChannel } from "@/lib/qt-webchannel";
@@ -27,17 +30,23 @@ import { toast } from "sonner";
 export default function OutputPage() {
   const [results, setResults] = useState<SimulationResults | null>(null);
   const [activeTab, setActiveTab] = useState<string>("speed");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isExportingCSV, setIsExportingCSV] = useState(false);
+  const [isExportingExcel, setIsExportingExcel] = useState(false);
 
   useEffect(() => {
-    // Function to load results
-    const loadResults = () => {
-      const stored = sessionStorage.getItem("simulationResults");
-      if (stored) {
-        try {
-          setResults(JSON.parse(stored));
-        } catch (error) {
-          console.error("Failed to parse simulation results:", error);
+    // Function to load results directly from the backend
+    const loadResults = async () => {
+      try {
+        const statusResponse = await api.getSimulationStatus();
+        if (statusResponse.summary) {
+          const resultsResponse = await api.getSimulationResults();
+          setResults({ ...resultsResponse, summary: statusResponse.summary });
         }
+      } catch (error) {
+        console.error("Failed to load simulation results:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -168,10 +177,10 @@ export default function OutputPage() {
           // item.energyRegenerations || 0,
           item.energyAps || 0,
           item.energyCatenaries || 0,
-          item.motorResistancesZero || 0,
-          item.motorResistancesFive || 0,
-          item.motorResistancesTen || 0,
-          item.motorResistancesTwentyFive || 0,
+          item.motorResistancesOption1 || 0,
+          item.motorResistancesOption2 || 0,
+          item.motorResistancesOption3 || 0,
+          item.motorResistancesOption4 || 0,
         ].map((value) => {
           if (typeof value === "string" && value.includes(",")) {
             return `"${value.replace(/"/g, '""')}"`;
@@ -295,10 +304,10 @@ export default function OutputPage() {
           // "Energy Regen": item.energyRegenerations || 0,
           "Energy of APS": item.energyAps || 0,
           "Energy Catenary": item.energyCatenaries || 0,
-          "Run res at 0": item.motorResistancesZero || 0,
-          "Run res at 5": item.motorResistancesFive || 0,
-          "Run res at 10": item.motorResistancesTen || 0,
-          "Run res at 25": item.motorResistancesTwentyFive || 0,
+          "Run res at 0": item.motorResistancesOption1 || 0,
+          "Run res at 5": item.motorResistancesOption2 || 0,
+          "Run res at 10": item.motorResistancesOption3 || 0,
+          "Run res at 25": item.motorResistancesOption4 || 0,
         };
       });
 
@@ -393,6 +402,22 @@ export default function OutputPage() {
     Array.isArray(results.results) &&
     results.results.length > 0;
 
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className="flex flex-col gap-6 h-full w-full p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-24 w-full rounded-xl" />
+            ))}
+          </div>
+          <Skeleton className="h-10 w-72 rounded-lg" />
+          <Skeleton className="h-[360px] w-full rounded-xl" />
+        </div>
+      </PageLayout>
+    );
+  }
+
   if (!hasValidResults) {
     return (
       <PageLayout>
@@ -446,10 +471,10 @@ export default function OutputPage() {
                   // energyRegenerations: 0,
                   energyAps: 5,
                   energyCatenaries: 50 + i * 2,
-                  motorResistancesZero: 10,
-                  motorResistancesFive: 12,
-                  motorResistancesTen: 15,
-                  motorResistancesTwentyFive: 25,
+                  motorResistancesOption1: 0,
+                  motorResistancesOption2: 5,
+                  motorResistancesOption3: 15,
+                  motorResistancesOption4: 25,
                   powerMotorOutputPerMotor: 100 * i,
                 })),
                 summary: {
@@ -471,10 +496,6 @@ export default function OutputPage() {
               };
 
               setResults(mockData);
-              sessionStorage.setItem(
-                "simulationResults",
-                JSON.stringify(mockData),
-              );
               console.log("Mock data generated:", mockData);
             }}
             variant="outline"
@@ -489,7 +510,7 @@ export default function OutputPage() {
 
   return (
     <PageLayout>
-      <div className="flex flex-col gap-6 w-full">
+      <div className="flex flex-col gap-6 h-full w-full p-6">
         {/* Summary Cards - All 8 fields from backend */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
@@ -569,6 +590,27 @@ export default function OutputPage() {
               <CardDescription>Adhesion Coefficient</CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.adhesion ?? 0).toFixed(3)}
+              </CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription>Time at Peak Power</CardDescription>
+              <CardTitle className="text-2xl">
+                {(results.summary?.maxPowerTime ?? 0).toFixed(2)} s
+              </CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription>Travel Time</CardDescription>
+              <CardTitle className="text-2xl">
+                {results.results.length > 0
+                  ? results.results[
+                      results.results.length - 1
+                    ].timeTotal.toFixed(1)
+                  : "0.0"}{" "}
+                s
               </CardTitle>
             </CardHeader>
           </Card>
@@ -696,21 +738,41 @@ export default function OutputPage() {
         <div className="flex justify-end gap-2 flex-wrap">
           <Button
             variant="outline"
-            onClick={() =>
-              downloadCSV(results.results, "train_simulation_all_data.csv")
-            }
+            disabled={isExportingCSV}
+            onClick={async () => {
+              setIsExportingCSV(true);
+              await downloadCSV(
+                results.results,
+                "train_simulation_all_data.csv",
+              );
+              setIsExportingCSV(false);
+            }}
           >
-            <Download className="h-4 w-4 mr-2" />
-            Download All Data (CSV)
+            {isExportingCSV ? (
+              <Spinner className="h-4 w-4 mr-2" />
+            ) : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
+            {isExportingCSV ? "Saving..." : "Download All Data (CSV)"}
           </Button>
 
           <Button
-            onClick={() =>
-              downloadExcel(results.results, "train_simulation_all_data.xlsx")
-            }
+            disabled={isExportingExcel}
+            onClick={async () => {
+              setIsExportingExcel(true);
+              await downloadExcel(
+                results.results,
+                "train_simulation_all_data.xlsx",
+              );
+              setIsExportingExcel(false);
+            }}
           >
-            <Download className="h-4 w-4 mr-2" />
-            Download All Data (Excel)
+            {isExportingExcel ? (
+              <Spinner className="h-4 w-4 mr-2" />
+            ) : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
+            {isExportingExcel ? "Saving..." : "Download All Data (Excel)"}
           </Button>
         </div>
       </div>

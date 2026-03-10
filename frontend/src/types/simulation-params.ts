@@ -39,10 +39,10 @@ export interface SimulationDataPoint {
   // energyRegenerations: number; // simulationDatas->energyRegenerations[i] - Energy Regen
   energyAps: number; // simulationDatas->energyAps[i] - Energy of APS
   energyCatenaries: number; // simulationDatas->energyCatenaries[i] - Energy Catenary
-  motorResistancesZero: number; // simulationDatas->motorResistancesZero[i] - Run res at 0
-  motorResistancesFive: number; // simulationDatas->motorResistancesFive[i] - Run res at 5
-  motorResistancesTen: number; // simulationDatas->motorResistancesTen[i] - Run res at 10
-  motorResistancesTwentyFive: number; // simulationDatas->motorResistancesTwentyFive[i] - Run res at 25
+  motorResistancesOption1: number; // simulationDatas->motorResistancesZero[i] - Run res at 0
+  motorResistancesOption2: number; // simulationDatas->motorResistancesFive[i] - Run res at 5
+  motorResistancesOption3: number; // simulationDatas->motorResistancesTen[i] - Run res at 10
+  motorResistancesOption4: number; // simulationDatas->motorResistancesTwentyFive[i] - Run res at 25
 }
 
 export interface SimulationSummary {

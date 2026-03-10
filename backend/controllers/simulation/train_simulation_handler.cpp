@@ -607,31 +607,37 @@ void TrainSimulationHandler::calculateRunningResEachSlope() {
   if (!stationData || !resistanceData || !movingData)
     return;
 
-  if (stationData->stat_slope_1 && resistanceData->f_resRunning > 0) {
-    resistanceData->f_resRunning =
-        movingData->v == 0
-            ? m_resistanceHandler->calculateStartRes(stationData->stat_slope_1,
-                                                     stationData->stat_radius)
-            : m_resistanceHandler->calculateRunningRes(
-                  movingData->v, stationData->stat_slope_1,
-                  stationData->stat_radius);
-  }
-  if (stationData->stat_slope_2 && resistanceData->f_resRunningFive > 0) {
-    resistanceData->f_resRunningFive =
-        movingData->v == 0
-            ? m_resistanceHandler->calculateStartRes(stationData->stat_slope_2,
-                                                     stationData->stat_radius)
-            : m_resistanceHandler->calculateRunningRes(
-                  movingData->v, stationData->stat_slope_2,
-                  stationData->stat_radius);
-  }
-  if (stationData->stat_slope_3 && resistanceData->f_resRunningTen > 0) {
-    resistanceData->f_resRunningTen =
-        movingData->v == 0
-            ? m_resistanceHandler->calculateStartRes(stationData->stat_slope_3,
-                                                     stationData->stat_radius)
-            : m_resistanceHandler->calculateRunningRes(
-                  movingData->v, stationData->stat_slope_3,
-                  stationData->stat_radius);
-  }
+  // Compute running resistance for each slope option unconditionally.
+  // Bug fix: removed `&& f_resRunningOption{n} > 0` guard — it caused a
+  // circular deadlock (fields start at 0, guard prevented first computation).
+  // Also removed `stat_slope_option{n}` boolean guard — slope=0 is valid and
+  // still produces non-zero Davis-equation resistance.
+  resistanceData->f_resRunningOption1 =
+      movingData->v == 0
+          ? m_resistanceHandler->calculateStartRes(
+                stationData->stat_slope_option1, stationData->stat_radius)
+          : m_resistanceHandler->calculateRunningRes(
+                movingData->v, stationData->stat_slope_option1,
+                stationData->stat_radius);
+  resistanceData->f_resRunningOption2 =
+      movingData->v == 0
+          ? m_resistanceHandler->calculateStartRes(
+                stationData->stat_slope_option2, stationData->stat_radius)
+          : m_resistanceHandler->calculateRunningRes(
+                movingData->v, stationData->stat_slope_option2,
+                stationData->stat_radius);
+  resistanceData->f_resRunningOption3 =
+      movingData->v == 0
+          ? m_resistanceHandler->calculateStartRes(
+                stationData->stat_slope_option3, stationData->stat_radius)
+          : m_resistanceHandler->calculateRunningRes(
+                movingData->v, stationData->stat_slope_option3,
+                stationData->stat_radius);
+  resistanceData->f_resRunningOption4 =
+      movingData->v == 0
+          ? m_resistanceHandler->calculateStartRes(
+                stationData->stat_slope_option4, stationData->stat_radius)
+          : m_resistanceHandler->calculateRunningRes(
+                movingData->v, stationData->stat_slope_option4,
+                stationData->stat_radius);
 }

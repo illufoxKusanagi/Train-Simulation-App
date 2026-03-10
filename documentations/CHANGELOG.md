@@ -6,6 +6,171 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Unreleased] - 2026-03-09
+
+### Added
+
+#### UI: Color Scheme and Typography
+- **Files affected:**
+  - `frontend/src/app/globals.css`
+  - `frontend/src/app/layout.tsx`
+  - `frontend/src/components/app-sidebar.tsx`
+- Applied `colors.h` Primary/Secondary palette and `text_style.h` Roboto typography system to the frontend.
+  - Light mode: Primary500 cyan for primary actions, Secondary100 for borders.
+  - Dark mode: default shadcn surfaces retained; sidebar uses Secondary500 navy same as light mode.
+  - Font swapped from Geist → Roboto with exact px sizes from `text_style.h`.
+  - `SidebarTrigger` in `app-sidebar.tsx` now uses sidebar CSS variable tokens (`bg-sidebar`, `text-sidebar-foreground`, `border-sidebar-border`, `hover:bg-sidebar-accent`) for visual consistency.
+
+#### Optimization: Step-Based Parameter Sweep (replaces 3-point discrete)
+- **Files affected:**
+  - `backend/http_server/api_handler.cpp`
+  - `frontend/src/app/optimization/page.tsx`
+- Replaced the 3-point (Low/Medium/High) discrete sweep with a continuous step-based range generator:
+  - Acceleration: `accelLow → accelHigh` in **0.05 m/s²** steps.
+  - Weakening speed: `weakeningLow → weakeningHigh` in **5 km/h** steps.
+  - Step count computed with `qRound((high - low) / step)` to avoid floating-point drift.
+  - `accelMedium` / `weakeningMedium` fields remain in the UI as visual midpoint references but are no longer consumed by the backend.
+- Toast message now dynamically computes and displays the actual combination count at submit time: `${nAcc} acc × ${nVp1} v_p1 = ${nAcc * nVp1} combinations`.
+- Empty-state text updated to remove the hardcoded "20-combination" reference.
+
+#### Output Page: "Time at Peak Power" Summary Card
+- **Files affected:**
+  - `backend/http_server/simulations/simulation_handler.cpp`
+  - `frontend/src/app/output/page.tsx`
+- `getMaxPowTime()` existed in `TrainSimulationHandler` (sums `time[i]` wherever `vvvfPowers[i]` equals its maximum within ε = 0.001) but was never emitted in the API response.
+- Added `summary["maxPowerTime"] = m_trainSimulation->getMaxPowTime()` to the status response's summary object.
+- Added "Time at Peak Power" summary card in the output page displaying `results.summary?.maxPowerTime` in seconds. The `maxPowerTime` field already existed in the `SimulationSummary` TypeScript type but was not wired end-to-end.
+
+### Fixed
+
+#### Track Parameter: Custom Slope Options Not Saved or Submitted
+- **File:** `frontend/src/app/track-parameter/page.tsx`
+- `slope_option1–4` belonged to `TrackFormSchema` and were rendered via `slopeFormRows` inside `constantForm`, but a dead parallel `slopeForm` (backed by `SlopeFormSchema`) was also instantiated without ever being submitted. The `onSubmit` payload omitted all four slope option fields.
+- **Solution:** Removed the dead `slopeForm` / `SlopeFormSchema` entirely. Added `slope_option1–4` default values to `constantForm` and included them explicitly in the `trackParams` payload sent to the backend.
+
+#### Backend: Optimization Re-entry Guard Race Condition
+- **File:** `backend/http_server/api_handler.cpp`
+- The atomic re-entry guard (`testAndSetRelaxed`) inside `handleOptimization()` ran on the background thread dispatched by `QtConcurrent::run()`. Two simultaneous POST requests would both successfully call `QtConcurrent::run()` and receive HTTP 200 before either thread checked the guard — the second thread would then silently return with no error visible to the caller.
+- **Solution:** Added `m_optimizationHandler->isRunning()` check **before** the `QtConcurrent::run()` dispatch. Returns HTTP 409 Conflict immediately, so no second background task is ever spawned.
+
+#### Backend: Malformed JSON Payload Silently Starts Optimization
+- **Files affected:**
+  - `backend/http_server/http_server.h`
+  - `backend/http_server/http_server.cpp`
+- `parseRequestBody()` returned an empty `QJsonObject{}` on **both** genuine JSON parse failures and intentionally empty bodies — indistinguishable downstream. A malformed body caused `handleStartOptimization({})` to fall back to current parameters and silently start optimization.
+- **Solution:** Added `bool *parseOk = nullptr` out-param to `parseRequestBody`. Empty body → `*parseOk = true`, returns `{}`. Parse failure → `*parseOk = false`, returns `{}`. The `/api/optimization/start` route checks `parseOk` and returns HTTP 400 Bad Request when the body is non-empty but fails to parse.
+
+#### Backend: DevTools Window Memory Leak
+- **File:** `backend/webengine/webengine_window.cpp`
+- `QWebEngineView *devToolsView = new QWebEngineView()` was allocated with no parent and no `WA_DeleteOnClose` attribute. Closing the DevTools window orphaned the allocation; every subsequent DevTools open added another leak.
+- **Solution:** Added `devToolsView->setAttribute(Qt::WA_DeleteOnClose, true)` before `show()`.
+
+#### Frontend: Swallowed Initial Fetch Errors on Parameter Pages
+- **Files affected:**
+  - `frontend/src/app/electrical-parameter/page.tsx`
+  - `frontend/src/app/running-parameter/page.tsx`
+  - `frontend/src/app/track-parameter/page.tsx`
+- All three parameter pages had `.catch(() => {})` on the `useEffect` fetch that loads saved parameters from the backend. A network or backend failure was silently swallowed — the form used hardcoded defaults with no indication to the user.
+- **Solution:** Replaced empty catches with `.catch((err) => { console.error(...); toast.error("Could not load saved parameters — using defaults"); })`.
+
+#### Frontend: Trainset CSV Import Order-Dependent
+- **File:** `frontend/src/app/train-parameter/page.tsx`
+- `processTrainsetCsvText` applied CSV rows sequentially. If `n_M1`, `n_M2`, etc. appeared before `n_car` in the file, setting `n_car` later would trigger the `watch` preset watcher (which overwrites car counts with AW preset values), silently discarding the explicit earlier values.
+- **Solution:** Parse all valid lines into an `updates[]` array first, then pull `n_car` out and place it at the front before applying in order. The preset watcher fires first, and all subsequent fields (including explicit car counts) correctly overwrite it.
+
+---
+
+
+- **Files affected:**
+  - `frontend/src/app/optimization/page.tsx`
+  - `frontend/src/services/api.ts`
+  - `backend/http_server/http_server.cpp`
+  - `backend/http_server/api_handler.h`
+  - `backend/http_server/api_handler.cpp`
+  - `backend/controllers/optimization/optimization_handler.h`
+  - `backend/controllers/optimization/optimization_handler.cpp`
+- **Issue:** The "Fuzzy Membership Ranges" form on the optimization page (fields `accelLow`, `accelMedium`, `accelHigh`, `weakeningLow`, `weakeningMedium`, `weakeningHigh`) was purely decorative — values were validated by the form schema but never sent to the backend. The backend had hardcoded auto-centered sweep logic.
+- **Root Cause (multi-layer):**
+  1. `page.tsx handleStart()` called `api.startOptimization()` with no arguments — form values were never read
+  2. `api.ts startOptimization` had no parameters and sent an empty POST body
+  3. `http_server.cpp` POST route ignored the request body entirely (`const QHttpServerRequest &` not parsed)
+  4. `api_handler.cpp handleStartOptimization()` accepted no parameters
+  5. `optimization_handler.cpp handleOptimization()` built its own `accValues`/`vp1Values` from a fixed ±0.1 centered sweep around user's current `acc_start`, and ±{15,5,-5,-15} km/h around `v_p1`
+- **Solution:**
+  - `handleOptimization()` signature changed to `handleOptimization(const QList<double> &accCandidates, const QList<double> &vp1Candidates)`; auto-sweep building replaced with the passed candidates
+  - `m_totalCombinations` (`QAtomicInt`) added to `OptimizationHandler` — set to `accCandidates.size() × vp1Candidates.size()` at the start of each run; exposed via `getTotalCombinations()`
+  - `api_handler.cpp handleStartOptimization(const QJsonObject &data)` parses `accelLow/Medium/High` → `accValues` and `weakeningLow/Medium/High` → `vp1Values`; passes them to `handleOptimization()`; falls back to user's current loaded parameters if all 6 fields are missing/zero
+  - `handleGetOptimizationStatus()` reads `getTotalCombinations()` instead of hardcoding 20
+  - `http_server.cpp` POST route now parses request body via `parseRequestBody(request)` and forwards `QJsonObject` to `handleStartOptimization(data)`
+  - `api.ts startOptimization` now accepts `params: { accelLow, accelMedium, accelHigh, weakeningLow, weakeningMedium, weakeningHigh }` and sends them as JSON body
+  - `page.tsx handleStart()` calls `constantForm.getValues()` and passes the result to `api.startOptimization()`; description text updated to "3 acc × 3 v_p1 = 9 combinations"
+- **Behaviour after fix:** User-defined Low/Medium/High values for acceleration (m/s²) and weakening point (km/h) are the exact discrete candidates swept. 3 × 3 = 9 combinations scored by the Mamdani fuzzy engine.
+
+#### Force-Speed Chart: Running Resistance Option Lines
+- **File:** `frontend/src/app/output/force-tab.tsx`
+- **What:** Added 4 dashed `<Line>` components (`motorResistancesOption1-4`) and the base `motorResistance` line, each with a `chartConfig` entry (colour + label). Previously only traction/braking force lines were shown; running resistance options from custom slope inputs were not charted even though they were computed in the backend.
+
+### Fixed
+
+#### Running Resistance Zeros in Static Simulation (3 Simultaneous Bugs)
+- **Files affected:**
+  - `backend/controllers/simulation/train_simulation_handler.cpp`
+  - `backend/http_server/inputs/track_parameter_handler.cpp`
+  - `backend/http_server/simulations/simulation_handler.cpp`
+
+**Bug 1 — Circular guard deadlock in `calculateRunningResEachSlope()`:**
+- **Function:** `train_simulation_handler.cpp: calculateRunningResEachSlope()`
+- **Issue:** Guard condition `f_resRunningOption{n} > 0` prevented the function from ever computing — the result was zero, so the guard blocked recomputation, keeping it zero.
+- **Solution:** Removed the `&& f_resRunningOption{n} > 0` half of each condition. The function is only gated on `stat_slope_option{n} != 0.0` (or similar physics precondition).
+
+**Bug 2 — Boolean trap on zero-slope flat track:**
+- **Function:** `train_simulation_handler.cpp: calculateRunningResEachSlope()`
+- **Issue:** Condition `if (stat_slope_option1 && ...)` evaluates `false` when the slope is exactly `0.0` (flat track), because `0.0` is falsy in C++. This caused the function to skip the flat-track running resistance calculation entirely.
+- **Solution:** Replaced `if (stat_slope_option1 && ...)` with `if (stat_slope_option1 != 0.0 || ...)` or restructured the calculation to not gate on the slope value.
+
+**Bug 3 — Update handler never saved slope_option inputs:**
+- **Function:** `backend/http_server/inputs/track_parameter_handler.cpp: handleUpdateTrackParameters()`
+- **Issue:** PUT requests containing `slope_option1/2/3/4` from the frontend form were silently ignored — the handler parsed only the base track fields and never wrote `slope_option1-4` to `AppContext`.
+- **Solution:** Added four `data["slope_option1"].toDouble()` read/assign blocks in `handleUpdateTrackParameters()` to persist the custom slope values.
+
+**Key serialization bug — Field name mismatch in `getStaticResults()`:**
+- **Function:** `backend/http_server/simulations/simulation_handler.cpp: getStaticResults()`
+- **Issue:** Serialized the 4 option vectors under keys `motorResistancesZero/Five/Ten/TwentyFive`, but the frontend expected `motorResistancesOption1/2/3/4`.
+- **Solution:** Renamed the JSON keys to `motorResistancesOption1/2/3/4`. Also added bounds-safe ternary access (`!vec.isEmpty() ? vec[0] : 0.0`) in both `getStaticResults()` and `getDynamicResults()`.
+
+#### Fuzzy Membership Function Visualization Script
+- **File:** `scripts/generate_fuzzy_membership_graphs.py`
+- **What:** Python/Colab script that exactly mirrors the C++ fuzzy engine's membership function logic and produces 8 labeled plots
+  - `trapezoid_mf(x, m_min, m_peak1, m_peak2, m_max)` — mirrors `TrapezoidSet::membership()` with strict boundary inequalities (endpoints return 0.0)
+  - `triangle_mf(x, m_min, m_peak, m_max)` — mirrors `TriangleSet::membership()`
+  - `compute_input_breakpoints(raw_min, raw_max)` — applies 5% margin then derives fractional breakpoints: Short/Low = Trapezoid(lo, lo, lo+0.25·vr, lo+0.45·vr), Medium = Triangle(lo+0.30·vr, lo+0.50·vr, lo+0.70·vr), Long/High = Trapezoid(lo+0.55·vr, lo+0.75·vr, hi, hi)
+  - Fixed output terms on [0,100]: Poor = Trapezoid(0,0,15,30), Fair = Triangle(20,38,55), Good = Triangle(45,62,78), Excellent = Trapezoid(68,82,100,100)
+  - `eval_term` + `cog_defuzzify` — Mamdani MIN implication, MAX aggregation, COG over 101 sample points
+  - `plot_time_engine` / `plot_power_engine` — full engine plots with optional COG walkthrough example
+  - `plot_acceleration_membership` — hypothetical acc_start MFs over [0.3, 1.5] m/s² (reference; parameter is swept discretely, not fuzzified)
+  - `plot_weakening_speed_membership` — hypothetical v_p1 MFs over [20, v_limit−5] km/h with candidate lines marked (reference; same reason)
+  - `plot_sweep_candidates` — bar chart of 5 acc_start + 4 v_p1 candidate grid (the actual discrete sweep values)
+  - `plot_final_score_sweep` — 4×5 score heatmap grid for all 20 parameter combinations
+  - `plot_overview_grid` — 2×3 summary figure
+  - Saves all plots to `fuzzy_graphs/` as both PNG and PDF
+- **Usage:** Run `main()` in Colab or locally; all parameters (min/max time, min/max power, example inputs, candidate values, v_limit) are configurable via `main()` arguments
+
+### Fixed
+
+#### Missing TypeScript Field: `powerMotorOutputPerMotor` in `SimulationDataPoint`
+- **File:** `frontend/src/types/simulation-params.ts`
+- **Issue:** `powerMotorOutputPerMotor` was referenced in `frontend/src/app/output/power-per-motor-tab.tsx` (lines 24, 74, 75) but absent from the `SimulationDataPoint` interface — causing a silent TypeScript type gap where the field would be `undefined` at runtime even though the backend sends it
+- **Root Cause:** Field was omitted when the interface was originally written; `powerMotorOut` and `powerMotorIn` were present but the per-motor breakdown field was skipped
+- **Solution:** Added the missing field between `powerMotorOut` and `powerMotorIn`:
+  ```typescript
+  powerMotorOut: number;               // P_motor Out
+  powerMotorOutputPerMotor: number;    // P_motor Out Per Motor
+  powerMotorIn: number;                // P_motor In
+  ```
+- **Impact:** `power-per-motor-tab.tsx` chart now correctly reads the per-motor power value from the API response without data loss
+
+---
+
 ## [Unreleased] - 2026-03-04
 
 ### Added

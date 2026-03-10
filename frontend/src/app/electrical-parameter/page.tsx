@@ -11,17 +11,24 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
 import { constantFormRows, ElectricalFormSchema } from "./form.constants";
 import { Form } from "@/components/ui/form";
 import { api } from "@/services/api";
+import { Spinner } from "@/components/ui/spinner";
+import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
+import { useRef } from "react";
+import { useFormPersistence } from "@/contexts/FormPersistenceContext";
 
 export default function ElectricalParameterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
+  const csvInputRef = useRef<HTMLInputElement>(null);
+  const { saveFormData, loadFormData } = useFormPersistence();
 
   const constantForm = useForm<z.infer<typeof ElectricalFormSchema>>({
     resolver: zodResolver(ElectricalFormSchema),
@@ -35,6 +42,28 @@ export default function ElectricalParameterPage() {
       p_aps: 30,
     },
   });
+
+  useEffect(() => {
+    const savedData = loadFormData("electrical-params");
+    if (savedData) {
+      constantForm.reset(savedData as z.infer<typeof ElectricalFormSchema>);
+    } else {
+      api
+        .getElectricalParameters()
+        .then((data) => constantForm.reset(data.electricalParameters))
+        .catch((err) => {
+          console.error("Failed to load electrical parameters:", err);
+          toast.error("Could not load saved parameters — using defaults");
+        });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const subscription = constantForm.watch((data) => {
+      saveFormData("electrical-params", data as Record<string, unknown>);
+    });
+    return () => subscription.unsubscribe();
+  }, [constantForm, saveFormData]);
 
   const handleFileLoad = (name: string, data: number[][]) => {
     setCsvData((prev) => ({
@@ -100,49 +129,52 @@ export default function ElectricalParameterPage() {
     reader.onload = (e) => {
       const text = e.target?.result as string;
       if (!text) return;
-
-      console.log("📂 processing CSV upload...");
-      const lines = text.split(/\r\n|\n/);
-      let successCount = 0;
-      let errorCount = 0;
-
-      const validKeys = Object.keys(ElectricalFormSchema.shape);
-
-      lines.forEach((line) => {
-        if (!line.trim()) return;
-        const [key, valueStr] = line.split(/,(.+)/);
-        const cleanKey = key?.trim();
-        const cleanValue = valueStr?.trim();
-
-        if (!cleanKey || !cleanValue) return;
-
-        if (validKeys.includes(cleanKey) && !isNaN(Number(cleanValue))) {
-          constantForm.setValue(
-            cleanKey as keyof z.infer<typeof ElectricalFormSchema>,
-            Number(cleanValue),
-            {
-              shouldDirty: true,
-              shouldValidate: true,
-            }
-          );
-          successCount++;
-          console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
-        } else {
-          console.warn(`⚠️ Skipped invalid item: ${cleanKey}`);
-          errorCount++;
-        }
-      });
-
-      if (successCount > 0) toast.success(`Updated ${successCount} fields`);
-      if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
+      processCsvText(text);
       event.target.value = "";
     };
     reader.readAsText(file);
   };
 
+  const processCsvText = (text: string) => {
+    console.log("📂 processing CSV upload...");
+    const lines = text.split(/\r\n|\n/);
+    let successCount = 0;
+    let errorCount = 0;
+
+    const validKeys = Object.keys(ElectricalFormSchema.shape);
+
+    lines.forEach((line) => {
+      if (!line.trim()) return;
+      const [key, valueStr] = line.split(/,(.+)/);
+      const cleanKey = key?.trim();
+      const cleanValue = valueStr?.trim();
+
+      if (!cleanKey || !cleanValue) return;
+
+      if (validKeys.includes(cleanKey) && !isNaN(Number(cleanValue))) {
+        constantForm.setValue(
+          cleanKey as keyof z.infer<typeof ElectricalFormSchema>,
+          Number(cleanValue),
+          {
+            shouldDirty: true,
+            shouldValidate: true,
+          },
+        );
+        successCount++;
+        console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
+      } else {
+        console.warn(`⚠️ Skipped invalid item: ${cleanKey}`);
+        errorCount++;
+      }
+    });
+
+    if (successCount > 0) toast.success(`Updated ${successCount} fields`);
+    if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
+  };
+
   return (
     <PageLayout>
-      <Card className="px-6 py-8 min-h-[40rem] h-full w-full max-w-2xl rounded-3xl justify-center">
+      <Card className="px-6 py-8 min-h-[40rem] h-fit w-full max-w-2xl rounded-3xl justify-center">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Electrical Parameter</CardTitle>
           <CardDescription>
@@ -170,7 +202,7 @@ export default function ElectricalParameterPage() {
                       Array.from({ length: 2 - row.length }).map(
                         (_, emptyIndex) => (
                           <div key={`empty-${rowIndex}-${emptyIndex}`} />
-                        )
+                        ),
                       )}
                   </div>
                 ))}
@@ -182,8 +214,53 @@ export default function ElectricalParameterPage() {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Saving..." : "Save"}
+                  {isSubmitting ? (
+                    <>
+                      <Spinner className="mr-2" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
                 </Button>
+                <div className="flex-1 relative">
+                  <input
+                    ref={csvInputRef}
+                    type="file"
+                    accept=".csv"
+                    className="hidden"
+                    onChange={handleCsvUpload}
+                  />
+                  <Button
+                    type="button"
+                    variant="default"
+                    className="w-full"
+                    disabled={isUploading}
+                    onClick={async () => {
+                      if (isQtWebChannelReady()) {
+                        setIsUploading(true);
+                        const result = await openFileWithDialog(
+                          "Select Electrical Parameters CSV File",
+                          "CSV Files (*.csv);;All Files (*)",
+                        );
+                        if (result.success && result.content)
+                          processCsvText(result.content);
+                        setIsUploading(false);
+                      } else {
+                        csvInputRef.current?.click();
+                      }
+                    }}
+                  >
+                    {isUploading ? (
+                      <>
+                        <Spinner className="mr-2" />
+                        Uploading...
+                      </>
+                    ) : (
+                      "Upload CSV"
+                    )}
+                  </Button>
+                </div>
                 <Button
                   type="button"
                   variant="outline"
@@ -192,18 +269,6 @@ export default function ElectricalParameterPage() {
                 >
                   Reset
                 </Button>
-                <div className="flex-1 relative">
-                  <input
-                    type="file"
-                    accept=".csv"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    onChange={handleCsvUpload}
-                    title="Upload CSV"
-                  />
-                  <Button type="button" variant="secondary" className="w-full">
-                    Upload CSV
-                  </Button>
-                </div>
               </div>
             </form>
           </Form>

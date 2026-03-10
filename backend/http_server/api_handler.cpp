@@ -268,9 +268,10 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
 
     // Station data - STATIC simulation values
     if (m_context.stationData) {
-      m_context.stationData->stat_slope_1 = 0.0;
-      m_context.stationData->stat_slope_2 = 10.0;
-      m_context.stationData->stat_slope_3 = 10.0;
+      m_context.stationData->stat_slope_option1 = 0.0;
+      m_context.stationData->stat_slope_option2 = 5.0;
+      m_context.stationData->stat_slope_option3 = 10.0;
+      m_context.stationData->stat_slope_option4 = 25.0;
       m_context.stationData->stat_radius = 2000;
       m_context.stationData->stat_x_station = 2000.0; // 2km
       m_context.stationData->stat_v_limit = 70.0;     // 100 km/h
@@ -407,7 +408,8 @@ ApiHandler::~ApiHandler() {
     m_optimizationFuture.waitForFinished();
 }
 
-QHttpServerResponse ApiHandler::handleStartOptimization() {
+QHttpServerResponse
+ApiHandler::handleStartOptimization(const QJsonObject &data) {
   QJsonObject response;
   // Guard: require a successful simulation before optimizing
   if (m_simulationHandler->getTrainSimulation()->getMaxSpeed() <= 0.0) {
@@ -416,13 +418,60 @@ QHttpServerResponse ApiHandler::handleStartOptimization() {
     return QHttpServerResponse(QJsonDocument(response).toJson(),
                                QHttpServerResponse::StatusCode::BadRequest);
   }
+
+  // Build sweep candidates from the request body.
+  // accelLow → accelHigh swept in 0.05 m/s² steps (acc_start candidates)
+  // weakeningLow → weakeningHigh swept in 5 km/h steps (v_p1 candidates)
+  // Falls back to the user's current parameters when fields are absent.
+  QList<double> accValues;
+  QList<double> vp1Values;
+
+  const double accLow =
+      data.contains("accelLow") ? data["accelLow"].toDouble() : 0.0;
+  const double accHigh =
+      data.contains("accelHigh") ? data["accelHigh"].toDouble() : 0.0;
+  if (accLow > 0.0 && accHigh >= accLow) {
+    constexpr double kAccStep = 0.05; // m/s²
+    const int steps = qRound((accHigh - accLow) / kAccStep);
+    for (int i = 0; i <= steps; ++i)
+      accValues.append(accLow + i * kAccStep);
+  }
+
+  const double vp1Low =
+      data.contains("weakeningLow") ? data["weakeningLow"].toDouble() : 0.0;
+  const double vp1High =
+      data.contains("weakeningHigh") ? data["weakeningHigh"].toDouble() : 0.0;
+  if (vp1Low > 0.0 && vp1High >= vp1Low) {
+    constexpr double kVp1Step = 5.0; // km/h
+    const int steps = qRound((vp1High - vp1Low) / kVp1Step);
+    for (int i = 0; i <= steps; ++i)
+      vp1Values.append(vp1Low + i * kVp1Step);
+  }
+
+  const int nAcc = accValues.isEmpty() ? 1 : accValues.size();
+  const int nVp1 = vp1Values.isEmpty() ? 1 : vp1Values.size();
+
+  // Guard against concurrent optimization runs: check BEFORE dispatching the
+  // background task so the caller receives an immediate 409 Conflict rather
+  // than silently starting a second run that is blocked by the inner atomic.
+  if (m_optimizationHandler->isRunning()) {
+    response["status"] = "error";
+    response["message"] = "Optimization is already running";
+    return QHttpServerResponse(QJsonDocument(response).toJson(),
+                               QHttpServerResponse::StatusCode::Conflict);
+  }
+
   // Run on background thread — handleOptimization() is blocking.
-  // The atomic inside handleOptimization() already guards re-entry.
-  m_optimizationFuture = QtConcurrent::run(
-      [this]() { m_optimizationHandler->handleOptimization(); });
+  // The atomic inside handleOptimization() additionally guards re-entry.
+  m_optimizationFuture = QtConcurrent::run([this, accValues, vp1Values]() {
+    m_optimizationHandler->handleOptimization(accValues, vp1Values);
+  });
   response["status"] = "success";
   response["message"] =
-      "Optimization started (20 combinations: 5 acc × 4 v_p1)";
+      QString("Optimization started (%1 combinations: %2 acc × %3 v_p1)")
+          .arg(nAcc * nVp1)
+          .arg(nAcc)
+          .arg(nVp1);
   return QHttpServerResponse(QJsonDocument(response).toJson(),
                              QHttpServerResponse::StatusCode::Ok);
 }
@@ -459,7 +508,7 @@ QHttpServerResponse ApiHandler::handleGetOptimizationStatus() {
     response["best"] = QJsonObject();
   }
 
-  response["totalCombinations"] = 20;
+  response["totalCombinations"] = m_optimizationHandler->getTotalCombinations();
   response["completedCombinations"] =
       (int)m_optimizationHandler->getResults().size();
   return QHttpServerResponse(QJsonDocument(response).toJson(),

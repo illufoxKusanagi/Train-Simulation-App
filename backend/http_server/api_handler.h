@@ -63,7 +63,7 @@ public:
   QHttpServerResponse handleGetSimulationResults();
 
   // Optimization control
-  QHttpServerResponse handleStartOptimization();
+  QHttpServerResponse handleStartOptimization(const QJsonObject &data);
   QHttpServerResponse handleGetOptimizationStatus();
 
   // Export functionality

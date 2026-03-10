@@ -8,10 +8,10 @@
 #include <QWebEngineProfile>
 #include <QWebEngineSettings>
 
-WebEngineWindow::WebEngineWindow(quint16 port, QWidget *parent)
+WebEngineWindow::WebEngineWindow(quint16 port, bool devMode, QWidget *parent)
     : QMainWindow(parent), m_webView(nullptr), m_progressBar(nullptr),
       m_appContext(nullptr), m_httpServer(nullptr), m_webChannel(nullptr),
-      m_fileBridge(nullptr), m_isDevelopmentMode(false), m_port(port) {
+      m_fileBridge(nullptr), m_isDevelopmentMode(devMode), m_port(port) {
   setupUi();
   setupBackendServer();
   setupWebEngine();
@@ -72,25 +72,27 @@ void WebEngineWindow::setupUi() {
   // Create toolbar (optional - for dev tools, reload, etc.)
   QToolBar *toolbar = addToolBar("Navigation");
 
-  QAction *reloadAction = new QAction("⟳ Reload", this);
-  connect(reloadAction, &QAction::triggered, m_webView,
-          &QWebEngineView::reload);
-  toolbar->addAction(reloadAction);
+  if (m_isDevelopmentMode) {
+    QAction *reloadAction = new QAction("⟳ Reload", this);
+    connect(reloadAction, &QAction::triggered, m_webView,
+            &QWebEngineView::reload);
+    toolbar->addAction(reloadAction);
 
-  QAction *devToolsAction = new QAction("🔧 DevTools", this);
-  connect(devToolsAction, &QAction::triggered, this, [this]() {
-    if (m_webView && m_webView->page()) {
-      // Toggle dev tools
-      QWebEngineView *devToolsView = new QWebEngineView();
-      m_webView->page()->setDevToolsPage(devToolsView->page());
-      devToolsView->setWindowTitle("DevTools - Train Simulation");
-      devToolsView->resize(1200, 800);
-      devToolsView->show();
-    }
-  });
-  toolbar->addAction(devToolsAction);
-
-  toolbar->addSeparator();
+    QAction *devToolsAction = new QAction("🔧 DevTools", this);
+    connect(devToolsAction, &QAction::triggered, this, [this]() {
+      if (m_webView && m_webView->page()) {
+        // Toggle dev tools
+        QWebEngineView *devToolsView = new QWebEngineView(this);
+        devToolsView->setAttribute(Qt::WA_DeleteOnClose, true);
+        m_webView->page()->setDevToolsPage(devToolsView->page());
+        devToolsView->setWindowTitle("DevTools - Train Simulation");
+        devToolsView->resize(1200, 800);
+        devToolsView->show();
+      }
+    });
+    toolbar->addAction(devToolsAction);
+    toolbar->addSeparator();
+  }
 
   QAction *aboutAction = new QAction("ℹ About", this);
   connect(aboutAction, &QAction::triggered, this, [this]() {

@@ -2,10 +2,18 @@
 
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { constantFormRows, TrackFormSchema } from "./form.constants";
-import { useState } from "react";
+import {
+  constantFormRows,
+  slopeFormRows,
+  TrackFormSchema,
+} from "./form.constants";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { api } from "@/services/api";
+import { Spinner } from "@/components/ui/spinner";
+import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
+import { useRef } from "react";
+import { useFormPersistence } from "@/contexts/FormPersistenceContext";
 import PageLayout from "@/components/page-layout";
 import {
   Card,
@@ -21,7 +29,10 @@ import { useForm } from "react-hook-form";
 
 export default function TrackParameterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
+  const csvInputRef = useRef<HTMLInputElement>(null);
+  const { saveFormData, loadFormData } = useFormPersistence();
 
   const constantForm = useForm<z.infer<typeof TrackFormSchema>>({
     resolver: zodResolver(TrackFormSchema),
@@ -32,8 +43,56 @@ export default function TrackParameterPage() {
       slope: 0,
       v_limit: 80,
       dwellTime: 30,
+      slope_option1: 0,
+      slope_option2: 5,
+      slope_option3: 10,
+      slope_option4: 25,
     },
   });
+
+  useEffect(() => {
+    const savedData = loadFormData("track-params");
+    if (savedData) {
+      constantForm.reset(savedData as z.infer<typeof TrackFormSchema>);
+    } else {
+      api
+        .getTrackParameters()
+        .then((data) =>
+          constantForm.reset(
+            data.trackParameters as z.infer<typeof TrackFormSchema>,
+          ),
+        )
+        .catch((err) => {
+          console.error("Failed to load track parameters:", err);
+          toast.error("Could not load saved parameters — using defaults");
+        });
+    }
+    // Restore uploaded CSV array data
+    const savedCsvData = localStorage.getItem("track-csv-data");
+    if (savedCsvData) {
+      try {
+        setCsvData(JSON.parse(savedCsvData));
+      } catch (e) {
+        console.error("Failed to restore track CSV data:", e);
+      }
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Persist csvData whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem("track-csv-data", JSON.stringify(csvData));
+    } catch (e) {
+      console.error("Failed to save track CSV data:", e);
+    }
+  }, [csvData]);
+
+  useEffect(() => {
+    const subscription = constantForm.watch((data) => {
+      saveFormData("track-params", data as Record<string, unknown>);
+    });
+    return () => subscription.unsubscribe();
+  }, [constantForm, saveFormData]);
 
   const handleFileLoad = (name: string, data: number[][]) => {
     setCsvData((prev) => ({
@@ -57,6 +116,10 @@ export default function TrackParameterPage() {
         slope: data.slope,
         v_limit: data.v_limit,
         dwellTime: data.dwellTime,
+        slope_option1: data.slope_option1,
+        slope_option2: data.slope_option2,
+        slope_option3: data.slope_option3,
+        slope_option4: data.slope_option4,
       };
 
       // Add CSV array data if available
@@ -129,6 +192,7 @@ export default function TrackParameterPage() {
   const handleReset = () => {
     constantForm.reset();
     setCsvData({});
+    localStorage.removeItem("track-csv-data");
     toast("Form has been reset!");
   };
 
@@ -145,55 +209,46 @@ export default function TrackParameterPage() {
   const handleCsvUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
-
     reader.onload = (e) => {
       const text = e.target?.result as string;
       if (!text) return;
-
-      console.log("📂 processing CSV upload...");
-      const lines = text.split(/\r\n|\n/);
-      let successCount = 0;
-      let errorCount = 0;
-
-      const validKeys = Object.keys(TrackFormSchema.shape);
-
-      lines.forEach((line) => {
-        if (!line.trim()) return;
-        const [key, valueStr] = line.split(/,(.+)/);
-        const cleanKey = key?.trim();
-        const cleanValue = valueStr?.trim();
-
-        if (!cleanKey || !cleanValue) return;
-
-        if (validKeys.includes(cleanKey) && !isNaN(Number(cleanValue))) {
-          constantForm.setValue(
-            cleanKey as keyof z.infer<typeof TrackFormSchema>,
-            Number(cleanValue),
-            {
-              shouldDirty: true,
-              shouldValidate: true,
-            }
-          );
-          successCount++;
-          console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
-        } else {
-          console.warn(`⚠️ Skipped invalid item: ${cleanKey}`);
-          errorCount++;
-        }
-      });
-
-      if (successCount > 0) toast.success(`Updated ${successCount} fields`);
-      if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
+      processCsvText(text);
       event.target.value = "";
     };
     reader.readAsText(file);
   };
 
+  const processCsvText = (text: string) => {
+    console.log("📂 processing CSV upload...");
+    const lines = text.split(/\r\n|\n/);
+    let successCount = 0;
+    let errorCount = 0;
+    const validKeys = Object.keys(TrackFormSchema.shape);
+    lines.forEach((line) => {
+      if (!line.trim()) return;
+      const [key, valueStr] = line.split(/,(.+)/);
+      const cleanKey = key?.trim();
+      const cleanValue = valueStr?.trim();
+      if (!cleanKey || !cleanValue) return;
+      if (validKeys.includes(cleanKey) && !isNaN(Number(cleanValue))) {
+        constantForm.setValue(
+          cleanKey as keyof z.infer<typeof TrackFormSchema>,
+          Number(cleanValue),
+          { shouldDirty: true, shouldValidate: true },
+        );
+        successCount++;
+      } else {
+        errorCount++;
+      }
+    });
+    if (successCount > 0) toast.success(`Updated ${successCount} fields`);
+    if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
+  };
+
   return (
     <PageLayout>
-      <Card className="px-6 py-8 min-h-[40rem] h-full w-full max-w-2xl rounded-3xl justify-center">
+      <Card className="px-6 py-8 min-h-[40rem] h-fit w-full max-w-2xl rounded-3xl justify-center">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Track Parameter</CardTitle>
           <CardDescription>
@@ -221,7 +276,7 @@ export default function TrackParameterPage() {
                       Array.from({ length: 2 - row.length }).map(
                         (_, emptyIndex) => (
                           <div key={`empty-${rowIndex}-${emptyIndex}`} />
-                        )
+                        ),
                       )}
                   </div>
                 ))}
@@ -233,8 +288,53 @@ export default function TrackParameterPage() {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Saving..." : "Save"}
+                  {isSubmitting ? (
+                    <>
+                      <Spinner className="mr-2" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
                 </Button>
+                <div className="flex-1 relative">
+                  <input
+                    ref={csvInputRef}
+                    type="file"
+                    accept=".csv"
+                    className="hidden"
+                    onChange={handleCsvUpload}
+                  />
+                  <Button
+                    type="button"
+                    variant="default"
+                    className="w-full"
+                    disabled={isUploading}
+                    onClick={async () => {
+                      if (isQtWebChannelReady()) {
+                        setIsUploading(true);
+                        const result = await openFileWithDialog(
+                          "Select Track Parameters CSV File",
+                          "CSV Files (*.csv);;All Files (*)",
+                        );
+                        if (result.success && result.content)
+                          processCsvText(result.content);
+                        setIsUploading(false);
+                      } else {
+                        csvInputRef.current?.click();
+                      }
+                    }}
+                  >
+                    {isUploading ? (
+                      <>
+                        <Spinner className="mr-2" />
+                        Uploading...
+                      </>
+                    ) : (
+                      "Upload CSV"
+                    )}
+                  </Button>
+                </div>
                 <Button
                   type="button"
                   variant="outline"
@@ -243,18 +343,106 @@ export default function TrackParameterPage() {
                 >
                   Reset
                 </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+      <Card className="px-6 py-8 min-h-[40rem] h-fit w-full max-w-2xl rounded-3xl justify-center">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Track Parameter</CardTitle>
+          <CardDescription>
+            Input related to Track configuration
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...constantForm}>
+            <form
+              onSubmit={constantForm.handleSubmit(onSubmit)}
+              className="space-y-6"
+            >
+              <div className="flex flex-col gap-6">
+                {slopeFormRows.map((row, rowIndex) => (
+                  <div key={rowIndex} className="grid grid-cols-2 gap-4">
+                    {row.map((inputType) => (
+                      <InputWidget
+                        key={inputType.name}
+                        inputType={inputType}
+                        control={constantForm.control}
+                        onFileLoad={handleFileLoad}
+                      />
+                    ))}
+                    {row.length < 2 &&
+                      Array.from({ length: 2 - row.length }).map(
+                        (_, emptyIndex) => (
+                          <div key={`empty-${rowIndex}-${emptyIndex}`} />
+                        ),
+                      )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Spinner className="mr-2" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
                 <div className="flex-1 relative">
                   <input
+                    ref={csvInputRef}
                     type="file"
                     accept=".csv"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    className="hidden"
                     onChange={handleCsvUpload}
-                    title="Upload CSV"
                   />
-                  <Button type="button" variant="secondary" className="w-full">
-                    Upload CSV
+                  <Button
+                    type="button"
+                    variant="default"
+                    className="w-full"
+                    disabled={isUploading}
+                    onClick={async () => {
+                      if (isQtWebChannelReady()) {
+                        setIsUploading(true);
+                        const result = await openFileWithDialog(
+                          "Select Track Parameters CSV File",
+                          "CSV Files (*.csv);;All Files (*)",
+                        );
+                        if (result.success && result.content)
+                          processCsvText(result.content);
+                        setIsUploading(false);
+                      } else {
+                        csvInputRef.current?.click();
+                      }
+                    }}
+                  >
+                    {isUploading ? (
+                      <>
+                        <Spinner className="mr-2" />
+                        Uploading...
+                      </>
+                    ) : (
+                      "Upload CSV"
+                    )}
                   </Button>
                 </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleReset}
+                >
+                  Reset
+                </Button>
               </div>
             </form>
           </Form>

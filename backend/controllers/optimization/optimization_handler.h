@@ -28,7 +28,8 @@ public:
   explicit OptimizationHandler(AppContext *context,
                                TrainSimulationHandler *simulationHandler,
                                QObject *parent = nullptr);
-  void handleOptimization();
+  void handleOptimization(const QList<double> &accCandidates,
+                          const QList<double> &vp1Candidates);
 
   // Access results after optimization completes
   QList<OptResult> getResults() const {
@@ -40,6 +41,7 @@ public:
     return m_bestResult;
   }
   bool isRunning() const { return m_isRunning.loadRelaxed() == 1; }
+  int getTotalCombinations() const { return m_totalCombinations.loadRelaxed(); }
 
 signals:
   void optimizationComplete(OptResult best);
@@ -59,7 +61,8 @@ private:
   // All sweep combo results — persists after handleOptimization() returns
   QList<OptResult> m_results;
   OptResult m_bestResult;
-  QAtomicInt m_isRunning; // 1 = running, 0 = idle
+  QAtomicInt m_isRunning;         // 1 = running, 0 = idle
+  QAtomicInt m_totalCombinations; // set at start of each run
 
   // ── Per-parameter engine setup ──────────────────────────────────────────
   // Each function sets up ONE engine independently:

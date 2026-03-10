@@ -12,15 +12,22 @@ import {
 } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { constantFormRows, RunningFormSchema } from "./form.constants";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Form } from "@/components/ui/form";
 import { api } from "@/services/api";
+import { Spinner } from "@/components/ui/spinner";
+import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
+import { useRef } from "react";
+import { useFormPersistence } from "@/contexts/FormPersistenceContext";
 
 export default function RunningPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const csvInputRef = useRef<HTMLInputElement>(null);
+  const { saveFormData, loadFormData } = useFormPersistence();
 
   const constantForm = useForm<z.infer<typeof RunningFormSchema>>({
     resolver: zodResolver(RunningFormSchema),
@@ -36,6 +43,28 @@ export default function RunningPage() {
       v_b2: 70,
     },
   });
+
+  useEffect(() => {
+    const savedData = loadFormData("running-params");
+    if (savedData) {
+      constantForm.reset(savedData as z.infer<typeof RunningFormSchema>);
+    } else {
+      api
+        .getRunningParameters()
+        .then((data) => constantForm.reset(data.runningParameters))
+        .catch((err) => {
+          console.error("Failed to load running parameters:", err);
+          toast.error("Could not load saved parameters — using defaults");
+        });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const subscription = constantForm.watch((data) => {
+      saveFormData("running-params", data as Record<string, unknown>);
+    });
+    return () => subscription.unsubscribe();
+  }, [constantForm, saveFormData]);
 
   async function onSubmit(data: z.infer<typeof RunningFormSchema>) {
     setIsSubmitting(true);
@@ -93,82 +122,61 @@ export default function RunningPage() {
   const handleCsvUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
-
     reader.onload = (e) => {
       const text = e.target?.result as string;
       if (!text) return;
-
-      console.log("📂 processing CSV upload...");
-
-      // Split by newline to handle multiple rows
-      const lines = text.split(/\r\n|\n/);
-      let successCount = 0;
-      let errorCount = 0;
-
-      lines.forEach((line) => {
-        // Skip empty lines
-        if (!line.trim()) return;
-
-        // Split by first comma only (key, value)
-        const [key, valueStr] = line.split(/,(.+)/);
-
-        // Sanitize key and value
-        const cleanKey = key?.trim();
-        const cleanValue = valueStr?.trim();
-
-        if (!cleanKey || !cleanValue) return;
-
-        // Valid keys from our form schema (RunningFormSchema)
-        const validKeys: (keyof z.infer<typeof RunningFormSchema>)[] = [
-          "startRes",
-          "v_diffCoast",
-          "acc_start",
-          "v_p1",
-          "v_p2",
-          "decc_start",
-          "decc_emergency",
-          "v_b1",
-          "v_b2",
-        ];
-
-        // Check if key is valid and value is a number
-        if (
-          validKeys.includes(
-            cleanKey as keyof z.infer<typeof RunningFormSchema>
-          ) &&
-          !isNaN(Number(cleanValue))
-        ) {
-          // Update form value
-          constantForm.setValue(
-            cleanKey as keyof z.infer<typeof RunningFormSchema>,
-            Number(cleanValue),
-            {
-              shouldDirty: true,
-              shouldValidate: true,
-            }
-          );
-          successCount++;
-          console.log(`✅ Set ${cleanKey} = ${cleanValue}`);
-        } else {
-          console.warn(`⚠️ Skipped invalid item: ${cleanKey}: ${cleanValue}`);
-          errorCount++;
-        }
-      });
-
-      if (successCount > 0) {
-        toast.success(`Updated ${successCount} fields from CSV`);
-      }
-      if (errorCount > 0) {
-        toast.warning(`Skipped ${errorCount} invalid lines`);
-      }
-
-      // Reset file input so same file can be selected again
+      processCsvText(text);
       event.target.value = "";
     };
-
     reader.readAsText(file);
+  };
+
+  const processCsvText = (text: string) => {
+    console.log("📂 processing CSV upload...");
+    const lines = text.split(/\r\n|\n/);
+    let successCount = 0;
+    let errorCount = 0;
+
+    lines.forEach((line) => {
+      if (!line.trim()) return;
+      const [key, valueStr] = line.split(/,(.+)/);
+      const cleanKey = key?.trim();
+      const cleanValue = valueStr?.trim();
+      if (!cleanKey || !cleanValue) return;
+
+      const validKeys: (keyof z.infer<typeof RunningFormSchema>)[] = [
+        "startRes",
+        "v_diffCoast",
+        "acc_start",
+        "v_p1",
+        "v_p2",
+        "decc_start",
+        "decc_emergency",
+        "v_b1",
+        "v_b2",
+      ];
+
+      if (
+        validKeys.includes(
+          cleanKey as keyof z.infer<typeof RunningFormSchema>,
+        ) &&
+        !isNaN(Number(cleanValue))
+      ) {
+        constantForm.setValue(
+          cleanKey as keyof z.infer<typeof RunningFormSchema>,
+          Number(cleanValue),
+          { shouldDirty: true, shouldValidate: true },
+        );
+        successCount++;
+      } else {
+        errorCount++;
+      }
+    });
+
+    if (successCount > 0)
+      toast.success(`Updated ${successCount} fields from CSV`);
+    if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid lines`);
   };
 
   const handleReset = () => {
@@ -178,7 +186,7 @@ export default function RunningPage() {
 
   return (
     <PageLayout>
-      <Card className="px-6 py-8 min-h-[40rem] h-full w-full max-w-2xl rounded-3xl justify-center">
+      <Card className="px-6 py-8 min-h-[40rem] h-fit w-full max-w-2xl rounded-3xl justify-center">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Running Parameter</CardTitle>
           <CardDescription>
@@ -205,7 +213,7 @@ export default function RunningPage() {
                       Array.from({ length: 3 - row.length }).map(
                         (_, emptyIndex) => (
                           <div key={`empty-${rowIndex}-${emptyIndex}`} />
-                        )
+                        ),
                       )}
                   </div>
                 ))}
@@ -217,8 +225,53 @@ export default function RunningPage() {
                   className="flex-1"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Saving..." : "Save"}
+                  {isSubmitting ? (
+                    <>
+                      <Spinner className="mr-2" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
                 </Button>
+                <div className="flex-1 relative">
+                  <input
+                    ref={csvInputRef}
+                    type="file"
+                    accept=".csv"
+                    className="hidden"
+                    onChange={handleCsvUpload}
+                  />
+                  <Button
+                    type="button"
+                    variant="default"
+                    className="w-full"
+                    disabled={isUploading}
+                    onClick={async () => {
+                      if (isQtWebChannelReady()) {
+                        setIsUploading(true);
+                        const result = await openFileWithDialog(
+                          "Select Running Parameters CSV File",
+                          "CSV Files (*.csv);;All Files (*)",
+                        );
+                        if (result.success && result.content)
+                          processCsvText(result.content);
+                        setIsUploading(false);
+                      } else {
+                        csvInputRef.current?.click();
+                      }
+                    }}
+                  >
+                    {isUploading ? (
+                      <>
+                        <Spinner className="mr-2" />
+                        Uploading...
+                      </>
+                    ) : (
+                      "Upload CSV"
+                    )}
+                  </Button>
+                </div>
                 <Button
                   type="button"
                   variant="outline"
@@ -227,18 +280,6 @@ export default function RunningPage() {
                 >
                   Reset
                 </Button>
-                <div className="flex-1 relative">
-                  <input
-                    type="file"
-                    accept=".csv"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    onChange={handleCsvUpload}
-                    title="Upload CSV"
-                  />
-                  <Button type="button" variant="secondary" className="w-full">
-                    Upload CSV
-                  </Button>
-                </div>
               </div>
             </form>
           </Form>

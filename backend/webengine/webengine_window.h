@@ -30,7 +30,8 @@ public:
    *              Pass 0 to let the OS pick a free port.
    * @param parent Parent widget (usually nullptr for a top-level window).
    */
-  explicit WebEngineWindow(quint16 port = 8080, QWidget *parent = nullptr);
+  explicit WebEngineWindow(quint16 port = 8080, bool devMode = false,
+                           QWidget *parent = nullptr);
   ~WebEngineWindow();
 
   /**

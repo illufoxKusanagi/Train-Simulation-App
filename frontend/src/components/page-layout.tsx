@@ -18,8 +18,8 @@ export default function PageLayout({
 }: PageMoldProps) {
   return (
     <SidebarProvider defaultOpen={sidebarDefaultOpen}>
-      <div className={`flex flex-col w-full ${className}`}>
-        <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      <div className={`flex flex-col w-full h-screen ${className}`}>
+        <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-accent/60 border-b border-border">
           <AppSidebar />
           <div className="flex items-center justify-between px-4 py-3">
             <SidebarTrigger size="lg" />
@@ -29,7 +29,7 @@ export default function PageLayout({
             </div>
           </div>
         </div>
-        <div className="flex flex-col xl:flex-row gap-4 justify-center items-center mx-16 overflow-auto my-4">
+        <div className="flex flex-col xl:flex-row gap-4 h-full justify-center items-center mx-16 overflow-auto my-4">
           {children}
         </div>
       </div>

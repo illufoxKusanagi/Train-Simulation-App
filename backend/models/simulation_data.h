@@ -47,10 +47,10 @@ struct SimulationDatas {
   QList<double> radiuses;
   QList<double> speedLimits;
 
-  QList<double> motorResistancesZero;
-  QList<double> motorResistancesFive;
-  QList<double> motorResistancesTen;
-  QList<double> motorResistancesTwentyFive;
+  QList<double> motorResistancesOption1;
+  QList<double> motorResistancesOption2;
+  QList<double> motorResistancesOption3;
+  QList<double> motorResistancesOption4;
 
   QList<double> brakingDistances;
   QList<double> odos;

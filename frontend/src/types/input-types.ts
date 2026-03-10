@@ -39,6 +39,7 @@ export interface InputDropdownProps {
 
 export interface InputUploadProps {
   label?: string;
+  showLabel?: boolean;
   name: string;
   requiredColumns?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

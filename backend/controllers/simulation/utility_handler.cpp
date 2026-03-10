@@ -35,14 +35,14 @@ void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
   simulationDatas->energyRegenerations.append(context->energyData->e_reg);
   simulationDatas->energyAps.append(context->energyData->e_aps);
   simulationDatas->energyCatenaries.append(context->energyData->e_catenary);
-  simulationDatas->motorResistancesZero.append(
-      context->resistanceData->f_resRunningZero);
-  simulationDatas->motorResistancesFive.append(
-      context->resistanceData->f_resRunningFive);
-  simulationDatas->motorResistancesTen.append(
-      context->resistanceData->f_resRunningTen);
-  simulationDatas->motorResistancesTwentyFive.append(
-      context->resistanceData->f_resRunningTwentyFive);
+  simulationDatas->motorResistancesOption1.append(
+      context->resistanceData->f_resRunningOption1);
+  simulationDatas->motorResistancesOption2.append(
+      context->resistanceData->f_resRunningOption2);
+  simulationDatas->motorResistancesOption3.append(
+      context->resistanceData->f_resRunningOption3);
+  simulationDatas->motorResistancesOption4.append(
+      context->resistanceData->f_resRunningOption4);
 }
 
 void UtilityHandler::resetSimulation() {
@@ -79,10 +79,10 @@ void UtilityHandler::resetSimulation() {
   context->energyData->curr_catenary = 0;
   context->energyData->curr_vvvf = 0;
   context->energyData->e_catenary = 0;
-  context->resistanceData->f_resRunningZero = 0;
-  context->resistanceData->f_resRunningFive = 0;
-  context->resistanceData->f_resRunningTen = 0;
-  context->resistanceData->f_resRunningTwentyFive = 0;
+  context->resistanceData->f_resRunningOption1 = 0;
+  context->resistanceData->f_resRunningOption2 = 0;
+  context->resistanceData->f_resRunningOption3 = 0;
+  context->resistanceData->f_resRunningOption4 = 0;
   context->resistanceData->f_res = 0;
   context->stationData->x_odo = 0.0;
   context->stationData->x_deficit = 0.0;
@@ -120,10 +120,10 @@ void UtilityHandler::clearSimulationDatas() {
   simulationDatas->energyAps.clear();
   simulationDatas->energyCatenaries.clear();
   simulationDatas->mileages.clear();
-  simulationDatas->motorResistancesZero.clear();
-  simulationDatas->motorResistancesFive.clear();
-  simulationDatas->motorResistancesTen.clear();
-  simulationDatas->motorResistancesTwentyFive.clear();
+  simulationDatas->motorResistancesOption1.clear();
+  simulationDatas->motorResistancesOption2.clear();
+  simulationDatas->motorResistancesOption3.clear();
+  simulationDatas->motorResistancesOption4.clear();
   simulationDatas->slopes.clear();
   simulationDatas->radiuses.clear();
   simulationDatas->speedLimits.clear();

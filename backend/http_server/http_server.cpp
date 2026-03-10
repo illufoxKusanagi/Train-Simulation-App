@@ -58,13 +58,20 @@ void HttpServer::stopServer() {
 
 quint16 HttpServer::getPort() const { return m_port; }
 
-QJsonObject HttpServer::parseRequestBody(const QHttpServerRequest &request) {
+QJsonObject HttpServer::parseRequestBody(const QHttpServerRequest &request,
+                                         bool *parseOk) {
+  if (parseOk)
+    *parseOk = true;
   QByteArray body = request.body();
+  if (body.isEmpty())
+    return QJsonObject();
   QJsonParseError error;
   QJsonDocument doc = QJsonDocument::fromJson(body, &error);
 
   if (error.error != QJsonParseError::NoError) {
     qWarning() << "JSON parse error:" << error.errorString();
+    if (parseOk)
+      *parseOk = false;
     return QJsonObject();
   }
   return doc.object();
@@ -407,9 +414,19 @@ void HttpServer::setupRoutes() {
   // Optimization endpoints
   m_httpServer->route(
       "/api/optimization/start", QHttpServerRequest::Method::Post,
-      [this, addCorsHeaders](const QHttpServerRequest &) {
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
         qDebug() << "🚀 POST /api/optimization/start";
-        return addCorsHeaders(m_apiHandler->handleStartOptimization());
+        bool parseOk = true;
+        QJsonObject data = parseRequestBody(request, &parseOk);
+        if (!parseOk) {
+          QJsonObject errResp;
+          errResp["status"] = "error";
+          errResp["message"] = "Invalid JSON in request body";
+          return addCorsHeaders(
+              QHttpServerResponse(QJsonDocument(errResp).toJson(),
+                                  QHttpServerResponse::StatusCode::BadRequest));
+        }
+        return addCorsHeaders(m_apiHandler->handleStartOptimization(data));
       });
 
   m_httpServer->route("/api/optimization/start",

@@ -12,40 +12,91 @@ const chunkArray = <T>(array: T[], chunkSize: number): T[][] => {
 export const TrackFormSchema = z.object({
   n_station: z.coerce
     .number<number>({
-      message: "This Value must be a number",
+      error: "This Value must be a number",
     })
-    .min(2, { message: "Must be at least 2 stations" })
-    .max(5000, { message: "Value cannot exceed 5000" }),
+    .min(2, { error: "Must be at least 2 stations" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
   x_station: z.coerce
     .number<number>({
-      message: "This Value must be a number",
+      error: "This Value must be a number",
     })
-    .min(0, { message: "Value must be non-negative" })
-    .max(5000, { message: "Value cannot exceed 5000" }),
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
   radius: z.coerce
     .number<number>({
-      message: "This Value must be a number",
+      error: "This Value must be a number",
     })
-    .min(0, { message: "Value must be non-negative" })
-    .max(5000, { message: "Value cannot exceed 5000" }),
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
   slope: z.coerce
     .number<number>({
-      message: "This Value must be a number",
+      error: "This Value must be a number",
     })
-    .min(-50, { message: "Value cannot less than -50" })
-    .max(50, { message: "Value cannot exceed than 50" }),
+    .min(-50, { error: "Value cannot less than -50" })
+    .max(50, { error: "Value cannot exceed than 50" }),
   v_limit: z.coerce
     .number<number>({
-      message: "This Value must be a number",
+      error: "This Value must be a number",
     })
-    .min(0, { message: "Value must be non-negative" })
-    .max(5000, { message: "Value cannot exceed 5000" }),
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
   dwellTime: z.coerce
     .number<number>({
-      message: "This Value must be a number",
+      error: "This Value must be a number",
     })
-    .min(0, { message: "Value must be non-negative" })
-    .max(5000, { message: "Value cannot exceed 5000" }),
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
+  slope_option1: z.coerce
+    .number<number>({
+      error: "This value must be a number",
+    })
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
+  slope_option2: z.coerce
+    .number<number>({
+      error: "This value must be a number",
+    })
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
+  slope_option3: z.coerce
+    .number<number>({
+      error: "This value must be a number",
+    })
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
+  slope_option4: z.coerce
+    .number<number>({
+      error: "This value must be a number",
+    })
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
+});
+
+export const SlopeFormSchema = z.object({
+  slope_option1: z.coerce
+    .number<number>({
+      error: "This value must be a number",
+    })
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
+  slope_option2: z.coerce
+    .number<number>({
+      error: "This value must be a number",
+    })
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
+  slope_option3: z.coerce
+    .number<number>({
+      error: "This value must be a number",
+    })
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
+  slope_option4: z.coerce
+    .number<number>({
+      error: "This value must be a number",
+    })
+    .min(0, { error: "Value must be non-negative" })
+    .max(5000, { error: "Value cannot exceed 5000" }),
 });
 
 export const constantInputFormDatas: InputType[] = [
@@ -86,6 +137,58 @@ export const constantInputFormDatas: InputType[] = [
     type: "field-upload",
     name: "dwellTime",
   },
+  // {
+  //   label: "Custom Slope 1",
+  //   unit: "‰",
+  //   type: "field",
+  //   name: "slope_option1",
+  // },
+  // {
+  //   label: "Custom Slope 2",
+  //   unit: "‰",
+  //   type: "field",
+  //   name: "slope_option2",
+  // },
+  // {
+  //   label: "Custom Slope 3",
+  //   unit: "‰",
+  //   type: "field",
+  //   name: "slope_option3",
+  // },
+  // {
+  //   label: "Custom Slope 4",
+  //   unit: "‰",
+  //   type: "field",
+  //   name: "slope_option4",
+  // },
+];
+
+export const slopeInputFormDatas: InputType[] = [
+  {
+    label: "Custom Slope 1",
+    unit: "‰",
+    type: "field",
+    name: "slope_option1",
+  },
+  {
+    label: "Custom Slope 2",
+    unit: "‰",
+    type: "field",
+    name: "slope_option2",
+  },
+  {
+    label: "Custom Slope 3",
+    unit: "‰",
+    type: "field",
+    name: "slope_option3",
+  },
+  {
+    label: "Custom Slope 4",
+    unit: "‰",
+    type: "field",
+    name: "slope_option4",
+  },
 ];
 
 export const constantFormRows = chunkArray(constantInputFormDatas, 2);
+export const slopeFormRows = chunkArray(slopeInputFormDatas, 2);
