@@ -12,6 +12,7 @@ on:
             - master
             - main
     workflow_dispatch:
+    workflow_call:
 
 jobs:
     build-rpm:
@@ -139,7 +140,7 @@ jobs:
                   retention-days: 30
 
             - name: Create Release
-              if: startsWith(github.ref, 'refs/tags/v')
+              if: startsWith(github.ref, 'refs/tags/v') && github.event_name != 'workflow_call'
               uses: softprops/action-gh-release@v2
               with:
                   files: "*.rpm"
