@@ -66,7 +66,7 @@ export default function ForceTab({
   onDownloadCSV,
   onDownloadExcel,
 }: ForceTabProps) {
-  const data = results.results || [];
+  const data = useMemo(() => results.results || [], [results.results]);
   const simulationType = results.debugInfo?.simulationType || "dynamic";
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -121,6 +121,30 @@ export default function ForceTab({
     }
     return t;
   }, [maxTime, tickInterval]);
+
+  const exportData = useMemo(
+    () =>
+      data.map((raw) => {
+        const d = raw as unknown as Record<string, unknown>;
+        return {
+          phase: d.phase,
+          iteration: d.iteration,
+          time: d.time,
+          timeTotal: d.timeTotal,
+          speeds: d.speeds,
+          motorForce: d.motorForce,
+          motorResistance: d.motorResistance,
+          totalResistance: d.totalResistance,
+          tractionForcePerMotor: d.tractionForcePerMotor,
+          resistancePerMotor: d.resistancePerMotor,
+          motorResistancesOption1: d.motorResistancesOption1,
+          motorResistancesOption2: d.motorResistancesOption2,
+          motorResistancesOption3: d.motorResistancesOption3,
+          motorResistancesOption4: d.motorResistancesOption4,
+        };
+      }),
+    [data],
+  );
 
   return (
     <div ref={chartRef} className="space-y-4">
@@ -219,16 +243,14 @@ export default function ForceTab({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => onDownloadCSV(results.results, "force_data.csv")}
+              onClick={() => onDownloadCSV(exportData, "force_data.csv")}
             >
               <Download className="h-4 w-4 mr-2" />
               CSV
             </Button>
             <Button
               size="sm"
-              onClick={() =>
-                onDownloadExcel(results.results, "force_data.xlsx")
-              }
+              onClick={() => onDownloadExcel(exportData, "force_data.xlsx")}
             >
               <Download className="h-4 w-4 mr-2" />
               Excel

@@ -46,7 +46,7 @@ void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
 }
 
 void UtilityHandler::resetSimulation() {
-  QMutex *locker(&context->simulationMutex);
+  QMutexLocker locker(&context->simulationMutex);
   context->resistanceData->f_resStart = 0;
   context->resistanceData->f_resRunning = 0;
   context->resistanceData->f_motor = 0;

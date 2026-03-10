@@ -100,6 +100,25 @@ export default function SpeedTab({
     return t;
   }, [maxTime, tickInterval]);
 
+  const exportData = useMemo(
+    () =>
+      data.map((raw) => {
+        const d = raw as unknown as Record<string, unknown>;
+        return {
+          phase: d.phase,
+          iteration: d.iteration,
+          time: d.time,
+          timeTotal: d.timeTotal,
+          speeds: d.speeds,
+          speedLimits: d.speedLimits,
+          speedsSi: d.speedsSi,
+          accelerations: d.accelerations,
+          accelerationsSi: d.accelerationsSi,
+        };
+      }),
+    [data],
+  );
+
   return (
     <div ref={chartRef} className="space-y-4">
       <Card>
@@ -153,16 +172,14 @@ export default function SpeedTab({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => onDownloadCSV(results.results, "speed_data.csv")}
+              onClick={() => onDownloadCSV(exportData, "speed_data.csv")}
             >
               <Download className="h-4 w-4 mr-2" />
               CSV
             </Button>
             <Button
               size="sm"
-              onClick={() =>
-                onDownloadExcel(results.results, "speed_data.xlsx")
-              }
+              onClick={() => onDownloadExcel(exportData, "speed_data.xlsx")}
             >
               <Download className="h-4 w-4 mr-2" />
               Excel

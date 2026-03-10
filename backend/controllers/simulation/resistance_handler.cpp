@@ -16,6 +16,10 @@ double ResistanceHandler::calculateResSlope(float m, float slope) {
 }
 
 double ResistanceHandler::calculateResRadius(float m, float radius) {
+  if (radius <= 0) {
+    resistanceData->r_radius = 0.0;
+    return 0.0;
+  }
   resistanceData->r_radius = (m * constantData->g * (6.0 / radius)) / 1000;
   return resistanceData->r_radius;
 }

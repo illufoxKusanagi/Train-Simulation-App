@@ -101,6 +101,23 @@ export default function CurrentTab({
     return t;
   }, [maxTime, tickInterval]);
 
+  const exportData = useMemo(
+    () =>
+      data.map((raw) => {
+        const d = raw as unknown as Record<string, unknown>;
+        return {
+          phase: d.phase,
+          iteration: d.iteration,
+          time: d.time,
+          timeTotal: d.timeTotal,
+          speeds: d.speeds,
+          vvvfCurrents: d.vvvfCurrents,
+          catenaryCurrents: d.catenaryCurrents,
+        };
+      }),
+    [data],
+  );
+
   // Validate data
   if (
     !results?.results ||
@@ -176,16 +193,14 @@ export default function CurrentTab({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => onDownloadCSV(results.results, "current_data.csv")}
+              onClick={() => onDownloadCSV(exportData, "current_data.csv")}
             >
               <Download className="h-4 w-4 mr-2" />
               CSV
             </Button>
             <Button
               size="sm"
-              onClick={() =>
-                onDownloadExcel(results.results, "current_data.xlsx")
-              }
+              onClick={() => onDownloadExcel(exportData, "current_data.xlsx")}
             >
               <Download className="h-4 w-4 mr-2" />
               Excel

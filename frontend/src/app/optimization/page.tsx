@@ -74,9 +74,9 @@ export default function OptimizationPage() {
       accelLow: 0.6,
       accelMedium: 1.0,
       accelHigh: 1.2,
-      weakeningLow: 70,
-      weakeningMedium: 85,
-      weakeningHigh: 100,
+      weakeningLow: 35,
+      weakeningMedium: 55,
+      weakeningHigh: 70,
     },
   });
 

@@ -41,13 +41,13 @@ void TractiveEffortHandler::calculatePoweringForce(float acc, float v) {
 void TractiveEffortHandler::calculateBrakingForce() {
   resistanceData->f_brake =
       massData->mass_totalInertial * movingData->decc_start;
-  if (movingData->v < movingData->v_b1) {
+  if (movingData->v <= movingData->v_b1) {
     resistanceData->f_motor = -resistanceData->f_brake;
   } else if (movingData->v > movingData->v_b1 &&
-             movingData->v <= movingData->v_b2) {
+             movingData->v < movingData->v_b2) {
     resistanceData->f_motor =
         -((resistanceData->f_brake * movingData->v_b1) / movingData->v);
-  } else if (movingData->v > movingData->v_b2) {
+  } else if (movingData->v >= movingData->v_b2) {
     resistanceData->f_motor =
         -((resistanceData->f_brake * movingData->v_b1 * movingData->v_b2) /
           (movingData->v * movingData->v));
