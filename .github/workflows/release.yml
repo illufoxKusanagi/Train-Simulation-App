@@ -2,7 +2,7 @@ name: Create Release
 
 on:
   push:
-    branches: 
+    branches:
       - master
       - main
     tags:
@@ -17,6 +17,8 @@ on:
 jobs:
   create-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
       version: ${{ steps.get_version.outputs.version }}
@@ -73,6 +75,8 @@ jobs:
   build-windows:
     needs: create-release
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -131,6 +135,8 @@ jobs:
   build-linux:
     needs: create-release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     container:
       image: fedora:latest
 

@@ -22,7 +22,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Download } from "lucide-react";
 import type { SimulationResults } from "@/services/api";
 import { toast } from "sonner";
-import { toPng } from "html-to-image";
+import { captureChartAsPng } from "@/lib/save-chart";
 
 const chartConfig = {
   motorForce: {
@@ -74,11 +74,7 @@ export default function ForceTab({
     if (chartRef.current === null) return;
 
     try {
-      const dataUrl = await toPng(chartRef.current, {
-        cacheBust: true,
-        pixelRatio: 3,
-        backgroundColor: "#ffffff", // Ensure white background for better readability
-      });
+      const dataUrl = await captureChartAsPng(chartRef.current);
 
       // Check for native Qt bridge
       if (typeof window !== "undefined" && window.fileBridge) {
