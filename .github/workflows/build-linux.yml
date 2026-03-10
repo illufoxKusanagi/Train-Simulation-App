@@ -13,6 +13,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-appimage:
     runs-on: ubuntu-22.04
@@ -121,6 +124,10 @@ jobs:
       - name: Package AppImage
         env:
           APPIMAGE_EXTRACT_AND_RUN: "1"
+          # Control the output filename so the glob pattern TrainSimulationApp-*.AppImage matches.
+          # Without this, linuxdeploy names the file using the desktop Name field
+          # (spaces → underscores), producing Train_Simulation_App-x86_64.AppImage.
+          OUTPUT: TrainSimulationApp-x86_64
         run: |
           curl -Lo linuxdeploy \
             https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
