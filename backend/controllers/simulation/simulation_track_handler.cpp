@@ -42,7 +42,7 @@ double SimulationTrackHandler::calculateBrakingTrack(double speed) {
   // v·dv/dx = -decc·v_b1/v  →  v²dv = -decc·v_b1 dx
   // d_weakening  = (v_current³ - v_b1³) / (3 × decc × v_b1)
   // d_constant   = v_b1² / (2 × decc)
-  else if (v_current > v_b1 && v_current <= v_b2) {
+  else if (v_current > v_b1 && v_current < v_b2) {
     double d_weakening =
         (pow(v_current, 3) - pow(v_b1, 3)) / (3.0 * decc * v_b1);
     double d_constant = (v_b1 * v_b1) / (2.0 * decc);
