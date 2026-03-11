@@ -34,10 +34,28 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+const EXPORT_COLUMNS: [string, string][] = [
+  ["phase", "Phase"],
+  ["iteration", "Iteration"],
+  ["time", "Time (s)"],
+  ["timeTotal", "Total time (s)"],
+  ["speeds", "Speed (km/h)"],
+  ["catenaryCurrents", "Catenary current"],
+  ["vvvfCurrents", "VVVF current"],
+];
+
 interface CurrentTabProps {
   results: SimulationResults;
-  onDownloadCSV: (data: unknown[], filename: string) => void;
-  onDownloadExcel: (data: unknown[], filename: string) => void;
+  onDownloadCSV: (
+    data: unknown[],
+    filename: string,
+    columns: [string, string][],
+  ) => void;
+  onDownloadExcel: (
+    data: unknown[],
+    filename: string,
+    columns: [string, string][],
+  ) => void;
 }
 
 export default function CurrentTab({
@@ -193,14 +211,18 @@ export default function CurrentTab({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => onDownloadCSV(exportData, "current_data.csv")}
+              onClick={() =>
+                onDownloadCSV(exportData, "current_data.csv", EXPORT_COLUMNS)
+              }
             >
               <Download className="h-4 w-4 mr-2" />
               CSV
             </Button>
             <Button
               size="sm"
-              onClick={() => onDownloadExcel(exportData, "current_data.xlsx")}
+              onClick={() =>
+                onDownloadExcel(exportData, "current_data.xlsx", EXPORT_COLUMNS)
+              }
             >
               <Download className="h-4 w-4 mr-2" />
               Excel

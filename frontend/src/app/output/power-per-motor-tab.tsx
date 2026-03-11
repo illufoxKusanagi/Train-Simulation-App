@@ -27,10 +27,27 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+const EXPORT_COLUMNS: [string, string][] = [
+  ["phase", "Phase"],
+  ["iteration", "Iteration"],
+  ["time", "Time (s)"],
+  ["timeTotal", "Total time (s)"],
+  ["speeds", "Speed (km/h)"],
+  ["powerMotorOutputPerMotor", "P_motor Out per motor"],
+];
+
 interface PowerPerMotorTabProps {
   results: SimulationResults;
-  onDownloadCSV: (data: unknown[], filename: string) => void;
-  onDownloadExcel: (data: unknown[], filename: string) => void;
+  onDownloadCSV: (
+    data: unknown[],
+    filename: string,
+    columns: [string, string][],
+  ) => void;
+  onDownloadExcel: (
+    data: unknown[],
+    filename: string,
+    columns: [string, string][],
+  ) => void;
 }
 
 export default function PowerPerMotorTab({
@@ -95,7 +112,11 @@ export default function PowerPerMotorTab({
               size="sm"
               variant="outline"
               onClick={() =>
-                onDownloadCSV(exportData, "power_per_motor_data.csv")
+                onDownloadCSV(
+                  exportData,
+                  "power_per_motor_data.csv",
+                  EXPORT_COLUMNS,
+                )
               }
             >
               <Download className="h-4 w-4 mr-2" />
@@ -105,7 +126,11 @@ export default function PowerPerMotorTab({
               size="sm"
               variant="outline"
               onClick={() =>
-                onDownloadExcel(exportData, "power_per_motor_data.xlsx")
+                onDownloadExcel(
+                  exportData,
+                  "power_per_motor_data.xlsx",
+                  EXPORT_COLUMNS,
+                )
               }
             >
               <Download className="h-4 w-4 mr-2" />

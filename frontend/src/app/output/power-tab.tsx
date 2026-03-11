@@ -34,10 +34,31 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+const EXPORT_COLUMNS: [string, string][] = [
+  ["phase", "Phase"],
+  ["iteration", "Iteration"],
+  ["time", "Time (s)"],
+  ["timeTotal", "Total time (s)"],
+  ["speeds", "Speed (km/h)"],
+  ["powerWheel", "P Wheel"],
+  ["powerMotorOut", "P_motor Out"],
+  ["powerMotorIn", "P_motor In"],
+  ["vvvfPowers", "P_vvvf"],
+  ["catenaryPowers", "P_catenary"],
+];
+
 interface PowerTabProps {
   results: SimulationResults;
-  onDownloadCSV: (data: unknown[], filename: string) => void;
-  onDownloadExcel: (data: unknown[], filename: string) => void;
+  onDownloadCSV: (
+    data: unknown[],
+    filename: string,
+    columns: [string, string][],
+  ) => void;
+  onDownloadExcel: (
+    data: unknown[],
+    filename: string,
+    columns: [string, string][],
+  ) => void;
 }
 
 export default function PowerTab({
@@ -178,14 +199,18 @@ export default function PowerTab({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => onDownloadCSV(exportData, "power_data.csv")}
+              onClick={() =>
+                onDownloadCSV(exportData, "power_data.csv", EXPORT_COLUMNS)
+              }
             >
               <Download className="h-4 w-4 mr-2" />
               CSV
             </Button>
             <Button
               size="sm"
-              onClick={() => onDownloadExcel(exportData, "power_data.xlsx")}
+              onClick={() =>
+                onDownloadExcel(exportData, "power_data.xlsx", EXPORT_COLUMNS)
+              }
             >
               <Download className="h-4 w-4 mr-2" />
               Excel

@@ -365,6 +365,16 @@ QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
         summary["adhesion"] = m_trainSimulation->getAdhesion();
         // }
 
+        if (m_currentSimulationType == "static") {
+          double vLimit = m_context.stationData->stat_v_limit;
+          summary["distanceOnBraking"] =
+              m_trainSimulation->m_simulationTrackHandler
+                  ->calculateBrakingTrack(vLimit);
+          summary["distanceOnEmergencyBraking"] =
+              m_trainSimulation->m_simulationTrackHandler
+                  ->calculateBrakingEmergencyTrack();
+        }
+
         response["summary"] = summary;
 
         // --- Populate Warnings & Errors ---
