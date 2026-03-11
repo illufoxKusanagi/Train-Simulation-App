@@ -33,7 +33,7 @@ CsvOutputHandler::CsvOutputHandler(SimulationDatas &simulationDatas)
                                                      "VVVF current,"
                                                      "Energy Consumption,"
                                                      "Energy of Powering,"
-                                                     "Energy Regen,"
+                                                     "P_motor Out per motor,"
                                                      "Energy of APS,"
                                                      "Energy Catenary,"
                                                      "Run res at 0,"
@@ -60,12 +60,14 @@ void CsvOutputHandler::printSimulationDatas() {
   // outFile << m_csvHeader.toStdString() << "\n";
   // for (int i = 0; i < maxSize; i++) {
   //   outFile << simulationDatas->phase[i].toStdString() << "," << i + 1 << ","
-  //           << simulationDatas->time[i] << "," << simulationDatas->timeTotal[i]
+  //           << simulationDatas->time[i] << "," <<
+  //           simulationDatas->timeTotal[i]
   //           << "," << simulationDatas->distance[i] << ","
   //           << simulationDatas->distanceTotal[i] << ","
   //           << simulationDatas->odos[i] << ","
   //           << simulationDatas->brakingDistances[i] << ","
-  //           << simulationDatas->slopes[i] << "," << simulationDatas->radiuses[i]
+  //           << simulationDatas->slopes[i] << "," <<
+  //           simulationDatas->radiuses[i]
   //           << "," << simulationDatas->trainSpeeds[i] << ","
   //           << simulationDatas->speedLimits[i] << ","
   //           << simulationDatas->trainSpeedsSi[i] << ","
@@ -176,7 +178,8 @@ bool CsvOutputHandler::saveTrainTrackData() {
   //            "Time(s),Distance(m),TotalDistance(m),Speed(km/h)\n ";
   // int maxSize = getTrainTrackDataNumber();
   // for (int i = 0; i < maxSize; i++) {
-  //   outFile << simulationDatas->time[i] << "," << simulationDatas->timeTotal[i]
+  //   outFile << simulationDatas->time[i] << "," <<
+  //   simulationDatas->timeTotal[i]
   //           << "," << simulationDatas->distance[i] << ","
   //           << simulationDatas->distanceTotal[i] << ","
   //           << simulationDatas->trainSpeeds[i] << "\n";

@@ -68,26 +68,33 @@ double SimulationTrackHandler::calculateBrakingEmergencyTrack() {
   if (simulationDatas->trainSpeedsSi.isEmpty())
     return 0.0;
 
-  double speed = simulationDatas->trainSpeedsSi.last(); // Already in m/s
+  double speed = simulationDatas->trainSpeedsSi.last();
+  double brakingTrack = (speed * constantData->t_reaction) +
+                        (pow(speed, 2) / (2 * movingData->decc_emergency));
+  return brakingTrack;
 
-  // Reaction distance (constant speed during reaction time)
-  double reactionDistance = speed * constantData->t_reaction;
+  // double speed = simulationDatas->trainSpeedsSi.last(); // Already in m/s
 
-  // Emergency braking uses higher deceleration, but still affected by field
-  // weakening Convert current speed to km/h for calculateBrakingTrack
-  double speed_kmh = speed * constantData->cV;
+  // // Reaction distance (constant speed during reaction time)
+  // double reactionDistance = speed * constantData->t_reaction;
 
-  // Use the corrected braking distance calculation (which accounts for field
-  // weakening) Note: This assumes emergency decc is similar to normal decc
-  // ratio-wise For true emergency braking, we'd need separate v_b1_emergency,
-  // v_b2_emergency
-  double brakingDistance = calculateBrakingTrack(speed_kmh);
+  // // Emergency braking uses higher deceleration, but still affected by field
+  // // weakening Convert current speed to km/h for calculateBrakingTrack
+  // double speed_kmh = speed * constantData->cV;
 
-  // Scale by the ratio of emergency to normal deceleration
-  double decc_ratio = movingData->decc_emergency / movingData->decc_start;
-  double emergencyBrakingDistance = brakingDistance / decc_ratio;
+  // // Use the corrected braking distance calculation (which accounts for field
+  // // weakening) Note: This assumes emergency decc is similar to normal decc
+  // // ratio-wise For true emergency braking, we'd need separate
+  // v_b1_emergency,
+  // // v_b2_emergency
+  // double brakingDistance = calculateBrakingTrack(speed_kmh);
 
-  return reactionDistance + emergencyBrakingDistance;
+  // // Scale by the ratio of emergency to normal deceleration
+  // double decc_ratio = movingData->decc_emergency / movingData->decc_start;
+  // double emergencyBrakingDistance =
+  //     brakingDistance / movingData->decc_emergency;
+
+  // return reactionDistance + emergencyBrakingDistance;
 }
 
 double SimulationTrackHandler::calculateNormalSimulationTrack(double speed) {

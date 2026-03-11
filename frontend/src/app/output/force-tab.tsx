@@ -55,10 +55,38 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+const BASE_EXPORT_COLUMNS: [string, string][] = [
+  ["phase", "Phase"],
+  ["iteration", "Iteration"],
+  ["time", "Time (s)"],
+  ["timeTotal", "Total time (s)"],
+  ["speeds", "Speed (km/h)"],
+  ["motorForce", "F Motor"],
+  ["motorResistance", "F Res"],
+  ["totalResistance", "F Total"],
+  ["tractionForcePerMotor", "F Motor /TM"],
+  ["resistancePerMotor", "F Res / TM"],
+];
+
+const STATIC_EXTRA_COLUMNS: [string, string][] = [
+  ["motorResistancesOption1", "Run res at 0"],
+  ["motorResistancesOption2", "Run res at 5"],
+  ["motorResistancesOption3", "Run res at 10"],
+  ["motorResistancesOption4", "Run res at 25"],
+];
+
 interface ForceTabProps {
   results: SimulationResults;
-  onDownloadCSV: (data: unknown[], filename: string) => void;
-  onDownloadExcel: (data: unknown[], filename: string) => void;
+  onDownloadCSV: (
+    data: unknown[],
+    filename: string,
+    columns: [string, string][],
+  ) => void;
+  onDownloadExcel: (
+    data: unknown[],
+    filename: string,
+    columns: [string, string][],
+  ) => void;
 }
 
 export default function ForceTab({
@@ -68,6 +96,13 @@ export default function ForceTab({
 }: ForceTabProps) {
   const data = useMemo(() => results.results || [], [results.results]);
   const simulationType = results.debugInfo?.simulationType || "dynamic";
+  const exportColumns = useMemo(
+    () =>
+      simulationType === "static"
+        ? [...BASE_EXPORT_COLUMNS, ...STATIC_EXTRA_COLUMNS]
+        : BASE_EXPORT_COLUMNS,
+    [simulationType],
+  );
   const chartRef = useRef<HTMLDivElement>(null);
 
   const saveImageHandler = async () => {
@@ -243,14 +278,18 @@ export default function ForceTab({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => onDownloadCSV(exportData, "force_data.csv")}
+              onClick={() =>
+                onDownloadCSV(exportData, "force_data.csv", exportColumns)
+              }
             >
               <Download className="h-4 w-4 mr-2" />
               CSV
             </Button>
             <Button
               size="sm"
-              onClick={() => onDownloadExcel(exportData, "force_data.xlsx")}
+              onClick={() =>
+                onDownloadExcel(exportData, "force_data.xlsx", exportColumns)
+              }
             >
               <Download className="h-4 w-4 mr-2" />
               Excel

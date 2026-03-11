@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -24,7 +23,6 @@ import PowerTab from "./power-tab";
 import CurrentTab from "./current-tab";
 import ForceTab from "./force-tab";
 import DistanceTab from "./distance-tab";
-import DebugTab from "./debug-tab";
 import { toast } from "sonner";
 import PowerPerMotorTab from "./power-per-motor-tab";
 
@@ -80,50 +78,53 @@ export default function OutputPage() {
       });
   }, []);
 
-  // Maps API field names to human-readable CSV column headers
-  const CSV_HEADER_MAP: Record<string, string> = {
-    phase: "Phase",
-    iteration: "Iteration",
-    time: "Time (s)",
-    timeTotal: "Total time (s)",
-    distances: "Distance (m)",
-    distancesTotal: "TotalDistance (m)",
-    odos: "Odo (m)",
-    brakingDistances: "Braking Distance",
-    slopes: "Slope",
-    radiuses: "Radius",
-    speeds: "Speed (km/h)",
-    speedLimits: "Speed Limit(km/h)",
-    speedsSi: "Speed (m/s)",
-    accelerations: "Acceleration (km/h/s)",
-    accelerationsSi: "Acceleration (m/s2)",
-    motorForce: "F Motor",
-    motorResistance: "F Res",
-    totalResistance: "F Total",
-    tractionForcePerMotor: "F Motor /TM",
-    resistancePerMotor: "F Res / TM",
-    torque: "Torque",
-    rpm: "RPM",
-    powerWheel: "P Wheel",
-    powerMotorOut: "P_motor Out",
-    powerMotorIn: "P_motor In",
-    vvvfPowers: "P_vvvf",
-    catenaryPowers: "P_catenary",
-    catenaryCurrents: "Catenary current",
-    vvvfCurrents: "VVVF current",
-    energyConsumptions: "Energy Consumption",
-    energyPowerings: "Energy of Powering",
-    energyRegenerations: "Energy Regen",
-    energyAps: "Energy of APS",
-    energyCatenaries: "Energy Catenary",
-    motorResistancesOption1: "Run res at 0",
-    motorResistancesOption2: "Run res at 5",
-    motorResistancesOption3: "Run res at 10",
-    motorResistancesOption4: "Run res at 25",
-    powerMotorOutputPerMotor: "P_motor Out / TM",
-  };
+  // Exact column order matching csv_output_handler.cpp header
+  const CSV_COLUMNS: [string, string][] = [
+    ["phase", "Phase"],
+    ["iteration", "Iteration"],
+    ["time", "Time (s)"],
+    ["timeTotal", "Total time (s)"],
+    ["distances", "Distance (m)"],
+    ["distancesTotal", "TotalDistance (m)"],
+    ["odos", "Odo (m)"],
+    ["brakingDistances", "Braking Distance"],
+    ["slopes", "Slope"],
+    ["radiuses", "Radius"],
+    ["speeds", "Speed (km/h)"],
+    ["speedLimits", "Speed Limit(km/h)"],
+    ["speedsSi", "Speed (m/s)"],
+    ["accelerations", "Acceleration (km/h/s)"],
+    ["accelerationsSi", "Acceleration (m/s2)"],
+    ["motorForce", "F Motor"],
+    ["motorResistance", "F Res"],
+    ["totalResistance", "F Total"],
+    ["tractionForcePerMotor", "F Motor /TM"],
+    ["resistancePerMotor", "F Res / TM"],
+    ["torque", "Torque"],
+    ["rpm", "RPM"],
+    ["powerWheel", "P Wheel"],
+    ["powerMotorOut", "P_motor Out"],
+    ["powerMotorIn", "P_motor In"],
+    ["vvvfPowers", "P_vvvf"],
+    ["catenaryPowers", "P_catenary"],
+    ["catenaryCurrents", "Catenary current"],
+    ["vvvfCurrents", "VVVF current"],
+    ["energyConsumptions", "Energy Consumption"],
+    ["energyPowerings", "Energy of Powering"],
+    ["powerMotorOutputPerMotor", "P_motor Out per motor"],
+    ["energyAps", "Energy of APS"],
+    ["energyCatenaries", "Energy Catenary"],
+    ["motorResistancesOption1", "Run res at 0"],
+    ["motorResistancesOption2", "Run res at 5"],
+    ["motorResistancesOption3", "Run res at 10"],
+    ["motorResistancesOption4", "Run res at 25"],
+  ];
 
-  const downloadCSV = async (data: unknown[], filename: string) => {
+  const downloadCSV = async (
+    data: unknown[],
+    filename: string,
+    columns: [string, string][],
+  ) => {
     console.log("🚀 === QT WEBENGINE CSV DOWNLOAD ===");
     console.log("Data points:", data?.length);
 
@@ -138,15 +139,13 @@ export default function OutputPage() {
         throw new Error("Invalid simulation data structure");
       }
 
-      // Derive columns dynamically from the keys present in the data
-      const keys = Object.keys(firstItem);
-      const csvHeaders = keys.map((k) => CSV_HEADER_MAP[k] ?? k);
+      const csvHeaders = columns.map(([, header]) => header);
       const csvRows = [csvHeaders.join(",")];
 
       for (const rawItem of data) {
         const item = rawItem as Record<string, unknown>;
-        const csvRow = keys.map((k) => {
-          const value = item[k] ?? 0;
+        const csvRow = columns.map(([key]) => {
+          const value = item[key] ?? "";
           if (typeof value === "string" && value.includes(",")) {
             return `"${value.replace(/"/g, '""')}"`;
           }
@@ -217,7 +216,11 @@ export default function OutputPage() {
     }
   };
 
-  const downloadExcel = async (data: unknown[], filename: string) => {
+  const downloadExcel = async (
+    data: unknown[],
+    filename: string,
+    columns: [string, string][],
+  ) => {
     console.log("📊 === QT WEBENGINE EXCEL DOWNLOAD ===");
     console.log("Data points:", data?.length);
 
@@ -231,11 +234,10 @@ export default function OutputPage() {
         throw new Error("XLSX library not loaded");
       }
 
-      // Derive Excel columns dynamically from the keys present in the data
       const excelData = data.map((rawItem: unknown) => {
         const item = rawItem as Record<string, unknown>;
         return Object.fromEntries(
-          Object.keys(item).map((k) => [CSV_HEADER_MAP[k] ?? k, item[k] ?? 0]),
+          columns.map(([key, header]) => [header, item[key] ?? ""]),
         );
       });
 
@@ -562,7 +564,6 @@ export default function OutputPage() {
             <TabsTrigger value="current">Current</TabsTrigger>
             <TabsTrigger value="force">Force</TabsTrigger>
             <TabsTrigger value="distance">Distance</TabsTrigger>
-            <TabsTrigger value="debug">Debug</TabsTrigger>
           </TabsList>
 
           <TabsContent value="speed">
@@ -611,65 +612,6 @@ export default function OutputPage() {
               onDownloadCSV={downloadCSV}
               onDownloadExcel={downloadExcel}
             />
-            {/* Track Distance Table (Static Simulation) */}
-            {results.trackDistanceTable && (
-              <Card className="mt-4">
-                <CardHeader>
-                  <CardTitle>Track Distance Analysis</CardTitle>
-                  <CardDescription>
-                    Distance on powering and emergency braking scenarios
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
-                      <thead>
-                        <tr className="bg-secondary">
-                          <th className="border border-border p-3 text-left"></th>
-                          <th className="border border-border p-3 text-center">
-                            Track distance (m)
-                          </th>
-                          <th className="border border-border p-3 text-center">
-                            Track distance on EB (m)
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {results.trackDistanceTable.labels.map(
-                          (label, index) => (
-                            <tr key={label} className="hover:bg-accent">
-                              <td className="border border-border p-3 font-medium">
-                                {label}
-                              </td>
-                              <td className="border border-border p-3 text-center">
-                                {typeof results.trackDistanceTable
-                                  ?.normalBraking[index] === "number"
-                                  ? results.trackDistanceTable.normalBraking[
-                                      index
-                                    ].toFixed(3)
-                                  : "N/A"}
-                              </td>
-                              <td className="border border-border p-3 text-center">
-                                {typeof results.trackDistanceTable
-                                  ?.emergencyBraking[index] === "number"
-                                  ? results.trackDistanceTable.emergencyBraking[
-                                      index
-                                    ].toFixed(3)
-                                  : "N/A"}
-                              </td>
-                            </tr>
-                          ),
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="debug">
-            <DebugTab results={results} />
           </TabsContent>
         </Tabs>
 
@@ -683,6 +625,7 @@ export default function OutputPage() {
               await downloadCSV(
                 results.results,
                 "train_simulation_all_data.csv",
+                CSV_COLUMNS,
               );
               setIsExportingCSV(false);
             }}
@@ -702,6 +645,7 @@ export default function OutputPage() {
               await downloadExcel(
                 results.results,
                 "train_simulation_all_data.xlsx",
+                CSV_COLUMNS,
               );
               setIsExportingExcel(false);
             }}

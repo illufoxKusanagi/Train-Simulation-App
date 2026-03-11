@@ -31,10 +31,30 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+const EXPORT_COLUMNS: [string, string][] = [
+  ["phase", "Phase"],
+  ["iteration", "Iteration"],
+  ["time", "Time (s)"],
+  ["timeTotal", "Total time (s)"],
+  ["speeds", "Speed (km/h)"],
+  ["speedLimits", "Speed Limit(km/h)"],
+  ["speedsSi", "Speed (m/s)"],
+  ["accelerations", "Acceleration (km/h/s)"],
+  ["accelerationsSi", "Acceleration (m/s2)"],
+];
+
 interface SpeedTabProps {
   results: SimulationResults;
-  onDownloadCSV: (data: unknown[], filename: string) => void;
-  onDownloadExcel: (data: unknown[], filename: string) => void;
+  onDownloadCSV: (
+    data: unknown[],
+    filename: string,
+    columns: [string, string][],
+  ) => void;
+  onDownloadExcel: (
+    data: unknown[],
+    filename: string,
+    columns: [string, string][],
+  ) => void;
 }
 
 export default function SpeedTab({
@@ -172,14 +192,18 @@ export default function SpeedTab({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => onDownloadCSV(exportData, "speed_data.csv")}
+              onClick={() =>
+                onDownloadCSV(exportData, "speed_data.csv", EXPORT_COLUMNS)
+              }
             >
               <Download className="h-4 w-4 mr-2" />
               CSV
             </Button>
             <Button
               size="sm"
-              onClick={() => onDownloadExcel(exportData, "speed_data.xlsx")}
+              onClick={() =>
+                onDownloadExcel(exportData, "speed_data.xlsx", EXPORT_COLUMNS)
+              }
             >
               <Download className="h-4 w-4 mr-2" />
               Excel
