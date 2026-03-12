@@ -11,6 +11,10 @@ double ResistanceHandler::calculateResTrain(float m, float startRes) {
 }
 
 double ResistanceHandler::calculateResSlope(float m, float slope) {
+  if (slope <= 0) {
+    resistanceData->r_slope = 0.0;
+    return 0.0;
+  }
   resistanceData->r_slope = (m * constantData->g * slope) / 1000;
   return resistanceData->r_slope;
 }

@@ -37,7 +37,7 @@ export default function RunningPage() {
       acc_start: 1,
       v_p1: 35,
       v_p2: 65,
-      decc_start: 1,
+      decc_start: 0.8,
       decc_emergency: 1.2,
       v_b1: 55,
       v_b2: 70,

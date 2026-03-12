@@ -207,6 +207,8 @@ QHttpServerResponse TrainParameterHandler::handleGetCarNumberParameters() {
   carNumberParams["n_T1"] = m_context.trainData->n_T1;
   carNumberParams["n_T2"] = m_context.trainData->n_T2;
   carNumberParams["n_T3"] = m_context.trainData->n_T3;
+  carNumberParams["n_M1_disabled"] = m_context.trainData->n_M1_disabled;
+  carNumberParams["n_M2_disabled"] = m_context.trainData->n_M2_disabled;
 
   response["carNumberParameters"] = carNumberParams;
   response["status"] = "success";
@@ -253,6 +255,14 @@ QHttpServerResponse TrainParameterHandler::handleUpdateCarNumberParameters(
     if (carNumberParams.contains("n_T3")) {
       m_context.trainData->n_T3 = carNumberParams["n_T3"].toDouble();
     }
+    if (carNumberParams.contains("n_M1_disabled")) {
+      m_context.trainData->n_M1_disabled =
+          carNumberParams["n_M1_disabled"].toDouble();
+    }
+    if (carNumberParams.contains("n_M2_disabled")) {
+      m_context.trainData->n_M2_disabled =
+          carNumberParams["n_M2_disabled"].toDouble();
+    }
 
     // CRITICAL: Recalculate masses after car number changes
     recalculateMasses();
@@ -288,9 +298,9 @@ QHttpServerResponse TrainParameterHandler::handleGetPassengerParameters() {
   passengerParams["n_PTc"] = m_context.loadData->n_PTc;
   passengerParams["n_PM1"] = m_context.loadData->n_PM1;
   passengerParams["n_PM2"] = m_context.loadData->n_PM2;
-  passengerParams["n_Pt1"] = m_context.loadData->n_PT1;
-  passengerParams["n_Pt2"] = m_context.loadData->n_PT2;
-  passengerParams["n_Pt3"] = m_context.loadData->n_PT3;
+  passengerParams["n_PT1"] = m_context.loadData->n_PT1;
+  passengerParams["n_PT2"] = m_context.loadData->n_PT2;
+  passengerParams["n_PT3"] = m_context.loadData->n_PT3;
 
   response["passengerParameters"] = passengerParams;
   response["status"] = "success";
@@ -328,14 +338,14 @@ QHttpServerResponse TrainParameterHandler::handleUpdatePassengerParameters(
     if (passengerParams.contains("n_PM2")) {
       m_context.loadData->n_PM2 = passengerParams["n_PM2"].toDouble();
     }
-    if (passengerParams.contains("n_Pt1")) {
-      m_context.loadData->n_PT1 = passengerParams["n_Pt1"].toDouble();
+    if (passengerParams.contains("n_PT1")) {
+      m_context.loadData->n_PT1 = passengerParams["n_PT1"].toDouble();
     }
-    if (passengerParams.contains("n_Pt2")) {
-      m_context.loadData->n_PT2 = passengerParams["n_Pt2"].toDouble();
+    if (passengerParams.contains("n_PT2")) {
+      m_context.loadData->n_PT2 = passengerParams["n_PT2"].toDouble();
     }
-    if (passengerParams.contains("n_Pt3")) {
-      m_context.loadData->n_PT3 = passengerParams["n_Pt3"].toDouble();
+    if (passengerParams.contains("n_PT3")) {
+      m_context.loadData->n_PT3 = passengerParams["n_PT3"].toDouble();
     }
 
     // CRITICAL: Recalculate masses after passenger parameter changes

@@ -384,7 +384,7 @@ void TrainSimulationHandler::runStaticSimulation() {
     trainMotorData->tm_f_res =
         m_tractionMotorHandler->calculateResistanceForcePerMotor(
             movingData->v > 0 ? resistanceData->f_resRunning
-                              : resistanceData->f_resStart);
+                              : resistanceData->f_resStart_0);
     trainMotorData->tm_f = m_tractionMotorHandler->calculateTractionForce();
     trainMotorData->tm_t = m_tractionMotorHandler->calculateTorque();
     movingData->acc_si = resistanceData->f_total / massData->mass_totalInertial;
