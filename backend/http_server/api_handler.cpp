@@ -67,6 +67,8 @@ QHttpServerResponse ApiHandler::handleLogin(const QJsonObject &data) {
   if (m_authManager->login(username, password)) {
     response["status"] = "success";
     response["message"] = "Login successful";
+    // TODO: Implement proper token generation (e.g., JWT) for production
+    //    response["token"] = m_authManager->generateToken(username);
     response["token"] = "sim-auth-token";
     return QHttpServerResponse(QJsonDocument(response).toJson(),
                                QHttpServerResponse::StatusCode::Ok);

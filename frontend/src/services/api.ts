@@ -48,7 +48,10 @@ export const api = {
   },
 
   // ==================== Authentication ====================
-  login: async (username: string, password: string): Promise<{ status: string; message: string; token?: string }> => {
+  login: async (
+    username: string,
+    password: string,
+  ): Promise<{ status: string; message: string; token?: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -60,6 +63,18 @@ export const api = {
     }
     return res.json();
   },
+  // login: async (username: string, password: string): Promise<{ status: string; message: string; token?: string }> => {
+  //   const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({ username, password }),
+  //   });
+  //   if (!res.ok) {
+  //     const err = await res.json().catch(() => ({}));
+  //     throw new Error(err.message || "Invalid credentials");
+  //   }
+  //   return res.json();
+  // },
 
   // ==================== Debug Context ====================
   debugContext: async (): Promise<Record<string, unknown>> => {

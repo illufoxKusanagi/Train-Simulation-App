@@ -11,6 +11,7 @@ double ResistanceHandler::calculateResTrain(float m, float startRes) {
 }
 
 double ResistanceHandler::calculateResSlope(float m, float slope) {
+  // NOTE: remove this block if negative slope is allowed in FE
   if (slope <= 0) {
     resistanceData->r_slope = 0.0;
     return 0.0;

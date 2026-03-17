@@ -49,18 +49,16 @@ export default function ElectricalParameterPage() {
   useEffect(() => {
     const savedData = loadFormData("electrical-params");
     const hasSavedData = savedData && Object.keys(savedData).length > 0;
-
-    if (hasSavedData) {
-      constantForm.reset({
-        ...defaultValues,
-        ...(savedData as z.infer<typeof ElectricalFormSchema>),
-      });
-      return;
-    }
-
     const loadDefaults = async () => {
       try {
         await initializeBackendOnce();
+        if (hasSavedData) {
+          constantForm.reset({
+            ...defaultValues,
+            ...(savedData as z.infer<typeof ElectricalFormSchema>),
+          });
+          return;
+        }
         const data = await api.getElectricalParameters();
         constantForm.reset({
           ...defaultValues,
@@ -72,9 +70,38 @@ export default function ElectricalParameterPage() {
         constantForm.reset(defaultValues);
       }
     };
-
     loadDefaults();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // useEffect(() => {
+  //   const savedData = loadFormData("electrical-params");
+  //   const hasSavedData = savedData && Object.keys(savedData).length > 0;
+
+  //   if (hasSavedData) {
+  //     constantForm.reset({
+  //       ...defaultValues,
+  //       ...(savedData as z.infer<typeof ElectricalFormSchema>),
+  //     });
+  //     return;
+  //   }
+
+  //   const loadDefaults = async () => {
+  //     try {
+  //       await initializeBackendOnce();
+  //       const data = await api.getElectricalParameters();
+  //       constantForm.reset({
+  //         ...defaultValues,
+  //         ...data.electricalParameters,
+  //       });
+  //     } catch (err) {
+  //       console.error("Failed to load electrical parameters:", err);
+  //       toast.error("Could not load saved parameters — using defaults");
+  //       constantForm.reset(defaultValues);
+  //     }
+  //   };
+
+  //   loadDefaults();
+  // }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const subscription = constantForm.watch((data) => {

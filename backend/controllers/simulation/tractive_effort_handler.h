@@ -11,7 +11,6 @@ public:
   double calculateStartForce(float acc);
   double calculateTotalForce(float v);
   double calculateTotalBrakeForce();
-  double calculatePureStartForce(float acc);
   void calculatePoweringForce(float acc, float v);
   void calculateBrakingForce();
   double calculateAdhesion();

@@ -714,7 +714,7 @@ export default function TrainParameter() {
                     ))}
                     <div
                       className={cn(
-                        "flexcontainer w-4xl h-28 border rounded-lg hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 justify-center items-center overflow-hidden p-2",
+                        "flex container w-4xl h-28 border rounded-lg hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 justify-center items-center overflow-hidden p-2",
                       )}
                     >
                       {(() => {

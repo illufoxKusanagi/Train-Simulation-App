@@ -56,41 +56,68 @@ export default function TrackParameterPage() {
   useEffect(() => {
     const savedData = loadFormData("track-params");
     const hasSavedData = savedData && Object.keys(savedData).length > 0;
-
-    if (hasSavedData) {
-      constantForm.reset({
-        ...defaultValues,
-        ...(savedData as z.infer<typeof TrackFormSchema>),
-      });
-    } else {
-      const loadDefaults = async () => {
-        try {
-          await initializeBackendOnce();
-          const data = await api.getTrackParameters();
+    const loadDefaults = async () => {
+      try {
+        await initializeBackendOnce();
+        if (hasSavedData) {
           constantForm.reset({
             ...defaultValues,
-            ...(data.trackParameters as z.infer<typeof TrackFormSchema>),
+            ...(savedData as z.infer<typeof TrackFormSchema>),
           });
-        } catch (err) {
-          console.error("Failed to load track parameters:", err);
-          toast.error("Could not load saved parameters — using defaults");
-          constantForm.reset(defaultValues);
+          return;
         }
-      };
-
-      loadDefaults();
-    }
-
-    // Restore uploaded CSV array data
-    const savedCsvData = localStorage.getItem("track-csv-data");
-    if (savedCsvData) {
-      try {
-        setCsvData(JSON.parse(savedCsvData));
-      } catch (e) {
-        console.error("Failed to restore track CSV data:", e);
+        const data = await api.getTrackParameters();
+        constantForm.reset({
+          ...defaultValues,
+          ...data.trackParameters,
+        });
+      } catch (err) {
+        console.error("Failed to load track parameters:", err);
+        toast.error("Could not load saved parameters — using defaults");
+        constantForm.reset(defaultValues);
       }
-    }
+    };
+    loadDefaults();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // useEffect(() => {
+  //   const savedData = loadFormData("track-params");
+  //   const hasSavedData = savedData && Object.keys(savedData).length > 0;
+
+  //   if (hasSavedData) {
+  //     constantForm.reset({
+  //       ...defaultValues,
+  //       ...(savedData as z.infer<typeof TrackFormSchema>),
+  //     });
+  //   } else {
+  //     const loadDefaults = async () => {
+  //       try {
+  //         await initializeBackendOnce();
+  //         const data = await api.getTrackParameters();
+  //         constantForm.reset({
+  //           ...defaultValues,
+  //           ...(data.trackParameters as z.infer<typeof TrackFormSchema>),
+  //         });
+  //       } catch (err) {
+  //         console.error("Failed to load track parameters:", err);
+  //         toast.error("Could not load saved parameters — using defaults");
+  //         constantForm.reset(defaultValues);
+  //       }
+  //     };
+
+  //     loadDefaults();
+  //   }
+
+  //   // Restore uploaded CSV array data
+  //   const savedCsvData = localStorage.getItem("track-csv-data");
+  //   if (savedCsvData) {
+  //     try {
+  //       setCsvData(JSON.parse(savedCsvData));
+  //     } catch (e) {
+  //       console.error("Failed to restore track CSV data:", e);
+  //     }
+  //   }
+  // }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Persist csvData whenever it changes
   useEffect(() => {
