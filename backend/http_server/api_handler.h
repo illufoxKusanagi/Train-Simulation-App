@@ -13,6 +13,8 @@
 #include "inputs/track_parameter_handler.h"
 #include "inputs/train_parameter_handler.h"
 #include "simulations/simulation_handler.h"
+#include "auth/auth_manager.h"
+#include "auth/user_manager.h"
 #include <QFuture>
 #include <QHttpServerResponse>
 #include <QJsonObject>
@@ -72,11 +74,17 @@ public:
   // Simple initialization with minimal valid data
   QHttpServerResponse handleQuickInit();
 
+  // Authentication
+  QHttpServerResponse handleLogin(const QJsonObject &data);
+
   // Debug endpoint to check current AppContext values
   QHttpServerResponse handleDebugContext();
 
 private:
   AppContext &m_context;
+
+  UserManager *m_userManager;
+  AuthManager *m_authManager;
 
   // New separated sub handler
   TrainParameterHandler *m_trainHandler;

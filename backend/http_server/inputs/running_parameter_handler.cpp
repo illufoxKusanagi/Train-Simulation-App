@@ -34,9 +34,9 @@ QHttpServerResponse RunningParameterHandler::handleGetRunningParameters() {
     runningParams["n_PTc"] = m_context.loadData->n_PTc;
     runningParams["n_PM1"] = m_context.loadData->n_PM1;
     runningParams["n_PM2"] = m_context.loadData->n_PM2;
-    runningParams["n_Pt1"] = m_context.loadData->n_PT1;
-    runningParams["n_Pt2"] = m_context.loadData->n_PT2;
-    runningParams["n_Pt3"] = m_context.loadData->n_PT3;
+    runningParams["n_PT1"] = m_context.loadData->n_PT1;
+    runningParams["n_PT2"] = m_context.loadData->n_PT2;
+    runningParams["n_PT3"] = m_context.loadData->n_PT3;
   }
 
   response["runningParameters"] = runningParams;
@@ -106,14 +106,20 @@ QHttpServerResponse RunningParameterHandler::handleUpdateRunningParameters(
       if (runningParams.contains("n_PM2")) {
         m_context.loadData->n_PM2 = runningParams["n_PM2"].toDouble();
       }
-      if (runningParams.contains("n_Pt1")) {
-        m_context.loadData->n_PT1 = runningParams["n_Pt1"].toDouble();
+      if (runningParams.contains("n_PT1") || runningParams.contains("n_Pt1")) {
+        m_context.loadData->n_PT1 = runningParams.contains("n_PT1")
+                                        ? runningParams["n_PT1"].toDouble()
+                                        : runningParams["n_Pt1"].toDouble();
       }
-      if (runningParams.contains("n_Pt2")) {
-        m_context.loadData->n_PT2 = runningParams["n_Pt2"].toDouble();
+      if (runningParams.contains("n_PT2") || runningParams.contains("n_Pt2")) {
+        m_context.loadData->n_PT2 = runningParams.contains("n_PT2")
+                                        ? runningParams["n_PT2"].toDouble()
+                                        : runningParams["n_Pt2"].toDouble();
       }
-      if (runningParams.contains("n_Pt3")) {
-        m_context.loadData->n_PT3 = runningParams["n_Pt3"].toDouble();
+      if (runningParams.contains("n_PT3") || runningParams.contains("n_Pt3")) {
+        m_context.loadData->n_PT3 = runningParams.contains("n_PT3")
+                                        ? runningParams["n_PT3"].toDouble()
+                                        : runningParams["n_Pt3"].toDouble();
       }
     }
 

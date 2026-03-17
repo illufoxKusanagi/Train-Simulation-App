@@ -146,7 +146,7 @@ export default function TrainParameter() {
       n_tm: 24,
       wheelDiameter: 860,
       mass_P: 70,
-      gearRatio: 3,
+      gearRatio: 6.53,
       load: 0,
       carLength: 20,
       loadCondition: "AW4",
@@ -171,7 +171,7 @@ export default function TrainParameter() {
       mass_M2: 36.72,
       mass_Tc: 34.48,
       mass_T1: 33.335,
-      mass_T2: 30,
+      mass_T2: 30.05,
       mass_T3: 29.66,
       n_PM1: 289,
       n_PM2: 289,
@@ -351,13 +351,21 @@ export default function TrainParameter() {
       const trainsetData = trainsetForm.getValues();
 
       const trainParams = {
+        tractionMotors: data.n_tm,
+        axles: data.n_axle,
+        cars: trainsetData.n_car,
         numberOfMotorCars: data.n_tm,
         numberOfAxles: data.n_axle,
         numberOfCars: trainsetData.n_car,
         gearRatio: data.gearRatio,
         wheelDiameter: data.wheelDiameter, // Keep as-is from form
+        carLength: data.carLength,
         trainsetLength: data.carLength * trainsetData.n_car,
         trainLoad: data.load,
+        load: data.load,
+        mass_P: data.mass_P,
+        i_M: data.i_M,
+        i_T: data.i_T,
         numberOfM1Cars: trainsetData.n_M1,
         numberOfM2Cars: trainsetData.n_M2,
         numberOfTcCars: trainsetData.n_Tc,
@@ -574,322 +582,328 @@ export default function TrainParameter() {
 
   return (
     <PageLayout>
-      <Card className="px-6 py-8 max-h-[45rem] min-h-[40rem] h-full w-full max-w-2xl rounded-3xl justify-center">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Train Constant Parameter</CardTitle>
-          <CardDescription>
-            Input related to Train and Car configuration
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...constantForm}>
-            <form
-              onSubmit={constantForm.handleSubmit(onSubmit)}
-              className="space-y-6"
-            >
-              <div className="flex flex-col gap-6">
-                {constantFormRows.map((row, rowIndex) => (
-                  <div key={rowIndex} className="grid grid-cols-3 gap-4">
+      <div className="flex flex-col lg:flex-row h-full w-full gap-4 p-6">
+        <Card className="px-6 py-8 max-h-[45rem] min-h-[40rem] h-full w-full max-w-2xl rounded-3xl justify-center">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Train Constant Parameter</CardTitle>
+            <CardDescription>
+              Input related to Train and Car configuration
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...constantForm}>
+              <form
+                onSubmit={constantForm.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <div className="flex flex-col gap-6">
+                  {constantFormRows.map((row, rowIndex) => (
+                    <div key={rowIndex} className="grid grid-cols-3 gap-4">
+                      {row.map((inputType) => (
+                        <InputWidget
+                          key={inputType.name}
+                          inputType={inputType}
+                          control={constantForm.control}
+                          onFileLoad={handleFileLoad}
+                        />
+                      ))}
+                      {row.length < 3 &&
+                        Array.from({ length: 3 - row.length }).map(
+                          (_, emptyIndex) => (
+                            <div key={`empty-${rowIndex}-${emptyIndex}`} />
+                          ),
+                        )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  <Button
+                    type="submit"
+                    className="flex-1"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Spinner />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save"
+                    )}
+                  </Button>
+                  <div className="flex-1 relative">
+                    <input
+                      ref={constantCsvInputRef}
+                      type="file"
+                      accept=".csv"
+                      className="hidden"
+                      onChange={handleConstantCsvUpload}
+                    />
+                    <Button
+                      type="button"
+                      variant="default"
+                      className="w-full"
+                      disabled={uploadingTarget == "constant"}
+                      onClick={async () => {
+                        if (isQtWebChannelReady()) {
+                          // setIsUploading(true);
+                          setUploadingTarget("constant");
+                          const result = await openFileWithDialog(
+                            "Select Train Constant Parameters CSV File",
+                            "CSV Files (*.csv);;All Files (*)",
+                          );
+                          if (result.success && result.content)
+                            processConstantCsvText(result.content);
+                          // setIsUploading(false);
+                          setUploadingTarget(null);
+                        } else {
+                          constantCsvInputRef.current?.click();
+                        }
+                      }}
+                    >
+                      {uploadingTarget === "constant" ? (
+                        <>
+                          <Spinner className="mr-2" />
+                          Uploading...
+                        </>
+                      ) : (
+                        "Upload CSV"
+                      )}
+                    </Button>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={handleReset}
+                  >
+                    Reset
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+
+        <Card className="px-2 py-8 max-h-[45rem] min-h-[40rem] w-full max-w-2xl rounded-3xl overflow-auto">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Trainset Inputs</CardTitle>
+            <CardDescription>
+              Related to trainset configuration and car information
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...trainsetForm}>
+              <form
+                onSubmit={trainsetForm.handleSubmit(onTrainsetSubmit)}
+                className="space-y-6"
+              >
+                {trainsetFormRows.map((row, rowIndex) => (
+                  <div
+                    key={rowIndex}
+                    className="flex flex-row gap-4 justify-start"
+                  >
                     {row.map((inputType) => (
                       <InputWidget
                         key={inputType.name}
                         inputType={inputType}
-                        control={constantForm.control}
+                        control={trainsetForm.control}
                         onFileLoad={handleFileLoad}
                       />
                     ))}
-                    {row.length < 3 &&
-                      Array.from({ length: 3 - row.length }).map(
-                        (_, emptyIndex) => (
-                          <div key={`empty-${rowIndex}-${emptyIndex}`} />
-                        ),
+                    <div
+                      className={cn(
+                        "flexcontainer w-4xl h-28 border rounded-lg hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 justify-center items-center overflow-hidden p-2",
                       )}
+                    >
+                      {(() => {
+                        const nCar = trainsetForm.watch("n_car");
+                        const carCount = nCar ? parseInt(nCar.toString()) : 0;
+                        if ([6, 8, 10, 12, 14].includes(carCount)) {
+                          return (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={`/images/trains/${carCount}-train.png`}
+                              alt={`${carCount}-car`}
+                              className="w-full h-full object-contain"
+                            />
+                          );
+                        }
+                        return (
+                          <p className="text-muted-foreground text-sm">
+                            No Diagram
+                          </p>
+                        );
+                      })()}
+                    </div>
                   </div>
                 ))}
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  className="flex-1"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Spinner />
-                      Saving...
-                    </>
-                  ) : (
-                    "Save"
-                  )}
-                </Button>
-                <div className="flex-1 relative">
-                  <input
-                    ref={constantCsvInputRef}
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    onChange={handleConstantCsvUpload}
-                  />
-                  <Button
-                    type="button"
-                    variant="default"
-                    className="w-full"
-                    disabled={uploadingTarget == "constant"}
-                    onClick={async () => {
-                      if (isQtWebChannelReady()) {
-                        // setIsUploading(true);
-                        setUploadingTarget("constant");
-                        const result = await openFileWithDialog(
-                          "Select Train Constant Parameters CSV File",
-                          "CSV Files (*.csv);;All Files (*)",
-                        );
-                        if (result.success && result.content)
-                          processConstantCsvText(result.content);
-                        // setIsUploading(false);
-                        setUploadingTarget(null);
-                      } else {
-                        constantCsvInputRef.current?.click();
-                      }
-                    }}
-                  >
-                    {uploadingTarget === "constant" ? (
-                      <>
-                        <Spinner className="mr-2" />
-                        Uploading...
-                      </>
-                    ) : (
-                      "Upload CSV"
-                    )}
-                  </Button>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handleReset}
-                >
-                  Reset
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-
-      <Card className="px-2 py-8 max-h-[45rem] min-h-[40rem] w-full max-w-2xl rounded-3xl overflow-auto">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Trainset Inputs</CardTitle>
-          <CardDescription>
-            Related to trainset configuration and car information
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...trainsetForm}>
-            <form
-              onSubmit={trainsetForm.handleSubmit(onTrainsetSubmit)}
-              className="space-y-6"
-            >
-              {trainsetFormRows.map((row, rowIndex) => (
-                <div
-                  key={rowIndex}
-                  className="flex flex-row gap-4 justify-start"
-                >
-                  {row.map((inputType) => (
-                    <InputWidget
-                      key={inputType.name}
-                      inputType={inputType}
-                      control={trainsetForm.control}
-                      onFileLoad={handleFileLoad}
-                    />
-                  ))}
-                  <div
-                    className={cn(
-                      "flexcontainer w-4xl h-28 border rounded-lg hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 justify-center items-center overflow-hidden p-2",
-                    )}
-                  >
-                    {(() => {
-                      const nCar = trainsetForm.watch("n_car");
-                      const carCount = nCar ? parseInt(nCar.toString()) : 0;
-                      if ([6, 8, 10, 12, 14].includes(carCount)) {
-                        return (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={`/images/trains/${carCount}-train.png`}
-                            alt={`${carCount}-car`}
-                            className="w-full h-full object-contain"
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-center">
+                      Calculated Mass
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {calculatedMassRows.map((row, rowIndex) => (
+                      <div
+                        key={rowIndex}
+                        className="flex flex-row gap-4 justify-center"
+                      >
+                        {row.map((inputType) => (
+                          <InputWidget
+                            key={inputType.name}
+                            inputType={{
+                              ...inputType,
+                              isReadOnly: true, // Make read-only since it's calculated
+                            }}
+                            control={calculatedMassForm.control}
+                            onFileLoad={handleFileLoad}
                           />
-                        );
-                      }
-                      return (
-                        <p className="text-muted-foreground text-sm">
-                          No Diagram
-                        </p>
-                      );
-                    })()}
-                  </div>
-                </div>
-              ))}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-center">Calculated Mass</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {calculatedMassRows.map((row, rowIndex) => (
-                    <div
-                      key={rowIndex}
-                      className="flex flex-row gap-4 justify-center"
-                    >
-                      {row.map((inputType) => (
-                        <InputWidget
-                          key={inputType.name}
-                          inputType={{
-                            ...inputType,
-                            isReadOnly: true, // Make read-only since it's calculated
-                          }}
-                          control={calculatedMassForm.control}
-                          onFileLoad={handleFileLoad}
-                        />
+                        ))}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+                <div className="flex flex-row gap-2">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-center">Car number</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {carTypeFormRows.map((row, rowIndex) => (
+                        <div
+                          key={rowIndex}
+                          className="flex flex-col gap-4 justify-start"
+                        >
+                          {row.map((inputType) => (
+                            <InputWidget
+                              key={inputType.name}
+                              inputType={inputType}
+                              control={trainsetForm.control}
+                              onFileLoad={handleFileLoad}
+                            />
+                          ))}
+                        </div>
                       ))}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-              <div className="flex flex-row gap-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-center">Car number</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {carTypeFormRows.map((row, rowIndex) => (
-                      <div
-                        key={rowIndex}
-                        className="flex flex-col gap-4 justify-start"
-                      >
-                        {row.map((inputType) => (
-                          <InputWidget
-                            key={inputType.name}
-                            inputType={inputType}
-                            control={trainsetForm.control}
-                            onFileLoad={handleFileLoad}
-                          />
-                        ))}
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-center">Car Passenger</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {carPassangerFormRows.map((row, rowIndex) => (
-                      <div
-                        key={rowIndex}
-                        className="flex flex-col gap-4 justify-start"
-                      >
-                        {row.map((inputType) => (
-                          <InputWidget
-                            key={inputType.name}
-                            inputType={inputType}
-                            control={trainsetForm.control}
-                            onFileLoad={handleFileLoad}
-                          />
-                        ))}
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-center">Car Mass</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {carMassFormRows.map((row, rowIndex) => (
-                      <div
-                        key={rowIndex}
-                        className="flex flex-col gap-4 justify-start"
-                      >
-                        {row.map((inputType) => (
-                          <InputWidget
-                            key={inputType.name}
-                            inputType={inputType}
-                            control={trainsetForm.control}
-                            onFileLoad={handleFileLoad}
-                          />
-                        ))}
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-center">
+                        Car Passenger
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {carPassangerFormRows.map((row, rowIndex) => (
+                        <div
+                          key={rowIndex}
+                          className="flex flex-col gap-4 justify-start"
+                        >
+                          {row.map((inputType) => (
+                            <InputWidget
+                              key={inputType.name}
+                              inputType={inputType}
+                              control={trainsetForm.control}
+                              onFileLoad={handleFileLoad}
+                            />
+                          ))}
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-center">Car Mass</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {carMassFormRows.map((row, rowIndex) => (
+                        <div
+                          key={rowIndex}
+                          className="flex flex-col gap-4 justify-start"
+                        >
+                          {row.map((inputType) => (
+                            <InputWidget
+                              key={inputType.name}
+                              inputType={inputType}
+                              control={trainsetForm.control}
+                              onFileLoad={handleFileLoad}
+                            />
+                          ))}
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
 
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  className="flex-1"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Spinner />
-                      Saving...
-                    </>
-                  ) : (
-                    "Save Data"
-                  )}
-                </Button>
-                <div className="flex-1 relative">
-                  <input
-                    ref={trainsetCsvInputRef}
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    onChange={handleTrainsetCsvUpload}
-                  />
+                <div className="flex gap-4 pt-4">
                   <Button
-                    type="button"
-                    variant="default"
-                    className="w-full"
-                    disabled={uploadingTarget === "trainset"}
-                    onClick={async () => {
-                      if (isQtWebChannelReady()) {
-                        setUploadingTarget("trainset");
-                        const result = await openFileWithDialog(
-                          "Select Trainset Parameters CSV File",
-                          "CSV Files (*.csv);;All Files (*)",
-                        );
-                        if (result.success && result.content)
-                          processTrainsetCsvText(result.content);
-                        setUploadingTarget(null);
-                      } else {
-                        trainsetCsvInputRef.current?.click();
-                      }
-                    }}
+                    type="submit"
+                    className="flex-1"
+                    disabled={isSubmitting}
                   >
-                    {uploadingTarget === "trainset" ? (
+                    {isSubmitting ? (
                       <>
-                        <Spinner className="mr-2" />
-                        Uploading...
+                        <Spinner />
+                        Saving...
                       </>
                     ) : (
-                      "Upload CSV"
+                      "Save Data"
                     )}
                   </Button>
+                  <div className="flex-1 relative">
+                    <input
+                      ref={trainsetCsvInputRef}
+                      type="file"
+                      accept=".csv"
+                      className="hidden"
+                      onChange={handleTrainsetCsvUpload}
+                    />
+                    <Button
+                      type="button"
+                      variant="default"
+                      className="w-full"
+                      disabled={uploadingTarget === "trainset"}
+                      onClick={async () => {
+                        if (isQtWebChannelReady()) {
+                          setUploadingTarget("trainset");
+                          const result = await openFileWithDialog(
+                            "Select Trainset Parameters CSV File",
+                            "CSV Files (*.csv);;All Files (*)",
+                          );
+                          if (result.success && result.content)
+                            processTrainsetCsvText(result.content);
+                          setUploadingTarget(null);
+                        } else {
+                          trainsetCsvInputRef.current?.click();
+                        }
+                      }}
+                    >
+                      {uploadingTarget === "trainset" ? (
+                        <>
+                          <Spinner className="mr-2" />
+                          Uploading...
+                        </>
+                      ) : (
+                        "Upload CSV"
+                      )}
+                    </Button>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={handleReset}
+                  >
+                    Reset
+                  </Button>
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handleReset}
-                >
-                  Reset
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      </div>
     </PageLayout>
   );
 }

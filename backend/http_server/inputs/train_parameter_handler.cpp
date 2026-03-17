@@ -88,23 +88,32 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
       QJsonObject trainParams = data["trainParameters"].toObject();
       qDebug() << "📝 Updating train parameters:" << trainParams;
 
-      // Update train data using actual TrainData variables
-      if (trainParams.contains("tractionMotors")) {
-        double val = trainParams["tractionMotors"].toDouble();
+      // Update train data using actual TrainData variables (support aliases)
+      if (trainParams.contains("tractionMotors") ||
+          trainParams.contains("numberOfMotorCars")) {
+        double val = trainParams.contains("tractionMotors")
+                         ? trainParams["tractionMotors"].toDouble()
+                         : trainParams["numberOfMotorCars"].toDouble();
         if (val < 0)
           throw std::invalid_argument("Traction motors cannot be negative");
         m_context.trainData->n_tm = val;
         qDebug() << "Updated n_tm to:" << m_context.trainData->n_tm;
       }
-      if (trainParams.contains("axles")) {
-        double val = trainParams["axles"].toDouble();
+      if (trainParams.contains("axles") ||
+          trainParams.contains("numberOfAxles")) {
+        double val = trainParams.contains("axles")
+                         ? trainParams["axles"].toDouble()
+                         : trainParams["numberOfAxles"].toDouble();
         if (val < 0)
           throw std::invalid_argument("Axles cannot be negative");
         m_context.trainData->n_axle = val;
         qDebug() << "Updated n_axle to:" << m_context.trainData->n_axle;
       }
-      if (trainParams.contains("cars")) {
-        double val = trainParams["cars"].toDouble();
+      if (trainParams.contains("cars") ||
+          trainParams.contains("numberOfCars")) {
+        double val = trainParams.contains("cars")
+                         ? trainParams["cars"].toDouble()
+                         : trainParams["numberOfCars"].toDouble();
         if (val <= 0)
           throw std::invalid_argument("Number of cars must be positive");
         m_context.trainData->n_car = val;
@@ -123,6 +132,15 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
             trainParams["trainsetLength"].toDouble();
         qDebug() << "Updated trainsetLength to:"
                  << m_context.trainData->trainsetLength;
+      }
+      if (trainParams.contains("carLength")) {
+        const double carLength = trainParams["carLength"].toDouble();
+        if (m_context.trainData->n_car > 0) {
+          m_context.trainData->trainsetLength =
+              carLength * m_context.trainData->n_car;
+          qDebug() << "Updated trainsetLength from carLength to:"
+                   << m_context.trainData->trainsetLength;
+        }
       }
 
       // Car numbers (from trainset form)
@@ -159,6 +177,30 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
         m_context.trainData->n_M2_disabled =
             trainParams["numberOfM2DisabledCars"].toDouble();
         qDebug() << "Updated n_T3 to:" << m_context.trainData->n_M2_disabled;
+      }
+
+      if (m_context.loadData) {
+        if (trainParams.contains("trainLoad") || trainParams.contains("load")) {
+          m_context.loadData->load = trainParams.contains("trainLoad")
+                                         ? trainParams["trainLoad"].toDouble()
+                                         : trainParams["load"].toDouble();
+          qDebug() << "Updated load to:" << m_context.loadData->load;
+        }
+        if (trainParams.contains("mass_P")) {
+          m_context.loadData->mass_P = trainParams["mass_P"].toDouble();
+          qDebug() << "Updated mass_P to:" << m_context.loadData->mass_P;
+        }
+      }
+
+      if (m_context.massData) {
+        if (trainParams.contains("i_M")) {
+          m_context.massData->i_M = trainParams["i_M"].toDouble();
+          qDebug() << "Updated i_M to:" << m_context.massData->i_M;
+        }
+        if (trainParams.contains("i_T")) {
+          m_context.massData->i_T = trainParams["i_T"].toDouble();
+          qDebug() << "Updated i_T to:" << m_context.massData->i_T;
+        }
       }
 
       // CRITICAL: Recalculate masses after train parameters change

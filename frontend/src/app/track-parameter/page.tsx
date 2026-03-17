@@ -10,6 +10,7 @@ import {
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { api } from "@/services/api";
+import { initializeBackendOnce } from "@/lib/backendInit";
 import { Spinner } from "@/components/ui/spinner";
 import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
 import { useRef } from "react";
@@ -32,41 +33,54 @@ export default function TrackParameterPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
   const csvInputRef = useRef<HTMLInputElement>(null);
-  const { saveFormData, loadFormData } = useFormPersistence();
+  const { saveFormData, loadFormData, clearFormData } = useFormPersistence();
+
+  const defaultValues = {
+    n_station: 2,
+    x_station: 2000,
+    radius: 2000,
+    slope: 0,
+    v_limit: 80,
+    dwellTime: 60,
+    slope_option1: 0,
+    slope_option2: 5,
+    slope_option3: 10,
+    slope_option4: 25,
+  };
 
   const constantForm = useForm<z.infer<typeof TrackFormSchema>>({
     resolver: zodResolver(TrackFormSchema),
-    defaultValues: {
-      n_station: 2,
-      x_station: 2000,
-      radius: 300,
-      slope: 0,
-      v_limit: 80,
-      dwellTime: 30,
-      slope_option1: 0,
-      slope_option2: 5,
-      slope_option3: 10,
-      slope_option4: 25,
-    },
+    defaultValues,
   });
 
   useEffect(() => {
     const savedData = loadFormData("track-params");
-    if (savedData) {
-      constantForm.reset(savedData as z.infer<typeof TrackFormSchema>);
+    const hasSavedData = savedData && Object.keys(savedData).length > 0;
+
+    if (hasSavedData) {
+      constantForm.reset({
+        ...defaultValues,
+        ...(savedData as z.infer<typeof TrackFormSchema>),
+      });
     } else {
-      api
-        .getTrackParameters()
-        .then((data) =>
-          constantForm.reset(
-            data.trackParameters as z.infer<typeof TrackFormSchema>,
-          ),
-        )
-        .catch((err) => {
+      const loadDefaults = async () => {
+        try {
+          await initializeBackendOnce();
+          const data = await api.getTrackParameters();
+          constantForm.reset({
+            ...defaultValues,
+            ...(data.trackParameters as z.infer<typeof TrackFormSchema>),
+          });
+        } catch (err) {
           console.error("Failed to load track parameters:", err);
           toast.error("Could not load saved parameters — using defaults");
-        });
+          constantForm.reset(defaultValues);
+        }
+      };
+
+      loadDefaults();
     }
+
     // Restore uploaded CSV array data
     const savedCsvData = localStorage.getItem("track-csv-data");
     if (savedCsvData) {
@@ -190,7 +204,8 @@ export default function TrackParameterPage() {
   }
 
   const handleReset = () => {
-    constantForm.reset();
+    constantForm.reset(defaultValues);
+    clearFormData("track-params");
     setCsvData({});
     localStorage.removeItem("track-csv-data");
     toast("Form has been reset!");

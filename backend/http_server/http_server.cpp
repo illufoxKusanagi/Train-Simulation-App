@@ -205,6 +205,21 @@ void HttpServer::setupRoutes() {
                             m_apiHandler->handleHealthCheck());
                       });
 
+  // Login endpoints
+  m_httpServer->route("/api/auth/login", QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "📋 OPTIONS /api/auth/login";
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
+
+  m_httpServer->route("/api/auth/login", QHttpServerRequest::Method::Post,
+                      [this, addCorsHeaders](const QHttpServerRequest &request) {
+                        qDebug() << "🔑 POST /api/auth/login";
+                        QJsonObject data = parseRequestBody(request);
+                        return addCorsHeaders(m_apiHandler->handleLogin(data));
+                      });
+
   // Quick initialization endpoint
   m_httpServer->route("/api/init/quick", QHttpServerRequest::Method::Post,
                       [this, addCorsHeaders](const QHttpServerRequest &) {

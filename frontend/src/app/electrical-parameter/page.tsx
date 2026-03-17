@@ -18,6 +18,7 @@ import z from "zod";
 import { constantFormRows, ElectricalFormSchema } from "./form.constants";
 import { Form } from "@/components/ui/form";
 import { api } from "@/services/api";
+import { initializeBackendOnce } from "@/lib/backendInit";
 import { Spinner } from "@/components/ui/spinner";
 import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
 import { useRef } from "react";
@@ -28,34 +29,51 @@ export default function ElectricalParameterPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
   const csvInputRef = useRef<HTMLInputElement>(null);
-  const { saveFormData, loadFormData } = useFormPersistence();
+  const { saveFormData, loadFormData, clearFormData } = useFormPersistence();
+
+  const defaultValues = {
+    stat_vol_line: 1500,
+    stat_vol_motor: 1200,
+    stat_pf: 0,
+    stat_eff_gear: 98,
+    stat_eff_motor: 89,
+    stat_eff_vvvf: 96,
+    p_aps: 30,
+  };
 
   const constantForm = useForm<z.infer<typeof ElectricalFormSchema>>({
     resolver: zodResolver(ElectricalFormSchema),
-    defaultValues: {
-      stat_vol_line: 1500,
-      stat_vol_motor: 1200,
-      stat_pf: 0,
-      stat_eff_gear: 98,
-      stat_eff_motor: 89,
-      stat_eff_vvvf: 96,
-      p_aps: 30,
-    },
+    defaultValues,
   });
 
   useEffect(() => {
     const savedData = loadFormData("electrical-params");
-    if (savedData) {
-      constantForm.reset(savedData as z.infer<typeof ElectricalFormSchema>);
-    } else {
-      api
-        .getElectricalParameters()
-        .then((data) => constantForm.reset(data.electricalParameters))
-        .catch((err) => {
-          console.error("Failed to load electrical parameters:", err);
-          toast.error("Could not load saved parameters — using defaults");
-        });
+    const hasSavedData = savedData && Object.keys(savedData).length > 0;
+
+    if (hasSavedData) {
+      constantForm.reset({
+        ...defaultValues,
+        ...(savedData as z.infer<typeof ElectricalFormSchema>),
+      });
+      return;
     }
+
+    const loadDefaults = async () => {
+      try {
+        await initializeBackendOnce();
+        const data = await api.getElectricalParameters();
+        constantForm.reset({
+          ...defaultValues,
+          ...data.electricalParameters,
+        });
+      } catch (err) {
+        console.error("Failed to load electrical parameters:", err);
+        toast.error("Could not load saved parameters — using defaults");
+        constantForm.reset(defaultValues);
+      }
+    };
+
+    loadDefaults();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -106,7 +124,8 @@ export default function ElectricalParameterPage() {
   }
 
   const handleReset = () => {
-    constantForm.reset();
+    constantForm.reset(defaultValues);
+    clearFormData("electrical-params");
     setCsvData({});
     toast("Form has been reset!");
   };

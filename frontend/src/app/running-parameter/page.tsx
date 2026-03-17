@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Form } from "@/components/ui/form";
 import { api } from "@/services/api";
+import { initializeBackendOnce } from "@/lib/backendInit";
 import { Spinner } from "@/components/ui/spinner";
 import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
 import { useRef } from "react";
@@ -27,36 +28,53 @@ export default function RunningPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const csvInputRef = useRef<HTMLInputElement>(null);
-  const { saveFormData, loadFormData } = useFormPersistence();
+  const { saveFormData, loadFormData, clearFormData } = useFormPersistence();
+
+  const defaultValues = {
+    startRes: 39.2,
+    v_diffCoast: 5,
+    acc_start: 0.8,
+    v_p1: 35,
+    v_p2: 65,
+    decc_start: 1,
+    decc_emergency: 1.2,
+    v_b1: 55,
+    v_b2: 70,
+  };
 
   const constantForm = useForm<z.infer<typeof RunningFormSchema>>({
     resolver: zodResolver(RunningFormSchema),
-    defaultValues: {
-      startRes: 39.2,
-      v_diffCoast: 5,
-      acc_start: 1,
-      v_p1: 35,
-      v_p2: 65,
-      decc_start: 0.8,
-      decc_emergency: 1.2,
-      v_b1: 55,
-      v_b2: 70,
-    },
+    defaultValues,
   });
 
   useEffect(() => {
     const savedData = loadFormData("running-params");
-    if (savedData) {
-      constantForm.reset(savedData as z.infer<typeof RunningFormSchema>);
-    } else {
-      api
-        .getRunningParameters()
-        .then((data) => constantForm.reset(data.runningParameters))
-        .catch((err) => {
-          console.error("Failed to load running parameters:", err);
-          toast.error("Could not load saved parameters — using defaults");
-        });
+    const hasSavedData = savedData && Object.keys(savedData).length > 0;
+
+    if (hasSavedData) {
+      constantForm.reset({
+        ...defaultValues,
+        ...(savedData as z.infer<typeof RunningFormSchema>),
+      });
+      return;
     }
+
+    const loadDefaults = async () => {
+      try {
+        await initializeBackendOnce();
+        const data = await api.getRunningParameters();
+        constantForm.reset({
+          ...defaultValues,
+          ...data.runningParameters,
+        });
+      } catch (err) {
+        console.error("Failed to load running parameters:", err);
+        toast.error("Could not load saved parameters — using defaults");
+        constantForm.reset(defaultValues);
+      }
+    };
+
+    loadDefaults();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -180,7 +198,8 @@ export default function RunningPage() {
   };
 
   const handleReset = () => {
-    constantForm.reset();
+    constantForm.reset(defaultValues);
+    clearFormData("running-params");
     toast("Form berhasil direset!");
   };
 

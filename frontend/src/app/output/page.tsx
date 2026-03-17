@@ -25,6 +25,7 @@ import ForceTab from "./force-tab";
 import DistanceTab from "./distance-tab";
 import { toast } from "sonner";
 import PowerPerMotorTab from "./power-per-motor-tab";
+import DebugTab from "./debug-tab";
 
 export default function OutputPage() {
   const [results, setResults] = useState<SimulationResults | null>(null);
@@ -406,6 +407,7 @@ export default function OutputPage() {
                   motorResistancesOption3: 15,
                   motorResistancesOption4: 25,
                   powerMotorOutputPerMotor: 100 * i,
+                  resistanceStart: 0,
                 })),
                 summary: {
                   maxSpeed: 105,
@@ -564,6 +566,7 @@ export default function OutputPage() {
             <TabsTrigger value="current">Current</TabsTrigger>
             <TabsTrigger value="force">Force</TabsTrigger>
             <TabsTrigger value="distance">Distance</TabsTrigger>
+            <TabsTrigger value="debug">Debug</TabsTrigger>
           </TabsList>
 
           <TabsContent value="speed">
@@ -612,6 +615,10 @@ export default function OutputPage() {
               onDownloadCSV={downloadCSV}
               onDownloadExcel={downloadExcel}
             />
+          </TabsContent>
+
+          <TabsContent value="debug">
+            <DebugTab results={results} />
           </TabsContent>
         </Tabs>
 
