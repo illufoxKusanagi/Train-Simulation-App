@@ -155,6 +155,10 @@ set(HTTP_SERVER
     http_server/api_handler.cpp
     http_server/http_server.h
     http_server/api_handler.h
+    auth/auth_manager.cpp
+    auth/auth_manager.h
+    auth/user_manager.cpp
+    auth/user_manager.h
 )
 
 set(HTTP_SERVER_PARAMS

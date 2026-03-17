@@ -41,6 +41,8 @@ export interface TrainNumberParams {
   n_T2: number;
   n_T3: number;
   n_Tc: number;
+  n_M1_disabled: number;
+  n_M2_disabled: number;
 }
 
 export interface TrackParams {

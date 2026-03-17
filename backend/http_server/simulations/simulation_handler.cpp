@@ -55,9 +55,10 @@ QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
 
     // Use the helper methods based on the current simulation type
     if (m_currentSimulationType == "static") {
-      response["results"] = getStaticResults().value("data");
+      QJsonObject staticResults = getStaticResults();
+      response["results"] = staticResults.value("data");
       response["trackDistanceTable"] =
-          getStaticResults().value("trackDistanceTable");
+          staticResults.value("trackDistanceTable");
     } else {
       // Default to dynamic if not specified or explicitly dynamic
       response["results"] = getDynamicResults().value("data");

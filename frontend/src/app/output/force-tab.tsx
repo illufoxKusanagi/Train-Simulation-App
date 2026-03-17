@@ -30,7 +30,7 @@ const chartConfig = {
     color: "var(--chart-1)",
   },
   totalResistance: {
-    label: "Total Resistance (N)",
+    label: "Total Force (N)",
     color: "var(--chart-2)",
   },
   motorResistance: {
@@ -270,7 +270,7 @@ export default function ForceTab({
           </ChartContainer>
         </CardContent>
         <CardFooter>
-          <div className="flex justify-end gap-2 mt-4">
+          <div className="flex justify-end gap-2 mt-4 flex-wrap">
             <Button size="sm" onClick={() => saveImageHandler()}>
               <Download className="h-4 w-4" />
               Download chart image
