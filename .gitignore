@@ -13,7 +13,7 @@
 /backend_copy
 /backend_copy_3
 /frontend_copy
-/backend/auth
+# /backend/auth
 # /backend/controllers/optimization
 
 # Qt build artifacts
