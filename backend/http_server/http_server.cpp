@@ -521,7 +521,13 @@ HttpServer::serveStaticFile(const QHttpServerRequest &request) {
     if (QFile::exists(fullPath + "/index.html")) {
       fullPath += "/index.html";
       file.setFileName(fullPath);
-    } else {
+    } 
+    // For Next.js static exports without trailing slashes: check for .html
+    else if (QFile::exists(fullPath + ".html")) {
+      fullPath += ".html";
+      file.setFileName(fullPath);
+    } 
+    else {
       qWarning() << "❌ File not found:" << fullPath;
       return QHttpServerResponse(QHttpServerResponse::StatusCode::NotFound);
     }

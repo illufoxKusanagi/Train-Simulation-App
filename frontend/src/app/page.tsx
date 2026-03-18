@@ -1,12 +1,13 @@
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="flex flex-col w-full h-screen justify-center items-center align-center gap-10">
       <p className="heading-4">Press the button below to start!</p>
-      <a href="/train-parameter">
+      <Link href="/train-parameter">
         <Button>Masuk</Button>
-      </a>
+      </Link>
     </div>
   );
 }
