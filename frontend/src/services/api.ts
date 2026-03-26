@@ -63,18 +63,12 @@ export const api = {
     }
     return res.json();
   },
-  // login: async (username: string, password: string): Promise<{ status: string; message: string; token?: string }> => {
-  //   const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
-  //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify({ username, password }),
-  //   });
-  //   if (!res.ok) {
-  //     const err = await res.json().catch(() => ({}));
-  //     throw new Error(err.message || "Invalid credentials");
-  //   }
-  //   return res.json();
-  // },
+
+  getAuthStatus: async (): Promise<{ isAuthenticated: boolean }> => {
+    const res = await fetch(`${API_BASE_URL}/api/auth/status`);
+    if (!res.ok) throw new Error(`Auth status check failed: ${res.status}`);
+    return res.json();
+  },
 
   // ==================== Debug Context ====================
   debugContext: async (): Promise<Record<string, unknown>> => {

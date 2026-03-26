@@ -190,6 +190,8 @@ void TrainSimulationHandler::runDynamicSimulation() {
 
       resistanceData->f_resStart =
           m_resistanceHandler->calculateStartRes(m_slope, m_radius);
+      resistanceData->f_resStart_0 =
+          m_resistanceHandler->calculatePureStartRes();
       resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
           movingData->v, m_slope, m_radius);
 
@@ -373,6 +375,7 @@ void TrainSimulationHandler::runStaticSimulation() {
 
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes(
         stationData->stat_slope, stationData->stat_radius);
+    resistanceData->f_resStart_0 = m_resistanceHandler->calculatePureStartRes();
     phase = "Accelerating";
     resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
         movingData->v, stationData->stat_slope, stationData->stat_radius);

@@ -10,7 +10,7 @@ TractiveEffortHandler::TractiveEffortHandler(AppContext &context)
       constantData(context.constantData.data()) {}
 
 double TractiveEffortHandler::calculateStartForce(float acc) {
-  return massData->mass_totalInertial * acc + resistanceData->f_resStart;
+  return massData->mass_totalInertial * acc + resistanceData->f_resStart_0;
 }
 
 double TractiveEffortHandler::calculateTotalForce(float v) {

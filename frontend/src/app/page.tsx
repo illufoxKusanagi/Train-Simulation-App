@@ -1,148 +1,137 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { api } from "@/services/api";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Train, Lock, User, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Home() {
+  const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!username || !password) {
+      toast.error("Masukan username dan password.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await api.login(username, password);
+
+      if (res.status === "success") {
+        // Initialize backend defaults after a successful login
+        await api.quickInit().catch(() => {
+          // quickInit failure is non-fatal — simulation just uses backend defaults
+          console.warn("quickInit skipped or failed, continuing...");
+        });
+        toast.success("Login Berhasil!");
+        router.push("/train-parameter");
+      }
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Login gagal, periksa kembali kredensial Anda.";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col w-full h-screen justify-center items-center align-center gap-10">
-      <p className="heading-4">Press the button below to start!</p>
-      <Link href="/train-parameter">
-        <Button>Masuk</Button>
-      </Link>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 p-4 relative overflow-hidden">
+      <div className="w-full max-w-md relative z-10">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center p-3 bg-blue-600 rounded-full mb-4 shadow-lg shadow-blue-500/30">
+            <Train className="h-8 w-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+            Train Simulation
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Silakan login untuk mengakses sistem simulasi
+          </p>
+        </div>
+
+        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
+          <CardHeader className="space-y-1 pb-6">
+            <CardTitle className="text-2xl text-center">Login</CardTitle>
+            <CardDescription className="text-center">
+              Masukkan kredensial administrator
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="username"
+                    placeholder="admin"
+                    type="text"
+                    className="pl-10"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    className="pl-10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+              <Button
+                type="submit"
+                className="w-full mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md transition-all duration-300 transform hover:scale-[1.02]"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Memproses...
+                  </>
+                ) : (
+                  "Masuk ke Sistem"
+                )}
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="flex justify-center border-t border-border/50 pt-6">
+            <p className="text-xs text-muted-foreground">
+              © 2025 Train Simulation App. All rights reserved.
+            </p>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
 }
-
-// "use client";
-
-// import { useState } from "react";
-// import { useRouter } from "next/navigation";
-// import { api } from "@/services/api";
-// import { Button } from "@/components/ui/button";
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardHeader,
-//   CardTitle,
-//   CardFooter,
-// } from "@/components/ui/card";
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-// import { Train, Lock, User, Loader2 } from "lucide-react";
-// import { toast } from "sonner";
-
-// export default function LoginPage() {
-//   const router = useRouter();
-//   const [username, setUsername] = useState("");
-//   const [password, setPassword] = useState("");
-//   const [loading, setLoading] = useState(false);
-
-//   const handleLogin = async (e: React.FormEvent) => {
-//     e.preventDefault();
-
-//     if (!username || !password) {
-//       toast.error("Masukan username dan password.");
-//       return;
-//     }
-
-//     try {
-//       setLoading(true);
-//       const res = await api.login(username, password);
-
-//       if (res.status === "success") {
-//         toast.success("Login Berhasil!");
-//         // Store token conceptually or just redirect
-//         router.push("/train-parameter");
-//       }
-//     } catch (err: any) {
-//       toast.error(
-//         err.message || "Login gagal, periksa kembali kredensial Anda.",
-//       );
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 p-4 relative overflow-hidden">
-//       {/* Decorative Background Elements */}
-//       <div className="absolute top-0 left-0 w-full h-full bg-grid-black/[0.02] dark:bg-grid-white/[0.02]" />
-
-//       <div className="w-full max-w-md relative z-10">
-//         <div className="text-center mb-8">
-//           <div className="inline-flex items-center justify-center p-3 bg-blue-600 rounded-full mb-4 shadow-lg shadow-blue-500/30">
-//             <Train className="h-8 w-8 text-white" />
-//           </div>
-//           <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-//             Train Simulation
-//           </h1>
-//           <p className="text-muted-foreground mt-2">
-//             Silakan login untuk mengakses sistem simulasi
-//           </p>
-//         </div>
-
-//         <Card className="border-0 shadow-2xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
-//           <CardHeader className="space-y-1 pb-6">
-//             <CardTitle className="text-2xl text-center">Login</CardTitle>
-//             <CardDescription className="text-center">
-//               Masukkan kredensial administrator
-//             </CardDescription>
-//           </CardHeader>
-//           <CardContent>
-//             <form onSubmit={handleLogin} className="space-y-4">
-//               <div className="space-y-2">
-//                 <Label htmlFor="username">Username</Label>
-//                 <div className="relative">
-//                   <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-//                   <Input
-//                     id="username"
-//                     placeholder="admin"
-//                     type="text"
-//                     className="pl-10"
-//                     value={username}
-//                     onChange={(e) => setUsername(e.target.value)}
-//                     disabled={loading}
-//                   />
-//                 </div>
-//               </div>
-//               <div className="space-y-2">
-//                 <Label htmlFor="password">Password</Label>
-//                 <div className="relative">
-//                   <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-//                   <Input
-//                     id="password"
-//                     type="password"
-//                     placeholder="••••••••"
-//                     className="pl-10"
-//                     value={password}
-//                     onChange={(e) => setPassword(e.target.value)}
-//                     disabled={loading}
-//                   />
-//                 </div>
-//               </div>
-//               <Button
-//                 type="submit"
-//                 className="w-full mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md transition-all duration-300 transform hover:scale-[1.02]"
-//                 disabled={loading}
-//               >
-//                 {loading ? (
-//                   <>
-//                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-//                     Memproses...
-//                   </>
-//                 ) : (
-//                   "Masuk ke Sistem"
-//                 )}
-//               </Button>
-//             </form>
-//           </CardContent>
-//           <CardFooter className="flex justify-center border-t border-border/50 pt-6">
-//             <p className="text-xs text-muted-foreground">
-//               © 2024 PT INKA Persero. All rights reserved.
-//             </p>
-//           </CardFooter>
-//         </Card>
-//       </div>
-//     </div>
-//   );
-// }

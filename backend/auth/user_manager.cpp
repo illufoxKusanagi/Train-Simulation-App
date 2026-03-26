@@ -2,20 +2,25 @@
 
 #include <QDebug>
 #include <QCoreApplication>
-#include <QMessageAuthenticationCode>
 #include <QCryptographicHash>
+#include <QDir>
+#include <QStandardPaths>
 
 UserManager::UserManager(QObject *parent) : QObject(parent) {
-  QString authPath = QCoreApplication::applicationDirPath() + "/.auth";
+  // Use a user-writable app-data directory so this works regardless of
+  // where the binary is installed (avoids permission errors in /opt, C:\Program Files, etc.)
+  QString dataDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+  QDir().mkpath(dataDir);
+  QString authPath = dataDir + "/.auth";
   QFile file(authPath);
-  
-  // If file doesn't exist, create default
+
+  // If file doesn't exist, create default credentials
   if (!file.exists()) {
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
       QTextStream out(&file);
       out << "ADMIN_USERNAME=admin\n";
-      // Hash of "admin123"
-      QByteArray hash = QCryptographicHash::hash(QString("admin123").toUtf8(), QCryptographicHash::Sha256);
+      QByteArray hash = QCryptographicHash::hash(
+          QString("admin123").toUtf8(), QCryptographicHash::Sha256);
       out << "ADMIN_PASSWORD_HASH=" << hash.toHex() << "\n";
       file.close();
       qInfo() << "Created default .auth file at" << authPath;
@@ -35,6 +40,7 @@ UserManager::UserManager(QObject *parent) : QObject(parent) {
     }
     file.close();
     m_loaded = !(m_username.isEmpty() || m_passwordHash.isEmpty());
+    qInfo() << "Auth credentials loaded from" << authPath;
   } else {
     m_loaded = false;
     qWarning() << "Failed to open .auth file at" << authPath;

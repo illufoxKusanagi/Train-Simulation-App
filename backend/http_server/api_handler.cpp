@@ -80,6 +80,13 @@ QHttpServerResponse ApiHandler::handleLogin(const QJsonObject &data) {
   }
 }
 
+QHttpServerResponse ApiHandler::handleGetAuthStatus() {
+  QJsonObject response;
+  response["isAuthenticated"] = m_authManager->isAuthenticated();
+  return QHttpServerResponse(QJsonDocument(response).toJson(),
+                             QHttpServerResponse::StatusCode::Ok);
+}
+
 QHttpServerResponse ApiHandler::handleGetTrainParameters() {
   return m_trainHandler->handleGetTrainParameters();
 }
