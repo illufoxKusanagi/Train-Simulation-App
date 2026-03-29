@@ -1,0 +1,198 @@
+{
+  "warnings": {
+    "WARN_STAT_VOL_LINE_ZERO": "Static Line Voltage is 0 or not set!",
+    "WARN_STAT_VOL_MOTOR_ZERO": "Static Motor Voltage is 0 or not set!",
+    "WARN_STAT_EFF_GEAR_ZERO": "Static Gear Efficiency is 0 or not set!",
+    "WARN_STAT_EFF_MOTOR_ZERO": "Static Motor Efficiency is 0 or not set!",
+    "WARN_STAT_EFF_VVVF_ZERO": "Static VVVF Efficiency is 0 or not set!",
+    "WARN_APS_POWER_ZERO": "APS Power is 0 or not set!",
+    "WARN_STATION_COUNT_EXCEEDS_DATA": "Number of stations exceeds the number of station data.",
+    "WARN_N_STATION_ZERO": "Number of stations is 0 or not set!",
+    "WARN_X_STATION_ZERO": "Station distance is 0 or not set!",
+    "WARN_V_LIMIT_ZERO": "Speed limit is 0 or not set!",
+    "WARN_DWELL_TIME_ZERO": "Dwell time is 0 or not set!",
+    "WARN_CSV_EMPTY": "{dataName} CSV data is empty.",
+    "WARN_CSV_OUT_OF_RANGE": "Attempted to access {dataName} data beyond range."
+  },
+  "errors": {
+    "ERR_SIM_DATA_NOT_INITIALIZED": "Critical: Simulation data not initialized.",
+    "ERR_STATION_COUNT_LESS_THAN_2": "Number of stations is less than 2. Please check the station data!"
+  },
+  "Simulation": {
+    "warning": "Simulation Warning",
+    "error": "Simulation Error",
+    "completed": "{type} simulation completed!",
+    "maxSpeed": "Max speed: {speed} km/h",
+    "failed": "Simulation failed!",
+    "failedDescription": "Make sure all parameters are set correctly.",
+    "running": "Running...",
+    "static": "Static",
+    "dynamic": "Dynamic"
+  },
+  "Login": {
+    "appTitle": "Train Simulation",
+    "appSubtitle": "Please login to access the simulation system",
+    "cardTitle": "Login",
+    "cardDescription": "Enter administrator credentials",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "admin",
+    "passwordLabel": "Password",
+    "submitButton": "Sign In",
+    "loadingButton": "Processing...",
+    "footer": "© 2025 Train Simulation App. All rights reserved.",
+    "toast": {
+      "emptyFields": "Please enter username and password.",
+      "success": "Login Successful!",
+      "failed": "Login failed, please check your credentials."
+    }
+  },
+  "TrainParams": {
+    "constantTitle": "Train Constant Parameter",
+    "constantDescription": "Input related to Train and Car configuration",
+    "trainsetTitle": "Trainset Inputs",
+    "trainsetDescription": "Related to trainset configuration and car information",
+    "calculatedMassTitle": "Calculated Mass",
+    "carNumberTitle": "Car Number",
+    "carPassengerTitle": "Car Passenger",
+    "carMassTitle": "Car Mass",
+    "noDiagram": "No Diagram",
+    "save": "Save",
+    "saving": "Saving...",
+    "uploadCsv": "Upload CSV",
+    "uploading": "Uploading...",
+    "uploadCsvFailed": "Could not load saved parameters, using defaults...",
+    "reset": "Reset",
+    "saveTrainset": "Save Trainset",
+    "toast": {
+      "success": "Success!",
+      "successDescription": "Constant parameters updated successfully",
+      "trainsetSuccess": "Trainset configuration updated successfully",
+      "error": "Error!",
+      "errorDescription": "Failed to save data. Please try again.",
+      "reset": "Form has been reset!"
+    }
+  },
+  "TrackParams": {
+    "title": "Track Parameter",
+    "description": "Input related to Track configuration",
+    "slopeTitle": "Slope Options",
+    "slopeDescription": "Slope configuration for resistance calculation",
+    "save": "Save",
+    "saving": "Saving...",
+    "uploadCsv": "Upload CSV",
+    "uploading": "Uploading...",
+    "uploadCsvFailed": "Could not load saved parameters, using defaults...",
+    "reset": "Reset",
+    "toast": {
+      "success": "Success!",
+      "successDescription": "Track parameters updated successfully",
+      "error": "Error!",
+      "errorDescription": "Failed to save data. Please try again.",
+      "reset": "Form has been reset!"
+    }
+  },
+  "RunningParams": {
+    "title": "Running Parameter",
+    "description": "Input related to Running configuration",
+    "save": "Save",
+    "saving": "Saving...",
+    "uploadCsv": "Upload CSV",
+    "uploading": "Uploading...",
+    "uploadCsvFailed": "Could not load saved parameters, using defaults...",
+    "reset": "Reset",
+    "toast": {
+      "success": "Success!",
+      "successDescription": "Running parameters updated successfully",
+      "error": "Error!",
+      "errorDescription": "Failed to save data. Please try again.",
+      "reset": "Form has been reset!"
+    }
+  },
+  "ElectricalParams": {
+    "title": "Electrical Parameter",
+    "description": "Input related to Electrical configuration",
+    "save": "Save",
+    "saving": "Saving...",
+    "uploadCsv": "Upload CSV",
+    "uploading": "Uploading...",
+    "uploadCsvFailed": "Could not load saved parameters, using defaults...",
+    "reset": "Reset",
+    "toast": {
+      "success": "Success!",
+      "successDescription": "Electrical parameters updated successfully",
+      "error": "Error!",
+      "errorDescription": "Failed to save data. Please try again.",
+      "reset": "Form has been reset!"
+    }
+  },
+  "Outputs": {
+    "noResults": "No valid simulation results available. Run a simulation first using the buttons in the topbar or generate test data below.",
+    "generateTestData": "Generate Test Data",
+    "downloadAllCsv": "Download All Data (CSV)",
+    "downloadAllExcel": "Download All Data (Excel)",
+    "saving": "Saving...",
+    "downloadCsv": "CSV",
+    "downloadExcel": "Excel",
+    "downloadChartImage": "Download chart image",
+    "noData": "No simulation data available to display.",
+    "tabs": {
+      "speed": "Speed",
+      "power": "Power",
+      "powerPerMotor": "Power Per Motor Train",
+      "current": "Current",
+      "force": "Force",
+      "distance": "Distance",
+      "debug": "Debug"
+    },
+    "summary": {
+      "maxSpeed": "Max Speed",
+      "distanceTravelled": "Distance Travelled",
+      "maxVvvfPower": "Max VVVF Power",
+      "maxCatenaryPower": "Max Catenary Power",
+      "maxTractionEffort": "Max Traction Effort",
+      "maxEnergyConsumption": "Max Energy Consumption",
+      "maxPowerPerMotor": "Max Power per Motor",
+      "maxVvvfCurrent": "Max VVVF Current",
+      "maxCatenaryCurrent": "Max Catenary Current",
+      "adhesion": "Adhesion Coefficient",
+      "timeAtPeakPower": "Time at Peak Power",
+      "travelTime": "Travel Time"
+    }
+  },
+  "Optimization": {
+    "title": "Fuzzy Optimization",
+    "description": "Parameter sweep for each combinations, scored by Mamdani fuzzy logic.",
+    "startOptimization": "Start Optimization",
+    "running": "Running…",
+    "fuzzyRangesTitle": "Fuzzy Membership Ranges",
+    "fuzzyRangesDescription": "Set the peak value for each membership level (Low / Medium / High) used in the fuzzy evaluation.",
+    "acceleration": "Acceleration (m/s²)",
+    "weakeningPoint": "Weakening Point (km/h)",
+    "progress": "Progress",
+    "combinations": "combinations",
+    "bestCombination": "Best Combination",
+    "fuzzyScore": "Fuzzy Score",
+    "accelStart": "Accel. Start",
+    "vp1FwStart": "v_p1 (FW Start)",
+    "peakPowerMotor": "Peak Power/Motor",
+    "travelTime": "Travel Time",
+    "seconds": "seconds",
+    "allCombinations": "All Combinations",
+    "grade": "Grade",
+    "noResults": "No optimization results yet",
+    "noResultsDescription": "Click Start Optimization to run the full fuzzy parameter sweep across all acc/v_p1 step combinations.",
+    "excellent": "Excellent",
+    "good": "Good",
+    "fair": "Fair",
+    "poor": "Poor"
+  },
+  "Utilities": {
+    "saveCsv": "Download All Data (CSV)",
+    "saveExcel": "Download All Data (Excel)",
+    "saveIndividualCsv": "Download this data (CSV)",
+    "saveIndividualExcel": "Download this data (Excel)",
+    "saveChart": "Save Chart",
+    "uploadCsv": "Upload CSV",
+    "chooseCsv": "Choose CSV File"
+  }
+}

@@ -23,8 +23,10 @@ import { Spinner } from "@/components/ui/spinner";
 import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
 import { useRef } from "react";
 import { useFormPersistence } from "@/contexts/FormPersistenceContext";
+import { useTranslations } from "next-intl";
 
 export default function RunningPage() {
+  const trans = useTranslations("RunningParams");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const csvInputRef = useRef<HTMLInputElement>(null);
@@ -69,7 +71,7 @@ export default function RunningPage() {
         });
       } catch (err) {
         console.error("Failed to load running parameters:", err);
-        toast.error("Could not load saved parameters — using defaults");
+        toast.error(trans("uploadCsvFailed"));
         constantForm.reset(defaultValues);
       }
     };
@@ -104,13 +106,13 @@ export default function RunningPage() {
 
       const result = await api.updateRunningParameters(data);
       console.log("Backend response:", result);
-      toast.success("Success!", {
-        description: "Running parameters updated successfully",
+      toast.success(trans("toast.success"), {
+        description: trans("toast.successDescription"),
       });
     } catch (error) {
       console.error("Error updating parameters:", error);
-      toast.error("Error!", {
-        description: "Failed to save data. Please try again.",
+      toast.error(trans("toast.error"), {
+        description: trans("toast.errorDescription"),
       });
     } finally {
       setIsSubmitting(false);
@@ -200,16 +202,16 @@ export default function RunningPage() {
   const handleReset = () => {
     constantForm.reset(defaultValues);
     clearFormData("running-params");
-    toast("Form berhasil direset!");
+    toast(trans("toast.reset"));
   };
 
   return (
     <PageLayout>
       <Card className="px-6 py-8 min-h-[40rem] h-fit w-full max-w-2xl rounded-3xl justify-center">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Running Parameter</CardTitle>
+          <CardTitle className="text-2xl">{trans("title")}</CardTitle>
           <CardDescription>
-            Input related to Running configuration
+            {trans("description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -247,10 +249,10 @@ export default function RunningPage() {
                   {isSubmitting ? (
                     <>
                       <Spinner className="mr-2" />
-                      Saving...
+                      {trans("saving")}
                     </>
                   ) : (
-                    "Save"
+                    trans("save")
                   )}
                 </Button>
                 <div className="flex-1 relative">
@@ -284,10 +286,10 @@ export default function RunningPage() {
                     {isUploading ? (
                       <>
                         <Spinner className="mr-2" />
-                        Uploading...
+                        {trans("uploading")}
                       </>
                     ) : (
-                      "Upload CSV"
+                      trans("uploadCsv")
                     )}
                   </Button>
                 </div>
@@ -297,7 +299,7 @@ export default function RunningPage() {
                   className="flex-1"
                   onClick={handleReset}
                 >
-                  Reset
+                  {trans("reset")}
                 </Button>
               </div>
             </form>

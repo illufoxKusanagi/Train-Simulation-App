@@ -22,6 +22,7 @@ import { Download } from "lucide-react";
 import type { SimulationResults } from "@/services/api";
 import { captureChartAsPng } from "@/lib/save-chart";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 const chartConfig = {
   vvvfCurrents: {
@@ -63,6 +64,7 @@ export default function CurrentTab({
   onDownloadCSV,
   onDownloadExcel,
 }: CurrentTabProps) {
+  const t = useTranslations("Outputs");
   const data = results.results || [];
   const simulationType = results.debugInfo?.simulationType || "dynamic";
   const chartRef = useRef<HTMLDivElement>(null);
@@ -206,7 +208,7 @@ export default function CurrentTab({
           <div className="flex justify-end gap-2 mt-4">
             <Button size="sm" onClick={() => saveImageHandler()}>
               <Download className="h-4 w-4" />
-              Download chart image
+              {t("downloadChartImage")}
             </Button>
             <Button
               size="sm"
@@ -216,7 +218,7 @@ export default function CurrentTab({
               }
             >
               <Download className="h-4 w-4 mr-2" />
-              CSV
+              {t("downloadCsv")}
             </Button>
             <Button
               size="sm"
@@ -225,7 +227,7 @@ export default function CurrentTab({
               }
             >
               <Download className="h-4 w-4 mr-2" />
-              Excel
+              {t("downloadExcel")}
             </Button>
           </div>
         </CardContent>

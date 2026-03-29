@@ -27,6 +27,7 @@ import { InputWidget } from "@/components/inputs/input-widget";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
+import { useTranslations } from "next-intl";
 
 export default function TrackParameterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,6 +35,7 @@ export default function TrackParameterPage() {
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
   const csvInputRef = useRef<HTMLInputElement>(null);
   const { saveFormData, loadFormData, clearFormData } = useFormPersistence();
+  const trans = useTranslations("TrackParams");
 
   const defaultValues = {
     n_station: 2,
@@ -73,7 +75,7 @@ export default function TrackParameterPage() {
         });
       } catch (err) {
         console.error("Failed to load track parameters:", err);
-        toast.error("Could not load saved parameters — using defaults");
+        toast.error(trans("uploadCsvFailed"));
         constantForm.reset(defaultValues);
       }
     };
@@ -217,13 +219,13 @@ export default function TrackParameterPage() {
 
       const result = await api.updateTrackParameters(trackParams);
       console.log("Backend response:", result);
-      toast.success("Success!", {
-        description: "Track parameters updated successfully",
+      toast.success(trans("toast.success"), {
+        description: trans("toast.successDescription"),
       });
     } catch (error) {
       console.error("Error updating parameters:", error);
-      toast.error("Error!", {
-        description: "Failed to save data. Please try again.",
+      toast.error(trans("toast.error"), {
+        description: trans("toast.errorDescription"),
       });
     } finally {
       setIsSubmitting(false);
@@ -235,7 +237,7 @@ export default function TrackParameterPage() {
     clearFormData("track-params");
     setCsvData({});
     localStorage.removeItem("track-csv-data");
-    toast("Form has been reset!");
+    toast(trans("toast.reset"));
   };
 
   /**
@@ -292,9 +294,9 @@ export default function TrackParameterPage() {
     <PageLayout>
       <Card className="px-6 py-8 min-h-[40rem] h-fit w-full max-w-2xl rounded-3xl justify-center">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Track Parameter</CardTitle>
+          <CardTitle className="text-2xl">{trans("title")}</CardTitle>
           <CardDescription>
-            Input related to Track configuration
+            {trans("description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -333,10 +335,10 @@ export default function TrackParameterPage() {
                   {isSubmitting ? (
                     <>
                       <Spinner className="mr-2" />
-                      Saving...
+                      {trans("saving")}
                     </>
                   ) : (
-                    "Save"
+                    trans("save")
                   )}
                 </Button>
                 <div className="flex-1 relative">
@@ -370,10 +372,10 @@ export default function TrackParameterPage() {
                     {isUploading ? (
                       <>
                         <Spinner className="mr-2" />
-                        Uploading...
+                        {trans("uploading")}
                       </>
                     ) : (
-                      "Upload CSV"
+                      trans("uploadCsv")
                     )}
                   </Button>
                 </div>
@@ -383,7 +385,7 @@ export default function TrackParameterPage() {
                   className="flex-1"
                   onClick={handleReset}
                 >
-                  Reset
+                  {trans("reset")}
                 </Button>
               </div>
             </form>
@@ -392,9 +394,9 @@ export default function TrackParameterPage() {
       </Card>
       <Card className="px-6 py-8 min-h-[40rem] h-fit w-full max-w-2xl rounded-3xl justify-center">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Track Parameter</CardTitle>
+          <CardTitle className="text-2xl">{trans("slopeTitle")}</CardTitle>
           <CardDescription>
-            Input related to Track configuration
+            {trans("slopeDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -433,10 +435,10 @@ export default function TrackParameterPage() {
                   {isSubmitting ? (
                     <>
                       <Spinner className="mr-2" />
-                      Saving...
+                      {trans("saving")}
                     </>
                   ) : (
-                    "Save"
+                    trans("save")
                   )}
                 </Button>
                 <div className="flex-1 relative">
@@ -470,10 +472,10 @@ export default function TrackParameterPage() {
                     {isUploading ? (
                       <>
                         <Spinner className="mr-2" />
-                        Uploading...
+                        {trans("uploading")}
                       </>
                     ) : (
-                      "Upload CSV"
+                      trans("uploadCsv")
                     )}
                   </Button>
                 </div>
@@ -483,7 +485,7 @@ export default function TrackParameterPage() {
                   className="flex-1"
                   onClick={handleReset}
                 >
-                  Reset
+                  {trans("reset")}
                 </Button>
               </div>
             </form>

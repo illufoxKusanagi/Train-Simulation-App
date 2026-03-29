@@ -1,7 +1,6 @@
 #include "track_parameter_handler.h"
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <iostream>
 
 TrackParameterHandler::TrackParameterHandler(AppContext &context,
                                              QObject *parent)
@@ -60,10 +59,16 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
     // Use YOUR exact field names from TrackParams interface
     if (trackParams.contains("n_station")) {
       m_context.stationData->n_station = trackParams["n_station"].toInt();
+      if (m_context.stationData->n_station <= 0) {
+        m_context.simulationWarnings.append("WARN_N_STATION_ZERO");
+      }
     }
     if (trackParams.contains("x_station")) {
       m_context.stationData->stat_x_station =
           trackParams["x_station"].toDouble();
+      if (m_context.stationData->stat_x_station <= 0) {
+        m_context.simulationWarnings.append("WARN_X_STATION_ZERO");
+      }
     }
     if (trackParams.contains("radius")) {
       m_context.stationData->stat_radius = trackParams["radius"].toDouble();
@@ -74,10 +79,16 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
     if (trackParams.contains("v_limit")) {
       m_context.stationData->stat_v_limit = trackParams["v_limit"].toDouble();
       m_context.movingData->v_limit = trackParams["v_limit"].toDouble();
+      if (m_context.stationData->stat_v_limit <= 0) {
+        m_context.simulationWarnings.append("WARN_V_LIMIT_ZERO");
+      }
     }
     if (trackParams.contains("dwellTime")) {
       m_context.stationData->stat_dwellTime =
           trackParams["dwellTime"].toDouble();
+      if (m_context.stationData->stat_dwellTime <= 0) {
+        m_context.simulationWarnings.append("WARN_DWELL_TIME_ZERO");
+      }
     }
     if (trackParams.contains("slope_option1")) {
       m_context.stationData->stat_slope_option1 =

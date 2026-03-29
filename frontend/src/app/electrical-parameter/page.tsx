@@ -23,6 +23,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
 import { useRef } from "react";
 import { useFormPersistence } from "@/contexts/FormPersistenceContext";
+import { useTranslations } from "next-intl";
 
 export default function ElectricalParameterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,6 +31,8 @@ export default function ElectricalParameterPage() {
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
   const csvInputRef = useRef<HTMLInputElement>(null);
   const { saveFormData, loadFormData, clearFormData } = useFormPersistence();
+
+  const trans = useTranslations("ElectricalParams");
 
   const defaultValues = {
     stat_vol_line: 1500,
@@ -66,42 +69,12 @@ export default function ElectricalParameterPage() {
         });
       } catch (err) {
         console.error("Failed to load electrical parameters:", err);
-        toast.error("Could not load saved parameters — using defaults");
+        toast.error(trans("uploadCsvFailed"));
         constantForm.reset(defaultValues);
       }
     };
     loadDefaults();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // useEffect(() => {
-  //   const savedData = loadFormData("electrical-params");
-  //   const hasSavedData = savedData && Object.keys(savedData).length > 0;
-
-  //   if (hasSavedData) {
-  //     constantForm.reset({
-  //       ...defaultValues,
-  //       ...(savedData as z.infer<typeof ElectricalFormSchema>),
-  //     });
-  //     return;
-  //   }
-
-  //   const loadDefaults = async () => {
-  //     try {
-  //       await initializeBackendOnce();
-  //       const data = await api.getElectricalParameters();
-  //       constantForm.reset({
-  //         ...defaultValues,
-  //         ...data.electricalParameters,
-  //       });
-  //     } catch (err) {
-  //       console.error("Failed to load electrical parameters:", err);
-  //       toast.error("Could not load saved parameters — using defaults");
-  //       constantForm.reset(defaultValues);
-  //     }
-  //   };
-
-  //   loadDefaults();
-  // }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const subscription = constantForm.watch((data) => {
@@ -137,13 +110,13 @@ export default function ElectricalParameterPage() {
 
       const result = await api.updateElectricalParameters(electricalParams);
       console.log("Backend response:", result);
-      toast.success("Success!", {
-        description: "Electrical parameters updated successfully",
+      toast.success(trans("toast.success"), {
+        description: trans("toast.successDescription"),
       });
     } catch (error) {
       console.error("Error updating parameters:", error);
-      toast.error("Error!", {
-        description: "Failed to save data. Please try again.",
+      toast.error(trans("toast.error"), {
+        description: trans("toast.errorDescription"),
       });
     } finally {
       setIsSubmitting(false);
@@ -154,7 +127,7 @@ export default function ElectricalParameterPage() {
     constantForm.reset(defaultValues);
     clearFormData("electrical-params");
     setCsvData({});
-    toast("Form has been reset!");
+    toast(trans("toast.reset"));
   };
 
   /**
@@ -222,9 +195,9 @@ export default function ElectricalParameterPage() {
     <PageLayout>
       <Card className="px-6 py-8 min-h-[40rem] h-fit w-full max-w-2xl rounded-3xl justify-center">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Electrical Parameter</CardTitle>
+          <CardTitle className="text-2xl">{trans("title")}</CardTitle>
           <CardDescription>
-            Input related to Electrical configuration
+            {trans("description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -263,10 +236,10 @@ export default function ElectricalParameterPage() {
                   {isSubmitting ? (
                     <>
                       <Spinner className="mr-2" />
-                      Saving...
+                      {trans("saving")}
                     </>
                   ) : (
-                    "Save"
+                    trans("save")
                   )}
                 </Button>
                 <div className="flex-1 relative">
@@ -300,10 +273,10 @@ export default function ElectricalParameterPage() {
                     {isUploading ? (
                       <>
                         <Spinner className="mr-2" />
-                        Uploading...
+                        {trans("uploading")}
                       </>
                     ) : (
-                      "Upload CSV"
+                      trans("uploadCsv")
                     )}
                   </Button>
                 </div>
@@ -313,7 +286,7 @@ export default function ElectricalParameterPage() {
                   className="flex-1"
                   onClick={handleReset}
                 >
-                  Reset
+                  {trans("reset")}
                 </Button>
               </div>
             </form>

@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import PageLayout from "@/components/page-layout";
 import { api } from "@/services/api";
 import { useFormPersistence } from "@/contexts/FormPersistenceContext";
+import { useTranslations } from "next-intl";
 
 // Preset configurations for n_car dropdown (outside component to avoid recreating on every render)
 const carPresets: Record<
@@ -129,6 +130,7 @@ export default function TrainParameter() {
   const trainsetCsvInputRef = useRef<HTMLInputElement>(null);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
   const { saveFormData, loadFormData } = useFormPersistence();
+  const trans = useTranslations("TrainParams");
 
   // Load saved form data
   const savedConstantData = loadFormData("train-constant");
@@ -378,13 +380,13 @@ export default function TrainParameter() {
 
       const result = await api.updateTrainParameters(trainParams);
       console.log("Backend response:", result);
-      toast.success("Success!", {
-        description: "Constant parameters updated successfully",
+      toast.success(trans("toast.success"), {
+        description: trans("toast.successDescription"),
       });
     } catch (error) {
       console.error("Error updating parameters:", error);
-      toast.error("Error!", {
-        description: "Failed to save data. Please try again.",
+      toast.error(trans("toast.error"), {
+        description: trans("toast.errorDescription"),
       });
     } finally {
       setIsSubmitting(false);
@@ -435,14 +437,13 @@ export default function TrainParameter() {
 
       await api.updatePassengerParameters(passengerParams);
 
-      toast.success("Success!", {
-        description:
-          "Trainset configuration (car numbers, masses, passengers) updated successfully",
+      toast.success(trans("toast.success"), {
+        description: trans("toast.trainsetSuccess"),
       });
     } catch (error) {
       console.error("Error updating parameters:", error);
-      toast.error("Error!", {
-        description: "Failed to save data. Please try again.",
+      toast.error(trans("toast.error"), {
+        description: trans("toast.errorDescription"),
       });
     } finally {
       setIsSubmitting(false);
@@ -452,7 +453,7 @@ export default function TrainParameter() {
   const handleReset = () => {
     constantForm.reset();
     setCsvData({});
-    toast("Form has been reset!");
+    toast(trans("toast.reset"));
   };
 
   // Save form data to localStorage whenever it changes
@@ -585,9 +586,9 @@ export default function TrainParameter() {
       <div className="flex flex-col lg:flex-row h-full w-full gap-4 p-6">
         <Card className="px-6 py-8 max-h-[45rem] min-h-[40rem] h-full w-full max-w-2xl rounded-3xl justify-center">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Train Constant Parameter</CardTitle>
+            <CardTitle className="text-2xl">{trans("constantTitle")}</CardTitle>
             <CardDescription>
-              Input related to Train and Car configuration
+              {trans("constantDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -626,10 +627,10 @@ export default function TrainParameter() {
                     {isSubmitting ? (
                       <>
                         <Spinner />
-                        Saving...
+                        {trans("saving")}
                       </>
                     ) : (
-                      "Save"
+                      trans("save")
                     )}
                   </Button>
                   <div className="flex-1 relative">
@@ -665,10 +666,10 @@ export default function TrainParameter() {
                       {uploadingTarget === "constant" ? (
                         <>
                           <Spinner className="mr-2" />
-                          Uploading...
+                          {trans("uploading")}
                         </>
                       ) : (
-                        "Upload CSV"
+                        trans("uploadCsv")
                       )}
                     </Button>
                   </div>
@@ -678,7 +679,7 @@ export default function TrainParameter() {
                     className="flex-1"
                     onClick={handleReset}
                   >
-                    Reset
+                    {trans("reset")}
                   </Button>
                 </div>
               </form>
@@ -688,9 +689,9 @@ export default function TrainParameter() {
 
         <Card className="px-2 py-8 max-h-[45rem] min-h-[40rem] w-full max-w-2xl rounded-3xl overflow-auto">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Trainset Inputs</CardTitle>
+            <CardTitle className="text-2xl">{trans("trainsetTitle")}</CardTitle>
             <CardDescription>
-              Related to trainset configuration and car information
+              {trans("trainsetDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -732,7 +733,7 @@ export default function TrainParameter() {
                         }
                         return (
                           <p className="text-muted-foreground text-sm">
-                            No Diagram
+                            {trans("noDiagram")}
                           </p>
                         );
                       })()}
@@ -742,7 +743,7 @@ export default function TrainParameter() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-center">
-                      Calculated Mass
+                      {trans("calculatedMassTitle")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -769,7 +770,7 @@ export default function TrainParameter() {
                 <div className="flex flex-row gap-2">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-center">Car number</CardTitle>
+                      <CardTitle className="text-center">{trans("carNumberTitle")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       {carTypeFormRows.map((row, rowIndex) => (
@@ -792,7 +793,7 @@ export default function TrainParameter() {
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-center">
-                        Car Passenger
+                        {trans("carPassengerTitle")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -815,7 +816,7 @@ export default function TrainParameter() {
                   </Card>
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-center">Car Mass</CardTitle>
+                      <CardTitle className="text-center">{trans("carMassTitle")}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       {carMassFormRows.map((row, rowIndex) => (
@@ -846,10 +847,10 @@ export default function TrainParameter() {
                     {isSubmitting ? (
                       <>
                         <Spinner />
-                        Saving...
+                        {trans("saving")}
                       </>
                     ) : (
-                      "Save Data"
+                      trans("saveTrainset")
                     )}
                   </Button>
                   <div className="flex-1 relative">
@@ -883,10 +884,10 @@ export default function TrainParameter() {
                       {uploadingTarget === "trainset" ? (
                         <>
                           <Spinner className="mr-2" />
-                          Uploading...
+                          {trans("uploading")}
                         </>
                       ) : (
-                        "Upload CSV"
+                        trans("uploadCsv")
                       )}
                     </Button>
                   </div>
@@ -896,7 +897,7 @@ export default function TrainParameter() {
                     className="flex-1"
                     onClick={handleReset}
                   >
-                    Reset
+                    {trans("reset")}
                   </Button>
                 </div>
               </form>

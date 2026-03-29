@@ -22,6 +22,7 @@ import { Download } from "lucide-react";
 import type { SimulationResults } from "@/services/api";
 import { captureChartAsPng } from "@/lib/save-chart";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 const chartConfig = {
   distancesTotal: {
@@ -64,6 +65,7 @@ export default function DistanceTab({
   onDownloadCSV,
   onDownloadExcel,
 }: DistanceTabProps) {
+  const t = useTranslations("Outputs");
   const data = useMemo(() => results.results || [], [results.results]);
   const simulationType = results.debugInfo?.simulationType || "dynamic";
   const isStatic = simulationType === "static";
@@ -193,7 +195,7 @@ export default function DistanceTab({
             <div className="flex justify-end gap-2 mt-4">
               <Button size="sm" onClick={() => saveImageHandler()}>
                 <Download className="h-4 w-4" />
-                Download chart image
+                {t("downloadChartImage")}
               </Button>
               <Button
                 size="sm"
@@ -203,7 +205,7 @@ export default function DistanceTab({
                 }
               >
                 <Download className="h-4 w-4 mr-2" />
-                CSV
+                {t("downloadCsv")}
               </Button>
               <Button
                 size="sm"
@@ -216,7 +218,7 @@ export default function DistanceTab({
                 }
               >
                 <Download className="h-4 w-4 mr-2" />
-                Excel
+                {t("downloadExcel")}
               </Button>
             </div>
           </CardContent>

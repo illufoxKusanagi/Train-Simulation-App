@@ -16,18 +16,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Train, Lock, User, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 export default function Home() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const t = useTranslations("Login");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!username || !password) {
-      toast.error("Masukan username dan password.");
+      toast.error(t("toast.emptyFields"));
       return;
     }
 
@@ -41,14 +43,14 @@ export default function Home() {
           // quickInit failure is non-fatal — simulation just uses backend defaults
           console.warn("quickInit skipped or failed, continuing...");
         });
-        toast.success("Login Berhasil!");
+        toast.success(t("toast.success"));
         router.push("/train-parameter");
       }
     } catch (err: unknown) {
       const message =
         err instanceof Error
           ? err.message
-          : "Login gagal, periksa kembali kredensial Anda.";
+          : t("toast.failed");
       toast.error(message);
     } finally {
       setLoading(false);
@@ -63,29 +65,29 @@ export default function Home() {
             <Train className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-            Train Simulation
+            {t("appTitle")}
           </h1>
           <p className="text-muted-foreground mt-2">
-            Silakan login untuk mengakses sistem simulasi
+            {t("appSubtitle")}
           </p>
         </div>
 
         <Card className="border-0 shadow-2xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
           <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl text-center">Login</CardTitle>
+            <CardTitle className="text-2xl text-center">{t("cardTitle")}</CardTitle>
             <CardDescription className="text-center">
-              Masukkan kredensial administrator
+              {t("cardDescription")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">{t("usernameLabel")}</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                   <Input
                     id="username"
-                    placeholder="admin"
+                    placeholder={t("usernamePlaceholder")}
                     type="text"
                     className="pl-10"
                     value={username}
@@ -95,7 +97,7 @@ export default function Home() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t("passwordLabel")}</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                   <Input
@@ -117,17 +119,17 @@ export default function Home() {
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Memproses...
+                    {t("loadingButton")}
                   </>
                 ) : (
-                  "Masuk ke Sistem"
+                  t("submitButton")
                 )}
               </Button>
             </form>
           </CardContent>
           <CardFooter className="flex justify-center border-t border-border/50 pt-6">
             <p className="text-xs text-muted-foreground">
-              © 2025 Train Simulation App. All rights reserved.
+              {t("footer")}
             </p>
           </CardFooter>
         </Card>

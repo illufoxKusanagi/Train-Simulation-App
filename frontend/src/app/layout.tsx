@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import { FormPersistenceProvider } from "@/contexts/FormPersistenceContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LocaleProvider } from "@/components/locale-provider";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -32,9 +33,9 @@ export default function RootLayout({
       <body className={`${roboto.variable} ${geistMono.variable} antialiased`}>
         <FormPersistenceProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <AuthProvider>
-              {children}
-            </AuthProvider>
+            <LocaleProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </LocaleProvider>
           </ThemeProvider>
           <Toaster
             position="top-center"

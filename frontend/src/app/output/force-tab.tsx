@@ -23,6 +23,7 @@ import { Download } from "lucide-react";
 import type { SimulationResults } from "@/services/api";
 import { toast } from "sonner";
 import { captureChartAsPng } from "@/lib/save-chart";
+import { useTranslations } from "next-intl";
 
 const chartConfig = {
   motorForce: {
@@ -94,6 +95,7 @@ export default function ForceTab({
   onDownloadCSV,
   onDownloadExcel,
 }: ForceTabProps) {
+  const t = useTranslations("Outputs");
   const data = useMemo(() => results.results || [], [results.results]);
   const simulationType = results.debugInfo?.simulationType || "dynamic";
   const exportColumns = useMemo(
@@ -273,7 +275,7 @@ export default function ForceTab({
           <div className="flex justify-end gap-2 mt-4 flex-wrap">
             <Button size="sm" onClick={() => saveImageHandler()}>
               <Download className="h-4 w-4" />
-              Download chart image
+              {t("downloadChartImage")}
             </Button>
             <Button
               size="sm"
@@ -283,7 +285,7 @@ export default function ForceTab({
               }
             >
               <Download className="h-4 w-4 mr-2" />
-              CSV
+              {t("downloadCsv")}
             </Button>
             <Button
               size="sm"
@@ -292,7 +294,7 @@ export default function ForceTab({
               }
             >
               <Download className="h-4 w-4 mr-2" />
-              Excel
+              {t("downloadExcel")}
             </Button>
           </div>
         </CardFooter>

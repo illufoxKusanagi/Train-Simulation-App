@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack -H 127.0.0.1 -p 3254",
+    "dev": "next dev -H 127.0.0.1 -p 3254",
     "build": "next build",
     "start": "next start",
     "export": "next export",
@@ -29,6 +29,7 @@
     "lucide-react": "^0.544.0",
     "next": "^15.5.10",
     "next-themes": "^0.4.6",
+    "radix-ui": "^1.4.3",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.63.0",

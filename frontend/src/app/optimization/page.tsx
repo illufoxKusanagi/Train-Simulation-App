@@ -26,6 +26,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormPersistence } from "@/contexts/FormPersistenceContext";
+import { useTranslations } from "next-intl";
 
 interface OptResult {
   acc_start: number; // m/s²
@@ -42,11 +43,11 @@ function scoreColor(score: number): string {
   return "text-red-500";
 }
 
-function scoreLabel(score: number): string {
-  if (score >= 75) return "Excellent";
-  if (score >= 50) return "Good";
-  if (score >= 25) return "Fair";
-  return "Poor";
+function scoreLabel(score: number, t: (key: string) => string): string {
+  if (score >= 75) return t("excellent");
+  if (score >= 50) return t("good");
+  if (score >= 25) return t("fair");
+  return t("poor");
 }
 
 function scoreBadgeClass(score: number): string {
@@ -68,6 +69,7 @@ export default function OptimizationPage() {
   const [completed, setCompleted] = useState(0);
   const [total, setTotal] = useState(20);
   const { saveFormData, loadFormData } = useFormPersistence();
+  const t = useTranslations("Optimization");
   const constantForm = useForm<z.infer<typeof OptimizationFormSchema>>({
     resolver: zodResolver(OptimizationFormSchema),
     defaultValues: {
@@ -213,10 +215,9 @@ export default function OptimizationPage() {
           <div className="w-full">
             <div className="flex flex-row justify-between w-full">
               <div className="flex flex-col">
-                <p className="heading-2 tracking-tight">Fuzzy Optimization</p>
+              <p className="heading-2 tracking-tight">{t("title")}</p>
                 <p className="text-muted-foreground mt-1">
-                  Parameter sweep for each combinations, scored by Mamdani fuzzy
-                  logic.
+                  {t("description")}
                 </p>
               </div>
               <Button
@@ -226,11 +227,11 @@ export default function OptimizationPage() {
               >
                 {isRunning ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Running…
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("running")}
                   </>
                 ) : (
                   <>
-                    <Play className="mr-2 h-4 w-4" /> Start Optimization
+                    <Play className="mr-2 h-4 w-4" /> {t("startOptimization")}
                   </>
                 )}
               </Button>
@@ -238,10 +239,9 @@ export default function OptimizationPage() {
             <div className="w-full">
               <Card className="w-full">
                 <CardHeader>
-                  <p className="heading-3">Fuzzy Membership Ranges</p>
+                  <p className="heading-3">{t("fuzzyRangesTitle")}</p>
                   <p className="text-muted-foreground">
-                    Set the peak value for each membership level (Low / Medium /
-                    High) used in the fuzzy evaluation.
+                    {t("fuzzyRangesDescription")}
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -249,7 +249,7 @@ export default function OptimizationPage() {
                     {/* Acceleration */}
                     <div className="space-y-2">
                       <p className="text-sm font-semibold">
-                        Acceleration (m/s²)
+                        {t("acceleration")}
                       </p>
                       <div className="grid grid-cols-3 gap-4">
                         {accelerationFormDatas.map((formData) => (
@@ -264,7 +264,7 @@ export default function OptimizationPage() {
                     {/* Weakening */}
                     <div className="space-y-2">
                       <p className="text-sm font-semibold">
-                        Weakening Point (km/h)
+                        {t("weakeningPoint")}
                       </p>
                       <div className="grid grid-cols-3 gap-4">
                         {weakeningFormDatas.map((formData) => (
@@ -287,9 +287,9 @@ export default function OptimizationPage() {
         {hasStarted && (
           <div className="space-y-1">
             <div className="flex justify-between text-sm text-muted-foreground">
-              <span>Progress</span>
+              <span>{t("progress")}</span>
               <span>
-                {completed} / {total} combinations
+                {completed} / {total} {t("combinations")}
               </span>
             </div>
             <div
@@ -314,7 +314,7 @@ export default function OptimizationPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
                 <Trophy className="h-6 w-6" />
-                Best Combination
+                {t("bestCombination")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -322,7 +322,7 @@ export default function OptimizationPage() {
                 {/* Fuzzy Score */}
                 <div className="flex flex-col items-center p-4 bg-secondary rounded-lg col-span-2 md:col-span-1">
                   <Activity className="h-6 w-6 mb-2 text-primary" />
-                  <p className="text-xs text-muted-foreground">Fuzzy Score</p>
+                  <p className="text-xs text-muted-foreground">{t("fuzzyScore")}</p>
                   <p
                     className={`text-3xl font-black ${scoreColor(best.fuzzyScore)}`}
                   >
@@ -333,13 +333,13 @@ export default function OptimizationPage() {
                       best.fuzzyScore,
                     )}`}
                   >
-                    {scoreLabel(best.fuzzyScore)}
+                    {scoreLabel(best.fuzzyScore, t)}
                   </span>
                 </div>
 
                 <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
                   <Gauge className="h-6 w-6 mb-2 text-blue-500" />
-                  <p className="text-xs text-muted-foreground">Accel. Start</p>
+                  <p className="text-xs text-muted-foreground">{t("accelStart")}</p>
                   <p className="text-2xl font-bold">
                     {best.acc_start.toFixed(2)}
                   </p>
@@ -349,7 +349,7 @@ export default function OptimizationPage() {
                 <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
                   <Activity className="h-6 w-6 mb-2 text-purple-500" />
                   <p className="text-xs text-muted-foreground">
-                    v_p1 (FW Start)
+                    {t("vp1FwStart")}
                   </p>
                   <p className="text-2xl font-bold">{best.v_p1.toFixed(1)}</p>
                   <p className="text-xs text-muted-foreground">km/h</p>
@@ -358,7 +358,7 @@ export default function OptimizationPage() {
                 <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
                   <Zap className="h-6 w-6 mb-2 text-yellow-500" />
                   <p className="text-xs text-muted-foreground">
-                    Peak Power/Motor
+                    {t("peakPowerMotor")}
                   </p>
                   <p className="text-2xl font-bold">
                     {best.peakMotorPower.toFixed(1)}
@@ -368,11 +368,11 @@ export default function OptimizationPage() {
 
                 <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
                   <Clock className="h-6 w-6 mb-2 text-green-500" />
-                  <p className="text-xs text-muted-foreground">Travel Time</p>
+                  <p className="text-xs text-muted-foreground">{t("travelTime")}</p>
                   <p className="text-2xl font-bold">
                     {best.travelTime.toFixed(0)}
                   </p>
-                  <p className="text-xs text-muted-foreground">seconds</p>
+                  <p className="text-xs text-muted-foreground">{t("seconds")}</p>
                 </div>
               </div>
             </CardContent>
@@ -384,7 +384,7 @@ export default function OptimizationPage() {
           <Card>
             <CardHeader>
               <CardTitle>
-                All Combinations ({results.length} / {total})
+                {t("allCombinations")} ({results.length} / {total})
               </CardTitle>
             </CardHeader>
             <CardContent className="overflow-x-auto">
@@ -405,10 +405,10 @@ export default function OptimizationPage() {
                       Travel Time (s)
                     </th>
                     <th className="text-right py-2 font-semibold">
-                      Fuzzy Score
+                      {t("fuzzyScore")}
                     </th>
                     <th className="text-center py-2 pl-4 font-semibold">
-                      Grade
+                      {t("grade")}
                     </th>
                   </tr>
                 </thead>
@@ -462,7 +462,7 @@ export default function OptimizationPage() {
                               r.fuzzyScore,
                             )}`}
                           >
-                            {scoreLabel(r.fuzzyScore)}
+                            {scoreLabel(r.fuzzyScore, t)}
                           </span>
                         </td>
                       </tr>
@@ -479,10 +479,9 @@ export default function OptimizationPage() {
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16 gap-4 text-muted-foreground">
               <Activity className="h-12 w-12 opacity-30" />
-              <p className="text-lg font-medium">No optimization results yet</p>
+              <p className="text-lg font-medium">{t("noResults")}</p>
               <p className="text-sm">
-                Click <strong>Start Optimization</strong> to run the full fuzzy
-                parameter sweep across all acc/v_p1 step combinations.
+                {t("noResultsDescription")}
               </p>
             </CardContent>
           </Card>
