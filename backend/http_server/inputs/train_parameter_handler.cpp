@@ -12,7 +12,6 @@ TrainParameterHandler::~TrainParameterHandler() { delete m_massHandler; }
 
 void TrainParameterHandler::recalculateMasses() {
   if (!m_context.massData || !m_context.loadData || !m_context.trainData) {
-    qDebug() << "⚠️ Cannot recalculate masses: data not initialized";
     return;
   }
 
@@ -26,12 +25,6 @@ void TrainParameterHandler::recalculateMasses() {
     m_context.massData->mass_totalLoad = m_massHandler->countMassWithLoad();
     m_context.massData->mass_totalInertial = m_massHandler->countInertialMass();
   }
-
-  qDebug() << "✅ Masses recalculated:";
-  qDebug() << "   - Empty:" << m_context.massData->mass_totalEmpty << "tons";
-  qDebug() << "   - Loaded:" << m_context.massData->mass_totalLoad << "tons";
-  qDebug() << "   - Inertial:" << m_context.massData->mass_totalInertial
-           << "tons";
 }
 QHttpServerResponse TrainParameterHandler::handleGetTrainParameters() {
   QJsonObject response;
@@ -82,7 +75,6 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
   try {
     if (data.contains("trainParameters")) {
       QJsonObject trainParams = data["trainParameters"].toObject();
-      qDebug() << "📝 Updating train parameters:" << trainParams;
 
       if (trainParams.contains("tractionMotors") ||
           trainParams.contains("numberOfMotorCars")) {
@@ -92,7 +84,6 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
         if (val < 0)
           throw std::invalid_argument("Traction motors cannot be negative");
         m_context.trainData->n_tm = val;
-        qDebug() << "Updated n_tm to:" << m_context.trainData->n_tm;
       }
       if (trainParams.contains("axles") ||
           trainParams.contains("numberOfAxles")) {
@@ -102,7 +93,6 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
         if (val < 0)
           throw std::invalid_argument("Axles cannot be negative");
         m_context.trainData->n_axle = val;
-        qDebug() << "Updated n_axle to:" << m_context.trainData->n_axle;
       }
       if (trainParams.contains("cars") ||
           trainParams.contains("numberOfCars")) {
@@ -112,65 +102,50 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
         if (val <= 0)
           throw std::invalid_argument("Number of cars must be positive");
         m_context.trainData->n_car = val;
-        qDebug() << "Updated n_car to:" << m_context.trainData->n_car;
       }
       if (trainParams.contains("gearRatio")) {
         m_context.trainData->gearRatio = trainParams["gearRatio"].toDouble();
-        qDebug() << "Updated gearRatio to:" << m_context.trainData->gearRatio;
       }
       if (trainParams.contains("wheelDiameter")) {
         m_context.trainData->wheel = trainParams["wheelDiameter"].toDouble();
-        qDebug() << "Updated wheel to:" << m_context.trainData->wheel;
       }
       if (trainParams.contains("trainsetLength")) {
         m_context.trainData->trainsetLength =
             trainParams["trainsetLength"].toDouble();
-        qDebug() << "Updated trainsetLength to:"
-                 << m_context.trainData->trainsetLength;
       }
       if (trainParams.contains("carLength")) {
         const double carLength = trainParams["carLength"].toDouble();
         if (m_context.trainData->n_car > 0) {
           m_context.trainData->trainsetLength =
               carLength * m_context.trainData->n_car;
-          qDebug() << "Updated trainsetLength from carLength to:"
-                   << m_context.trainData->trainsetLength;
         }
       }
 
       if (trainParams.contains("numberOfM1Cars")) {
         m_context.trainData->n_M1 = trainParams["numberOfM1Cars"].toDouble();
-        qDebug() << "Updated n_M1 to:" << m_context.trainData->n_M1;
       }
       if (trainParams.contains("numberOfM2Cars")) {
         m_context.trainData->n_M2 = trainParams["numberOfM2Cars"].toDouble();
-        qDebug() << "Updated n_M2 to:" << m_context.trainData->n_M2;
       }
       if (trainParams.contains("numberOfTcCars")) {
         m_context.trainData->n_Tc = trainParams["numberOfTcCars"].toDouble();
-        qDebug() << "Updated n_Tc to:" << m_context.trainData->n_Tc;
       }
       if (trainParams.contains("numberOfT1Cars")) {
         m_context.trainData->n_T1 = trainParams["numberOfT1Cars"].toDouble();
-        qDebug() << "Updated n_T1 to:" << m_context.trainData->n_T1;
       }
       if (trainParams.contains("numberOfT2Cars")) {
         m_context.trainData->n_T2 = trainParams["numberOfT2Cars"].toDouble();
-        qDebug() << "Updated n_T2 to:" << m_context.trainData->n_T2;
       }
       if (trainParams.contains("numberOfT3Cars")) {
         m_context.trainData->n_T3 = trainParams["numberOfT3Cars"].toDouble();
-        qDebug() << "Updated n_T3 to:" << m_context.trainData->n_T3;
       }
       if (trainParams.contains("numberOfM1DisabledCars")) {
         m_context.trainData->n_M1_disabled =
             trainParams["numberOfM1DisabledCars"].toDouble();
-        qDebug() << "Updated n_T3 to:" << m_context.trainData->n_M1_disabled;
       }
       if (trainParams.contains("numberOfM2DisabledCars")) {
         m_context.trainData->n_M2_disabled =
             trainParams["numberOfM2DisabledCars"].toDouble();
-        qDebug() << "Updated n_T3 to:" << m_context.trainData->n_M2_disabled;
       }
 
       if (m_context.loadData) {
@@ -178,22 +153,18 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
           m_context.loadData->load = trainParams.contains("trainLoad")
                                          ? trainParams["trainLoad"].toDouble()
                                          : trainParams["load"].toDouble();
-          qDebug() << "Updated load to:" << m_context.loadData->load;
         }
         if (trainParams.contains("mass_P")) {
           m_context.loadData->mass_P = trainParams["mass_P"].toDouble();
-          qDebug() << "Updated mass_P to:" << m_context.loadData->mass_P;
         }
       }
 
       if (m_context.massData) {
         if (trainParams.contains("i_M")) {
           m_context.massData->i_M = trainParams["i_M"].toDouble();
-          qDebug() << "Updated i_M to:" << m_context.massData->i_M;
         }
         if (trainParams.contains("i_T")) {
           m_context.massData->i_T = trainParams["i_T"].toDouble();
-          qDebug() << "Updated i_T to:" << m_context.massData->i_T;
         }
       }
 
@@ -201,19 +172,15 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
 
       response["status"] = "success";
       response["message"] = "Train parameters updated successfully";
-      qDebug() << "✅ Train parameters updated successfully";
     } else {
-      qDebug() << "❌ No train parameters provided in request";
       response["status"] = "error";
       response["message"] = "No train parameters provided";
     }
   } catch (const std::exception &e) {
-    qDebug() << "💥 Exception in handleUpdateTrainParameters:" << e.what();
     response["status"] = "error";
     response["message"] =
         QString("Error updating parameters: %1").arg(e.what());
   } catch (...) {
-    qDebug() << "💥 Unknown exception in handleUpdateTrainParameters";
     response["status"] = "error";
     response["message"] = "Unknown error updating parameters";
   }
@@ -265,7 +232,6 @@ QHttpServerResponse TrainParameterHandler::handleUpdateCarNumberParameters(
 
   try {
     QJsonObject carNumberParams = data;
-    qDebug() << "📝 Updating car number parameters:" << carNumberParams;
 
     if (carNumberParams.contains("n_M1")) {
       double val = carNumberParams["n_M1"].toDouble();
@@ -301,9 +267,7 @@ QHttpServerResponse TrainParameterHandler::handleUpdateCarNumberParameters(
 
     response["status"] = "success";
     response["message"] = "Car number parameters updated successfully";
-    qDebug() << "✅ Car number parameters updated successfully";
   } catch (const std::exception &e) {
-    qDebug() << "💥 Exception in handleUpdateCarNumberParameters:" << e.what();
     response["status"] = "error";
     response["message"] =
         QString("Error updating parameters: %1").arg(e.what());
@@ -354,7 +318,6 @@ QHttpServerResponse TrainParameterHandler::handleUpdatePassengerParameters(
 
   try {
     QJsonObject passengerParams = data;
-    qDebug() << "📝 Updating passenger parameters:" << passengerParams;
 
     if (passengerParams.contains("n_PTc")) {
       double val = passengerParams["n_PTc"].toDouble();
@@ -382,9 +345,7 @@ QHttpServerResponse TrainParameterHandler::handleUpdatePassengerParameters(
 
     response["status"] = "success";
     response["message"] = "Passenger parameters updated successfully";
-    qDebug() << "✅ Passenger parameters updated successfully";
   } catch (const std::exception &e) {
-    qDebug() << "💥 Exception in handleUpdatePassengerParameters:" << e.what();
     response["status"] = "error";
     response["message"] =
         QString("Error updating parameters: %1").arg(e.what());
@@ -443,7 +404,6 @@ TrainParameterHandler::handleUpdateMassParameters(const QJsonObject &data) {
   try {
     if (data.contains("massParameters")) {
       QJsonObject massParams = data["massParameters"].toObject();
-      qDebug() << "📝 Updating mass parameters:" << massParams;
 
       if (massParams.contains("mass_M1")) {
         double val = massParams["mass_M1"].toDouble();
@@ -478,13 +438,11 @@ TrainParameterHandler::handleUpdateMassParameters(const QJsonObject &data) {
 
       response["status"] = "success";
       response["message"] = "Mass parameters updated successfully";
-      qDebug() << "✅ Mass parameters updated successfully";
     } else {
       response["status"] = "error";
       response["message"] = "No mass parameters provided";
     }
   } catch (const std::exception &e) {
-    qDebug() << "💥 Exception in handleUpdateMassParameters:" << e.what();
     response["status"] = "error";
     response["message"] =
         QString("Error updating parameters: %1").arg(e.what());

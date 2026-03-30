@@ -3,7 +3,6 @@
 #include "webengine/webengine_window.h"
 #include <QApplication>
 #include <QCoreApplication>
-#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QTimer>
@@ -68,28 +67,9 @@ int main(int argc, char *argv[]) {
     }
 
     if (server.startServer(port)) {
-      qInfo() << "✅ Train Simulation Backend Server started on port" << port;
-      qInfo() << "Server started successfully on port:" << server.getPort();
-      qInfo() << "Available endpoints:";
-      qInfo() << "  GET  /status - Server status";
-      qInfo() << "  GET  /api/health - Health check";
-      qInfo() << "  GET  /api/parameters/train - Get train parameters";
-      qInfo() << "  POST /api/parameters/train - Update train parameters";
-      qInfo()
-          << "  GET  /api/parameters/electrical - Get electrical parameters";
-      qInfo()
-          << "  POST /api/parameters/electrical - Update electrical parameters";
-      qInfo() << "  GET  /api/parameters/running - Get running parameters";
-      qInfo() << "  POST /api/parameters/running - Update running parameters";
-      qInfo() << "  GET  /api/parameters/track - Get track parameters";
-      qInfo() << "  POST /api/parameters/track - Update track parameters";
-      qInfo() << "  POST /api/simulation/start - Start simulation";
-      qInfo() << "  GET  /api/simulation/status - Get simulation status";
-      qInfo() << "  GET  /api/simulation/results - Get simulation results";
-      qInfo() << "  POST /api/export/results - Export results to CSV";
+
       return app.exec();
     } else {
-      qCritical() << "❌ Failed to start server on port" << port;
       return 1;
     }
   } else {
@@ -117,7 +97,7 @@ int main(int argc, char *argv[]) {
         for (const QString &path : possiblePaths) {
           if (QDir(path).exists() && QFile::exists(path + "/index.html")) {
             foundPath = path;
-            qInfo() << "✅ Found local frontend directory at:" << path;
+
             break;
           }
         }
@@ -126,14 +106,10 @@ int main(int argc, char *argv[]) {
           qputenv("TRAIN_APP_STATIC_ROOT", foundPath.toUtf8());
           frontendUrl = "SERVE_STATIC";
         } else {
-          qWarning() << "⚠️ Could not find local frontend directory. "
-                        "Defaulting to localhost.";
           frontendUrl = "http://127.0.0.1:3254";
         }
       }
     }
-
-    qInfo() << "🚀 Starting Train Simulation App (Desktop Mode)";
 
     WebEngineWindow window(port, devMode);
     window.show();
@@ -143,19 +119,10 @@ int main(int argc, char *argv[]) {
       frontendUrl = QString("http://127.0.0.1:%1").arg(actualPort);
     }
 
-    qInfo() << "   Mode:" << (devMode ? "Development" : "Production");
-    qInfo() << "   Frontend:" << frontendUrl;
-
     // Load frontend
     window.loadFrontend(QUrl(frontendUrl));
 
-    qInfo() << "✅ Application started successfully";
-    qInfo() << "💡 Usage:";
-    qInfo() << "   --headless        Run backend server only (no GUI)";
-    qInfo() << "   --dev             Development mode";
-    qInfo() << "   --port=8080       Set backend port";
-    qInfo() << "   --frontend=URL    Set frontend URL (default: "
-               "http://localhost:3254)";
+    "http://localhost:3254)";
 
     return app.exec();
   }

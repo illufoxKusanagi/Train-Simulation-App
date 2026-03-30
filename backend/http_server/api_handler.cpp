@@ -1,6 +1,5 @@
 #include "api_handler.h"
 #include <QDateTime>
-#include <QDebug>
 #include <QHttpServerResponse>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -29,8 +28,6 @@ ApiHandler::ApiHandler(AppContext &context, QObject *parent)
     m_csvOutputHandler = new CsvOutputHandler(*context.simulationDatas);
   } else {
     m_csvOutputHandler = nullptr;
-    qWarning()
-        << "simulationDatas not initialized, CSV export will not be available";
   }
 }
 
@@ -293,7 +290,6 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
                     {"movingData", m_context.movingData != nullptr}};
 
   } catch (const std::exception &e) {
-    qCritical() << "💥 Quick init failed:" << e.what();
     response["status"] = "error";
     response["message"] = QString("Initialization error: %1").arg(e.what());
     return QHttpServerResponse(

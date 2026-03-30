@@ -1,5 +1,4 @@
 #include "appcontext.h"
-#include <qdebug.h>
 
 AppContext::AppContext(QObject *parent) : QObject(parent) {
   trainData = QSharedPointer<TrainData>::create();

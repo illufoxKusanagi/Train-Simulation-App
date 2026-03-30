@@ -1,7 +1,6 @@
 #include "fuzzy_engine.h"
 #include "fuzzy_rule.h"
 #include "fuzzy_variable.h"
-#include <QDebug>
 #include <algorithm>
 
 FuzzyEngine::FuzzyEngine() {}
@@ -26,7 +25,6 @@ void FuzzyEngine::setInputValue(const QString &varName, double value) {
   if (m_inputs.contains(varName)) {
     m_inputs[varName]->setValue(value);
   } else {
-    qWarning() << "FuzzyEngine: Input variable not found:" << varName;
   }
 }
 
@@ -39,7 +37,6 @@ QString FuzzyEngine::getDominantInputTerm(const QString &varName) const {
 
 double FuzzyEngine::getOutputValue(const QString &varName) {
   if (!m_outputs.contains(varName)) {
-    qWarning() << "FuzzyEngine: Output variable not found:" << varName;
     return 0.0;
   }
 

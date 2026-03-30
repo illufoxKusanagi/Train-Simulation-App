@@ -93,7 +93,6 @@ bool TrainSimulationHandler::validateDataInitialized() {
   if (!trainData || !massData || !loadData || !resistanceData || !movingData ||
       !trainMotorData || !efficiencyData || !powerData || !energyData ||
       !stationData || !constantData) {
-    qCritical() << "CRITICAL: Simulation data not initialized!";
     m_simulationErrors->append("ERR_SIM_DATA_NOT_INITIALIZED");
     return false;
   }

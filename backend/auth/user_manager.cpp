@@ -2,7 +2,6 @@
 
 #include <QCoreApplication>
 #include <QCryptographicHash>
-#include <QDebug>
 #include <QDir>
 #include <QStandardPaths>
 
@@ -22,9 +21,7 @@ UserManager::UserManager(QObject *parent) : QObject(parent) {
              "2d4db891a1643c40719e535a6183eecf66f0b4503dec4b7c741bb24dc00200fe"
              "\n";
       file.close();
-      qInfo() << "Created default .auth file at" << authPath;
     } else {
-      qWarning() << "Failed to create default .auth file at" << authPath;
     }
   }
 
@@ -50,9 +47,7 @@ UserManager::UserManager(QObject *parent) : QObject(parent) {
     }
     file.close();
     m_loaded = !(m_username.isEmpty() || m_passwordHash.isEmpty());
-    qInfo() << "Auth credentials loaded from" << authPath;
   } else {
     m_loaded = false;
-    qWarning() << "Failed to open .auth file at" << authPath;
   }
 }

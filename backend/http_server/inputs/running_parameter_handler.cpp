@@ -60,7 +60,6 @@ QHttpServerResponse RunningParameterHandler::handleUpdateRunningParameters(
     QJsonObject runningParams = data.contains("runningParameters")
                                     ? data["runningParameters"].toObject()
                                     : data;
-    qDebug() << "📝 Updating running parameters:" << runningParams;
 
     if (runningParams.contains("startRes")) {
       m_context.resistanceData->startRes = runningParams["startRes"].toDouble();
@@ -121,9 +120,7 @@ QHttpServerResponse RunningParameterHandler::handleUpdateRunningParameters(
 
     response["status"] = "success";
     response["message"] = "Running parameters updated successfully";
-    qDebug() << "✅ Running parameters updated successfully";
   } catch (const std::exception &e) {
-    qDebug() << "💥 Exception in handleUpdateRunningParameters:" << e.what();
     response["status"] = "error";
     response["message"] =
         QString("Error updating parameters: %1").arg(e.what());

@@ -1,6 +1,5 @@
 #include "auth_manager.h"
 #include <QPasswordDigestor>
-#include <qdebug.h>
 
 AuthManager::AuthManager(UserManager *userManager, QObject *parent)
     : QObject(parent), m_userManager(userManager) {}

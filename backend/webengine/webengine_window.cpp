@@ -1,7 +1,6 @@
 #include "webengine_window.h"
 #include <QAction>
 #include <QCloseEvent>
-#include <QDebug>
 #include <QMessageBox>
 #include <QToolBar>
 #include <QVBoxLayout>
@@ -126,8 +125,6 @@ void WebEngineWindow::setupWebEngine() {
   m_webChannel->registerObject("fileBridge", m_fileBridge);
 
   m_webView->page()->setWebChannel(m_webChannel);
-
-  qInfo() << "✅ Qt WebChannel setup complete - fileBridge registered";
 }
 
 void WebEngineWindow::setupConnections() {
@@ -154,11 +151,9 @@ void WebEngineWindow::setupBackendServer() {
   }
 
   if (m_httpServer->startServer(m_port)) {
-    qInfo() << "✅ Backend server started on port" << m_httpServer->getPort();
     statusBar()->showMessage(
         QString("Backend ready on port %1").arg(m_httpServer->getPort()));
   } else {
-    qCritical() << "❌ Failed to start backend server on port" << m_port;
     QMessageBox::critical(
         this, "Server Error",
         QString("Failed to start backend server on port %1").arg(m_port));
@@ -167,7 +162,6 @@ void WebEngineWindow::setupBackendServer() {
 
 void WebEngineWindow::loadFrontend(const QUrl &url) {
   m_frontendUrl = url.toString();
-  qInfo() << "Loading frontend from:" << url;
   m_webView->load(url);
 }
 
@@ -186,10 +180,8 @@ void WebEngineWindow::onLoadFinished(bool ok) {
 
   if (ok) {
     statusBar()->showMessage("Ready", 3000);
-    qInfo() << "✅ Frontend loaded successfully";
   } else {
     statusBar()->showMessage("Failed to load frontend", 5000);
-    qWarning() << "❌ Failed to load frontend from:" << m_frontendUrl;
 
     QMessageBox::warning(this, "Load Error",
                          QString("Failed to load frontend from:\n%1\n\n"
@@ -199,9 +191,7 @@ void WebEngineWindow::onLoadFinished(bool ok) {
   }
 }
 
-void WebEngineWindow::onUrlChanged(const QUrl &url) {
-  qDebug() << "URL changed:" << url;
-}
+void WebEngineWindow::onUrlChanged(const QUrl &url) {}
 
 void WebEngineWindow::onTitleChanged(const QString &title) {
   setWindowTitle(QString("%1 - Train Simulation").arg(title));
@@ -213,7 +203,6 @@ void WebEngineWindow::closeEvent(QCloseEvent *event) {
       QMessageBox::Yes | QMessageBox::No);
 
   if (reply == QMessageBox::Yes) {
-    qInfo() << "Application closing...";
 
     if (m_httpServer) {
       m_httpServer->stopServer();

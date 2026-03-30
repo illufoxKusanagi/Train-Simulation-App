@@ -53,8 +53,6 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
     QJsonObject trackParams = data.contains("trackParameters")
                                   ? data["trackParameters"].toObject()
                                   : data;
-    qDebug() << "📝 Updating track parameters:" << trackParams;
-
     if (trackParams.contains("n_station")) {
       m_context.stationData->n_station = trackParams["n_station"].toInt();
       if (m_context.stationData->n_station <= 0) {
@@ -121,13 +119,10 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
             m_context.stationData->x_station.size() + 1;
       }
 
-      qDebug() << "[Track] x_station size:"
-               << m_context.stationData->x_station.size();
       if (!m_context.stationData->x_station.empty()) {
         QString stationsStr;
         for (double val : m_context.stationData->x_station)
           stationsStr += QString::number(val) + ", ";
-        qDebug() << "[Track] segments:" << stationsStr;
       }
     }
 
@@ -232,7 +227,6 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
     response["status"] = "success";
     response["message"] = "Track parameters updated successfully";
   } catch (const std::exception &e) {
-    qDebug() << "Exception in handleUpdateTrackParameters:" << e.what();
     response["status"] = "error";
     response["message"] =
         QString("Error updating parameters: %1").arg(e.what());

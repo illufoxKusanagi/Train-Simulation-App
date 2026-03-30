@@ -24,7 +24,6 @@
 #include <QSet>
 #include <QString>
 #include <QtConcurrent>
-#include <qdebug.h>
 
 class TrainSimulationHandler : public QObject {
   Q_OBJECT
