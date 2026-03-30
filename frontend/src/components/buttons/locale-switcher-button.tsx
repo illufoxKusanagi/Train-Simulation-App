@@ -15,20 +15,20 @@ const LOCALE_MAP: Record<string, { flag: string; label: string }> = {
 };
 
 export function LocaleSwitcherButton() {
-  const [current, setCurrent] = useState("en");
+  type Locale = keyof typeof LOCALE_MAP;
+  const [current, setCurrent] = useState<Locale>("en");
 
   useEffect(() => {
-    const saved = localStorage.getItem("locale") ?? "en";
-    setCurrent(saved);
+    const saved = localStorage.getItem("locale");
+    if (saved === "en" || saved === "id") setCurrent(saved);
   }, []);
 
-  const switchLocale = (locale: string) => {
+  const switchLocale = (locale: Locale) => {
     localStorage.setItem("locale", locale);
     window.location.reload();
   };
 
   const display = LOCALE_MAP[current] ?? LOCALE_MAP.en;
-
   return (
     <div>
       <DropdownMenu>

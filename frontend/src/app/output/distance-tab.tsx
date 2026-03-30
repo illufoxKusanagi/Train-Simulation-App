@@ -58,7 +58,9 @@ export default function DistanceTab({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>{t("charts.distance.distancePowering")}</CardDescription>
+              <CardDescription>
+                {t("charts.distance.distancePowering")}
+              </CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.distanceTravelled ?? 0).toFixed(2)} m
               </CardTitle>
@@ -66,7 +68,9 @@ export default function DistanceTab({
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>{t("charts.distance.distanceBraking")}</CardDescription>
+              <CardDescription>
+                {t("charts.distance.distanceBraking")}
+              </CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.distanceOnBraking ?? 0).toFixed(2)} m
               </CardTitle>
@@ -74,11 +78,11 @@ export default function DistanceTab({
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>{t("charts.distance.distanceEmergency")}</CardDescription>
+              <CardDescription>
+                {t("charts.distance.distanceEmergency")}
+              </CardDescription>
               <CardTitle className="text-2xl">
-                {(results.summary?.distanceOnEmergencyBraking ?? 0).toFixed(
-                  2,
-                )}{" "}
+                {(results.summary?.distanceOnEmergencyBraking ?? 0).toFixed(2)}{" "}
                 m
               </CardTitle>
             </CardHeader>
@@ -109,7 +113,7 @@ export default function DistanceTab({
                     </tr>
                   </thead>
                   <tbody>
-                    {results.trackDistanceTable.labels.map((label, index) => (
+                    {results.trackDistanceTable?.labels?.map((label, index) => (
                       <tr key={label} className="hover:bg-accent">
                         <td className="border border-border p-3 font-medium">
                           {label}

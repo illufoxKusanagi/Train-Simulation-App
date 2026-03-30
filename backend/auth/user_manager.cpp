@@ -19,7 +19,7 @@ UserManager::UserManager(QObject *parent) : QObject(parent) {
       out << "ADMIN_USERNAME=admin\n";
       out << "ADMIN_PASSWORD_HASH="
              "100000:696e6b61737461746963:"
-             "ce19571f3cc61f0dc6f4960ef15ac6413919f6d0b9b9073f2a31c8aa2a9141a4"
+             "2d4db891a1643c40719e535a6183eecf66f0b4503dec4b7c741bb24dc00200fe"
              "\n";
       file.close();
       qInfo() << "Created default .auth file at" << authPath;
