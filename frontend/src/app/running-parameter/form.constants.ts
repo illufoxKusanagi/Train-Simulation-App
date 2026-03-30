@@ -76,7 +76,7 @@ export const constantInputFormDatas: InputType[] = [
     name: "startRes",
   },
   {
-    label: "Differentce Coasting Speed",
+    label: "Difference Coasting Speed",
     unit: "km/h",
     type: "field",
     name: "v_diffCoast",

@@ -2,7 +2,6 @@
 
 import { InputWidget } from "@/components/inputs/input-widget";
 import PageLayout from "@/components/page-layout";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardHeader,
@@ -19,17 +18,14 @@ import { toast } from "sonner";
 import { Form } from "@/components/ui/form";
 import { api } from "@/services/api";
 import { initializeBackendOnce } from "@/lib/backendInit";
-import { Spinner } from "@/components/ui/spinner";
-import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
-import { useRef } from "react";
 import { useFormPersistence } from "@/contexts/FormPersistenceContext";
 import { useTranslations } from "next-intl";
+import { exportConfigToCsv } from "@/lib/csv-export";
+import { FormActionButtons } from "@/components/buttons/form-action-buttons";
 
 export default function RunningPage() {
   const trans = useTranslations("RunningParams");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const csvInputRef = useRef<HTMLInputElement>(null);
   const { saveFormData, loadFormData, clearFormData } = useFormPersistence();
 
   const defaultValues = {
@@ -119,38 +115,7 @@ export default function RunningPage() {
     }
   }
 
-  /**
-   * Handle CSV File Upload
-   *
-   * This function parses a CSV file and populates the form fields.
-   *
-   * Expected CSV Format (Simple Key-Value):
-   * ---------------------------------------
-   * startRes,39.2
-   * v_diffCoast,5
-   * acc_start,1
-   * ...
-   *
-   * Logic:
-   * 1. Reads file as text.
-   * 2. Splits content by newlines to get rows.
-   * 3. Splits each row by comma to get [key, value].
-   * 4. Checks if the key exists in our form schema.
-   * 5. Validates that the value is a number.
-   * 6. Updates the form field using setValue.
-   */
-  const handleCsvUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      if (!text) return;
-      processCsvText(text);
-      event.target.value = "";
-    };
-    reader.readAsText(file);
-  };
+
 
   const processCsvText = (text: string) => {
     console.log("📂 processing CSV upload...");
@@ -240,68 +205,27 @@ export default function RunningPage() {
                 ))}
               </div>
 
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  className="flex-1"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Spinner className="mr-2" />
-                      {trans("saving")}
-                    </>
-                  ) : (
-                    trans("save")
-                  )}
-                </Button>
-                <div className="flex-1 relative">
-                  <input
-                    ref={csvInputRef}
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    onChange={handleCsvUpload}
-                  />
-                  <Button
-                    type="button"
-                    variant="default"
-                    className="w-full"
-                    disabled={isUploading}
-                    onClick={async () => {
-                      if (isQtWebChannelReady()) {
-                        setIsUploading(true);
-                        const result = await openFileWithDialog(
-                          "Select Running Parameters CSV File",
-                          "CSV Files (*.csv);;All Files (*)",
-                        );
-                        if (result.success && result.content)
-                          processCsvText(result.content);
-                        setIsUploading(false);
-                      } else {
-                        csvInputRef.current?.click();
-                      }
-                    }}
-                  >
-                    {isUploading ? (
-                      <>
-                        <Spinner className="mr-2" />
-                        {trans("uploading")}
-                      </>
-                    ) : (
-                      trans("uploadCsv")
-                    )}
-                  </Button>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handleReset}
-                >
-                  {trans("reset")}
-                </Button>
-              </div>
+              <FormActionButtons
+                isSubmitting={isSubmitting}
+                onProcessCsvText={processCsvText}
+                onReset={handleReset}
+                onExport={() =>
+                  exportConfigToCsv(
+                    constantForm.getValues(),
+                    "running-parameters.csv",
+                    trans("exportSuccess"),
+                  )
+                }
+                dialogTitle="Select Running Parameters CSV File"
+                labels={{
+                  save: trans("save"),
+                  saving: trans("saving"),
+                  uploadCsv: trans("uploadCsv"),
+                  uploading: trans("uploading"),
+                  reset: trans("reset"),
+                  exportCsv: trans("exportCsv"),
+                }}
+              />
             </form>
           </Form>
         </CardContent>

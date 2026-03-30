@@ -2,7 +2,6 @@
 
 import { InputWidget } from "@/components/inputs/input-widget";
 import PageLayout from "@/components/page-layout";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardHeader,
@@ -19,17 +18,14 @@ import { constantFormRows, ElectricalFormSchema } from "./form.constants";
 import { Form } from "@/components/ui/form";
 import { api } from "@/services/api";
 import { initializeBackendOnce } from "@/lib/backendInit";
-import { Spinner } from "@/components/ui/spinner";
-import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
-import { useRef } from "react";
 import { useFormPersistence } from "@/contexts/FormPersistenceContext";
 import { useTranslations } from "next-intl";
+import { exportConfigToCsv } from "@/lib/csv-export";
+import { FormActionButtons } from "@/components/buttons/form-action-buttons";
 
 export default function ElectricalParameterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
-  const csvInputRef = useRef<HTMLInputElement>(null);
   const { saveFormData, loadFormData, clearFormData } = useFormPersistence();
 
   const trans = useTranslations("ElectricalParams");
@@ -131,29 +127,8 @@ export default function ElectricalParameterPage() {
   };
 
   /**
-   * Handle CSV File Upload (Batch Config)
-   *
-   * Expected CSV Format (Simple Key-Value):
-   * ---------------------------------------
-   * stat_vol_line,1500
-   * stat_eff_motor,89
-   * ...
+   * Process CSV Text
    */
-  const handleCsvUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      if (!text) return;
-      processCsvText(text);
-      event.target.value = "";
-    };
-    reader.readAsText(file);
-  };
-
   const processCsvText = (text: string) => {
     console.log("📂 processing CSV upload...");
     const lines = text.split(/\r\n|\n/);
@@ -227,68 +202,27 @@ export default function ElectricalParameterPage() {
                 ))}
               </div>
 
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  className="flex-1"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Spinner className="mr-2" />
-                      {trans("saving")}
-                    </>
-                  ) : (
-                    trans("save")
-                  )}
-                </Button>
-                <div className="flex-1 relative">
-                  <input
-                    ref={csvInputRef}
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    onChange={handleCsvUpload}
-                  />
-                  <Button
-                    type="button"
-                    variant="default"
-                    className="w-full"
-                    disabled={isUploading}
-                    onClick={async () => {
-                      if (isQtWebChannelReady()) {
-                        setIsUploading(true);
-                        const result = await openFileWithDialog(
-                          "Select Electrical Parameters CSV File",
-                          "CSV Files (*.csv);;All Files (*)",
-                        );
-                        if (result.success && result.content)
-                          processCsvText(result.content);
-                        setIsUploading(false);
-                      } else {
-                        csvInputRef.current?.click();
-                      }
-                    }}
-                  >
-                    {isUploading ? (
-                      <>
-                        <Spinner className="mr-2" />
-                        {trans("uploading")}
-                      </>
-                    ) : (
-                      trans("uploadCsv")
-                    )}
-                  </Button>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handleReset}
-                >
-                  {trans("reset")}
-                </Button>
-              </div>
+              <FormActionButtons
+                isSubmitting={isSubmitting}
+                onProcessCsvText={processCsvText}
+                onReset={handleReset}
+                onExport={() =>
+                  exportConfigToCsv(
+                    constantForm.getValues(),
+                    "electrical-parameters.csv",
+                    trans("exportSuccess"),
+                  )
+                }
+                dialogTitle="Select Electrical Parameters CSV File"
+                labels={{
+                  save: trans("save"),
+                  saving: trans("saving"),
+                  uploadCsv: trans("uploadCsv"),
+                  uploading: trans("uploading"),
+                  reset: trans("reset"),
+                  exportCsv: trans("exportCsv"),
+                }}
+              />
             </form>
           </Form>
         </CardContent>

@@ -11,9 +11,6 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { api } from "@/services/api";
 import { initializeBackendOnce } from "@/lib/backendInit";
-import { Spinner } from "@/components/ui/spinner";
-import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
-import { useRef } from "react";
 import { useFormPersistence } from "@/contexts/FormPersistenceContext";
 import PageLayout from "@/components/page-layout";
 import {
@@ -24,16 +21,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { InputWidget } from "@/components/inputs/input-widget";
-import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { useTranslations } from "next-intl";
+import { exportConfigToCsv } from "@/lib/csv-export";
+import { FormActionButtons } from "@/components/buttons/form-action-buttons";
 
 export default function TrackParameterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
-  const csvInputRef = useRef<HTMLInputElement>(null);
   const { saveFormData, loadFormData, clearFormData } = useFormPersistence();
   const trans = useTranslations("TrackParams");
 
@@ -240,28 +236,7 @@ export default function TrackParameterPage() {
     toast(trans("toast.reset"));
   };
 
-  /**
-   * Handle CSV File Upload (Batch Config)
-   *
-   * Expected CSV Format (Simple Key-Value):
-   * ---------------------------------------
-   * n_station,2
-   * x_station,2000
-   * radius,300
-   * ...
-   */
-  const handleCsvUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      if (!text) return;
-      processCsvText(text);
-      event.target.value = "";
-    };
-    reader.readAsText(file);
-  };
+
 
   const processCsvText = (text: string) => {
     console.log("📂 processing CSV upload...");
@@ -326,68 +301,27 @@ export default function TrackParameterPage() {
                 ))}
               </div>
 
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  className="flex-1"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Spinner className="mr-2" />
-                      {trans("saving")}
-                    </>
-                  ) : (
-                    trans("save")
-                  )}
-                </Button>
-                <div className="flex-1 relative">
-                  <input
-                    ref={csvInputRef}
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    onChange={handleCsvUpload}
-                  />
-                  <Button
-                    type="button"
-                    variant="default"
-                    className="w-full"
-                    disabled={isUploading}
-                    onClick={async () => {
-                      if (isQtWebChannelReady()) {
-                        setIsUploading(true);
-                        const result = await openFileWithDialog(
-                          "Select Track Parameters CSV File",
-                          "CSV Files (*.csv);;All Files (*)",
-                        );
-                        if (result.success && result.content)
-                          processCsvText(result.content);
-                        setIsUploading(false);
-                      } else {
-                        csvInputRef.current?.click();
-                      }
-                    }}
-                  >
-                    {isUploading ? (
-                      <>
-                        <Spinner className="mr-2" />
-                        {trans("uploading")}
-                      </>
-                    ) : (
-                      trans("uploadCsv")
-                    )}
-                  </Button>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handleReset}
-                >
-                  {trans("reset")}
-                </Button>
-              </div>
+              <FormActionButtons
+                isSubmitting={isSubmitting}
+                onProcessCsvText={processCsvText}
+                onReset={handleReset}
+                onExport={() =>
+                  exportConfigToCsv(
+                    constantForm.getValues(),
+                    "track-parameters.csv",
+                    trans("exportSuccess"),
+                  )
+                }
+                dialogTitle="Select Track Parameters CSV File"
+                labels={{
+                  save: trans("save"),
+                  saving: trans("saving"),
+                  uploadCsv: trans("uploadCsv"),
+                  uploading: trans("uploading"),
+                  reset: trans("reset"),
+                  exportCsv: trans("exportCsv"),
+                }}
+              />
             </form>
           </Form>
         </CardContent>
@@ -426,68 +360,27 @@ export default function TrackParameterPage() {
                 ))}
               </div>
 
-              <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  className="flex-1"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Spinner className="mr-2" />
-                      {trans("saving")}
-                    </>
-                  ) : (
-                    trans("save")
-                  )}
-                </Button>
-                <div className="flex-1 relative">
-                  <input
-                    ref={csvInputRef}
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    onChange={handleCsvUpload}
-                  />
-                  <Button
-                    type="button"
-                    variant="default"
-                    className="w-full"
-                    disabled={isUploading}
-                    onClick={async () => {
-                      if (isQtWebChannelReady()) {
-                        setIsUploading(true);
-                        const result = await openFileWithDialog(
-                          "Select Track Parameters CSV File",
-                          "CSV Files (*.csv);;All Files (*)",
-                        );
-                        if (result.success && result.content)
-                          processCsvText(result.content);
-                        setIsUploading(false);
-                      } else {
-                        csvInputRef.current?.click();
-                      }
-                    }}
-                  >
-                    {isUploading ? (
-                      <>
-                        <Spinner className="mr-2" />
-                        {trans("uploading")}
-                      </>
-                    ) : (
-                      trans("uploadCsv")
-                    )}
-                  </Button>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={handleReset}
-                >
-                  {trans("reset")}
-                </Button>
-              </div>
+              <FormActionButtons
+                isSubmitting={isSubmitting}
+                onProcessCsvText={processCsvText}
+                onReset={handleReset}
+                onExport={() =>
+                  exportConfigToCsv(
+                    constantForm.getValues(),
+                    "track-slope-parameters.csv",
+                    trans("exportSuccess"),
+                  )
+                }
+                dialogTitle="Select Track Parameters CSV File"
+                labels={{
+                  save: trans("save"),
+                  saving: trans("saving"),
+                  uploadCsv: trans("uploadCsv"),
+                  uploading: trans("uploading"),
+                  reset: trans("reset"),
+                  exportCsv: trans("exportCsv"),
+                }}
+              />
             </form>
           </Form>
         </CardContent>

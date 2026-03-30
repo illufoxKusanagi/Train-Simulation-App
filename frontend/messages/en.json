@@ -69,6 +69,8 @@
     "save": "Save",
     "saving": "Saving...",
     "uploadCsv": "Upload CSV",
+    "exportCsv": "Export CSV",
+    "exportSuccess": "CSV exported successfully!",
     "uploading": "Uploading...",
     "uploadCsvFailed": "Could not load saved parameters, using defaults...",
     "reset": "Reset",
@@ -90,6 +92,8 @@
     "save": "Save",
     "saving": "Saving...",
     "uploadCsv": "Upload CSV",
+    "exportCsv": "Export CSV",
+    "exportSuccess": "CSV exported successfully!",
     "uploading": "Uploading...",
     "uploadCsvFailed": "Could not load saved parameters, using defaults...",
     "reset": "Reset",
@@ -107,6 +111,8 @@
     "save": "Save",
     "saving": "Saving...",
     "uploadCsv": "Upload CSV",
+    "exportCsv": "Export CSV",
+    "exportSuccess": "CSV exported successfully!",
     "uploading": "Uploading...",
     "uploadCsvFailed": "Could not load saved parameters, using defaults...",
     "reset": "Reset",
@@ -124,6 +130,8 @@
     "save": "Save",
     "saving": "Saving...",
     "uploadCsv": "Upload CSV",
+    "exportCsv": "Export CSV",
+    "exportSuccess": "CSV exported successfully!",
     "uploading": "Uploading...",
     "uploadCsvFailed": "Could not load saved parameters, using defaults...",
     "reset": "Reset",
@@ -211,6 +219,7 @@
     "title": "Fuzzy Optimization",
     "description": "Parameter sweep for each combinations, scored by Mamdani fuzzy logic.",
     "startOptimization": "Start Optimization",
+    "saveResultsCsv": "Save Results CSV",
     "running": "Running…",
     "fuzzyRangesTitle": "Fuzzy Membership Ranges",
     "fuzzyRangesDescription": "Set the peak value for each membership level (Low / Medium / High) used in the fuzzy evaluation.",
@@ -238,7 +247,8 @@
       "failed": "Optimization failed — no results produced",
       "pollingFailed": "Optimization status polling failed",
       "started": "Optimization started — {combinations} combinations",
-      "startFailed": "Failed to start optimization"
+      "startFailed": "Failed to start optimization",
+      "exportSuccess": "Optimization results exported successfully!"
     }
   },
   "Utilities": {

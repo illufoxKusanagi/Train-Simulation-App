@@ -14,6 +14,7 @@ import {
   Clock,
   Activity,
   Gauge,
+  Download,
 } from "lucide-react";
 import PageLayout from "@/components/page-layout";
 import { InputWidget } from "@/components/inputs/input-widget";
@@ -27,6 +28,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormPersistence } from "@/contexts/FormPersistenceContext";
 import { useTranslations } from "next-intl";
+import { exportTableToCsv } from "@/lib/csv-export";
 
 interface OptResult {
   acc_start: number; // m/s²
@@ -220,21 +222,43 @@ export default function OptimizationPage() {
                   {t("description")}
                 </p>
               </div>
-              <Button
-                onClick={handleStart}
-                disabled={isRunning || isStarting}
-                className="bg-primary disabled:opacity-60"
-              >
-                {isRunning ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("running")}
-                  </>
-                ) : (
-                  <>
-                    <Play className="mr-2 h-4 w-4" /> {t("startOptimization")}
-                  </>
-                )}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleStart}
+                  disabled={isRunning || isStarting}
+                  className="bg-primary disabled:opacity-60"
+                >
+                  {isRunning ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("running")}
+                    </>
+                  ) : (
+                    <>
+                      <Play className="mr-2 h-4 w-4" /> {t("startOptimization")}
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={results.length === 0}
+                  onClick={() =>
+                    exportTableToCsv(
+                      results,
+                      [
+                        { key: "acc_start", header: "acc_start (m/s²)" },
+                        { key: "v_p1", header: "v_p1 (km/h)" },
+                        { key: "peakMotorPower", header: "Peak Power/Motor (kW)" },
+                        { key: "travelTime", header: "Travel Time (s)" },
+                        { key: "fuzzyScore", header: "Fuzzy Score" },
+                      ],
+                      "optimization-results.csv",
+                      t("toast.exportSuccess"),
+                    )
+                  }
+                >
+                  <Download className="mr-2 h-4 w-4" /> {t("saveResultsCsv")}
+                </Button>
+              </div>
             </div>
             <div className="w-full">
               <Card className="w-full">
