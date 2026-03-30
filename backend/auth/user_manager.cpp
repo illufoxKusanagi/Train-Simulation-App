@@ -1,27 +1,26 @@
 #include "user_manager.h"
 
-#include <QDebug>
 #include <QCoreApplication>
 #include <QCryptographicHash>
+#include <QDebug>
 #include <QDir>
 #include <QStandardPaths>
 
 UserManager::UserManager(QObject *parent) : QObject(parent) {
-  // Use a user-writable app-data directory so this works regardless of
-  // where the binary is installed (avoids permission errors in /opt, C:\Program Files, etc.)
-  QString dataDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+  QString dataDir =
+      QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
   QDir().mkpath(dataDir);
   QString authPath = dataDir + "/.auth";
   QFile file(authPath);
 
-  // If file doesn't exist, create default credentials
   if (!file.exists()) {
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
       QTextStream out(&file);
       out << "ADMIN_USERNAME=admin\n";
-      QByteArray hash = QCryptographicHash::hash(
-          QString("admin123").toUtf8(), QCryptographicHash::Sha256);
-      out << "ADMIN_PASSWORD_HASH=" << hash.toHex() << "\n";
+      out << "ADMIN_PASSWORD_HASH="
+             "100000:696e6b61737461746963:"
+             "ce19571f3cc61f0dc6f4960ef15ac6413919f6d0b9b9073f2a31c8aa2a9141a4"
+             "\n";
       file.close();
       qInfo() << "Created default .auth file at" << authPath;
     } else {
@@ -33,10 +32,21 @@ UserManager::UserManager(QObject *parent) : QObject(parent) {
     QTextStream in(&file);
     while (!in.atEnd()) {
       QString line = in.readLine().trimmed();
-      if (line.startsWith("ADMIN_USERNAME="))
+      if (line.startsWith("ADMIN_USERNAME=")) {
         m_username = line.section('=', 1);
-      else if (line.startsWith("ADMIN_PASSWORD_HASH="))
-        m_passwordHash = line.section('=', 1);
+      } else if (line.startsWith("ADMIN_PASSWORD_HASH=")) {
+        QString fullHash = line.section('=', 1);
+        QStringList parts = fullHash.split(':');
+        if (parts.size() == 3) {
+          m_passwordIterations = parts[0].toInt();
+          m_passwordSalt = parts[1];
+          m_passwordHash = parts[2];
+        } else if (parts.size() == 1) {
+          m_passwordIterations = 1;
+          m_passwordSalt = "";
+          m_passwordHash = parts[0];
+        }
+      }
     }
     file.close();
     m_loaded = !(m_username.isEmpty() || m_passwordHash.isEmpty());

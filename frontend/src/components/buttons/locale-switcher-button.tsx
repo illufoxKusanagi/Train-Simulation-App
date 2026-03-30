@@ -33,7 +33,7 @@ export function LocaleSwitcherButton() {
     <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant={"outline"} size={"sm"}>
+          <Button variant={"outline"} size={"default"}>
             {display.flag} {display.label}
           </Button>
         </DropdownMenuTrigger>

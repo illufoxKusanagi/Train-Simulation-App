@@ -9,21 +9,23 @@ import {
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { SimulationResults } from "@/services/api";
+import { useTranslations } from "next-intl";
 
 interface DebugTabProps {
   results: SimulationResults;
 }
 
 export default function DebugTab({ results }: DebugTabProps) {
+  const t = useTranslations("Outputs");
   const logs = results.debugInfo?.logs || [];
 
   return (
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Simulation Trace Logs</CardTitle>
+          <CardTitle>{t("charts.debug.title")}</CardTitle>
           <CardDescription>
-            Detailed internal state of the simulation (first 20 iterations)
+            {t("charts.debug.description")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -36,7 +38,7 @@ export default function DebugTab({ results }: DebugTabProps) {
               ))
             ) : (
               <div className="text-muted-foreground italic">
-                No debug logs available.
+                {t("charts.debug.noLogs")}
               </div>
             )}
           </ScrollArea>

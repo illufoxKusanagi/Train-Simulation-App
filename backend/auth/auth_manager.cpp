@@ -1,4 +1,5 @@
 #include "auth_manager.h"
+#include <QPasswordDigestor>
 #include <qdebug.h>
 
 AuthManager::AuthManager(UserManager *userManager, QObject *parent)
@@ -9,7 +10,8 @@ bool AuthManager::login(const QString &username, const QString &password) {
     return false;
   }
 
-  QString inputHash = hashPassword(password);
+  QString inputHash = hashPassword(password, m_userManager->passwordSalt(),
+                                   m_userManager->passwordIterations());
   if (username == m_userManager->username() &&
       inputHash == m_userManager->passwordHash()) {
     m_authenticated = true;
@@ -21,35 +23,22 @@ bool AuthManager::login(const QString &username, const QString &password) {
 
 bool AuthManager::isAuthenticated() const { return m_authenticated; }
 
-QString AuthManager::hashPassword(const QString &password) {
-  QByteArray hash =
-      QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256);
+QString AuthManager::hashPassword(const QString &password,
+                                  const QString &saltHex, int iterations) {
+  if (saltHex.isEmpty() || iterations <= 1) {
+    QByteArray hash =
+        QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256);
+    return QString(hash.toHex());
+  }
+
+  QByteArray salt = QByteArray::fromHex(saltHex.toUtf8());
+  QByteArray hash = QPasswordDigestor::deriveKeyPbkdf2(
+      QCryptographicHash::Sha256, password.toUtf8(), salt, iterations, 32);
+
   return QString(hash.toHex());
 }
 
 bool AuthManager::processLogin() {
   bool isLoggedIn = false;
-  bool okUsername, okPassword;
-  // QString username = QInputDialog::getText(
-  //     nullptr, "Login", "Username:", QLineEdit::Normal, QString(), &okUsername);
-  // if (!okUsername) {
-  //   return 0;
-  // }
-
-  // QString password =
-  //     QInputDialog::getText(nullptr, "Login", "Password:", QLineEdit::Password,
-  //                           QString(), &okPassword);
-  // if (!okPassword) {
-  //   return 0;
-  // }
-
-  // if (login(username, password)) {
-  //   isLoggedIn = true;
-  //   QMessageBox::information(nullptr, "Login Successful",
-  //                            "Welcome to the Train Simulation App!");
-  // } else {
-  //   QMessageBox::critical(nullptr, "Login Failed",
-  //                         "Invalid username or password. Please try again.");
-  // }
   return isLoggedIn;
 }

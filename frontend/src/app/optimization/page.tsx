@@ -129,10 +129,10 @@ export default function OptimizationPage() {
           stopPolling();
           if (status.completedCombinations > 0) {
             toast.success(
-              `Optimization complete — ${status.completedCombinations} combinations evaluated`,
+              t("toast.complete", { count: String(status.completedCombinations) }),
             );
           } else {
-            toast.error("Optimization failed — no results produced");
+            toast.error(t("toast.failed"));
             setIsRunning(false);
             setHasStarted(false);
           }
@@ -141,7 +141,7 @@ export default function OptimizationPage() {
         console.error("Polling error", error);
         stopPolling();
         setIsRunning(false);
-        toast.error("Optimization status polling failed");
+        toast.error(t("toast.pollingFailed"));
       } finally {
         inFlight = false;
       }
@@ -189,14 +189,14 @@ export default function OptimizationPage() {
       const nVp1 = Math.round((vals.weakeningHigh - vals.weakeningLow) / 5) + 1;
       await api.startOptimization(vals);
       toast.success(
-        `Optimization started — ${nAcc} acc × ${nVp1} v_p1 = ${nAcc * nVp1} combinations`,
+        t("toast.started", { combinations: String(nAcc * nVp1) }),
       );
       setIsRunning(true);
       startPolling();
     } catch (error) {
       console.error(error);
       toast.error(
-        error instanceof Error ? error.message : "Failed to start optimization",
+        error instanceof Error ? error.message : t("toast.startFailed"),
       );
       setIsRunning(false);
       setHasStarted(false);

@@ -25,7 +25,7 @@ import ForceTab from "./force-tab";
 import DistanceTab from "./distance-tab";
 import { toast } from "sonner";
 import PowerPerMotorTab from "./power-per-motor-tab";
-import DebugTab from "./debug-tab";
+// import DebugTab from "./debug-tab";
 import { useTranslations } from "next-intl";
 
 export default function OutputPage() {
@@ -357,9 +357,7 @@ export default function OutputPage() {
         <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
           <Alert className="max-w-md">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              {t("noResults")}
-            </AlertDescription>
+            <AlertDescription>{t("noResults")}</AlertDescription>
           </Alert>
           <Button
             onClick={() => {
@@ -456,7 +454,9 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>{t("summary.distanceTravelled")}</CardDescription>
+              <CardDescription>
+                {t("summary.distanceTravelled")}
+              </CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.distanceTravelled ?? 0).toFixed(2)} m
               </CardTitle>
@@ -480,7 +480,9 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>{t("summary.maxTractionEffort")}</CardDescription>
+              <CardDescription>
+                {t("summary.maxTractionEffort")}
+              </CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.maxTractionEffort ?? 0).toFixed(2)} kN
               </CardTitle>
@@ -488,7 +490,9 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>{t("summary.maxEnergyConsumption")}</CardDescription>
+              <CardDescription>
+                {t("summary.maxEnergyConsumption")}
+              </CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.maxEnergyConsumption ?? 0).toFixed(2)} kWh
               </CardTitle>
@@ -512,7 +516,9 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>{t("summary.maxCatenaryCurrent")}</CardDescription>
+              <CardDescription>
+                {t("summary.maxCatenaryCurrent")}
+              </CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.maxCatenaryCurrent ?? 0).toFixed(2)} A
               </CardTitle>
@@ -567,7 +573,7 @@ export default function OutputPage() {
             <TabsTrigger value="current">{t("tabs.current")}</TabsTrigger>
             <TabsTrigger value="force">{t("tabs.force")}</TabsTrigger>
             <TabsTrigger value="distance">{t("tabs.distance")}</TabsTrigger>
-            <TabsTrigger value="debug">{t("tabs.debug")}</TabsTrigger>
+            {/* <TabsTrigger value="debug">{t("tabs.debug")}</TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="speed">
@@ -618,9 +624,9 @@ export default function OutputPage() {
             />
           </TabsContent>
 
-          <TabsContent value="debug">
+          {/* <TabsContent value="debug">
             <DebugTab results={results} />
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
 
         {/* Download All Buttons - QT WEBENGINE COMPATIBLE */}

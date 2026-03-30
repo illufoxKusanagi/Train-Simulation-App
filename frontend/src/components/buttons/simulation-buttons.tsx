@@ -56,7 +56,9 @@ export function SimulationButtons() {
       const maxSpeed = statusResult.summary?.maxSpeed ?? 0;
 
       toast.success(
-        t("completed", { type: type === "static" ? t("static") : t("dynamic") }),
+        t("completed", {
+          type: type === "static" ? t("static") : t("dynamic"),
+        }),
         { description: t("maxSpeed", { speed: maxSpeed.toFixed(2) }) },
       );
 
@@ -95,7 +97,7 @@ export function SimulationButtons() {
         onClick={() => runSimulation("static")}
         disabled={isRunningStatic || isRunningDynamic}
         variant="default"
-        size="sm"
+        size="default"
       >
         {isRunningStatic ? (
           <>
@@ -113,7 +115,7 @@ export function SimulationButtons() {
         onClick={() => runSimulation("dynamic")}
         disabled={isRunningStatic || isRunningDynamic}
         variant="default"
-        size="sm"
+        size="default"
       >
         {isRunningDynamic ? (
           <>

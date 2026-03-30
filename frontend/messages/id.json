@@ -1,4 +1,14 @@
 {
+  "Auth": {
+    "changePassword": "Ubah Kata Sandi",
+    "currentPassword": "Kata Sandi Saat Ini",
+    "newPassword": "Kata Sandi Baru",
+    "confirmPassword": "Konfirmasi Kata Sandi Baru",
+    "submit": "Perbarui Kata Sandi",
+    "success": "Kata sandi berhasil diperbarui!",
+    "errorMismatch": "Kata sandi baru tidak cocok",
+    "errorEmpty": "Semua kolom wajib diisi"
+  },
   "warnings": {
     "WARN_STAT_VOL_LINE_ZERO": "Voltage Line belum diisi!",
     "WARN_STAT_VOL_MOTOR_ZERO": "Voltage Motor belum diisi!",
@@ -157,6 +167,44 @@
       "adhesion": "Koefisien Adhesi",
       "timeAtPeakPower": "Waktu Daya Puncak",
       "travelTime": "Waktu Perjalanan"
+    },
+    "charts": {
+      "speed": {
+        "title": "Kecepatan Kereta vs Waktu",
+        "description": "Profil kecepatan selama simulasi"
+      },
+      "power": {
+        "title": "Konsumsi Daya vs Waktu",
+        "description": "Profil daya VVVF dan Pantograf"
+      },
+      "current": {
+        "title": "Arus vs Waktu",
+        "description": "Profil arus selama simulasi"
+      },
+      "force": {
+        "title": "Gaya vs Waktu",
+        "description": "Gaya traksi dan gaya hambat"
+      },
+      "distance": {
+        "title": "Jarak vs Waktu",
+        "description": "Jarak kumulatif terhadap waktu",
+        "distancePowering": "Jarak saat Pemberian Daya",
+        "distanceBraking": "Jarak saat Pengereman",
+        "distanceEmergency": "Jarak saat Pengereman Darurat",
+        "trackAnalysis": "Analisis Jarak Lintasan",
+        "trackAnalysisDescription": "Jarak saat pemberian daya dan skenario pengereman darurat",
+        "trackDistance": "Jarak lintasan (m)",
+        "trackDistanceEB": "Jarak lintasan saat EB (m)"
+      },
+      "powerPerMotor": {
+        "title": "Output Daya per Motor",
+        "description": "Output daya motor per motor traksi terhadap waktu"
+      },
+      "debug": {
+        "title": "Log Jejak Simulasi",
+        "description": "Status internal simulasi secara detail (20 iterasi pertama)",
+        "noLogs": "Tidak ada log debug tersedia."
+      }
     }
   },
   "Optimization": {
@@ -184,7 +232,14 @@
     "excellent": "Sangat Baik",
     "good": "Baik",
     "fair": "Cukup",
-    "poor": "Buruk"
+    "poor": "Buruk",
+    "toast": {
+      "complete": "Optimasi selesai — {count} kombinasi dievaluasi",
+      "failed": "Optimasi gagal — tidak ada hasil yang dihasilkan",
+      "pollingFailed": "Pemantauan status optimasi gagal",
+      "started": "Optimasi dimulai — {combinations} kombinasi",
+      "startFailed": "Gagal memulai optimasi"
+    }
   },
   "Utilities": {
     "saveCsv": "Unduh Semua Data (CSV)",

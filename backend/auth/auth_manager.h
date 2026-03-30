@@ -4,9 +4,6 @@
 #include "user_manager.h"
 #include <QCryptographicHash>
 #include <QFile>
-// #include <QInputDialog>
-// #include <QLineEdit>
-// #include <QMessageBox>
 #include <QString>
 #include <QTextStream>
 
@@ -23,7 +20,7 @@ private:
   UserManager *m_userManager;
   bool m_authenticated = false;
 
-  QString hashPassword(const QString &password);
+  QString hashPassword(const QString &password, const QString &saltHex, int iterations);
 };
 
 #endif // AUTH_MANAGER_H

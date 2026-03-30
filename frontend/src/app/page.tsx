@@ -17,6 +17,8 @@ import { Label } from "@/components/ui/label";
 import { Train, Lock, User, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { ModeToggle } from "@/components/toggle-mode-button";
+import { LocaleSwitcherButton } from "@/components/buttons/locale-switcher-button";
 
 export default function Home() {
   const router = useRouter();
@@ -47,10 +49,7 @@ export default function Home() {
         router.push("/train-parameter");
       }
     } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : t("toast.failed");
+      const message = err instanceof Error ? err.message : t("toast.failed");
       toast.error(message);
     } finally {
       setLoading(false);
@@ -58,7 +57,11 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20 p-4 relative overflow-hidden relative">
+      <div className="absolute right-4 top-4 flex flex-row gap-4">
+        <LocaleSwitcherButton />
+        <ModeToggle />
+      </div>
       <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center p-3 bg-blue-600 rounded-full mb-4 shadow-lg shadow-blue-500/30">
@@ -67,14 +70,14 @@ export default function Home() {
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
             {t("appTitle")}
           </h1>
-          <p className="text-muted-foreground mt-2">
-            {t("appSubtitle")}
-          </p>
+          <p className="text-muted-foreground mt-2">{t("appSubtitle")}</p>
         </div>
 
         <Card className="border-0 shadow-2xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl">
           <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-2xl text-center">{t("cardTitle")}</CardTitle>
+            <CardTitle className="text-2xl text-center">
+              {t("cardTitle")}
+            </CardTitle>
             <CardDescription className="text-center">
               {t("cardDescription")}
             </CardDescription>
@@ -128,9 +131,7 @@ export default function Home() {
             </form>
           </CardContent>
           <CardFooter className="flex justify-center border-t border-border/50 pt-6">
-            <p className="text-xs text-muted-foreground">
-              {t("footer")}
-            </p>
+            <p className="text-xs text-muted-foreground">{t("footer")}</p>
           </CardFooter>
         </Card>
       </div>

@@ -1,4 +1,14 @@
 {
+  "Auth": {
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "submit": "Update Password",
+    "success": "Password updated successfully!",
+    "errorMismatch": "New passwords do not match",
+    "errorEmpty": "All fields are required"
+  },
   "warnings": {
     "WARN_STAT_VOL_LINE_ZERO": "Static Line Voltage is 0 or not set!",
     "WARN_STAT_VOL_MOTOR_ZERO": "Static Motor Voltage is 0 or not set!",
@@ -157,6 +167,44 @@
       "adhesion": "Adhesion Coefficient",
       "timeAtPeakPower": "Time at Peak Power",
       "travelTime": "Travel Time"
+    },
+    "charts": {
+      "speed": {
+        "title": "Train Speed vs Time",
+        "description": "Speed profile throughout the simulation"
+      },
+      "power": {
+        "title": "Power Consumption vs Time",
+        "description": "VVVF and Catenary power profiles"
+      },
+      "current": {
+        "title": "Current vs Time",
+        "description": "Current profiles throughout the simulation"
+      },
+      "force": {
+        "title": "Forces vs Time",
+        "description": "Tractive and Resistive forces"
+      },
+      "distance": {
+        "title": "Distance vs Time",
+        "description": "Cumulative distance over time",
+        "distancePowering": "Distance on Powering",
+        "distanceBraking": "Distance on Braking",
+        "distanceEmergency": "Distance on Emergency Braking",
+        "trackAnalysis": "Track Distance Analysis",
+        "trackAnalysisDescription": "Distance on powering and emergency braking scenarios",
+        "trackDistance": "Track distance (m)",
+        "trackDistanceEB": "Track distance on EB (m)"
+      },
+      "powerPerMotor": {
+        "title": "Power Output per Motor",
+        "description": "Motor power output per traction motor over time"
+      },
+      "debug": {
+        "title": "Simulation Trace Logs",
+        "description": "Detailed internal state of the simulation (first 20 iterations)",
+        "noLogs": "No debug logs available."
+      }
     }
   },
   "Optimization": {
@@ -184,7 +232,14 @@
     "excellent": "Excellent",
     "good": "Good",
     "fair": "Fair",
-    "poor": "Poor"
+    "poor": "Poor",
+    "toast": {
+      "complete": "Optimization complete — {count} combinations evaluated",
+      "failed": "Optimization failed — no results produced",
+      "pollingFailed": "Optimization status polling failed",
+      "started": "Optimization started — {combinations} combinations",
+      "startFailed": "Failed to start optimization"
+    }
   },
   "Utilities": {
     "saveCsv": "Download All Data (CSV)",
