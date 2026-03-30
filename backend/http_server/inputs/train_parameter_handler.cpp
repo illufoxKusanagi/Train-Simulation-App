@@ -12,12 +12,9 @@ TrainParameterHandler::~TrainParameterHandler() { delete m_massHandler; }
 
 void TrainParameterHandler::recalculateMasses() {
   if (!m_context.massData || !m_context.loadData || !m_context.trainData) {
-    qDebug() << "⚠️ Cannot recalculate masses: data not initialized";
     return;
   }
 
-  // Recalculate total masses using MassHandler (same logic as simulation
-  // initData())
   m_context.massData->mass_totalEmpty = m_massHandler->countMassEmptyCar();
 
   if (m_context.loadData->load > 0) {
@@ -28,17 +25,10 @@ void TrainParameterHandler::recalculateMasses() {
     m_context.massData->mass_totalLoad = m_massHandler->countMassWithLoad();
     m_context.massData->mass_totalInertial = m_massHandler->countInertialMass();
   }
-
-  qDebug() << "✅ Masses recalculated:";
-  qDebug() << "   - Empty:" << m_context.massData->mass_totalEmpty << "tons";
-  qDebug() << "   - Loaded:" << m_context.massData->mass_totalLoad << "tons";
-  qDebug() << "   - Inertial:" << m_context.massData->mass_totalInertial
-           << "tons";
 }
 QHttpServerResponse TrainParameterHandler::handleGetTrainParameters() {
   QJsonObject response;
 
-  // **FIX: Add null check and initialize data if needed**
   if (!m_context.trainData) {
     response["status"] = "error";
     response["message"] = "Train data not initialized";
@@ -74,7 +64,6 @@ QHttpServerResponse
 TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
   QJsonObject response;
 
-  // **FIX: Add null check**
   if (!m_context.trainData) {
     response["status"] = "error";
     response["message"] = "Train data not initialized";
@@ -86,9 +75,7 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
   try {
     if (data.contains("trainParameters")) {
       QJsonObject trainParams = data["trainParameters"].toObject();
-      qDebug() << "📝 Updating train parameters:" << trainParams;
 
-      // Update train data using actual TrainData variables (support aliases)
       if (trainParams.contains("tractionMotors") ||
           trainParams.contains("numberOfMotorCars")) {
         double val = trainParams.contains("tractionMotors")
@@ -97,7 +84,6 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
         if (val < 0)
           throw std::invalid_argument("Traction motors cannot be negative");
         m_context.trainData->n_tm = val;
-        qDebug() << "Updated n_tm to:" << m_context.trainData->n_tm;
       }
       if (trainParams.contains("axles") ||
           trainParams.contains("numberOfAxles")) {
@@ -107,7 +93,6 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
         if (val < 0)
           throw std::invalid_argument("Axles cannot be negative");
         m_context.trainData->n_axle = val;
-        qDebug() << "Updated n_axle to:" << m_context.trainData->n_axle;
       }
       if (trainParams.contains("cars") ||
           trainParams.contains("numberOfCars")) {
@@ -117,66 +102,50 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
         if (val <= 0)
           throw std::invalid_argument("Number of cars must be positive");
         m_context.trainData->n_car = val;
-        qDebug() << "Updated n_car to:" << m_context.trainData->n_car;
       }
       if (trainParams.contains("gearRatio")) {
         m_context.trainData->gearRatio = trainParams["gearRatio"].toDouble();
-        qDebug() << "Updated gearRatio to:" << m_context.trainData->gearRatio;
       }
       if (trainParams.contains("wheelDiameter")) {
         m_context.trainData->wheel = trainParams["wheelDiameter"].toDouble();
-        qDebug() << "Updated wheel to:" << m_context.trainData->wheel;
       }
       if (trainParams.contains("trainsetLength")) {
         m_context.trainData->trainsetLength =
             trainParams["trainsetLength"].toDouble();
-        qDebug() << "Updated trainsetLength to:"
-                 << m_context.trainData->trainsetLength;
       }
       if (trainParams.contains("carLength")) {
         const double carLength = trainParams["carLength"].toDouble();
         if (m_context.trainData->n_car > 0) {
           m_context.trainData->trainsetLength =
               carLength * m_context.trainData->n_car;
-          qDebug() << "Updated trainsetLength from carLength to:"
-                   << m_context.trainData->trainsetLength;
         }
       }
 
-      // Car numbers (from trainset form)
       if (trainParams.contains("numberOfM1Cars")) {
         m_context.trainData->n_M1 = trainParams["numberOfM1Cars"].toDouble();
-        qDebug() << "Updated n_M1 to:" << m_context.trainData->n_M1;
       }
       if (trainParams.contains("numberOfM2Cars")) {
         m_context.trainData->n_M2 = trainParams["numberOfM2Cars"].toDouble();
-        qDebug() << "Updated n_M2 to:" << m_context.trainData->n_M2;
       }
       if (trainParams.contains("numberOfTcCars")) {
         m_context.trainData->n_Tc = trainParams["numberOfTcCars"].toDouble();
-        qDebug() << "Updated n_Tc to:" << m_context.trainData->n_Tc;
       }
       if (trainParams.contains("numberOfT1Cars")) {
         m_context.trainData->n_T1 = trainParams["numberOfT1Cars"].toDouble();
-        qDebug() << "Updated n_T1 to:" << m_context.trainData->n_T1;
       }
       if (trainParams.contains("numberOfT2Cars")) {
         m_context.trainData->n_T2 = trainParams["numberOfT2Cars"].toDouble();
-        qDebug() << "Updated n_T2 to:" << m_context.trainData->n_T2;
       }
       if (trainParams.contains("numberOfT3Cars")) {
         m_context.trainData->n_T3 = trainParams["numberOfT3Cars"].toDouble();
-        qDebug() << "Updated n_T3 to:" << m_context.trainData->n_T3;
       }
       if (trainParams.contains("numberOfM1DisabledCars")) {
         m_context.trainData->n_M1_disabled =
             trainParams["numberOfM1DisabledCars"].toDouble();
-        qDebug() << "Updated n_T3 to:" << m_context.trainData->n_M1_disabled;
       }
       if (trainParams.contains("numberOfM2DisabledCars")) {
         m_context.trainData->n_M2_disabled =
             trainParams["numberOfM2DisabledCars"].toDouble();
-        qDebug() << "Updated n_T3 to:" << m_context.trainData->n_M2_disabled;
       }
 
       if (m_context.loadData) {
@@ -184,43 +153,34 @@ TrainParameterHandler::handleUpdateTrainParameters(const QJsonObject &data) {
           m_context.loadData->load = trainParams.contains("trainLoad")
                                          ? trainParams["trainLoad"].toDouble()
                                          : trainParams["load"].toDouble();
-          qDebug() << "Updated load to:" << m_context.loadData->load;
         }
         if (trainParams.contains("mass_P")) {
           m_context.loadData->mass_P = trainParams["mass_P"].toDouble();
-          qDebug() << "Updated mass_P to:" << m_context.loadData->mass_P;
         }
       }
 
       if (m_context.massData) {
         if (trainParams.contains("i_M")) {
           m_context.massData->i_M = trainParams["i_M"].toDouble();
-          qDebug() << "Updated i_M to:" << m_context.massData->i_M;
         }
         if (trainParams.contains("i_T")) {
           m_context.massData->i_T = trainParams["i_T"].toDouble();
-          qDebug() << "Updated i_T to:" << m_context.massData->i_T;
         }
       }
 
-      // CRITICAL: Recalculate masses after train parameters change
       recalculateMasses();
 
       response["status"] = "success";
       response["message"] = "Train parameters updated successfully";
-      qDebug() << "✅ Train parameters updated successfully";
     } else {
-      qDebug() << "❌ No train parameters provided in request";
       response["status"] = "error";
       response["message"] = "No train parameters provided";
     }
   } catch (const std::exception &e) {
-    qDebug() << "💥 Exception in handleUpdateTrainParameters:" << e.what();
     response["status"] = "error";
     response["message"] =
         QString("Error updating parameters: %1").arg(e.what());
   } catch (...) {
-    qDebug() << "💥 Unknown exception in handleUpdateTrainParameters";
     response["status"] = "error";
     response["message"] = "Unknown error updating parameters";
   }
@@ -242,7 +202,6 @@ QHttpServerResponse TrainParameterHandler::handleGetCarNumberParameters() {
 
   QJsonObject carNumberParams;
 
-  // Car numbers
   carNumberParams["n_M1"] = m_context.trainData->n_M1;
   carNumberParams["n_M2"] = m_context.trainData->n_M2;
   carNumberParams["n_Tc"] = m_context.trainData->n_Tc;
@@ -273,9 +232,7 @@ QHttpServerResponse TrainParameterHandler::handleUpdateCarNumberParameters(
 
   try {
     QJsonObject carNumberParams = data;
-    qDebug() << "📝 Updating car number parameters:" << carNumberParams;
 
-    // Update car numbers
     if (carNumberParams.contains("n_M1")) {
       double val = carNumberParams["n_M1"].toDouble();
       if (val < 0)
@@ -306,14 +263,11 @@ QHttpServerResponse TrainParameterHandler::handleUpdateCarNumberParameters(
           carNumberParams["n_M2_disabled"].toDouble();
     }
 
-    // CRITICAL: Recalculate masses after car number changes
     recalculateMasses();
 
     response["status"] = "success";
     response["message"] = "Car number parameters updated successfully";
-    qDebug() << "✅ Car number parameters updated successfully";
   } catch (const std::exception &e) {
-    qDebug() << "💥 Exception in handleUpdateCarNumberParameters:" << e.what();
     response["status"] = "error";
     response["message"] =
         QString("Error updating parameters: %1").arg(e.what());
@@ -336,7 +290,6 @@ QHttpServerResponse TrainParameterHandler::handleGetPassengerParameters() {
 
   QJsonObject passengerParams;
 
-  // Passenger numbers per car type
   passengerParams["n_PTc"] = m_context.loadData->n_PTc;
   passengerParams["n_PM1"] = m_context.loadData->n_PM1;
   passengerParams["n_PM2"] = m_context.loadData->n_PM2;
@@ -365,9 +318,7 @@ QHttpServerResponse TrainParameterHandler::handleUpdatePassengerParameters(
 
   try {
     QJsonObject passengerParams = data;
-    qDebug() << "📝 Updating passenger parameters:" << passengerParams;
 
-    // Update passenger numbers
     if (passengerParams.contains("n_PTc")) {
       double val = passengerParams["n_PTc"].toDouble();
       if (val < 0)
@@ -390,14 +341,11 @@ QHttpServerResponse TrainParameterHandler::handleUpdatePassengerParameters(
       m_context.loadData->n_PT3 = passengerParams["n_PT3"].toDouble();
     }
 
-    // CRITICAL: Recalculate masses after passenger parameter changes
     recalculateMasses();
 
     response["status"] = "success";
     response["message"] = "Passenger parameters updated successfully";
-    qDebug() << "✅ Passenger parameters updated successfully";
   } catch (const std::exception &e) {
-    qDebug() << "💥 Exception in handleUpdatePassengerParameters:" << e.what();
     response["status"] = "error";
     response["message"] =
         QString("Error updating parameters: %1").arg(e.what());
@@ -420,8 +368,6 @@ QHttpServerResponse TrainParameterHandler::handleGetMassParameters() {
 
   QJsonObject massParams;
 
-  // Car masses (empty)
-  // Car masses (empty)
   massParams["mass_M1"] = m_context.massData->mass_M1;
   massParams["mass_M2"] = m_context.massData->mass_M2;
   massParams["mass_Tc"] = m_context.massData->mass_TC;
@@ -429,12 +375,9 @@ QHttpServerResponse TrainParameterHandler::handleGetMassParameters() {
   massParams["mass_T2"] = m_context.massData->mass_T2;
   massParams["mass_T3"] = m_context.massData->mass_T3;
 
-  // Rotational inertia coefficients
-  // Rotational inertia coefficients
   massParams["i_M"] = m_context.massData->i_M;
   massParams["i_T"] = m_context.massData->i_T;
 
-  // Total masses (calculated)
   massParams["totalEmptyMass"] = m_context.massData->mass_totalEmpty;
   massParams["totalLoadMass"] = m_context.massData->mass_totalLoad;
   massParams["totalInertialMass"] = m_context.massData->mass_totalInertial;
@@ -461,9 +404,7 @@ TrainParameterHandler::handleUpdateMassParameters(const QJsonObject &data) {
   try {
     if (data.contains("massParameters")) {
       QJsonObject massParams = data["massParameters"].toObject();
-      qDebug() << "📝 Updating mass parameters:" << massParams;
 
-      // Update car masses
       if (massParams.contains("mass_M1")) {
         double val = massParams["mass_M1"].toDouble();
         if (val < 0)
@@ -486,7 +427,6 @@ TrainParameterHandler::handleUpdateMassParameters(const QJsonObject &data) {
         m_context.massData->mass_T3 = massParams["mass_T3"].toDouble();
       }
 
-      // Update rotational inertia
       if (massParams.contains("i_M")) {
         m_context.massData->i_M = massParams["i_M"].toDouble();
       }
@@ -494,18 +434,15 @@ TrainParameterHandler::handleUpdateMassParameters(const QJsonObject &data) {
         m_context.massData->i_T = massParams["i_T"].toDouble();
       }
 
-      // CRITICAL: Recalculate masses after mass parameters change
       recalculateMasses();
 
       response["status"] = "success";
       response["message"] = "Mass parameters updated successfully";
-      qDebug() << "✅ Mass parameters updated successfully";
     } else {
       response["status"] = "error";
       response["message"] = "No mass parameters provided";
     }
   } catch (const std::exception &e) {
-    qDebug() << "💥 Exception in handleUpdateMassParameters:" << e.what();
     response["status"] = "error";
     response["message"] =
         QString("Error updating parameters: %1").arg(e.what());
@@ -517,10 +454,8 @@ TrainParameterHandler::handleUpdateMassParameters(const QJsonObject &data) {
 
 QHttpServerResponse
 TrainParameterHandler::handleCalculateMass(const QJsonObject &data) {
-  // Create a temporary context for calculation
   AppContext tempContext;
 
-  // Extract Train Data
   if (data.contains("trainset")) {
     QJsonObject trainset = data["trainset"].toObject();
     tempContext.trainData->n_car = trainset["n_car"].toDouble();
@@ -548,7 +483,6 @@ TrainParameterHandler::handleCalculateMass(const QJsonObject &data) {
     tempContext.loadData->n_PT3 = trainset["n_PT3"].toDouble();
   }
 
-  // Extract Constant Data
   if (data.contains("constant")) {
     QJsonObject constant = data["constant"].toObject();
     tempContext.loadData->load = constant["load"].toDouble();
@@ -557,10 +491,8 @@ TrainParameterHandler::handleCalculateMass(const QJsonObject &data) {
     tempContext.massData->i_T = constant["i_T"].toDouble();
   }
 
-  // Create temporary MassHandler
   MassHandler tempMassHandler(tempContext);
 
-  // Perform Calculations
   double totalEmpty = tempMassHandler.countMassEmptyCar();
 
   double totalLoad = 0.0;
@@ -577,7 +509,6 @@ TrainParameterHandler::handleCalculateMass(const QJsonObject &data) {
     totalInertial = tempMassHandler.countInertialMass();
   }
 
-  // Construct Response
   QJsonObject response;
   QJsonObject massParams;
 

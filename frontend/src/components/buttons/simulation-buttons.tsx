@@ -85,7 +85,7 @@ export function SimulationButtons() {
       router.push("/output");
     } catch (error) {
       console.error("Simulation failed:", error);
-      toast.error(t("failed"), t("failedDescription"));
+      toast.error(t("failed"), { description: t("failedDescription") });
     } finally {
       setLoading(false);
     }

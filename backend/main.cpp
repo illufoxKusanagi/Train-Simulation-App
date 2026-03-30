@@ -3,21 +3,16 @@
 #include "webengine/webengine_window.h"
 #include <QApplication>
 #include <QCoreApplication>
-#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QTimer>
 #include <QUrl>
 
 static void silentMessageHandler(QtMsgType, const QMessageLogContext &,
-                                 const QString &) {
-  // Production: discard all Qt log output (no console window side-effects)
-}
+                                 const QString &) {}
 
 int main(int argc, char *argv[]) {
-  // Parse command line arguments first
   bool headless = false;
-  // Automatically enable dev mode in Debug builds; Release builds = production
 #ifdef NDEBUG
   bool devMode = false;
 #else
@@ -65,40 +60,20 @@ int main(int argc, char *argv[]) {
 
     AppContext context;
     HttpServer server(context);
-
-    // Check if we need to serve static files (though headless usually doesn't
-    // need frontend)
     QByteArray staticRoot = qgetenv("TRAIN_APP_STATIC_ROOT");
+
     if (!staticRoot.isEmpty()) {
       server.setStaticRoot(QString::fromUtf8(staticRoot));
     }
 
     if (server.startServer(port)) {
-      qInfo() << "✅ Train Simulation Backend Server started on port" << port;
-      qInfo() << "Server started successfully on port:" << server.getPort();
-      qInfo() << "Available endpoints:";
-      qInfo() << "  GET  /status - Server status";
-      qInfo() << "  GET  /api/health - Health check";
-      qInfo() << "  GET  /api/parameters/train - Get train parameters";
-      qInfo() << "  POST /api/parameters/train - Update train parameters";
-      qInfo()
-          << "  GET  /api/parameters/electrical - Get electrical parameters";
-      qInfo()
-          << "  POST /api/parameters/electrical - Update electrical parameters";
-      qInfo() << "  GET  /api/parameters/running - Get running parameters";
-      qInfo() << "  POST /api/parameters/running - Update running parameters";
-      qInfo() << "  GET  /api/parameters/track - Get track parameters";
-      qInfo() << "  POST /api/parameters/track - Update track parameters";
-      qInfo() << "  POST /api/simulation/start - Start simulation";
-      qInfo() << "  GET  /api/simulation/status - Get simulation status";
-      qInfo() << "  GET  /api/simulation/results - Get simulation results";
-      qInfo() << "  POST /api/export/results - Export results to CSV";
+
       return app.exec();
     } else {
-      qCritical() << "❌ Failed to start server on port" << port;
       return 1;
     }
   } else {
+
     // GUI mode: Qt WebEngine with embedded Next.js frontend
     QApplication app(argc, argv);
     app.setApplicationName("Train Simulation App");
@@ -122,52 +97,29 @@ int main(int argc, char *argv[]) {
         for (const QString &path : possiblePaths) {
           if (QDir(path).exists() && QFile::exists(path + "/index.html")) {
             foundPath = path;
-            qInfo() << "✅ Found local frontend directory at:" << path;
+
             break;
           }
         }
 
         if (!foundPath.isEmpty()) {
-          // Store the path so the server can serve the static files
           qputenv("TRAIN_APP_STATIC_ROOT", foundPath.toUtf8());
-          // Use a placeholder; replaced below once we know the server port
           frontendUrl = "SERVE_STATIC";
         } else {
-          qWarning() << "⚠️ Could not find local frontend directory. "
-                        "Defaulting to localhost.";
           frontendUrl = "http://127.0.0.1:3254";
         }
       }
     }
 
-    qInfo() << "🚀 Starting Train Simulation App (Desktop Mode)";
-
-    // WebEngineWindow owns AppContext, HttpServer, and WebChannel.
-    // Do NOT create a second HttpServer here — that would attempt to bind the
-    // same port and fail with "address already in use".
     WebEngineWindow window(port, devMode);
     window.show();
 
-    // Now that the server is running inside the window, resolve the URL.
     if (frontendUrl == "SERVE_STATIC") {
       quint16 actualPort = window.getHttpServer()->getPort();
       frontendUrl = QString("http://127.0.0.1:%1").arg(actualPort);
     }
 
-    qInfo() << "   Mode:" << (devMode ? "Development" : "Production");
-    qInfo() << "   Frontend:" << frontendUrl;
-
-    // Load frontend
     window.loadFrontend(QUrl(frontendUrl));
-
-    qInfo() << "✅ Application started successfully";
-    qInfo() << "💡 Usage:";
-    qInfo() << "   --headless        Run backend server only (no GUI)";
-    qInfo() << "   --dev             Development mode";
-    qInfo() << "   --port=8080       Set backend port";
-    qInfo() << "   --frontend=URL    Set frontend URL (default: "
-               "http://localhost:3254)";
-
     return app.exec();
   }
 }

@@ -54,9 +54,6 @@ void TrainSimulationHandler::initData() {
     massData->mass_totalLoad = m_massHandler->countMassWithLoad();
     massData->mass_totalInertial = m_massHandler->countInertialMass();
   }
-  // Reset kinematic state so each run starts from a clean slate,
-  // regardless of whether the async resetSimulation() signal from the
-  // previous run has been processed yet.
   {
     QMutexLocker locker(m_simulationMutex);
     movingData->v = 0.0;
@@ -68,9 +65,6 @@ void TrainSimulationHandler::initData() {
     movingData->x_total = 0.0;
     movingData->time = 0.0;
     movingData->time_total = 0.0;
-    // x_odo and x_deficit carry state between runs if not explicitly cleared.
-    // x_deficit left over from a previous run shifts the braking trigger point,
-    // producing different distances and speeds for identical inputs.
     stationData->x_odo = 0.0;
     stationData->x_deficit = 0.0;
   }
@@ -99,7 +93,6 @@ bool TrainSimulationHandler::validateDataInitialized() {
   if (!trainData || !massData || !loadData || !resistanceData || !movingData ||
       !trainMotorData || !efficiencyData || !powerData || !energyData ||
       !stationData || !constantData) {
-    qCritical() << "CRITICAL: Simulation data not initialized!";
     m_simulationErrors->append("ERR_SIM_DATA_NOT_INITIALIZED");
     return false;
   }
@@ -152,7 +145,6 @@ void TrainSimulationHandler::runDynamicSimulation() {
             (stationIndex + 1 < stationData->n_station &&
              stationIndex < stationData->x_station.size()))) {
 
-      // Lock mutex for shared data updates
       QMutexLocker locker(m_simulationMutex);
 
       // DEBUG: Log first few iterations to diagnose start condition
@@ -289,19 +281,11 @@ void TrainSimulationHandler::runDynamicSimulation() {
           movingData->v_si = 0;
           notch = AtStation;
           trainStopTime = 0;
-          // Calculate deficit for THIS station and carry it forward
           double currentDeficit =
               stationData->x_station[stationIndex] - stationData->x_odo;
           stationData->x_deficit =
-              stationData->x_station[stationIndex] -
-              stationData->x_odo; // Save for use in NEXT segment
+              stationData->x_station[stationIndex] - stationData->x_odo;
         }
-        // if (resistanceData->f_total == 0) {
-        //   isError = true;
-        //   m_simulationErrors->append(
-        //       "Total force is less than zero. Please check the train mass");
-        //   break;
-        // }
       }
       energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
       energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
@@ -331,9 +315,6 @@ void TrainSimulationHandler::runDynamicSimulation() {
         trainMotorData->tm_adh = m_tractiveEffortHandler->calculateAdhesion();
       }
       i++;
-
-      // Unlock mutex implicitly when loop iteration ends (locker goes out of
-      // scope)
     }
     emit simulationCompleted();
   } else {
@@ -368,7 +349,6 @@ void TrainSimulationHandler::runStaticSimulation() {
   while (movingData->v <= stationData->stat_v_limit &&
          movingData->x_total < stationData->stat_x_station) {
 
-    // Lock mutex for shared data updates
     QMutexLocker locker(m_simulationMutex);
 
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes(
@@ -419,7 +399,6 @@ void TrainSimulationHandler::runStaticSimulation() {
     if (energyData->curr_vvvf > maxVvvfCurrent) {
       maxVvvfCurrent = energyData->curr_vvvf;
     }
-    // if (powerData->p_motorOut > maxVvvfPower) {
     if (powerData->p_vvvfIn > maxVvvfPower) {
       maxVvvfPower = powerData->p_vvvfIn;
     }
@@ -514,7 +493,7 @@ double TrainSimulationHandler::getMaxEnergyAps() {
 double TrainSimulationHandler::getMaxCurrTime() {
   double maxCurrTime = 0.0;
   double maxVvvfCurrent = getMaxVvvfCurrent();
-  const double epsilon = 0.001; // Precision on decimal double value
+  const double epsilon = 0.001;
   for (int i = 0; i < simulationDatas.vvvfCurrents.size(); i++) {
     if (std::abs(simulationDatas.vvvfCurrents[i] - maxVvvfCurrent) < epsilon) {
       maxCurrTime += simulationDatas.time[i];
@@ -526,7 +505,7 @@ double TrainSimulationHandler::getMaxCurrTime() {
 double TrainSimulationHandler::getMaxPowTime() {
   double maxPowTime = 0.0;
   double maxVvvfPower = getMaxVvvfPower();
-  const double epsilon = 0.001; // Precision on decimal double value
+  const double epsilon = 0.001;
   for (int i = 0; i < simulationDatas.vvvfPowers.size(); i++) {
     if (std::abs(simulationDatas.vvvfPowers[i] - maxVvvfPower) < epsilon) {
       maxPowTime += simulationDatas.time[i];
@@ -610,11 +589,6 @@ void TrainSimulationHandler::calculateRunningResEachSlope() {
   if (!stationData || !resistanceData || !movingData)
     return;
 
-  // Compute running resistance for each slope option unconditionally.
-  // Bug fix: removed `&& f_resRunningOption{n} > 0` guard — it caused a
-  // circular deadlock (fields start at 0, guard prevented first computation).
-  // Also removed `stat_slope_option{n}` boolean guard — slope=0 is valid and
-  // still produces non-zero Davis-equation resistance.
   resistanceData->f_resRunningOption1 =
       movingData->v == 0
           ? m_resistanceHandler->calculateStartRes(

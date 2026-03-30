@@ -71,59 +71,6 @@ void TrackDataHandler::setMaxSpeedList(
   }
 }
 
-// void TrackDataHandler::storeFormInputs(
-//     const QMap<QString, InputWidget *> &inputWidgets) {
-//   const QString speedLimitKey = "Speed Limit";
-//   const QString stationDistanceKey = "Station Distance";
-//   const QString slopeKey = "Slope per Section";
-//   const QString radiusKey = "Radius per Section";
-//   const QString dwellTimeKey = "Dwell Time";
-//   const QString slope1Key = "1st Slope";
-//   const QString slope2Key = "2nd Slope";
-//   const QString slope3Key = "3rd Slope";
-
-//   if (inputWidgets.contains(speedLimitKey)) {
-//     setMaxSpeedValue(inputWidgets[speedLimitKey]->getValue());
-//     setMaxSpeedList(toStdVector(inputWidgets[speedLimitKey]->getCsvValue(2)),
-//                     toStdVector(inputWidgets[speedLimitKey]->getCsvValue(0)),
-//                     toStdVector(inputWidgets[speedLimitKey]->getCsvValue(1)));
-//   }
-//   if (inputWidgets.contains(stationDistanceKey)) {
-//     setStationDistanceValue(inputWidgets[stationDistanceKey]->getValue());
-//     setStationDistanceList(
-//         toStdVector(inputWidgets[stationDistanceKey]->getCsvValue(2)),
-//         toStdVector(inputWidgets[stationDistanceKey]->getCsvValue(1)));
-//   }
-//   if (inputWidgets.contains(slopeKey)) {
-//     setSlopeValue(inputWidgets[slopeKey]->getValue());
-//     setSlopeList(toStdVector(inputWidgets[slopeKey]->getCsvValue(2)),
-//                  toStdVector(inputWidgets[slopeKey]->getCsvValue(0)),
-//                  toStdVector(inputWidgets[slopeKey]->getCsvValue(1)));
-//   }
-//   if (inputWidgets.contains(radiusKey)) {
-//     setRadiusValue(inputWidgets[radiusKey]->getValue());
-//     setRadiusList(toStdVector(inputWidgets[radiusKey]->getCsvValue(2)),
-//                   toStdVector(inputWidgets[radiusKey]->getCsvValue(0)),
-//                   toStdVector(inputWidgets[radiusKey]->getCsvValue(1)));
-//   }
-//   if (inputWidgets.contains("Number of Station")) {
-//     m_stationData->n_station = inputWidgets["Number of Station"]->getValue();
-//   }
-//   if (inputWidgets.contains(dwellTimeKey)) {
-//     m_stationData->dwellTime =
-//         toStdVector(inputWidgets[dwellTimeKey]->getCsvValue(0));
-//   }
-//   if (inputWidgets.contains(slope1Key)) {
-//     m_stationData->stat_slope_1 = inputWidgets[slope1Key]->getValue();
-//   }
-//   if (inputWidgets.contains(slope2Key)) {
-//     m_stationData->stat_slope_2 = inputWidgets[slope2Key]->getValue();
-//   }
-//   if (inputWidgets.contains(slope3Key)) {
-//     m_stationData->stat_slope_3 = inputWidgets[slope3Key]->getValue();
-//   }
-// }
-
 std::vector<double>
 TrackDataHandler::toStdVector(const QList<double> &list) const {
   std::vector<double> vec;

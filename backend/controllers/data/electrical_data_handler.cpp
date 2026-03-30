@@ -62,40 +62,6 @@ void ElectricalDataHandler::setAuxiliaryPower(double p_aps) {
   }
 }
 
-// void ElectricalDataHandler::storeFormInputs(
-//     const QMap<QString, InputWidget *> &inputWidgets) {
-//   if (inputWidgets.contains("Auxiliary Power")) {
-//     setAuxiliaryPower(inputWidgets["Auxiliary Power"]->getValue());
-//   }
-//   if (inputWidgets.contains("Efficiency of Gearbox")) {
-//     InputWidget *widget = inputWidgets["Efficiency of Gearbox"];
-//     setGearboxEfficiency(widget->getValue(),
-//                          toStdVector(widget->getCsvValue(1)),
-//                          toStdVector(widget->getCsvValue(0)));
-//   }
-//   if (inputWidgets.contains("Efficiency of VVVF")) {
-//     InputWidget *widget = inputWidgets["Efficiency of VVVF"];
-//     setVvvfEfficiency(widget->getValue(), toStdVector(widget->getCsvValue(1)),
-//                       toStdVector(widget->getCsvValue(0)));
-//   }
-//   if (inputWidgets.contains("The Efficiency of Traction Motor")) {
-//     InputWidget *widget = inputWidgets["The Efficiency of Traction Motor"];
-//     setTractionMotorEfficiency(widget->getValue(),
-//                                toStdVector(widget->getCsvValue(1)),
-//                                toStdVector(widget->getCsvValue(0)));
-//   }
-//   if (inputWidgets.contains("Line Voltage")) {
-//     InputWidget *widget = inputWidgets["Line Voltage"];
-//     setLineVoltage(widget->getValue(), toStdVector(widget->getCsvValue(1)),
-//                    toStdVector(widget->getCsvValue(0)));
-//   }
-//   if (inputWidgets.contains("Motor Voltage")) {
-//     InputWidget *widget = inputWidgets["Motor Voltage"];
-//     setMotorVoltage(widget->getValue(), toStdVector(widget->getCsvValue(1)),
-//                     toStdVector(widget->getCsvValue(0)));
-//   }
-// }
-
 std::vector<double>
 ElectricalDataHandler::toStdVector(const QList<double> &list) const {
   std::vector<double> vec;

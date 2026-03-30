@@ -2,17 +2,12 @@
 #define TRAIN_DATA_HANDLER_H
 
 #include "core/appcontext.h"
-// #include "widgets/input_widget.h"
 #include <QObject>
 
 class TrainDataHandler : public QObject {
   Q_OBJECT
 public:
   explicit TrainDataHandler(AppContext *context, QObject *parent = nullptr);
-  // void storeFormInputs(const QMap<QString, InputWidget *> &inputWidgets);
-  // void setTypeValue(const QMap<QString, InputWidget *> &inputWidgets);
-  // void setMassValue(const QMap<QString, InputWidget *> &inputWidgets);
-  // void setPassengerValue(const QMap<QString, InputWidget *> &inputWidgets);
   void setDegradedTrainMotorValues(double numberM1, double numberM2);
   void setNumberCarValue(double numberCar);
   void setTrainsetLengthValue(double carLength);

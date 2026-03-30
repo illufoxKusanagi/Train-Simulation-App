@@ -217,17 +217,30 @@ export async function openFileWithDialog(
  * @param url Full fully qualified URL
  */
 export function openUrlInBrowser(url: string): void {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    console.error("Invalid URL:", url);
+    return;
+  }
+
+  if (!["http:", "https:"].includes(parsed.protocol)) {
+    console.error("Blocked non-http(s) URL:", parsed.protocol);
+    return;
+  }
+
   if (isQtWebChannelReady()) {
     try {
-      window.fileBridge.openUrl(url);
+      window.fileBridge.openUrl(parsed.toString());
       return;
     } catch (error) {
       console.error("Failed to open URL via Qt WebChannel:", error);
     }
   }
-  
+
   // Fallback for standard browsers
-  window.open(url, "_blank");
+  window.open(parsed.toString(), "_blank", "noopener,noreferrer");
 }
 
 // Auto-initialize on module load in browser environment

@@ -1,7 +1,6 @@
 #include "webengine_window.h"
 #include <QAction>
 #include <QCloseEvent>
-#include <QDebug>
 #include <QMessageBox>
 #include <QToolBar>
 #include <QVBoxLayout>
@@ -35,24 +34,19 @@ WebEngineWindow::~WebEngineWindow() {
 }
 
 void WebEngineWindow::setupUi() {
-  // Set window properties
   setWindowTitle("Train Simulation App");
   resize(1400, 900);
 
-  // Create central widget
   QWidget *centralWidget = new QWidget(this);
   setCentralWidget(centralWidget);
 
-  // Create layout
   QVBoxLayout *layout = new QVBoxLayout(centralWidget);
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
-  // Create web view
   m_webView = new QWebEngineView(this);
   layout->addWidget(m_webView);
 
-  // Create progress bar
   m_progressBar = new QProgressBar(this);
   m_progressBar->setMaximumHeight(3);
   m_progressBar->setTextVisible(false);
@@ -66,13 +60,9 @@ void WebEngineWindow::setupUi() {
   m_progressBar->hide();
   layout->addWidget(m_progressBar);
 
-  // Create status bar
   statusBar()->showMessage("Ready");
-
-  // Create toolbar (optional - for dev tools, reload, etc.)
-  QToolBar *toolbar = addToolBar("Navigation");
-
   if (m_isDevelopmentMode) {
+    QToolBar *toolbar = addToolBar("Navigation");
     QAction *reloadAction = new QAction("⟳ Reload", this);
     connect(reloadAction, &QAction::triggered, m_webView,
             &QWebEngineView::reload);
@@ -81,7 +71,6 @@ void WebEngineWindow::setupUi() {
     QAction *devToolsAction = new QAction("🔧 DevTools", this);
     connect(devToolsAction, &QAction::triggered, this, [this]() {
       if (m_webView && m_webView->page()) {
-        // Toggle dev tools
         QWebEngineView *devToolsView = new QWebEngineView(this);
         devToolsView->setAttribute(Qt::WA_DeleteOnClose, true);
         m_webView->page()->setDevToolsPage(devToolsView->page());
@@ -92,26 +81,25 @@ void WebEngineWindow::setupUi() {
     });
     toolbar->addAction(devToolsAction);
     toolbar->addSeparator();
-  }
 
-  QAction *aboutAction = new QAction("ℹ About", this);
-  connect(aboutAction, &QAction::triggered, this, [this]() {
-    QMessageBox::about(this, "Train Simulation App",
-                       "<h2>Train Simulation App</h2>"
-                       "<p>Version 0.1.0</p>"
-                       "<p>A modern train simulation application</p>"
-                       "<p><b>Technology Stack:</b></p>"
-                       "<ul>"
-                       "<li>Qt 6 + WebEngine (Desktop Container)</li>"
-                       "<li>Next.js + React (Frontend UI)</li>"
-                       "<li>C++ Backend (Simulation Engine)</li>"
-                       "</ul>");
-  });
-  toolbar->addAction(aboutAction);
+    QAction *aboutAction = new QAction("ℹ About", this);
+    connect(aboutAction, &QAction::triggered, this, [this]() {
+      QMessageBox::about(this, "Train Simulation App",
+                         "<h2>Train Simulation App</h2>"
+                         "<p>Version 0.1.0</p>"
+                         "<p>A modern train simulation application</p>"
+                         "<p><b>Technology Stack:</b></p>"
+                         "<ul>"
+                         "<li>Qt 6 + WebEngine (Desktop Container)</li>"
+                         "<li>Next.js + React (Frontend UI)</li>"
+                         "<li>C++ Backend (Simulation Engine)</li>"
+                         "</ul>");
+    });
+    toolbar->addAction(aboutAction);
+  }
 }
 
 void WebEngineWindow::setupWebEngine() {
-  // Configure WebEngine settings
   QWebEngineSettings *settings = m_webView->settings();
   settings->setAttribute(QWebEngineSettings::LocalStorageEnabled, true);
   settings->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls,
@@ -123,63 +111,47 @@ void WebEngineWindow::setupWebEngine() {
   settings->setAttribute(QWebEngineSettings::LocalContentCanAccessFileUrls,
                          true);
 
-// Enable developer tools in debug mode
 #ifdef QT_DEBUG
   settings->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard,
                          true);
 #endif
 
-  // Set user agent (optional)
   QWebEngineProfile *profile = m_webView->page()->profile();
   profile->setHttpUserAgent("TrainSimulationApp/1.0 QtWebEngine");
 
-  // Setup Qt WebChannel for native file dialogs
   m_webChannel = new QWebChannel(this);
   m_fileBridge = new FileBridge(this);
 
-  // Register the file bridge object for JavaScript access
   m_webChannel->registerObject("fileBridge", m_fileBridge);
 
-  // Connect the web channel to the web page
   m_webView->page()->setWebChannel(m_webChannel);
-
-  qInfo() << "✅ Qt WebChannel setup complete - fileBridge registered";
 }
 
 void WebEngineWindow::setupConnections() {
-  // Connect web view signals
   connect(m_webView, &QWebEngineView::loadStarted, this,
           &WebEngineWindow::onLoadStarted);
   connect(m_webView, &QWebEngineView::loadProgress, this,
           &WebEngineWindow::onLoadProgress);
   connect(m_webView, &QWebEngineView::loadFinished, this,
           &WebEngineWindow::onLoadFinished);
-  connect(m_webView, &QWebEngineView::urlChanged, this,
-          &WebEngineWindow::onUrlChanged);
   connect(m_webView, &QWebEngineView::titleChanged, this,
           &WebEngineWindow::onTitleChanged);
 }
 
 void WebEngineWindow::setupBackendServer() {
-  // Initialize app context
   m_appContext = new AppContext();
 
-  // Create HTTP server (this is the ONE server for the whole application)
   m_httpServer = new HttpServer(*m_appContext);
 
-  // Configure static file serving if a frontend directory was discovered
   QByteArray staticRoot = qgetenv("TRAIN_APP_STATIC_ROOT");
   if (!staticRoot.isEmpty()) {
     m_httpServer->setStaticRoot(QString::fromUtf8(staticRoot));
   }
 
-  // Use the port requested by main(); pass 0 to let the OS pick a free one
   if (m_httpServer->startServer(m_port)) {
-    qInfo() << "✅ Backend server started on port" << m_httpServer->getPort();
     statusBar()->showMessage(
         QString("Backend ready on port %1").arg(m_httpServer->getPort()));
   } else {
-    qCritical() << "❌ Failed to start backend server on port" << m_port;
     QMessageBox::critical(
         this, "Server Error",
         QString("Failed to start backend server on port %1").arg(m_port));
@@ -188,7 +160,6 @@ void WebEngineWindow::setupBackendServer() {
 
 void WebEngineWindow::loadFrontend(const QUrl &url) {
   m_frontendUrl = url.toString();
-  qInfo() << "Loading frontend from:" << url;
   m_webView->load(url);
 }
 
@@ -207,10 +178,8 @@ void WebEngineWindow::onLoadFinished(bool ok) {
 
   if (ok) {
     statusBar()->showMessage("Ready", 3000);
-    qInfo() << "✅ Frontend loaded successfully";
   } else {
     statusBar()->showMessage("Failed to load frontend", 5000);
-    qWarning() << "❌ Failed to load frontend from:" << m_frontendUrl;
 
     QMessageBox::warning(this, "Load Error",
                          QString("Failed to load frontend from:\n%1\n\n"
@@ -218,10 +187,6 @@ void WebEngineWindow::onLoadFinished(bool ok) {
                                  "  cd frontend && npm run dev")
                              .arg(m_frontendUrl));
   }
-}
-
-void WebEngineWindow::onUrlChanged(const QUrl &url) {
-  qDebug() << "URL changed:" << url;
 }
 
 void WebEngineWindow::onTitleChanged(const QString &title) {
@@ -234,9 +199,7 @@ void WebEngineWindow::closeEvent(QCloseEvent *event) {
       QMessageBox::Yes | QMessageBox::No);
 
   if (reply == QMessageBox::Yes) {
-    qInfo() << "Application closing...";
 
-    // Stop backend server
     if (m_httpServer) {
       m_httpServer->stopServer();
     }

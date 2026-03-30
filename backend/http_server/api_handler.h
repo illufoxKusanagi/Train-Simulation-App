@@ -1,6 +1,8 @@
 #ifndef API_HANDLER_H
 #define API_HANDLER_H
 
+#include "auth/auth_manager.h"
+#include "auth/user_manager.h"
 #include "controllers/data/electrical_data_handler.h"
 #include "controllers/data/running_data_handler.h"
 #include "controllers/data/track_data_handler.h"
@@ -13,8 +15,6 @@
 #include "inputs/track_parameter_handler.h"
 #include "inputs/train_parameter_handler.h"
 #include "simulations/simulation_handler.h"
-#include "auth/auth_manager.h"
-#include "auth/user_manager.h"
 #include <QFuture>
 #include <QHttpServerResponse>
 #include <QJsonObject>
@@ -27,58 +27,44 @@ public:
   explicit ApiHandler(AppContext &context, QObject *parent = nullptr);
   ~ApiHandler();
 
-  // Health check
   QHttpServerResponse handleHealthCheck();
 
-  // Train parameters
   QHttpServerResponse handleGetTrainParameters();
   QHttpServerResponse handleUpdateTrainParameters(const QJsonObject &data);
 
-  // Electrical parameters
   QHttpServerResponse handleGetElectricalParameters();
   QHttpServerResponse handleUpdateElectricalParameters(const QJsonObject &data);
 
-  // Running parameters
   QHttpServerResponse handleGetRunningParameters();
   QHttpServerResponse handleUpdateRunningParameters(const QJsonObject &data);
 
-  // Track parameters
   QHttpServerResponse handleGetTrackParameters();
   QHttpServerResponse handleUpdateTrackParameters(const QJsonObject &data);
 
-  // Mass parameters
   QHttpServerResponse handleGetMassParameters();
   QHttpServerResponse handleUpdateMassParameters(const QJsonObject &data);
   QHttpServerResponse handleCalculateMass(const QJsonObject &data);
 
-  // Car number parameters
   QHttpServerResponse handleGetCarNumberParameters();
   QHttpServerResponse handleUpdateCarNumberParameters(const QJsonObject &data);
 
-  // Passenger parameters
   QHttpServerResponse handleGetPassengerParameters();
   QHttpServerResponse handleUpdatePassengerParameters(const QJsonObject &data);
 
-  // Simulation control
   QHttpServerResponse handleStartSimulation(const QJsonObject &data);
   QHttpServerResponse handleGetSimulationStatus();
   QHttpServerResponse handleGetSimulationResults();
 
-  // Optimization control
   QHttpServerResponse handleStartOptimization(const QJsonObject &data);
   QHttpServerResponse handleGetOptimizationStatus();
 
-  // Export functionality
   QHttpServerResponse handleExportResults(const QJsonObject &data);
 
-  // Simple initialization with minimal valid data
   QHttpServerResponse handleQuickInit();
 
-  // Authentication
   QHttpServerResponse handleLogin(const QJsonObject &data);
   QHttpServerResponse handleGetAuthStatus();
 
-  // Debug endpoint to check current AppContext values
   QHttpServerResponse handleDebugContext();
 
 private:
@@ -87,14 +73,10 @@ private:
   UserManager *m_userManager;
   AuthManager *m_authManager;
 
-  // New separated sub handler
   TrainParameterHandler *m_trainHandler;
   ElectricalParameterHandler *m_electricalHandler;
   RunningParameterHandler *m_runningHandler;
   TrackParameterHandler *m_trackHandler;
-  // MassParameterHandler *m_massHandler;
-  // CarNumberHandler *m_carNumberHandler;
-  // PassengerHandler *m_passengerHandler;
   SimulationHandler *m_simulationHandler;
   OptimizationHandler *m_optimizationHandler;
   QFuture<void> m_optimizationFuture;
@@ -102,7 +84,6 @@ private:
   ElectricalDataHandler *m_electricalDataHandler;
   RunningDataHandler *m_runningDataHandler;
   TrackDataHandler *m_trackDataHandler;
-  // TrainSimulationHandler *m_simulationHandler;
   CsvOutputHandler *m_csvOutputHandler;
 };
 

@@ -19,7 +19,6 @@ QHttpServerResponse TrackParameterHandler::handleGetTrackParameters() {
 
   QJsonObject trackParams;
 
-  // Use YOUR exact field names from TrackParams interface
   trackParams["n_station"] = m_context.stationData->n_station;
   trackParams["x_station"] = m_context.stationData->stat_x_station;
   trackParams["radius"] = m_context.stationData->stat_radius;
@@ -54,9 +53,6 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
     QJsonObject trackParams = data.contains("trackParameters")
                                   ? data["trackParameters"].toObject()
                                   : data;
-    qDebug() << "📝 Updating track parameters:" << trackParams;
-
-    // Use YOUR exact field names from TrackParams interface
     if (trackParams.contains("n_station")) {
       m_context.stationData->n_station = trackParams["n_station"].toInt();
       if (m_context.stationData->n_station <= 0) {
@@ -107,40 +103,29 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
           trackParams["slope_option4"].toDouble();
     }
 
-    // Handle CSV array data for vectors
     if (trackParams.contains("x_station_array") &&
         trackParams["x_station_array"].isArray()) {
       QJsonArray arr = trackParams["x_station_array"].toArray();
       m_context.stationData->x_station.clear();
       for (const auto &val : arr) {
         double dist = val.toDouble();
-        // Filter out 0-distance station (starting point) to prevent immediate
-        // braking
         if (dist > 1e-6) {
           m_context.stationData->x_station.push_back(dist);
         }
       }
-      // DO NOT SORT x_station. It represents ordered segment lengths, not
-      // positions. std::sort(m_context.stationData->x_station.begin(),
-      // m_context.stationData->x_station.end());
 
-      // Sync n_station with the vector size (Targets + Start)
       if (!m_context.stationData->x_station.empty()) {
         m_context.stationData->n_station =
             m_context.stationData->x_station.size() + 1;
       }
 
-      qDebug() << "[Track] x_station size:"
-               << m_context.stationData->x_station.size();
       if (!m_context.stationData->x_station.empty()) {
         QString stationsStr;
         for (double val : m_context.stationData->x_station)
           stationsStr += QString::number(val) + ", ";
-        qDebug() << "[Track] segments:" << stationsStr;
       }
     }
 
-    // Cumulative Station Distance (Column 1)
     if (trackParams.contains("tot_x_station_array") &&
         trackParams["tot_x_station_array"].isArray()) {
       QJsonArray arr = trackParams["tot_x_station_array"].toArray();
@@ -149,8 +134,6 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
         m_context.stationData->tot_x_station.push_back(val.toDouble());
       }
 
-      // Sync n_station if x_station was not provided but tot_x_station was
-      // (fallback)
       if (m_context.stationData->x_station.empty() &&
           !m_context.stationData->tot_x_station.empty()) {
         m_context.stationData->n_station =
@@ -158,8 +141,6 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
       }
     }
 
-    // Detailed Track Parameters (Start, End, Value)
-    // Speed Limit
     if (trackParams.contains("x_v_limitStart_array") &&
         trackParams["x_v_limitStart_array"].isArray()) {
       QJsonArray arr = trackParams["x_v_limitStart_array"].toArray();
@@ -185,7 +166,6 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
       }
     }
 
-    // Slope
     if (trackParams.contains("x_slopeStart_array") &&
         trackParams["x_slopeStart_array"].isArray()) {
       QJsonArray arr = trackParams["x_slopeStart_array"].toArray();
@@ -211,7 +191,6 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
       }
     }
 
-    // Radius
     if (trackParams.contains("x_radiusStart_array") &&
         trackParams["x_radiusStart_array"].isArray()) {
       QJsonArray arr = trackParams["x_radiusStart_array"].toArray();
@@ -247,9 +226,7 @@ TrackParameterHandler::handleUpdateTrackParameters(const QJsonObject &data) {
 
     response["status"] = "success";
     response["message"] = "Track parameters updated successfully";
-    // qDebug() << "\u2705 Track parameters updated successfully";
   } catch (const std::exception &e) {
-    qDebug() << "Exception in handleUpdateTrackParameters:" << e.what();
     response["status"] = "error";
     response["message"] =
         QString("Error updating parameters: %1").arg(e.what());

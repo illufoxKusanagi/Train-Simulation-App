@@ -1,7 +1,6 @@
 #include "fuzzy_engine.h"
 #include "fuzzy_rule.h"
 #include "fuzzy_variable.h"
-#include <QDebug>
 #include <algorithm>
 
 FuzzyEngine::FuzzyEngine() {}
@@ -26,7 +25,6 @@ void FuzzyEngine::setInputValue(const QString &varName, double value) {
   if (m_inputs.contains(varName)) {
     m_inputs[varName]->setValue(value);
   } else {
-    qWarning() << "FuzzyEngine: Input variable not found:" << varName;
   }
 }
 
@@ -39,7 +37,6 @@ QString FuzzyEngine::getDominantInputTerm(const QString &varName) const {
 
 double FuzzyEngine::getOutputValue(const QString &varName) {
   if (!m_outputs.contains(varName)) {
-    qWarning() << "FuzzyEngine: Output variable not found:" << varName;
     return 0.0;
   }
 
@@ -58,11 +55,9 @@ double FuzzyEngine::getOutputValue(const QString &varName) {
     double aggregatedMembership = 0.0;
 
     for (const auto &rule : m_rules) {
-      // Check if this rule applies to the requested output variable
       if (rule.consequent.first != varName)
         continue;
 
-      // Calculate Rule Activation Strength (MIN of antecedents)
       double activation = 1.0;
       for (auto it = rule.antecedents.begin(); it != rule.antecedents.end();
            ++it) {
@@ -73,18 +68,14 @@ double FuzzyEngine::getOutputValue(const QString &varName) {
           double inputMembership = m_inputs[inputName]->getMembership(termName);
           activation = std::min(activation, inputMembership);
         } else {
-          activation = 0.0; // Missing input
+          activation = 0.0;
         }
       }
 
-      // If rule is active
       if (activation > 0.0) {
-
         double termMembership =
             outputVar->getMembershipAt(rule.consequent.second, x);
-
         double clippedMembership = std::min(activation, termMembership);
-
         aggregatedMembership =
             std::max(aggregatedMembership, clippedMembership);
       }
@@ -95,6 +86,6 @@ double FuzzyEngine::getOutputValue(const QString &varName) {
   }
 
   if (denominator == 0.0)
-    return 0.0; // Avoid division by zero
+    return 0.0;
   return numerator / denominator;
 }

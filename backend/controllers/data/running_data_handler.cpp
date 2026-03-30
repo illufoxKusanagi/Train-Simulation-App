@@ -58,32 +58,3 @@ void RunningDataHandler::setDecelerationValue(double decceleration) {
     m_movingData->decc_start = decceleration;
   }
 }
-
-// void RunningDataHandler::storeFormInputs(
-//     const QMap<QString, InputWidget *> &inputWidgets) {
-//   if (inputWidgets.contains("Starting Resistance")) {
-//     setStartingResistance(inputWidgets["Starting Resistance"]->getValue());
-//   }
-//   if (inputWidgets.contains("Weakening Point 1 (Powering)")) {
-//     setWeakeningPoint1(
-//         inputWidgets["Weakening Point 1 (Powering)"]->getValue());
-//   }
-//   if (inputWidgets.contains("Weakening Point 2 (Powering)")) {
-//     setWeakeningPoint2(
-//         inputWidgets["Weakening Point 2 (Powering)"]->getValue());
-//   }
-//   if (inputWidgets.contains("Weakening Point 3 (Braking)")) {
-//     setWeakeningPoint3(inputWidgets["Weakening Point 3 (Braking)"]->getValue());
-//   }
-//   if (inputWidgets.contains("Weakening Point 4 (Braking)")) {
-//     setWeakeningPoint4(inputWidgets["Weakening Point 4 (Braking)"]->getValue());
-//   }
-//   if (inputWidgets.contains("Difference Coasting Speed")) {
-//     setDifferenceCoastingSpeed(
-//         inputWidgets["Difference Coasting Speed"]->getValue());
-//   }
-//   if (inputWidgets.contains("Emergency Brake Deceleration")) {
-//     setEmergencyBrakeDeceleration(
-//         inputWidgets["Emergency Brake Deceleration"]->getValue());
-//   }
-// }

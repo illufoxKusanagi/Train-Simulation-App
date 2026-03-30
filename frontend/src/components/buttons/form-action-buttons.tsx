@@ -49,14 +49,17 @@ export function FormActionButtons({
   const handleUploadClick = async () => {
     if (isQtWebChannelReady()) {
       setIsUploading(true);
-      const result = await openFileWithDialog(
-        dialogTitle,
-        "CSV Files (*.csv);;All Files (*)",
-      );
-      if (result.success && result.content) {
-        onProcessCsvText(result.content);
+      try {
+        const result = await openFileWithDialog(
+          dialogTitle,
+          "CSV Files (*.csv);;All Files (*)",
+        );
+        if (result.success && result.content) {
+          onProcessCsvText(result.content);
+        }
+      } finally {
+        setIsUploading(false);
       }
-      setIsUploading(false);
     } else {
       csvInputRef.current?.click();
     }

@@ -12,14 +12,6 @@ class CsvOutputHandler : public QObject {
 public:
   explicit CsvOutputHandler(SimulationDatas &simulationDatas);
   void printSimulationDatas();
-  bool saveTrainSpeedData();
-  bool saveTractionEffortData();
-  bool saveTrainPowerData();
-  bool saveTrainTrackData();
-  bool saveEnergyConsumptionData();
-  bool saveEnergyPoweringData();
-  bool saveEnergyRegenData();
-  bool saveEnergyApsData();
 
   double findMaxSpeed();
   double findMaxVvvfPower();

@@ -1,5 +1,4 @@
 #include "utility_handler.h"
-#include <qdebug.h>
 #include <qmutex.h>
 
 UtilityHandler::UtilityHandler(AppContext &context)

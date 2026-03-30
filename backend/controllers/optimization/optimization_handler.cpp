@@ -2,7 +2,6 @@
 #include "controllers/optimization/fuzzy/trapezoid_set.h"
 #include "controllers/optimization/fuzzy/triangle_set.h"
 #include "controllers/simulation/train_simulation_handler.h"
-#include <QDebug>
 #include <algorithm>
 #include <memory>
 
@@ -12,9 +11,7 @@ OptimizationHandler::OptimizationHandler(
     : QObject(parent), m_simulationDatas(context->simulationDatas.data()),
       m_movingData(context->movingData.data()),
       m_trainSimulation(simulationHandler),
-      m_simulationMutex(&context->simulationMutex) {
-  // Fuzzy engine is calibrated from actual sweep data — no static setup here.
-}
+      m_simulationMutex(&context->simulationMutex) {}
 
 // =============================================================================
 // Time Engine Setup — evaluates TravelTime (shaped by acc_start).
@@ -26,7 +23,6 @@ OptimizationHandler::OptimizationHandler(
 void OptimizationHandler::setupTimeEngine(double minT, double maxT) {
   m_timeEngine.clear();
 
-  // 5% margin so boundary results still get non-zero membership
   const double margin = (maxT - minT) * 0.05;
   minT -= margin;
   maxT += margin;
@@ -64,9 +60,6 @@ void OptimizationHandler::setupTimeEngine(double minT, double maxT) {
   m_timeEngine.addRule(makeRule("Short", "Excellent"));
   m_timeEngine.addRule(makeRule("Medium", "Good"));
   m_timeEngine.addRule(makeRule("Long", "Poor"));
-
-  qDebug() << "Time engine calibrated — TravelTime [" << minT << "–" << maxT
-           << "] s";
 }
 
 // =============================================================================
@@ -117,9 +110,6 @@ void OptimizationHandler::setupPowerEngine(double minP, double maxP) {
   m_powerEngine.addRule(makeRule("Low", "Excellent"));
   m_powerEngine.addRule(makeRule("Medium", "Good"));
   m_powerEngine.addRule(makeRule("High", "Poor"));
-
-  qDebug() << "Power engine calibrated — MotorPower [" << minP << "–" << maxP
-           << "] kW";
 }
 
 // Final score = average of both sub-scores.
@@ -143,13 +133,11 @@ double OptimizationHandler::evaluateFuzzyScore(double travelTime,
 void OptimizationHandler::handleOptimization(
     const QList<double> &accCandidates, const QList<double> &vp1Candidates) {
   if (m_isRunning.testAndSetRelaxed(0, 1) == false) {
-    qWarning() << "Optimization already running, ignoring request.";
     return;
   }
 
   // Require at least one successful simulation to have valid parameters
   if (m_trainSimulation->getMaxSpeed() <= 0.0) {
-    qWarning() << "Optimization aborted: run a dynamic simulation first.";
     m_isRunning.storeRelaxed(0);
     return;
   }
@@ -167,17 +155,10 @@ void OptimizationHandler::handleOptimization(
 
   m_totalCombinations.storeRelaxed(accValues.size() * vp1Values.size());
 
-  qDebug() << "Optimization sweep — acc:" << accValues
-           << "| v_p1:" << vp1Values;
-
   {
     QMutexLocker lk(&m_resultsMutex);
     m_results.clear();
   }
-
-  // ── PASS 1: simulate all combinations, record raw metrics ──────────────
-  qDebug() << "=== Optimization Pass 1: running"
-           << accValues.size() * vp1Values.size() << "simulations ===";
 
   struct RawEntry {
     double acc, vp1, peakPower, travelTime;
@@ -206,7 +187,6 @@ void OptimizationHandler::handleOptimization(
 
       if (m_simulationDatas->powerMotorOutPerMotor.isEmpty() ||
           m_simulationDatas->timeTotal.isEmpty()) {
-        qWarning() << "Pass1: empty result for acc=" << acc << "vp1=" << vp1;
         continue;
       }
 
@@ -216,14 +196,6 @@ void OptimizationHandler::handleOptimization(
       e.peakPower = findMaximumPowerMotorPerCar();
       e.travelTime = m_simulationDatas->timeTotal.last();
       rawData.append(e);
-
-      qDebug()
-          << QString(
-                 "  acc=%-4.2f  vp1=%-5.1f  peakPwr=%-8.1f kW  time=%-8.1f s")
-                 .arg(acc)
-                 .arg(vp1)
-                 .arg(e.peakPower)
-                 .arg(e.travelTime);
     }
   }
 
@@ -233,7 +205,6 @@ void OptimizationHandler::handleOptimization(
   m_movingData->v_p1 = originalVp1;
 
   if (rawData.isEmpty()) {
-    qWarning() << "Optimization: no valid results from Pass 1.";
     m_isRunning.storeRelaxed(0);
     return;
   }
@@ -260,7 +231,6 @@ void OptimizationHandler::handleOptimization(
   setupTimeEngine(minT, maxT);
   setupPowerEngine(minP, maxP);
 
-  qDebug() << "=== Optimization Pass 2: scoring ===";
   {
     QMutexLocker lk(&m_resultsMutex);
     for (const RawEntry &e : rawData) {
@@ -271,11 +241,6 @@ void OptimizationHandler::handleOptimization(
       r.travelTime = e.travelTime;
       r.fuzzyScore = evaluateFuzzyScore(e.travelTime, e.peakPower);
       m_results.append(r);
-
-      qDebug() << QString("  acc=%-4.2f  vp1=%-5.1f  score=%-6.2f")
-                      .arg(e.acc)
-                      .arg(e.vp1)
-                      .arg(r.fuzzyScore);
     }
 
     m_bestResult =
@@ -283,12 +248,7 @@ void OptimizationHandler::handleOptimization(
                           [](const OptResult &a, const OptResult &b) {
                             return a.fuzzyScore < b.fuzzyScore;
                           });
-  } // m_resultsMutex released
-
-  qDebug() << "=== Optimization Complete ==="
-           << "| WINNER: acc=" << m_bestResult.acc_start
-           << "vp1=" << m_bestResult.v_p1
-           << "score=" << m_bestResult.fuzzyScore;
+  }
 
   emit optimizationComplete(m_bestResult);
   m_isRunning.storeRelaxed(0);
