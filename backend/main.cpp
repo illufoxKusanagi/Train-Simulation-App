@@ -119,11 +119,7 @@ int main(int argc, char *argv[]) {
       frontendUrl = QString("http://127.0.0.1:%1").arg(actualPort);
     }
 
-    // Load frontend
     window.loadFrontend(QUrl(frontendUrl));
-
-    "http://localhost:3254)";
-
     return app.exec();
   }
 }

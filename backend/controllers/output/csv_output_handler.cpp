@@ -48,16 +48,6 @@ void CsvOutputHandler::printSimulationDatas() {
   }
 }
 
-bool CsvOutputHandler::saveTrainSpeedData() { return true; }
-
-bool CsvOutputHandler::saveTractionEffortData() { return true; }
-
-bool CsvOutputHandler::saveTrainPowerData() { return true; }
-
-bool CsvOutputHandler::saveTrainTrackData() { return true; }
-
-bool CsvOutputHandler::saveEnergyConsumptionData() { return true; }
-
 double CsvOutputHandler::findMaxSpeed() {
   if (simulationDatas->trainSpeeds.isEmpty())
     return 0.0;

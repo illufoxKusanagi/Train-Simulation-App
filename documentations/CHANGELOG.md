@@ -43,10 +43,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 #### Simulation Physics Core
-- Fixed buggy calculations for total force and motor force which were breaking due to an uncalculated mass input.
-- Fixed a bug at the braking distance computation logic.
-- Fixed an issue causing a missing page blank-out immediately after starting the simulation.
-- Fixed inaccurate metrics relating to power and force resistance (`f_res` and `f_motor`).
+- Corrected total-force and motor-force calculations that failed when mass input was not computed.
+- Corrected braking-distance computation logic.
+- Resolved a blank page shown immediately after starting the simulation.
+- Improved metric accuracy for power and force resistance (`f_res` and `f_motor`).
 
 #### State & Input Management 
 - Fixed an issue where persistent states (like the `n_car` dropdown configurations) were resetting improperly after page swaps.

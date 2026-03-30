@@ -16,7 +16,7 @@ double SimulationTrackHandler::calculateBrakingTrack(double speed) {
 
   double v_b1 = movingData->v_b1 / constantData->cV;
   double v_b2 = movingData->v_b2 / constantData->cV;
-  double decc = movingData->decc_start;
+  double decc = movingData->decc_start; // Deceleration in m/s²
 
   double totalDistance = 0.0;
 

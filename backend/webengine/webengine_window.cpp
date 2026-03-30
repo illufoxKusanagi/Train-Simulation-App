@@ -134,8 +134,6 @@ void WebEngineWindow::setupConnections() {
           &WebEngineWindow::onLoadProgress);
   connect(m_webView, &QWebEngineView::loadFinished, this,
           &WebEngineWindow::onLoadFinished);
-  connect(m_webView, &QWebEngineView::urlChanged, this,
-          &WebEngineWindow::onUrlChanged);
   connect(m_webView, &QWebEngineView::titleChanged, this,
           &WebEngineWindow::onTitleChanged);
 }
@@ -190,8 +188,6 @@ void WebEngineWindow::onLoadFinished(bool ok) {
                              .arg(m_frontendUrl));
   }
 }
-
-void WebEngineWindow::onUrlChanged(const QUrl &url) {}
 
 void WebEngineWindow::onTitleChanged(const QString &title) {
   setWindowTitle(QString("%1 - Train Simulation").arg(title));

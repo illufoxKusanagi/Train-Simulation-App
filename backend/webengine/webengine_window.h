@@ -53,7 +53,6 @@ private slots:
   void onLoadStarted();
   void onLoadProgress(int progress);
   void onLoadFinished(bool ok);
-  void onUrlChanged(const QUrl &url);
   void onTitleChanged(const QString &title);
 
 private:
