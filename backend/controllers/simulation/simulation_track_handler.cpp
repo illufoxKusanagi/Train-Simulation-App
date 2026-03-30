@@ -9,18 +9,14 @@ SimulationTrackHandler::SimulationTrackHandler(AppContext &context)
       simulationDatas(context.simulationDatas.data()) {}
 
 double SimulationTrackHandler::calculateBrakingTrack(double speed) {
-  // Convert speed to m/s
   double v_current = speed / constantData->cV;
-
-  // If speed is zero or negative, no braking distance needed
   if (v_current <= 0) {
     return 0.0;
   }
 
-  // Get weakening points (convert from km/h to m/s)
   double v_b1 = movingData->v_b1 / constantData->cV;
   double v_b2 = movingData->v_b2 / constantData->cV;
-  double decc = movingData->decc_start; // m/s²
+  double decc = movingData->decc_start;
 
   double totalDistance = 0.0;
 

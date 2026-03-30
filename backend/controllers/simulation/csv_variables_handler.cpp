@@ -11,25 +11,15 @@ CsvVariableHandler::CsvVariableHandler(AppContext &context,
 int CsvVariableHandler::updateIndex(const std::vector<double> &thresholds,
                                     int currentIndex, double currentValue) {
   if (!thresholds.empty()) {
-    // Check if we need to advance the index
     if (currentIndex < thresholds.size() &&
         currentValue >= thresholds[currentIndex]) {
       return currentIndex + 1;
-    }
-    // Check if we need to go back (only applicable for speed-based lookups
-    // where speed can decrease) This condition is typically for
-    // efficiency/voltage data where the index might need to decrease if speed
-    // drops. For distance-based data (slope, radius, max speed), currentValue
-    // (distance) is always increasing, so this branch won't be taken unless
-    // there's an external reset or error.
-    else if (currentIndex > 0 && currentIndex <= thresholds.size() &&
-             currentValue < thresholds[currentIndex - 1]) {
+    } else if (currentIndex > 0 && currentIndex <= thresholds.size() &&
+               currentValue < thresholds[currentIndex - 1]) {
       return currentIndex - 1;
     }
-    return currentIndex; // No change needed
+    return currentIndex;
   }
-  // If thresholds are empty, always return 0 as there's no data to index.
-  // The original code for empty data returned 0.
   return 0;
 }
 
@@ -39,14 +29,12 @@ T CsvVariableHandler::getValueAt(const std::vector<double> &thresholds,
                                  int &currentIndex, double currentValue,
                                  T defaultValue, const QString &dataName) {
   if (!values.empty() && currentIndex < values.size()) {
-    // Update index first
     if (currentValue >= thresholds[currentIndex]) {
       currentIndex++;
     } else if (currentIndex > 0 && currentValue < thresholds[currentIndex]) {
       return values[currentIndex - 1];
     }
 
-    // Check bounds again after increment
     if (currentIndex >= values.size())
       return values.back();
     return values[currentIndex];

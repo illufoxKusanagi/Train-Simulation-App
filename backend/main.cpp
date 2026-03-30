@@ -10,14 +10,10 @@
 #include <QUrl>
 
 static void silentMessageHandler(QtMsgType, const QMessageLogContext &,
-                                 const QString &) {
-  // Production: discard all Qt log output (no console window side-effects)
-}
+                                 const QString &) {}
 
 int main(int argc, char *argv[]) {
-  // Parse command line arguments first
   bool headless = false;
-  // Automatically enable dev mode in Debug builds; Release builds = production
 #ifdef NDEBUG
   bool devMode = false;
 #else
@@ -65,10 +61,8 @@ int main(int argc, char *argv[]) {
 
     AppContext context;
     HttpServer server(context);
-
-    // Check if we need to serve static files (though headless usually doesn't
-    // need frontend)
     QByteArray staticRoot = qgetenv("TRAIN_APP_STATIC_ROOT");
+
     if (!staticRoot.isEmpty()) {
       server.setStaticRoot(QString::fromUtf8(staticRoot));
     }
@@ -99,6 +93,7 @@ int main(int argc, char *argv[]) {
       return 1;
     }
   } else {
+
     // GUI mode: Qt WebEngine with embedded Next.js frontend
     QApplication app(argc, argv);
     app.setApplicationName("Train Simulation App");
@@ -128,9 +123,7 @@ int main(int argc, char *argv[]) {
         }
 
         if (!foundPath.isEmpty()) {
-          // Store the path so the server can serve the static files
           qputenv("TRAIN_APP_STATIC_ROOT", foundPath.toUtf8());
-          // Use a placeholder; replaced below once we know the server port
           frontendUrl = "SERVE_STATIC";
         } else {
           qWarning() << "⚠️ Could not find local frontend directory. "
@@ -142,13 +135,9 @@ int main(int argc, char *argv[]) {
 
     qInfo() << "🚀 Starting Train Simulation App (Desktop Mode)";
 
-    // WebEngineWindow owns AppContext, HttpServer, and WebChannel.
-    // Do NOT create a second HttpServer here — that would attempt to bind the
-    // same port and fail with "address already in use".
     WebEngineWindow window(port, devMode);
     window.show();
 
-    // Now that the server is running inside the window, resolve the URL.
     if (frontendUrl == "SERVE_STATIC") {
       quint16 actualPort = window.getHttpServer()->getPort();
       frontendUrl = QString("http://127.0.0.1:%1").arg(actualPort);

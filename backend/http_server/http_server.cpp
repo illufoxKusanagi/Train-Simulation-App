@@ -78,7 +78,6 @@ QJsonObject HttpServer::parseRequestBody(const QHttpServerRequest &request,
 }
 
 void HttpServer::setupRoutes() {
-  // Helper function to add CORS headers to any response
   auto addCorsHeaders = [](QHttpServerResponse &&response) {
 #if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
     QHttpServerResponder::HeaderList headers = {
@@ -90,9 +89,6 @@ void HttpServer::setupRoutes() {
          QByteArrayLiteral("Content-Type, Authorization")},
         {QByteArrayLiteral("Access-Control-Max-Age"),
          QByteArrayLiteral("86400")},
-        // For Qt 6.7, setHeaders might overwrite existing headers (like
-        // Content-Type from constructor). We re-add it just in case, assuming
-        // JSON for most responses.
         {QByteArrayLiteral("Content-Type"),
          QByteArrayLiteral("application/json")}};
     response.setHeaders(headers);
@@ -109,7 +105,6 @@ void HttpServer::setupRoutes() {
     return std::move(response);
   };
 
-  // Handle OPTIONS preflight requests
   m_httpServer->route("/api/health", QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
                         qDebug() << "📋 OPTIONS /api/health";
@@ -117,7 +112,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Handle OPTIONS for /api/parameters/train
   m_httpServer->route("/api/parameters/train",
                       QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
@@ -126,7 +120,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Handle OPTIONS for /api/parameters/electrical
   m_httpServer->route("/api/parameters/electrical",
                       QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
@@ -135,7 +128,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Handle OPTIONS for /api/parameters/running
   m_httpServer->route("/api/parameters/running",
                       QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
@@ -144,7 +136,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Handle OPTIONS for /api/parameters/track
   m_httpServer->route("/api/parameters/track",
                       QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
@@ -153,7 +144,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Handle OPTIONS for /api/simulation/start
   m_httpServer->route("/api/simulation/start",
                       QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
@@ -162,7 +152,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Handle OPTIONS for /api/simulation/status
   m_httpServer->route("/api/simulation/status",
                       QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
@@ -171,7 +160,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Handle OPTIONS for /api/simulation/results
   m_httpServer->route("/api/simulation/results",
                       QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
@@ -180,7 +168,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Handle OPTIONS for /api/export/results
   m_httpServer->route("/api/export/results",
                       QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
@@ -189,7 +176,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Handle OPTIONS for /status
   m_httpServer->route("/status", QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
                         qDebug() << "📋 OPTIONS /status";
@@ -197,7 +183,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Health check endpoint
   m_httpServer->route("/api/health", QHttpServerRequest::Method::Get,
                       [this, addCorsHeaders](const QHttpServerRequest &) {
                         qDebug() << "🔍 GET /api/health";
@@ -205,7 +190,6 @@ void HttpServer::setupRoutes() {
                             m_apiHandler->handleHealthCheck());
                       });
 
-  // Quick initialization endpoint
   m_httpServer->route("/api/init/quick", QHttpServerRequest::Method::Post,
                       [this, addCorsHeaders](const QHttpServerRequest &) {
                         qDebug()
@@ -219,7 +203,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Debug endpoint
   m_httpServer->route(
       "/api/debug/context", QHttpServerRequest::Method::Get,
       [this, addCorsHeaders](const QHttpServerRequest &) {
@@ -233,7 +216,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Train parameters endpoints
   m_httpServer->route("/api/parameters/train", QHttpServerRequest::Method::Get,
                       [this, addCorsHeaders](const QHttpServerRequest &) {
                         qDebug() << "🔍 GET /api/parameters/train";
@@ -267,7 +249,6 @@ void HttpServer::setupRoutes() {
             m_apiHandler->handleUpdateElectricalParameters(data));
       });
 
-  // Running parameters endpoints
   m_httpServer->route(
       "/api/parameters/running", QHttpServerRequest::Method::Get,
       [this, addCorsHeaders](const QHttpServerRequest &) {
@@ -284,7 +265,6 @@ void HttpServer::setupRoutes() {
             m_apiHandler->handleUpdateRunningParameters(data));
       });
 
-  // Track parameters endpoints
   m_httpServer->route("/api/parameters/track", QHttpServerRequest::Method::Get,
                       [this, addCorsHeaders](const QHttpServerRequest &) {
                         qDebug() << "🔍 GET /api/parameters/track";
@@ -300,7 +280,6 @@ void HttpServer::setupRoutes() {
         return addCorsHeaders(m_apiHandler->handleUpdateTrackParameters(data));
       });
 
-  // Mass parameters
   m_httpServer->route("/api/parameters/mass",
                       QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
@@ -323,7 +302,6 @@ void HttpServer::setupRoutes() {
         return addCorsHeaders(m_apiHandler->handleUpdateMassParameters(data));
       });
 
-  // Calculate mass endpoint
   m_httpServer->route("/api/calculate/mass",
                       QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
@@ -340,7 +318,6 @@ void HttpServer::setupRoutes() {
         return addCorsHeaders(m_apiHandler->handleCalculateMass(data));
       });
 
-  // Car number parameters
   m_httpServer->route("/api/parameters/carnumber",
                       QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
@@ -364,7 +341,6 @@ void HttpServer::setupRoutes() {
             m_apiHandler->handleUpdateCarNumberParameters(data));
       });
 
-  // Passenger parameters
   m_httpServer->route("/api/parameters/passenger",
                       QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
@@ -388,7 +364,6 @@ void HttpServer::setupRoutes() {
             m_apiHandler->handleUpdatePassengerParameters(data));
       });
 
-  // Simulation control endpoints
   m_httpServer->route(
       "/api/simulation/start", QHttpServerRequest::Method::Post,
       [this, addCorsHeaders](const QHttpServerRequest &request) {
@@ -411,7 +386,6 @@ void HttpServer::setupRoutes() {
         return addCorsHeaders(m_apiHandler->handleGetSimulationResults());
       });
 
-  // Optimization endpoints
   m_httpServer->route(
       "/api/optimization/start", QHttpServerRequest::Method::Post,
       [this, addCorsHeaders](const QHttpServerRequest &request) {
@@ -449,7 +423,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Export endpoints
   m_httpServer->route(
       "/api/export/results", QHttpServerRequest::Method::Post,
       [this, addCorsHeaders](const QHttpServerRequest &request) {
@@ -458,7 +431,6 @@ void HttpServer::setupRoutes() {
         return addCorsHeaders(m_apiHandler->handleExportResults(data));
       });
 
-  // Simple status endpoint
   m_httpServer->route("/status", QHttpServerRequest::Method::Get,
                       [addCorsHeaders](const QHttpServerRequest &) {
                         qDebug() << "🔍 GET /status";
@@ -469,13 +441,13 @@ void HttpServer::setupRoutes() {
                         return addCorsHeaders(QHttpServerResponse(response));
                       });
 
-  // Auth endpoints
-  m_httpServer->route("/api/auth/login", QHttpServerRequest::Method::Post,
-                      [this, addCorsHeaders](const QHttpServerRequest &request) {
-                        qDebug() << "🔐 POST /api/auth/login";
-                        QJsonObject data = parseRequestBody(request);
-                        return addCorsHeaders(m_apiHandler->handleLogin(data));
-                      });
+  m_httpServer->route(
+      "/api/auth/login", QHttpServerRequest::Method::Post,
+      [this, addCorsHeaders](const QHttpServerRequest &request) {
+        qDebug() << "🔐 POST /api/auth/login";
+        QJsonObject data = parseRequestBody(request);
+        return addCorsHeaders(m_apiHandler->handleLogin(data));
+      });
 
   m_httpServer->route("/api/auth/login", QHttpServerRequest::Method::Options,
                       [addCorsHeaders](const QHttpServerRequest &) {
@@ -486,7 +458,8 @@ void HttpServer::setupRoutes() {
   m_httpServer->route("/api/auth/status", QHttpServerRequest::Method::Get,
                       [this, addCorsHeaders](const QHttpServerRequest &) {
                         qDebug() << "🔑 GET /api/auth/status";
-                        return addCorsHeaders(m_apiHandler->handleGetAuthStatus());
+                        return addCorsHeaders(
+                            m_apiHandler->handleGetAuthStatus());
                       });
 
   m_httpServer->route("/api/auth/status", QHttpServerRequest::Method::Options,
@@ -495,8 +468,6 @@ void HttpServer::setupRoutes() {
                             QHttpServerResponse::StatusCode::Ok));
                       });
 
-  // Serve static files if configured
-  // We use a catch-all route for everything else
   m_httpServer->route("/(.*)", QHttpServerRequest::Method::Get,
                       [this](const QHttpServerRequest &request) {
                         return serveStaticFile(request);
@@ -519,7 +490,6 @@ HttpServer::serveStaticFile(const QHttpServerRequest &request) {
     path = "/index.html";
   }
 
-  // Prevent directory traversal attacks
   if (path.contains("..")) {
     return QHttpServerResponse(QHttpServerResponse::StatusCode::Forbidden);
   }
@@ -528,7 +498,6 @@ HttpServer::serveStaticFile(const QHttpServerRequest &request) {
   QFile file(fullPath);
 
   if (!file.exists()) {
-    // Try looking for index.html if it's a directory-like path
     if (QFile::exists(fullPath + "/index.html")) {
       fullPath += "/index.html";
       file.setFileName(fullPath);

@@ -53,18 +53,15 @@ QHttpServerResponse SimulationHandler::handleGetSimulationResults() {
   try {
     response["status"] = "success";
 
-    // Use the helper methods based on the current simulation type
     if (m_currentSimulationType == "static") {
       QJsonObject staticResults = getStaticResults();
       response["results"] = staticResults.value("data");
       response["trackDistanceTable"] =
           staticResults.value("trackDistanceTable");
     } else {
-      // Default to dynamic if not specified or explicitly dynamic
       response["results"] = getDynamicResults().value("data");
     }
 
-    // Add debug info if needed (simplified for now to fix build)
     QJsonObject debugInfo;
     debugInfo["simulationType"] = m_currentSimulationType;
 
@@ -89,8 +86,6 @@ QJsonObject SimulationHandler::getDynamicResults() {
   QJsonObject results;
   auto simulationDatas = m_context.simulationDatas.data();
 
-  // Build results array (limit to prevent huge payloads if needed, but
-  // keeping full for now as per request)
   QJsonArray resultsArray;
   int dataSize = simulationDatas->time.size();
 
@@ -101,8 +96,6 @@ QJsonObject SimulationHandler::getDynamicResults() {
     point["timeTotal"] = simulationDatas->timeTotal[i];
     point["distances"] = simulationDatas->distance[i];
     point["distancesTotal"] = simulationDatas->distanceTotal[i];
-    // These arrays may have different sizes (populated once per simulation vs
-    // once per iteration)
     point["odos"] =
         i < simulationDatas->odos.size() ? simulationDatas->odos[i] : 0.0;
     point["brakingDistances"] = i < simulationDatas->brakingDistances.size()
@@ -134,39 +127,15 @@ QJsonObject SimulationHandler::getDynamicResults() {
     point["powerMotorIn"] = simulationDatas->powerMotorIn[i];
     point["vvvfPowers"] = simulationDatas->vvvfPowers[i];
 
-    // Add debug information for current values at each point
-    // if (i < simulationDatas->vvvfCurrents.size()) {
     point["vvvfCurrents"] = simulationDatas->vvvfCurrents[i];
-    //   point["vvvfCurrentsDebug"] = QString("Value at index %1: %2")
-    //                                    .arg(i)
-    //                                    .arg(simulationDatas->vvvfCurrents[i]);
-    // } else {
-    //   point["vvvfCurrents"] = QJsonValue();
-    //   point["vvvfCurrentsDebug"] =
-    //       QString("Index %1 >= array size %2")
-    //           .arg(i)
-    //           .arg(simulationDatas->vvvfCurrents.size());
-    // }
-
-    // if (i < simulationDatas->catenaryCurrents.size()) {
     point["catenaryCurrents"] = simulationDatas->catenaryCurrents[i];
-    //   point["catenaryCurrentsDebug"] =
-    //       QString("Value at index %1: %2")
-    //           .arg(i)
-    //           .arg(simulationDatas->catenaryCurrents[i]);
-    // } else {
-    //   point["catenaryCurrents"] = QJsonValue();
-    //   point["catenaryCurrentsDebug"] =
-    //       QString("Index %1 >= array size %2")
-    //           .arg(i)
-    //           .arg(simulationDatas->catenaryCurrents.size());
-    // }
     point["catenaryPowers"] = simulationDatas->catenaryPowers[i];
     point["energyConsumptions"] = simulationDatas->energyConsumptions[i];
     point["energyPowerings"] = simulationDatas->energyPowerings[i];
     point["energyRegenerations"] = simulationDatas->energyRegenerations[i];
     point["energyAps"] = simulationDatas->energyAps[i];
     point["energyCatenaries"] = simulationDatas->energyCatenaries[i];
+
     resultsArray.append(point);
   }
   results["data"] = resultsArray;
@@ -177,7 +146,6 @@ QJsonObject SimulationHandler::getStaticResults() {
   QJsonObject results;
   auto simulationDatas = m_context.simulationDatas.data();
 
-  // Static simulation also needs time-series data for charts
   QJsonArray resultsArray;
   int dataSize = simulationDatas->time.size();
 
@@ -188,8 +156,6 @@ QJsonObject SimulationHandler::getStaticResults() {
     point["timeTotal"] = simulationDatas->timeTotal[i];
     point["distances"] = simulationDatas->distance[i];
     point["distancesTotal"] = simulationDatas->distanceTotal[i];
-    // These arrays may have different sizes (populated once per simulation vs
-    // once per iteration)
     point["odos"] =
         i < simulationDatas->odos.size() ? simulationDatas->odos[i] : 0.0;
     point["brakingDistances"] = i < simulationDatas->brakingDistances.size()
@@ -221,40 +187,15 @@ QJsonObject SimulationHandler::getStaticResults() {
     point["powerMotorIn"] = simulationDatas->powerMotorIn[i];
     point["vvvfPowers"] = simulationDatas->vvvfPowers[i];
 
-    // Add debug information for current values at each point
-    // if (i < simulationDatas->vvvfCurrents.size()) {
     point["vvvfCurrents"] = simulationDatas->vvvfCurrents[i];
-    //   point["vvvfCurrentsDebug"] = QString("Value at index %1: %2")
-    //                                    .arg(i)
-    //                                    .arg(simulationDatas->vvvfCurrents[i]);
-    // } else {
-    // point["vvvfC?urrents"] = QJsonValue();
-    // point["vvvfCurrentsDebug"] =
-    //       QString("Index %1 >= array size %2")
-    //           .arg(i)
-    //           .arg(simulationDatas->vvvfCurrents.size());
-    // }
-
-    // if (i < simulationDatas->catenaryCurrents.size()) {
     point["catenaryCurrents"] = simulationDatas->catenaryCurrents[i];
-    //   point["catenaryCurrentsDebug"] =
-    //       QString("Value at index %1: %2")
-    //           .arg(i)
-    //           .arg(simulationDatas->catenaryCurrents[i]);
-    // // } else {
-    //   point["catenaryCurrents"] = QJsonValue();
-    //   point["catenaryCurrentsDebug"] =
-    //       QString("Index %1 >= array size %2")
-    //           .arg(i)
-    //           .arg(simulationDatas->catenaryCurrents.size());
-    // }
-
     point["catenaryPowers"] = simulationDatas->catenaryPowers[i];
     point["energyConsumptions"] = simulationDatas->energyConsumptions[i];
     point["energyPowerings"] = simulationDatas->energyPowerings[i];
     point["energyRegenerations"] = simulationDatas->energyRegenerations[i];
     point["energyAps"] = simulationDatas->energyAps[i];
     point["energyCatenaries"] = simulationDatas->energyCatenaries[i];
+
     if (m_currentSimulationType == "static") {
       point["motorResistancesOption1"] =
           i < simulationDatas->motorResistancesOption1.size()
@@ -277,19 +218,8 @@ QJsonObject SimulationHandler::getStaticResults() {
     resultsArray.append(point);
   }
 
-  // for (int i = 0; i < dataSize; i++) {
-  //   QJsonObject point;
-  //   point["time"] = simulationDatas->time[i];
-  //   point["speed"] = simulationDatas->trainSpeeds[i];
-  //   point["distance"] = simulationDatas->distance[i];
-  //   point["acceleration"] = simulationDatas->accelerations[i];
-  //   point["tractiveEffort"] = simulationDatas->tractionEfforts[i];
-
-  //   resultsArray.append(point);
-  // }
   results["data"] = resultsArray;
 
-  // Calculate Track Distance Table (Logic from OutputTableHandler)
   QJsonObject trackDistanceTable;
   QJsonArray normalBraking;
   QJsonArray emergencyBraking;
@@ -338,12 +268,10 @@ QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
       response["hasResults"] = false;
     } else {
       double maxSpeed = m_trainSimulation->getMaxSpeed();
-      // Check if we have results (either maxSpeed > 0 or errors present)
       if (maxSpeed > 0 || !m_trainSimulation->getSimulationErrors().isEmpty()) {
         response["simulationStatus"] = "completed";
         response["hasResults"] = true;
 
-        // --- Populate Summary Data ---
         QJsonObject summary;
         summary["maxSpeed"] = maxSpeed;
         summary["distanceTravelled"] =
@@ -353,7 +281,6 @@ QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
         summary["maxEnergyConsumption"] =
             m_trainSimulation->getMaxEnergyConsumption();
 
-        // if (m_currentSimulationType == "dynamic") {
         summary["maxCatenaryPower"] = m_trainSimulation->getMaxCatenaryPower();
         summary["maxVvvfPower"] = m_trainSimulation->getMaxVvvfPower();
         summary["maxMotorPowerPerMotor"] =
@@ -361,10 +288,8 @@ QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
         summary["maxCatenaryCurrent"] =
             m_trainSimulation->getMaxCatenaryCurrent();
         summary["maxVvvfCurrent"] = m_trainSimulation->getMaxVvvfCurrent();
-        // summary["maxEnergyRegen"] = m_trainSimulation->getMaxEnergyRegen();
         summary["maxPowerTime"] = m_trainSimulation->getMaxPowTime();
         summary["adhesion"] = m_trainSimulation->getAdhesion();
-        // }
 
         if (m_currentSimulationType == "static") {
           double vLimit = m_context.stationData->stat_v_limit;
@@ -378,7 +303,6 @@ QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
 
         response["summary"] = summary;
 
-        // --- Populate Warnings & Errors ---
         QJsonArray warnings;
         for (const QString &warning :
              m_trainSimulation->getSimulationWarnings()) {
@@ -392,7 +316,6 @@ QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
         }
         response["errors"] = errors;
 
-        // --- Populate Detailed Results based on Type ---
         if (m_currentSimulationType == "static") {
           response["results"] = getStaticResults();
         } else {

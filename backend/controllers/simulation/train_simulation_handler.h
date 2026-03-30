@@ -82,8 +82,6 @@ public:
   void clearErrors() { m_simulationErrors->clear(); }
   QStringList getSimulationErrors() const { return *m_simulationErrors; }
   bool isSimulationRunning() const { return m_simulationFuture.isRunning(); }
-  // void clearDebugLogs() { m_debugLogs.clear(); }
-  // QStringList getDebugLogs() const { return m_debugLogs; }
   void clearDebugLogs() {
     QMutexLocker locker(m_simulationMutex);
     m_debugLogs.clear();
@@ -109,8 +107,6 @@ private:
   QStringList *m_simulationWarnings;
   QStringList *m_simulationErrors;
   QStringList m_debugLogs;
-  // QSet<QString> m_simulationWarnings;
-  // QSet<QString> m_simulationErrors;
 
   int m_slopeIndex = 0;
   int m_radiusIndex = 0;

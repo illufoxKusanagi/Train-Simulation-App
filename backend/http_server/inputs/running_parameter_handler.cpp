@@ -18,7 +18,6 @@ QHttpServerResponse RunningParameterHandler::handleGetRunningParameters() {
 
   QJsonObject runningParams;
 
-  // Use YOUR exact field names from RunningParams interface
   runningParams["startRes"] = m_context.resistanceData->startRes;
   runningParams["v_diffCoast"] = m_context.movingData->v_diffCoast;
   runningParams["acc_start"] = m_context.movingData->acc_start;
@@ -29,7 +28,6 @@ QHttpServerResponse RunningParameterHandler::handleGetRunningParameters() {
   runningParams["decc_start"] = m_context.movingData->decc_start;
   runningParams["decc_emergency"] = m_context.movingData->decc_emergency;
 
-  // Passenger data (TrainPassangerParams)
   if (m_context.loadData) {
     runningParams["n_PTc"] = m_context.loadData->n_PTc;
     runningParams["n_PM1"] = m_context.loadData->n_PM1;
@@ -64,7 +62,6 @@ QHttpServerResponse RunningParameterHandler::handleUpdateRunningParameters(
                                     : data;
     qDebug() << "📝 Updating running parameters:" << runningParams;
 
-    // Use YOUR exact field names from RunningParams interface
     if (runningParams.contains("startRes")) {
       m_context.resistanceData->startRes = runningParams["startRes"].toDouble();
     }
@@ -95,7 +92,6 @@ QHttpServerResponse RunningParameterHandler::handleUpdateRunningParameters(
           runningParams["decc_emergency"].toDouble();
     }
 
-    // Passenger data (TrainPassangerParams) - support from running params too
     if (m_context.loadData) {
       if (runningParams.contains("n_PTc")) {
         m_context.loadData->n_PTc = runningParams["n_PTc"].toDouble();

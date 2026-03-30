@@ -14,6 +14,4 @@ AppContext::AppContext(QObject *parent) : QObject(parent) {
   stationData = QSharedPointer<StationData>::create();
   constantData = QSharedPointer<ConstantData>::create();
   simulationDatas = QSharedPointer<SimulationDatas>::create();
-  // userManager = new UserManager(this);
-  // authManager = new AuthManager(userManager, this);
 }

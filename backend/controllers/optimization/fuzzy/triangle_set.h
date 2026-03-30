@@ -3,14 +3,6 @@
 
 #include "fuzzy_set.h"
 
-// Triangular membership function.
-//
-//      1 |      /\
-//        |     /  \
-//      0 |____/    \____
-//           min  peak  max
-//
-// membership = 0 outside [min, max], rises linearly to 1 at peak.
 class TriangleSet : public FuzzySet {
 public:
   TriangleSet(const QString &name, double min, double peak, double max);

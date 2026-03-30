@@ -12,9 +12,7 @@ OptimizationHandler::OptimizationHandler(
     : QObject(parent), m_simulationDatas(context->simulationDatas.data()),
       m_movingData(context->movingData.data()),
       m_trainSimulation(simulationHandler),
-      m_simulationMutex(&context->simulationMutex) {
-  // Fuzzy engine is calibrated from actual sweep data — no static setup here.
-}
+      m_simulationMutex(&context->simulationMutex) {}
 
 // =============================================================================
 // Time Engine Setup — evaluates TravelTime (shaped by acc_start).
@@ -26,7 +24,6 @@ OptimizationHandler::OptimizationHandler(
 void OptimizationHandler::setupTimeEngine(double minT, double maxT) {
   m_timeEngine.clear();
 
-  // 5% margin so boundary results still get non-zero membership
   const double margin = (maxT - minT) * 0.05;
   minT -= margin;
   maxT += margin;

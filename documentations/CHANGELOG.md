@@ -6,6 +6,58 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Unreleased] - 2026-03-30
+
+### Added
+
+#### Internationalization (i18n)
+- Implemented full localization/internationalization support across the application.
+- Updated locale strings for frontend components.
+
+#### Optimization & Form Export
+- Added the ability to export optimization results to a CSV file natively using the Qt File Dialog.
+- Added feature to export form schema parameters directly to CSV.
+
+#### Chart Data & Image Export
+- Implemented functionality allowing users to save individual chart figures as images.
+- Added support for exporting raw data from each chart into a CSV file.
+
+#### UI: Password Visibility Toggle & Loading Skeletons
+- Added a password visibility toggle (Eye/EyeOff) to the login screen for better user experience.
+- Added skeleton loading layouts on the output page.
+
+#### Core Simulation Integration
+- Implemented `f_resStart_0` (initial running resistance at 0 speed) into the simulation physics engine.
+
+### Changed
+
+#### Authentication
+- Updated the backend authentication algorithm and modified the default admin password hash.
+
+#### CI/CD Pipelines
+- Updated GitHub Actions release workflows, updating action-gh release versions to accommodate Windows builds.
+
+#### Core: DRY Refactoring of Form Buttons
+- Abstracted Save, Reset, Import CSV, and Export CSV buttons into a single, shared `<FormActionButtons>` component across component pages to maintain DRY principles.
+
+### Fixed
+
+#### Simulation Physics Core
+- Fixed buggy calculations for total force and motor force which were breaking due to an uncalculated mass input.
+- Fixed a bug at the braking distance computation logic.
+- Fixed an issue causing a missing page blank-out immediately after starting the simulation.
+- Fixed inaccurate metrics relating to power and force resistance (`f_res` and `f_motor`).
+
+#### State & Input Management 
+- Fixed an issue where persistent states (like the `n_car` dropdown configurations) were resetting improperly after page swaps.
+- Fixed a bug preventing users from properly interacting with and inputting decimal values into parameter fields.
+
+#### Native UI Integrations & Filesystem
+- Fixed an issue where external links (e.g., footer credits) were opening inside the embedded Qt WebEngine application window instead of the user's OS native browser.
+- Fixed bugs disrupting the saving of chart images and chart CSV records preventing successful disk writes.
+
+---
+
 ## [Unreleased] - 2026-03-09
 
 ### Added

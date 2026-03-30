@@ -10,17 +10,13 @@
 #include <QTimer>
 #include <QUrl>
 
-FileBridge::FileBridge(QObject *parent) : QObject(parent) {
-  // Constructor implementation
-}
+FileBridge::FileBridge(QObject *parent) : QObject(parent) {}
 
 QJsonObject FileBridge::saveFileDialog(const QString &data,
                                        const QString &filename,
                                        const QString &filter) {
   QJsonObject result;
 
-  // BUG FIX: Defer file dialog to prevent blocking main thread
-  // QFileDialog blocks the event loop causing app freeze during Excel export
   QString filepath;
   QEventLoop loop;
   QTimer::singleShot(0, [&]() {
@@ -31,9 +27,8 @@ QJsonObject FileBridge::saveFileDialog(const QString &data,
                                             filter);
     loop.quit();
   });
-  loop.exec(); // Start event loop to wait for file dialog to close
+  loop.exec();
 
-  // Process events to allow dialog to show
   QCoreApplication::processEvents();
 
   if (filepath.isEmpty()) {
@@ -43,7 +38,6 @@ QJsonObject FileBridge::saveFileDialog(const QString &data,
     return result;
   }
 
-  // Ensure file has correct extension
   if (filter.contains("*.csv") &&
       !filepath.endsWith(".csv", Qt::CaseInsensitive)) {
     filepath += ".csv";
@@ -52,7 +46,6 @@ QJsonObject FileBridge::saveFileDialog(const QString &data,
     filepath += ".xlsx";
   }
 
-  // Save file
   if (saveToFile(filepath, data)) {
     result["success"] = true;
     result["filepath"] = filepath;
@@ -73,7 +66,6 @@ QJsonObject FileBridge::saveBinaryFileDialog(const QVariantList &data,
                                              const QString &filter) {
   QJsonObject result;
 
-  // BUG FIX: Defer file dialog to prevent blocking main thread
   QString filepath;
   QEventLoop loop;
   QTimer::singleShot(0, [&]() {
@@ -86,7 +78,6 @@ QJsonObject FileBridge::saveBinaryFileDialog(const QVariantList &data,
   });
   loop.exec();
 
-  // Process events to allow dialog to show
   QCoreApplication::processEvents();
 
   if (filepath.isEmpty()) {
@@ -96,13 +87,11 @@ QJsonObject FileBridge::saveBinaryFileDialog(const QVariantList &data,
     return result;
   }
 
-  // Ensure file has correct extension
   if (filter.contains("*.xlsx") &&
       !filepath.endsWith(".xlsx", Qt::CaseInsensitive)) {
     filepath += ".xlsx";
   }
 
-  // Convert QVariantList to QByteArray
   QByteArray byteArray;
   for (const QVariant &variant : data) {
     bool ok;
@@ -117,7 +106,6 @@ QJsonObject FileBridge::saveBinaryFileDialog(const QVariantList &data,
     }
   }
 
-  // Save binary file
   if (saveBinaryToFile(filepath, byteArray)) {
     result["success"] = true;
     result["filepath"] = filepath;
@@ -209,5 +197,3 @@ bool FileBridge::saveBinaryToFile(const QString &filepath,
 
   return written == data.size();
 }
-
-// MOC include will be handled by build system

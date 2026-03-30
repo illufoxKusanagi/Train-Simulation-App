@@ -2,12 +2,11 @@ import { isQtWebChannelReady, saveFileWithDialog } from "./qt-webchannel";
 import { toast } from "sonner";
 
 function escapeCsvValue(value: unknown): string {
-  const stringValue = value === null || value === undefined ? "" : String(value);
+  const stringValue =
+    value === null || value === undefined ? "" : String(value);
   const escapedValue = stringValue.replace(/"/g, '""');
 
-  return /[",\n\r]/.test(escapedValue)
-    ? `"${escapedValue}"`
-    : escapedValue;
+  return /[",\n\r]/.test(escapedValue) ? `"${escapedValue}"` : escapedValue;
 }
 
 export async function exportTableToCsv<T>(
