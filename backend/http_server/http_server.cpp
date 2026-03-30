@@ -205,21 +205,6 @@ void HttpServer::setupRoutes() {
                             m_apiHandler->handleHealthCheck());
                       });
 
-  // Login endpoints
-  m_httpServer->route("/api/auth/login", QHttpServerRequest::Method::Options,
-                      [addCorsHeaders](const QHttpServerRequest &) {
-                        qDebug() << "📋 OPTIONS /api/auth/login";
-                        return addCorsHeaders(QHttpServerResponse(
-                            QHttpServerResponse::StatusCode::Ok));
-                      });
-
-  m_httpServer->route("/api/auth/login", QHttpServerRequest::Method::Post,
-                      [this, addCorsHeaders](const QHttpServerRequest &request) {
-                        qDebug() << "🔑 POST /api/auth/login";
-                        QJsonObject data = parseRequestBody(request);
-                        return addCorsHeaders(m_apiHandler->handleLogin(data));
-                      });
-
   // Quick initialization endpoint
   m_httpServer->route("/api/init/quick", QHttpServerRequest::Method::Post,
                       [this, addCorsHeaders](const QHttpServerRequest &) {
@@ -484,6 +469,32 @@ void HttpServer::setupRoutes() {
                         return addCorsHeaders(QHttpServerResponse(response));
                       });
 
+  // Auth endpoints
+  m_httpServer->route("/api/auth/login", QHttpServerRequest::Method::Post,
+                      [this, addCorsHeaders](const QHttpServerRequest &request) {
+                        qDebug() << "🔐 POST /api/auth/login";
+                        QJsonObject data = parseRequestBody(request);
+                        return addCorsHeaders(m_apiHandler->handleLogin(data));
+                      });
+
+  m_httpServer->route("/api/auth/login", QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
+
+  m_httpServer->route("/api/auth/status", QHttpServerRequest::Method::Get,
+                      [this, addCorsHeaders](const QHttpServerRequest &) {
+                        qDebug() << "🔑 GET /api/auth/status";
+                        return addCorsHeaders(m_apiHandler->handleGetAuthStatus());
+                      });
+
+  m_httpServer->route("/api/auth/status", QHttpServerRequest::Method::Options,
+                      [addCorsHeaders](const QHttpServerRequest &) {
+                        return addCorsHeaders(QHttpServerResponse(
+                            QHttpServerResponse::StatusCode::Ok));
+                      });
+
   // Serve static files if configured
   // We use a catch-all route for everything else
   m_httpServer->route("/(.*)", QHttpServerRequest::Method::Get,
@@ -521,13 +532,7 @@ HttpServer::serveStaticFile(const QHttpServerRequest &request) {
     if (QFile::exists(fullPath + "/index.html")) {
       fullPath += "/index.html";
       file.setFileName(fullPath);
-    } 
-    // For Next.js static exports without trailing slashes: check for .html
-    else if (QFile::exists(fullPath + ".html")) {
-      fullPath += ".html";
-      file.setFileName(fullPath);
-    } 
-    else {
+    } else {
       qWarning() << "❌ File not found:" << fullPath;
       return QHttpServerResponse(QHttpServerResponse::StatusCode::NotFound);
     }

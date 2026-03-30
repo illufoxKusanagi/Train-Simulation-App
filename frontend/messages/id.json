@@ -1,0 +1,263 @@
+{
+  "Auth": {
+    "changePassword": "Ubah Kata Sandi",
+    "currentPassword": "Kata Sandi Saat Ini",
+    "newPassword": "Kata Sandi Baru",
+    "confirmPassword": "Konfirmasi Kata Sandi Baru",
+    "submit": "Perbarui Kata Sandi",
+    "success": "Kata sandi berhasil diperbarui!",
+    "errorMismatch": "Kata sandi baru tidak cocok",
+    "errorEmpty": "Semua kolom wajib diisi"
+  },
+  "warnings": {
+    "WARN_STAT_VOL_LINE_ZERO": "Voltage Line belum diisi!",
+    "WARN_STAT_VOL_MOTOR_ZERO": "Voltage Motor belum diisi!",
+    "WARN_STAT_EFF_GEAR_ZERO": "Efisiensi Gearbox belum diisi!",
+    "WARN_STAT_EFF_MOTOR_ZERO": "Efisiensi Motor belum diisi!",
+    "WARN_STAT_EFF_VVVF_ZERO": "Efisiensi VVVF belum diisi!",
+    "WARN_APS_POWER_ZERO": "Daya APS belum diisi!",
+    "WARN_STATION_COUNT_EXCEEDS_DATA": "Jumlah stasiun melebihi jumlah data stasiun yang tersedia!",
+    "WARN_N_STATION_ZERO": "Jumlah stasiun belum diisi!",
+    "WARN_X_STATION_ZERO": "Jarak stasiun belum diisi!",
+    "WARN_V_LIMIT_ZERO": "Batas kecepatan belum diisi!",
+    "WARN_DWELL_TIME_ZERO": "Waktu berhenti belum diisi!",
+    "WARN_CSV_EMPTY": "Data CSV {dataName} kosong.",
+    "WARN_CSV_OUT_OF_RANGE": "Akses data {dataName} melebihi batas yang tersedia."
+  },
+  "errors": {
+    "ERR_SIM_DATA_NOT_INITIALIZED": "Kritis: Data simulasi belum diinisialisasi.",
+    "ERR_STATION_COUNT_LESS_THAN_2": "Jumlah stasiun kurang dari 2. Periksa kembali data stasiun!"
+  },
+  "Simulation": {
+    "warning": "Peringatan Simulasi",
+    "error": "Kesalahan Simulasi",
+    "completed": "Simulasi {type} selesai!",
+    "maxSpeed": "Kecepatan maks: {speed} km/h",
+    "failed": "Simulasi gagal!",
+    "failedDescription": "Pastikan semua parameter telah diatur dengan benar.",
+    "running": "Berjalan...",
+    "static": "Statis",
+    "dynamic": "Dinamis"
+  },
+  "Login": {
+    "appTitle": "Aplikasi Simulasi Kereta",
+    "appSubtitle": "Silakan login untuk mengakses sistem simulasi",
+    "cardTitle": "Login",
+    "cardDescription": "Masukkan kredensial administrator",
+    "usernameLabel": "Nama Pengguna",
+    "usernamePlaceholder": "admin",
+    "passwordLabel": "Kata Sandi",
+    "submitButton": "Masuk ke Sistem",
+    "loadingButton": "Memproses...",
+    "footer": "© 2026 PT INKA Persero. Seluruh hak dilindungi.",
+    "toast": {
+      "emptyFields": "Masukkan username dan password.",
+      "success": "Login Berhasil!",
+      "failed": "Login gagal, periksa kembali kredensial Anda."
+    }
+  },
+  "TrainParams": {
+    "constantTitle": "Parameter Konstan Kereta",
+    "constantDescription": "Input konfigurasi kereta",
+    "trainsetTitle": "Konfigurasi Rangkaian",
+    "trainsetDescription": "Terkait konfigurasi rangkaian kereta dan informasi car",
+    "calculatedMassTitle": "Massa Terkalkulasi",
+    "carNumberTitle": "Jumlah Car",
+    "carPassengerTitle": "Jumlah Penumpang per  Car",
+    "carMassTitle": "Massa Car",
+    "noDiagram": "Tidak Ada Diagram",
+    "save": "Simpan",
+    "saving": "Menyimpan...",
+    "uploadCsv": "Unggah CSV",
+    "exportCsv": "Ekspor CSV",
+    "exportSuccess": "CSV berhasil diekspor!",
+    "uploading": "Mengunggah...",
+    "uploadCsvFailed": "Tidak dapat memuat nilai yang tersimpan, menggunakan nilai default...",
+    "reset": "Reset",
+    "saveTrainset": "Simpan Trainset",
+    "toast": {
+      "success": "Berhasil!",
+      "successDescription": "Parameter Konstan berhasil diperbarui",
+      "trainsetSuccess": "Konfigurasi Rangkaian berhasil diperbarui",
+      "error": "Gagal!",
+      "errorDescription": "Gagal menyimpan data. Silakan coba lagi.",
+      "reset": "Form berhasil direset!"
+    }
+  },
+  "TrackParams": {
+    "title": "Parameter Lintasan",
+    "description": "Input konfigurasi lintasan kereta",
+    "slopeTitle": "Opsi Gradien",
+    "slopeDescription": "Konfigurasi gradien untuk perhitungan resistansi",
+    "save": "Simpan",
+    "saving": "Menyimpan...",
+    "uploadCsv": "Unggah CSV",
+    "exportCsv": "Ekspor CSV",
+    "exportSuccess": "CSV berhasil diekspor!",
+    "uploading": "Mengunggah...",
+    "uploadCsvFailed": "Tidak dapat memuat nilai yang tersimpan, menggunakan nilai default...",
+    "reset": "Reset",
+    "toast": {
+      "success": "Berhasil!",
+      "successDescription": "Parameter lintasan berhasil diperbarui",
+      "error": "Gagal!",
+      "errorDescription": "Gagal menyimpan data. Silakan coba lagi.",
+      "reset": "Form berhasil direset!"
+    }
+  },
+  "RunningParams": {
+    "title": "Parameter Operasi",
+    "description": "Input konfigurasi operasi kereta",
+    "save": "Simpan",
+    "saving": "Menyimpan...",
+    "uploadCsv": "Unggah CSV",
+    "exportCsv": "Ekspor CSV",
+    "exportSuccess": "CSV berhasil diekspor!",
+    "uploading": "Mengunggah...",
+    "uploadCsvFailed": "Tidak dapat memuat nilai yang tersimpan, menggunakan nilai default...",
+    "reset": "Reset",
+    "toast": {
+      "success": "Berhasil!",
+      "successDescription": "Parameter operasi berhasil diperbarui",
+      "error": "Gagal!",
+      "errorDescription": "Gagal menyimpan data. Silakan coba lagi.",
+      "reset": "Form berhasil direset!"
+    }
+  },
+  "ElectricalParams": {
+    "title": "Parameter Kelistrikan",
+    "description": "Input konfigurasi kelistrikan kereta",
+    "save": "Simpan",
+    "saving": "Menyimpan...",
+    "uploadCsv": "Unggah CSV",
+    "exportCsv": "Ekspor CSV",
+    "exportSuccess": "CSV berhasil diekspor!",
+    "uploading": "Mengunggah...",
+    "uploadCsvFailed": "Tidak dapat memuat nilai yang tersimpan, menggunakan nilai default...",
+    "reset": "Reset",
+    "toast": {
+      "success": "Berhasil!",
+      "successDescription": "Parameter kelistrikan berhasil diperbarui",
+      "error": "Gagal!",
+      "errorDescription": "Gagal menyimpan data. Silakan coba lagi.",
+      "reset": "Form berhasil direset!"
+    }
+  },
+  "Outputs": {
+    "noResults": "Tidak ada hasil simulasi yang tersedia. Jalankan simulasi terlebih dahulu menggunakan tombol di bilah atas atau buat data uji di bawah.",
+    "generateTestData": "Buat Data Uji",
+    "downloadAllCsv": "Unduh Semua Data (CSV)",
+    "downloadAllExcel": "Unduh Semua Data (Excel)",
+    "saving": "Menyimpan...",
+    "downloadCsv": "CSV",
+    "downloadExcel": "Excel",
+    "downloadChartImage": "Unduh gambar grafik",
+    "noData": "Tidak ada data simulasi untuk ditampilkan.",
+    "tabs": {
+      "speed": "Kecepatan",
+      "power": "Daya",
+      "powerPerMotor": "Daya per Motor Kereta",
+      "current": "Arus",
+      "force": "Gaya",
+      "distance": "Jarak",
+      "debug": "Debug"
+    },
+    "summary": {
+      "maxSpeed": "Kecepatan Maksimum",
+      "distanceTravelled": "Jarak Tempuh",
+      "maxVvvfPower": "Daya VVVF Maks",
+      "maxCatenaryPower": "Daya Pantograf Maks",
+      "maxTractionEffort": "Gaya Traksi Maks",
+      "maxEnergyConsumption": "Konsumsi Energi Maks",
+      "maxPowerPerMotor": "Daya Maks per Motor",
+      "maxVvvfCurrent": "Arus VVVF Maks",
+      "maxCatenaryCurrent": "Arus Pantograf Maks",
+      "adhesion": "Koefisien Adhesi",
+      "timeAtPeakPower": "Waktu Daya Puncak",
+      "travelTime": "Waktu Perjalanan"
+    },
+    "charts": {
+      "speed": {
+        "title": "Kecepatan Kereta vs Waktu",
+        "description": "Profil kecepatan selama simulasi"
+      },
+      "power": {
+        "title": "Konsumsi Daya vs Waktu",
+        "description": "Profil daya VVVF dan Pantograf"
+      },
+      "current": {
+        "title": "Arus vs Waktu",
+        "description": "Profil arus selama simulasi"
+      },
+      "force": {
+        "title": "Gaya vs Waktu",
+        "description": "Gaya traksi dan gaya hambat"
+      },
+      "distance": {
+        "title": "Jarak vs Waktu",
+        "description": "Jarak kumulatif terhadap waktu",
+        "distancePowering": "Jarak saat Pemberian Daya",
+        "distanceBraking": "Jarak saat Pengereman",
+        "distanceEmergency": "Jarak saat Pengereman Darurat",
+        "trackAnalysis": "Analisis Jarak Lintasan",
+        "trackAnalysisDescription": "Jarak saat pemberian daya dan skenario pengereman darurat",
+        "trackDistance": "Jarak lintasan (m)",
+        "trackDistanceEB": "Jarak lintasan saat EB (m)"
+      },
+      "powerPerMotor": {
+        "title": "Output Daya per Motor",
+        "description": "Output daya motor per motor traksi terhadap waktu"
+      },
+      "debug": {
+        "title": "Log Jejak Simulasi",
+        "description": "Status internal simulasi secara detail (20 iterasi pertama)",
+        "noLogs": "Tidak ada log debug tersedia."
+      }
+    }
+  },
+  "Optimization": {
+    "title": "Optimasi Fuzzy",
+    "description": "Pencarian parameter untuk setiap kombinasi, dinilai dengan logika fuzzy Mamdani.",
+    "startOptimization": "Mulai Optimasi",
+    "saveResultsCsv": "Simpan Hasil CSV",
+    "running": "Berjalan…",
+    "fuzzyRangesTitle": "Rentang Keanggotaan Fuzzy",
+    "fuzzyRangesDescription": "Atur nilai puncak untuk setiap tingkat keanggotaan (Rendah / Sedang / Tinggi) yang digunakan dalam evaluasi fuzzy.",
+    "acceleration": "Akselerasi (m/s²)",
+    "weakeningPoint": "Titik Pelemahan (km/h)",
+    "progress": "Progres",
+    "combinations": "kombinasi",
+    "bestCombination": "Kombinasi Terbaik",
+    "fuzzyScore": "Skor Fuzzy",
+    "accelStart": "Aksel. Awal",
+    "vp1FwStart": "v_p1 (FW Awal)",
+    "peakPowerMotor": "Daya Puncak/Motor",
+    "travelTime": "Waktu Tempuh",
+    "seconds": "detik",
+    "allCombinations": "Semua Kombinasi",
+    "grade": "Nilai",
+    "noResults": "Belum ada hasil optimasi",
+    "noResultsDescription": "Klik Mulai Optimasi untuk menjalankan pencarian parameter fuzzy pada semua kombinasi acc/v_p1.",
+    "excellent": "Sangat Baik",
+    "good": "Baik",
+    "fair": "Cukup",
+    "poor": "Buruk",
+    "toast": {
+      "complete": "Optimasi selesai — {count} kombinasi dievaluasi",
+      "failed": "Optimasi gagal — tidak ada hasil yang dihasilkan",
+      "pollingFailed": "Pemantauan status optimasi gagal",
+      "started": "Optimasi dimulai — {combinations} kombinasi",
+      "startFailed": "Gagal memulai optimasi",
+      "exportSuccess": "Hasil optimasi berhasil diekspor!"
+    }
+  },
+  "Utilities": {
+    "saveCsv": "Unduh Semua Data (CSV)",
+    "saveExcel": "Unduh Semua Data (Excel)",
+    "saveIndividualCsv": "Unduh data ini (CSV)",
+    "saveIndividualExcel": "Unduh data ini (Excel)",
+    "saveChart": "Simpan Grafik",
+    "uploadCsv": "Unggah CSV",
+    "chooseCsv": "Pilih File CSV"
+  }
+}

@@ -45,6 +45,12 @@ public slots:
                                    const QString &filename,
                                    const QString &filter);
 
+  /**
+   * @brief Open a URL in the system's default browser
+   * @param url The URL to open
+   */
+  Q_INVOKABLE void openUrl(const QString &url);
+
 private:
   bool saveToFile(const QString &filepath, const QString &data);
   bool saveBinaryToFile(const QString &filepath, const QByteArray &data);

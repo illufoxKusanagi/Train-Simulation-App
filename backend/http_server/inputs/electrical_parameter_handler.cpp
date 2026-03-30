@@ -66,7 +66,7 @@ ElectricalParameterHandler::handleUpdateElectricalParameters(
       // Verify the value was actually set
       if (m_context.energyData->stat_vol_line <= 0) {
         m_context.simulationWarnings.append(
-            "Static Line Voltage is 0 or null!");
+            "WARN_STAT_VOL_LINE_ZERO");
       }
     }
     if (params.contains("stat_vol_motor")) {
@@ -75,7 +75,7 @@ ElectricalParameterHandler::handleUpdateElectricalParameters(
       // Verify the value was actually set
       if (m_context.energyData->stat_vol_motor <= 0) {
         m_context.simulationWarnings.append(
-            "Static Motor Voltage is 0 or null!");
+            "WARN_STAT_VOL_MOTOR_ZERO");
       }
     }
     if (params.contains("stat_eff_gear")) {
@@ -84,7 +84,7 @@ ElectricalParameterHandler::handleUpdateElectricalParameters(
       // Verify the value was actually set
       if (m_context.efficiencyData->stat_eff_gear <= 0) {
         m_context.simulationWarnings.append(
-            "Static Gear Efficiency is 0 or null!");
+            "WARN_STAT_EFF_GEAR_ZERO");
       }
     }
     if (params.contains("stat_eff_motor")) {
@@ -93,7 +93,7 @@ ElectricalParameterHandler::handleUpdateElectricalParameters(
       // Verify the value was actually set
       if (m_context.efficiencyData->stat_eff_motor <= 0) {
         m_context.simulationWarnings.append(
-            "Static Motor Efficiency is 0 or null!");
+            "WARN_STAT_EFF_MOTOR_ZERO");
       }
     }
     if (params.contains("stat_eff_vvvf")) {
@@ -102,14 +102,14 @@ ElectricalParameterHandler::handleUpdateElectricalParameters(
       // Verify the value was actually set
       if (m_context.efficiencyData->stat_eff_vvvf <= 0) {
         m_context.simulationWarnings.append(
-            "Static VVVF Efficiency is 0 or null!");
+            "WARN_STAT_EFF_VVVF_ZERO");
       }
     }
     if (params.contains("p_aps")) {
       m_context.powerData->p_aps = params["p_aps"].toDouble();
       // Verify the value was actually set
       if (m_context.powerData->p_aps <= 0) {
-        m_context.simulationWarnings.append("APS Power is 0 or null!");
+        m_context.simulationWarnings.append("WARN_APS_POWER_ZERO");
       }
     }
     response["status"] = "success";

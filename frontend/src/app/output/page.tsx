@@ -25,9 +25,11 @@ import ForceTab from "./force-tab";
 import DistanceTab from "./distance-tab";
 import { toast } from "sonner";
 import PowerPerMotorTab from "./power-per-motor-tab";
-import DebugTab from "./debug-tab";
+// import DebugTab from "./debug-tab";
+import { useTranslations } from "next-intl";
 
 export default function OutputPage() {
+  const t = useTranslations("Outputs");
   const [results, setResults] = useState<SimulationResults | null>(null);
   const [activeTab, setActiveTab] = useState<string>("speed");
   const [isLoading, setIsLoading] = useState(true);
@@ -355,10 +357,7 @@ export default function OutputPage() {
         <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
           <Alert className="max-w-md">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              No valid simulation results available. Run a simulation first
-              using the buttons in the topbar or generate test data below.
-            </AlertDescription>
+            <AlertDescription>{t("noResults")}</AlertDescription>
           </Alert>
           <Button
             onClick={() => {
@@ -433,7 +432,7 @@ export default function OutputPage() {
             variant="outline"
             className="mt-4"
           >
-            Generate Test Data
+            {t("generateTestData")}
           </Button>
         </div>
       </PageLayout>
@@ -447,7 +446,7 @@ export default function OutputPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Max Speed</CardDescription>
+              <CardDescription>{t("summary.maxSpeed")}</CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.maxSpeed ?? 0).toFixed(2)} km/h
               </CardTitle>
@@ -455,7 +454,9 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Distance Travelled</CardDescription>
+              <CardDescription>
+                {t("summary.distanceTravelled")}
+              </CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.distanceTravelled ?? 0).toFixed(2)} m
               </CardTitle>
@@ -463,7 +464,7 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Max VVVF Power</CardDescription>
+              <CardDescription>{t("summary.maxVvvfPower")}</CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.maxVvvfPower ?? 0).toFixed(2)} kW
               </CardTitle>
@@ -471,7 +472,7 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Max Catenary Power</CardDescription>
+              <CardDescription>{t("summary.maxCatenaryPower")}</CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.maxCatenaryPower ?? 0).toFixed(2)} kW
               </CardTitle>
@@ -479,7 +480,9 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Max Traction Effort</CardDescription>
+              <CardDescription>
+                {t("summary.maxTractionEffort")}
+              </CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.maxTractionEffort ?? 0).toFixed(2)} kN
               </CardTitle>
@@ -487,7 +490,9 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Max Energy Consumption</CardDescription>
+              <CardDescription>
+                {t("summary.maxEnergyConsumption")}
+              </CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.maxEnergyConsumption ?? 0).toFixed(2)} kWh
               </CardTitle>
@@ -495,7 +500,7 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Max Power per Motor</CardDescription>
+              <CardDescription>{t("summary.maxPowerPerMotor")}</CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.maxMotorPowerPerMotor ?? 0).toFixed(2)} kW
               </CardTitle>
@@ -503,7 +508,7 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Max VVVF Current</CardDescription>
+              <CardDescription>{t("summary.maxVvvfCurrent")}</CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.maxVvvfCurrent ?? 0).toFixed(2)} A
               </CardTitle>
@@ -511,7 +516,9 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Max Catenary Current</CardDescription>
+              <CardDescription>
+                {t("summary.maxCatenaryCurrent")}
+              </CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.maxCatenaryCurrent ?? 0).toFixed(2)} A
               </CardTitle>
@@ -519,7 +526,7 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Adhesion Coefficient</CardDescription>
+              <CardDescription>{t("summary.adhesion")}</CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.adhesion ?? 0).toFixed(3)}
               </CardTitle>
@@ -527,7 +534,7 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Time at Peak Power</CardDescription>
+              <CardDescription>{t("summary.timeAtPeakPower")}</CardDescription>
               <CardTitle className="text-2xl">
                 {(results.summary?.maxPowerTime ?? 0).toFixed(2)} s
               </CardTitle>
@@ -535,7 +542,7 @@ export default function OutputPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Travel Time</CardDescription>
+              <CardDescription>{t("summary.travelTime")}</CardDescription>
               <CardTitle className="text-2xl">
                 {results.results.length > 0
                   ? results.results[
@@ -558,15 +565,15 @@ export default function OutputPage() {
           className="w-full"
         >
           <TabsList className="flex w-full gap-1">
-            <TabsTrigger value="speed">Speed</TabsTrigger>
-            <TabsTrigger value="power">Power</TabsTrigger>
+            <TabsTrigger value="speed">{t("tabs.speed")}</TabsTrigger>
+            <TabsTrigger value="power">{t("tabs.power")}</TabsTrigger>
             <TabsTrigger value="power-per-motor">
-              Power Per Motor Train
+              {t("tabs.powerPerMotor")}
             </TabsTrigger>
-            <TabsTrigger value="current">Current</TabsTrigger>
-            <TabsTrigger value="force">Force</TabsTrigger>
-            <TabsTrigger value="distance">Distance</TabsTrigger>
-            <TabsTrigger value="debug">Debug</TabsTrigger>
+            <TabsTrigger value="current">{t("tabs.current")}</TabsTrigger>
+            <TabsTrigger value="force">{t("tabs.force")}</TabsTrigger>
+            <TabsTrigger value="distance">{t("tabs.distance")}</TabsTrigger>
+            {/* <TabsTrigger value="debug">{t("tabs.debug")}</TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="speed">
@@ -617,9 +624,9 @@ export default function OutputPage() {
             />
           </TabsContent>
 
-          <TabsContent value="debug">
+          {/* <TabsContent value="debug">
             <DebugTab results={results} />
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
 
         {/* Download All Buttons - QT WEBENGINE COMPATIBLE */}
@@ -642,7 +649,7 @@ export default function OutputPage() {
             ) : (
               <Download className="h-4 w-4 mr-2" />
             )}
-            {isExportingCSV ? "Saving..." : "Download All Data (CSV)"}
+            {isExportingCSV ? t("saving") : t("downloadAllCsv")}
           </Button>
 
           <Button
@@ -662,7 +669,7 @@ export default function OutputPage() {
             ) : (
               <Download className="h-4 w-4 mr-2" />
             )}
-            {isExportingExcel ? "Saving..." : "Download All Data (Excel)"}
+            {isExportingExcel ? t("saving") : t("downloadAllExcel")}
           </Button>
         </div>
       </div>

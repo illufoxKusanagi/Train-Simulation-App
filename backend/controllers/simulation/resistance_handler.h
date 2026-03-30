@@ -8,6 +8,7 @@ class ResistanceHandler : public QObject {
   Q_OBJECT
 public:
   explicit ResistanceHandler(AppContext &context);
+  double calculatePureStartRes();
   double calculateResTrain(float m, float startRes);
   double calculateResSlope(float m, float slope);
   double calculateResRadius(float m, float radius);

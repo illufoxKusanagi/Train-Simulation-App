@@ -1,11 +1,14 @@
 #include "file_bridge.h"
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDesktopServices>
+#include <QEventLoop>
 #include <QFile>
+#include <QFileDialog>
 #include <QJsonObject>
 #include <QStandardPaths>
 #include <QTimer>
-#include <qeventloop.h>
+#include <QUrl>
 
 FileBridge::FileBridge(QObject *parent) : QObject(parent) {
   // Constructor implementation
@@ -128,6 +131,10 @@ QJsonObject FileBridge::saveBinaryFileDialog(const QVariantList &data,
   }
 
   return result;
+}
+
+void FileBridge::openUrl(const QString &url) {
+  QDesktopServices::openUrl(QUrl(url));
 }
 
 QJsonObject FileBridge::openFileDialog(const QString &title,

@@ -51,12 +51,12 @@ T CsvVariableHandler::getValueAt(const std::vector<double> &thresholds,
       return values.back();
     return values[currentIndex];
   } else if (values.empty()) {
-    QString msg = dataName + " csv data is empty.";
+    QString msg = "WARN_CSV_EMPTY:" + dataName;
     if (!m_simulationWarnings->contains(msg)) {
       m_simulationWarnings->append(msg);
     }
   } else {
-    QString msg = "Attempted to access " + dataName + " data beyond range.";
+    QString msg = "WARN_CSV_OUT_OF_RANGE:" + dataName;
     if (!m_simulationWarnings->contains(msg)) {
       m_simulationWarnings->append(msg);
     }
@@ -158,15 +158,13 @@ double CsvVariableHandler::setDwellTimeData(int dwellTimeIndex) {
       dwellTimeIndex < stationData->dwellTime.size()) {
     return stationData->dwellTime[dwellTimeIndex];
   } else if (stationData->dwellTime.empty()) {
-    QString msg = "Dwell time csv data is empty.";
-    if (!m_simulationWarnings->contains(msg)) {
+    QString msg = "WARN_CSV_EMPTY:Dwell time";
+    if (!m_simulationWarnings->contains(msg))
       m_simulationWarnings->append(msg);
-    }
   } else {
-    QString msg = "Attempted to access dwell time data beyond range.";
-    if (!m_simulationWarnings->contains(msg)) {
+    QString msg = "WARN_CSV_OUT_OF_RANGE:Dwell time";
+    if (!m_simulationWarnings->contains(msg))
       m_simulationWarnings->append(msg);
-    }
   }
   return stationData->stat_dwellTime;
 }

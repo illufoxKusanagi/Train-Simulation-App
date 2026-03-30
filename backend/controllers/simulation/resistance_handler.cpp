@@ -5,6 +5,10 @@ ResistanceHandler::ResistanceHandler(AppContext &context)
       constantData(context.constantData.data()),
       massData(context.massData.data()), trainData(context.trainData.data()) {}
 
+double ResistanceHandler::calculatePureStartRes() {
+  return (massData->mass_totalLoad * resistanceData->startRes) / 1000;
+}
+
 double ResistanceHandler::calculateResTrain(float m, float startRes) {
   resistanceData->r_train = (m * startRes) / 1000;
   return resistanceData->r_train;

@@ -76,6 +76,7 @@ public:
 
   // Authentication
   QHttpServerResponse handleLogin(const QJsonObject &data);
+  QHttpServerResponse handleGetAuthStatus();
 
   // Debug endpoint to check current AppContext values
   QHttpServerResponse handleDebugContext();

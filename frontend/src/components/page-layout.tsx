@@ -5,6 +5,7 @@ import { ModeToggle } from "@/components/toggle-mode-button";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { ReactNode } from "react";
 import { SimulationButtons } from "./buttons/simulation-buttons";
+import { LocaleSwitcherButton } from "./buttons/locale-switcher-button";
 interface PageMoldProps {
   children: ReactNode;
   className?: string;
@@ -24,6 +25,7 @@ export default function PageLayout({
           <div className="flex items-center justify-between px-4 py-3">
             <SidebarTrigger size="lg" />
             <div className="flex items-center gap-4">
+              <LocaleSwitcherButton />
               <SimulationButtons />
               <ModeToggle />
             </div>

@@ -100,7 +100,7 @@ bool TrainSimulationHandler::validateDataInitialized() {
       !trainMotorData || !efficiencyData || !powerData || !energyData ||
       !stationData || !constantData) {
     qCritical() << "CRITICAL: Simulation data not initialized!";
-    m_simulationErrors->append("Critical: Simulation data not initialized.");
+    m_simulationErrors->append("ERR_SIM_DATA_NOT_INITIALIZED");
     return false;
   }
   return true;
@@ -142,11 +142,9 @@ void TrainSimulationHandler::runDynamicSimulation() {
   bool isError = false;
   double dwellTime = 0.0;
   if (stationData->n_station > stationData->x_station.size() + 1) {
-    m_simulationWarnings->append(
-        "Number of stations exceeds the number of station data.");
+    m_simulationWarnings->append("WARN_STATION_COUNT_EXCEEDS_DATA");
   } else if (stationData->n_station < 2) {
-    m_simulationErrors->append(
-        "Number of stations is less than 2. Please check the station data.");
+    m_simulationErrors->append("ERR_STATION_COUNT_LESS_THAN_2");
     isError = true;
   }
   if (!isError) {
@@ -190,6 +188,8 @@ void TrainSimulationHandler::runDynamicSimulation() {
 
       resistanceData->f_resStart =
           m_resistanceHandler->calculateStartRes(m_slope, m_radius);
+      resistanceData->f_resStart_0 =
+          m_resistanceHandler->calculatePureStartRes();
       resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
           movingData->v, m_slope, m_radius);
 
@@ -373,6 +373,7 @@ void TrainSimulationHandler::runStaticSimulation() {
 
     resistanceData->f_resStart = m_resistanceHandler->calculateStartRes(
         stationData->stat_slope, stationData->stat_radius);
+    resistanceData->f_resStart_0 = m_resistanceHandler->calculatePureStartRes();
     phase = "Accelerating";
     resistanceData->f_resRunning = m_resistanceHandler->calculateRunningRes(
         movingData->v, stationData->stat_slope, stationData->stat_radius);

@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
-  // Remove 'output: export' for standard web deployment
-  // Keep it only if you need static HTML export
-  output: "export", // Generate static HTML export
+  output: "export",
   images: { unoptimized: true },
 
   async rewrites() {
@@ -16,11 +15,11 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Environment variables
   env: {
     NEXT_PUBLIC_API_URL:
       process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080",
   },
 };
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin();
+export default withNextIntl(nextConfig);

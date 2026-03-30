@@ -5,10 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { useEffect, useState, useCallback, useRef } from "react";
-import { Spinner } from "@/components/ui/spinner";
-import { isQtWebChannelReady, openFileWithDialog } from "@/lib/qt-webchannel";
+import { useEffect, useState, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -32,6 +29,9 @@ import { cn } from "@/lib/utils";
 import PageLayout from "@/components/page-layout";
 import { api } from "@/services/api";
 import { useFormPersistence } from "@/contexts/FormPersistenceContext";
+import { useTranslations } from "next-intl";
+import { exportConfigToCsv } from "@/lib/csv-export";
+import { FormActionButtons } from "@/components/buttons/form-action-buttons";
 
 // Preset configurations for n_car dropdown (outside component to avoid recreating on every render)
 const carPresets: Record<
@@ -121,77 +121,93 @@ const carPresets: Record<
 
 export default function TrainParameter() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadingTarget, setUploadingTarget] = useState<
-    "constant" | "trainset" | null
-  >(null);
-  const constantCsvInputRef = useRef<HTMLInputElement>(null);
-  const trainsetCsvInputRef = useRef<HTMLInputElement>(null);
   const [csvData, setCsvData] = useState<Record<string, number[][]>>({});
   const { saveFormData, loadFormData } = useFormPersistence();
+  const trans = useTranslations("TrainParams");
 
-  // Load saved form data
-  const savedConstantData = loadFormData("train-constant");
-  const savedTrainsetData = loadFormData("train-trainset");
-  const savedCalculatedData = loadFormData("train-calculated");
+  const defaultConstantValues: z.infer<typeof ConstantFormSchema> = {
+    i_T: 1.05,
+    i_M: 1.1,
+    n_axle: 4,
+    n_tm: 24,
+    wheelDiameter: 860,
+    mass_P: 70,
+    gearRatio: 6.53,
+    load: 0,
+    carLength: 20,
+    loadCondition: "AW4",
+  };
+
+  const defaultTrainsetValues: z.infer<typeof TrainsetFormSchema> = {
+    n_car: 12,
+    n_M1: 2,
+    n_M2: 2,
+    n_Tc: 2,
+    n_T1: 2,
+    n_T2: 2,
+    n_T3: 2,
+    n_M1_disabled: 0,
+    n_M2_disabled: 0,
+    mass_M1: 37.5,
+    mass_M2: 36.72,
+    mass_Tc: 34.48,
+    mass_T1: 33.335,
+    mass_T2: 30.05,
+    mass_T3: 29.66,
+    n_PM1: 289,
+    n_PM2: 289,
+    n_PTc: 253,
+    n_PT1: 289,
+    n_PT2: 289,
+    n_PT3: 289,
+  };
+
+  const defaultCalculatedValues: z.infer<typeof CalculatedMassFormSchema> = {
+    mass_totalEmpty: 180,
+    mass_totalLoad: 334,
+    mass_totalInertial: 349,
+  };
 
   const constantForm = useForm<z.infer<typeof ConstantFormSchema>>({
     resolver: zodResolver(ConstantFormSchema),
-    defaultValues: (savedConstantData as z.infer<
-      typeof ConstantFormSchema
-    >) || {
-      i_T: 1.05,
-      i_M: 1.1,
-      n_axle: 4,
-      n_tm: 24,
-      wheelDiameter: 860,
-      mass_P: 70,
-      gearRatio: 6.53,
-      load: 0,
-      carLength: 20,
-      loadCondition: "AW4",
-    },
+    defaultValues: defaultConstantValues,
   });
 
   const trainsetForm = useForm<z.infer<typeof TrainsetFormSchema>>({
     resolver: zodResolver(TrainsetFormSchema),
-    defaultValues: (savedTrainsetData as z.infer<
-      typeof TrainsetFormSchema
-    >) || {
-      n_car: 12,
-      n_M1: 2,
-      n_M2: 2,
-      n_Tc: 2,
-      n_T1: 2,
-      n_T2: 2,
-      n_T3: 2,
-      n_M1_disabled: 0,
-      n_M2_disabled: 0,
-      mass_M1: 37.5,
-      mass_M2: 36.72,
-      mass_Tc: 34.48,
-      mass_T1: 33.335,
-      mass_T2: 30.05,
-      mass_T3: 29.66,
-      n_PM1: 289,
-      n_PM2: 289,
-      n_PTc: 253,
-      n_PT1: 289,
-      n_PT2: 289,
-      n_PT3: 289,
-    },
+    defaultValues: defaultTrainsetValues,
   });
 
   const calculatedMassForm = useForm<z.infer<typeof CalculatedMassFormSchema>>({
     resolver: zodResolver(CalculatedMassFormSchema),
-    defaultValues: (savedCalculatedData as z.infer<
-      typeof CalculatedMassFormSchema
-    >) || {
-      mass_totalEmpty: 180,
-      mass_totalLoad: 334,
-      mass_totalInertial: 349,
-    },
+    defaultValues: defaultCalculatedValues,
   });
+
+  // Load saved form data on client mount to avoid hydration mismatch
+  useEffect(() => {
+    const savedConstantData = loadFormData("train-constant");
+    const savedTrainsetData = loadFormData("train-trainset");
+    const savedCalculatedData = loadFormData("train-calculated");
+
+    if (savedConstantData && Object.keys(savedConstantData).length > 0) {
+      constantForm.reset({
+        ...defaultConstantValues,
+        ...(savedConstantData as z.infer<typeof ConstantFormSchema>),
+      });
+    }
+    if (savedTrainsetData && Object.keys(savedTrainsetData).length > 0) {
+      trainsetForm.reset({
+        ...defaultTrainsetValues,
+        ...(savedTrainsetData as z.infer<typeof TrainsetFormSchema>),
+      });
+    }
+    if (savedCalculatedData && Object.keys(savedCalculatedData).length > 0) {
+      calculatedMassForm.reset({
+        ...defaultCalculatedValues,
+        ...(savedCalculatedData as z.infer<typeof CalculatedMassFormSchema>),
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handler for n_car dropdown changes
   const handleCarNumberChange = useCallback(
@@ -219,26 +235,6 @@ export default function TrainParameter() {
    *
    * Expected CSV Format: Key,Value
    */
-  /**
-   * Handle CSV for CONSTANT PARAMETERS
-   *
-   * Expected CSV Format: Key,Value
-   * Special case: loadCondition can be 0-4 (mapped to AW0-AW4)
-   */
-  const handleConstantCsvUpload = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      if (!text) return;
-      processConstantCsvText(text);
-      event.target.value = "";
-    };
-    reader.readAsText(file);
-  };
 
   const processConstantCsvText = (text: string) => {
     console.log("📂 processing Constant CSV upload...");
@@ -282,26 +278,6 @@ export default function TrainParameter() {
       toast.success(`Updated ${successCount} constant fields`);
     }
     if (errorCount > 0) toast.warning(`Skipped ${errorCount} invalid items`);
-  };
-
-  /**
-   * Handle CSV for TRAINSET INPUTS
-   *
-   * Expected CSV Format: Key,Value
-   */
-  const handleTrainsetCsvUpload = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      if (!text) return;
-      processTrainsetCsvText(text);
-      event.target.value = "";
-    };
-    reader.readAsText(file);
   };
 
   const processTrainsetCsvText = (text: string) => {
@@ -349,18 +325,22 @@ export default function TrainParameter() {
       console.log("CSV Data:", csvData);
 
       const trainsetData = trainsetForm.getValues();
+      const carsCount =
+        typeof trainsetData.n_car === "string"
+          ? parseInt(trainsetData.n_car, 10)
+          : trainsetData.n_car;
 
       const trainParams = {
         tractionMotors: data.n_tm,
         axles: data.n_axle,
-        cars: trainsetData.n_car,
+        cars: carsCount,
         numberOfMotorCars: data.n_tm,
         numberOfAxles: data.n_axle,
-        numberOfCars: trainsetData.n_car,
+        numberOfCars: carsCount,
         gearRatio: data.gearRatio,
         wheelDiameter: data.wheelDiameter, // Keep as-is from form
         carLength: data.carLength,
-        trainsetLength: data.carLength * trainsetData.n_car,
+        trainsetLength: data.carLength * carsCount,
         trainLoad: data.load,
         load: data.load,
         mass_P: data.mass_P,
@@ -378,13 +358,13 @@ export default function TrainParameter() {
 
       const result = await api.updateTrainParameters(trainParams);
       console.log("Backend response:", result);
-      toast.success("Success!", {
-        description: "Constant parameters updated successfully",
+      toast.success(trans("toast.success"), {
+        description: trans("toast.successDescription"),
       });
     } catch (error) {
       console.error("Error updating parameters:", error);
-      toast.error("Error!", {
-        description: "Failed to save data. Please try again.",
+      toast.error(trans("toast.error"), {
+        description: trans("toast.errorDescription"),
       });
     } finally {
       setIsSubmitting(false);
@@ -435,14 +415,13 @@ export default function TrainParameter() {
 
       await api.updatePassengerParameters(passengerParams);
 
-      toast.success("Success!", {
-        description:
-          "Trainset configuration (car numbers, masses, passengers) updated successfully",
+      toast.success(trans("toast.success"), {
+        description: trans("toast.trainsetSuccess"),
       });
     } catch (error) {
       console.error("Error updating parameters:", error);
-      toast.error("Error!", {
-        description: "Failed to save data. Please try again.",
+      toast.error(trans("toast.error"), {
+        description: trans("toast.errorDescription"),
       });
     } finally {
       setIsSubmitting(false);
@@ -452,7 +431,7 @@ export default function TrainParameter() {
   const handleReset = () => {
     constantForm.reset();
     setCsvData({});
-    toast("Form has been reset!");
+    toast(trans("toast.reset"));
   };
 
   // Save form data to localStorage whenever it changes
@@ -582,13 +561,11 @@ export default function TrainParameter() {
 
   return (
     <PageLayout>
-      <div className="flex flex-col lg:flex-row h-full w-full gap-4 p-6">
+      <div className="flex flex-col lg:flex-row h-full gap-4 p-6">
         <Card className="px-6 py-8 max-h-[45rem] min-h-[40rem] h-full w-full max-w-2xl rounded-3xl justify-center">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Train Constant Parameter</CardTitle>
-            <CardDescription>
-              Input related to Train and Car configuration
-            </CardDescription>
+            <CardTitle className="text-2xl">{trans("constantTitle")}</CardTitle>
+            <CardDescription>{trans("constantDescription")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...constantForm}>
@@ -617,70 +594,27 @@ export default function TrainParameter() {
                   ))}
                 </div>
 
-                <div className="flex gap-4 pt-4">
-                  <Button
-                    type="submit"
-                    className="flex-1"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Spinner />
-                        Saving...
-                      </>
-                    ) : (
-                      "Save"
-                    )}
-                  </Button>
-                  <div className="flex-1 relative">
-                    <input
-                      ref={constantCsvInputRef}
-                      type="file"
-                      accept=".csv"
-                      className="hidden"
-                      onChange={handleConstantCsvUpload}
-                    />
-                    <Button
-                      type="button"
-                      variant="default"
-                      className="w-full"
-                      disabled={uploadingTarget == "constant"}
-                      onClick={async () => {
-                        if (isQtWebChannelReady()) {
-                          // setIsUploading(true);
-                          setUploadingTarget("constant");
-                          const result = await openFileWithDialog(
-                            "Select Train Constant Parameters CSV File",
-                            "CSV Files (*.csv);;All Files (*)",
-                          );
-                          if (result.success && result.content)
-                            processConstantCsvText(result.content);
-                          // setIsUploading(false);
-                          setUploadingTarget(null);
-                        } else {
-                          constantCsvInputRef.current?.click();
-                        }
-                      }}
-                    >
-                      {uploadingTarget === "constant" ? (
-                        <>
-                          <Spinner className="mr-2" />
-                          Uploading...
-                        </>
-                      ) : (
-                        "Upload CSV"
-                      )}
-                    </Button>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={handleReset}
-                  >
-                    Reset
-                  </Button>
-                </div>
+                <FormActionButtons
+                  isSubmitting={isSubmitting}
+                  onProcessCsvText={processConstantCsvText}
+                  onReset={handleReset}
+                  onExport={() =>
+                    exportConfigToCsv(
+                      constantForm.getValues(),
+                      "train-constant-parameters.csv",
+                      trans("exportSuccess"),
+                    )
+                  }
+                  dialogTitle="Select Train Constant Parameters CSV File"
+                  labels={{
+                    save: trans("save"),
+                    saving: trans("saving"),
+                    uploadCsv: trans("uploadCsv"),
+                    uploading: trans("uploading"),
+                    reset: trans("reset"),
+                    exportCsv: trans("exportCsv"),
+                  }}
+                />
               </form>
             </Form>
           </CardContent>
@@ -688,10 +622,8 @@ export default function TrainParameter() {
 
         <Card className="px-2 py-8 max-h-[45rem] min-h-[40rem] w-full max-w-2xl rounded-3xl overflow-auto">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Trainset Inputs</CardTitle>
-            <CardDescription>
-              Related to trainset configuration and car information
-            </CardDescription>
+            <CardTitle className="text-2xl">{trans("trainsetTitle")}</CardTitle>
+            <CardDescription>{trans("trainsetDescription")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...trainsetForm}>
@@ -732,7 +664,7 @@ export default function TrainParameter() {
                         }
                         return (
                           <p className="text-muted-foreground text-sm">
-                            No Diagram
+                            {trans("noDiagram")}
                           </p>
                         );
                       })()}
@@ -742,7 +674,7 @@ export default function TrainParameter() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-center">
-                      Calculated Mass
+                      {trans("calculatedMassTitle")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -769,7 +701,9 @@ export default function TrainParameter() {
                 <div className="flex flex-row gap-2">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-center">Car number</CardTitle>
+                      <CardTitle className="text-center">
+                        {trans("carNumberTitle")}
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       {carTypeFormRows.map((row, rowIndex) => (
@@ -792,7 +726,7 @@ export default function TrainParameter() {
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-center">
-                        Car Passenger
+                        {trans("carPassengerTitle")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -815,7 +749,9 @@ export default function TrainParameter() {
                   </Card>
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-center">Car Mass</CardTitle>
+                      <CardTitle className="text-center">
+                        {trans("carMassTitle")}
+                      </CardTitle>
                     </CardHeader>
                     <CardContent>
                       {carMassFormRows.map((row, rowIndex) => (
@@ -837,68 +773,27 @@ export default function TrainParameter() {
                   </Card>
                 </div>
 
-                <div className="flex gap-4 pt-4">
-                  <Button
-                    type="submit"
-                    className="flex-1"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Spinner />
-                        Saving...
-                      </>
-                    ) : (
-                      "Save Data"
-                    )}
-                  </Button>
-                  <div className="flex-1 relative">
-                    <input
-                      ref={trainsetCsvInputRef}
-                      type="file"
-                      accept=".csv"
-                      className="hidden"
-                      onChange={handleTrainsetCsvUpload}
-                    />
-                    <Button
-                      type="button"
-                      variant="default"
-                      className="w-full"
-                      disabled={uploadingTarget === "trainset"}
-                      onClick={async () => {
-                        if (isQtWebChannelReady()) {
-                          setUploadingTarget("trainset");
-                          const result = await openFileWithDialog(
-                            "Select Trainset Parameters CSV File",
-                            "CSV Files (*.csv);;All Files (*)",
-                          );
-                          if (result.success && result.content)
-                            processTrainsetCsvText(result.content);
-                          setUploadingTarget(null);
-                        } else {
-                          trainsetCsvInputRef.current?.click();
-                        }
-                      }}
-                    >
-                      {uploadingTarget === "trainset" ? (
-                        <>
-                          <Spinner className="mr-2" />
-                          Uploading...
-                        </>
-                      ) : (
-                        "Upload CSV"
-                      )}
-                    </Button>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={handleReset}
-                  >
-                    Reset
-                  </Button>
-                </div>
+                <FormActionButtons
+                  isSubmitting={isSubmitting}
+                  onProcessCsvText={processTrainsetCsvText}
+                  onReset={handleReset}
+                  onExport={() =>
+                    exportConfigToCsv(
+                      trainsetForm.getValues(),
+                      "train-trainset-parameters.csv",
+                      trans("exportSuccess"),
+                    )
+                  }
+                  dialogTitle="Select Trainset Parameters CSV File"
+                  labels={{
+                    save: trans("saveTrainset"),
+                    saving: trans("saving"),
+                    uploadCsv: trans("uploadCsv"),
+                    uploading: trans("uploading"),
+                    reset: trans("reset"),
+                    exportCsv: trans("exportCsv"),
+                  }}
+                />
               </form>
             </Form>
           </CardContent>

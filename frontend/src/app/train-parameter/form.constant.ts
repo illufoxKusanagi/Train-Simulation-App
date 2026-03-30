@@ -10,12 +10,9 @@ const chunkArray = <T>(array: T[], chunkSize: number): T[][] => {
 };
 
 export const TrainsetFormSchema = z.object({
-  n_car: z.coerce
-    .number<number>({
-      message: "This Value must be a number",
-    })
-    .min(0, { message: "Value must be non-negative" })
-    .max(5000, { message: "Value cannot exceed 5000" }),
+  n_car: z.union([z.string(), z.number()], {
+    message: "Car configuration must be valid",
+  }),
   n_M1: z.coerce
     .number<number>({
       message: "This Value must be a number",
