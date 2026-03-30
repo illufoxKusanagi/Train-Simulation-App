@@ -40,7 +40,7 @@
     "dynamic": "Dynamic"
   },
   "Login": {
-    "appTitle": "Train Simulation",
+    "appTitle": "Train Simulation App",
     "appSubtitle": "Please login to access the simulation system",
     "cardTitle": "Login",
     "cardDescription": "Enter administrator credentials",
@@ -49,7 +49,7 @@
     "passwordLabel": "Password",
     "submitButton": "Sign In",
     "loadingButton": "Processing...",
-    "footer": "© 2025 Train Simulation App. All rights reserved.",
+    "footer": "© 2026 PT INKA Persero. All rights reserved.",
     "toast": {
       "emptyFields": "Please enter username and password.",
       "success": "Login Successful!",

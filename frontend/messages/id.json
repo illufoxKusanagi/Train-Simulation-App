@@ -40,7 +40,7 @@
     "dynamic": "Dinamis"
   },
   "Login": {
-    "appTitle": "Simulasi Kereta",
+    "appTitle": "Aplikasi Simulasi Kereta",
     "appSubtitle": "Silakan login untuk mengakses sistem simulasi",
     "cardTitle": "Login",
     "cardDescription": "Masukkan kredensial administrator",
@@ -49,7 +49,7 @@
     "passwordLabel": "Kata Sandi",
     "submitButton": "Masuk ke Sistem",
     "loadingButton": "Memproses...",
-    "footer": "© 2025 Train Simulation App. Seluruh hak dilindungi.",
+    "footer": "© 2026 PT INKA Persero. Seluruh hak dilindungi.",
     "toast": {
       "emptyFields": "Masukkan username dan password.",
       "success": "Login Berhasil!",

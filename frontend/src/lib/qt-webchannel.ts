@@ -38,6 +38,7 @@ interface QtFileBridge {
     filename?: string;
     error?: string;
   }>;
+  openUrl: (url: string) => void;
 }
 
 interface QWebChannelClass {
@@ -211,6 +212,24 @@ export async function openFileWithDialog(
   }
 }
 
+/**
+ * Open a URL in the default system browser (bypasses QtWebEngine container).
+ * @param url Full fully qualified URL
+ */
+export function openUrlInBrowser(url: string): void {
+  if (isQtWebChannelReady()) {
+    try {
+      window.fileBridge.openUrl(url);
+      return;
+    } catch (error) {
+      console.error("Failed to open URL via Qt WebChannel:", error);
+    }
+  }
+  
+  // Fallback for standard browsers
+  window.open(url, "_blank");
+}
+
 // Auto-initialize on module load in browser environment
 if (typeof window !== "undefined") {
   // Wait for DOM to be ready
@@ -230,6 +249,7 @@ const qtWebChannelExports = {
   getFileBridge,
   saveFileWithDialog,
   openFileWithDialog,
+  openUrlInBrowser,
 };
 
 export default qtWebChannelExports;
