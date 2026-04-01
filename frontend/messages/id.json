@@ -228,6 +228,8 @@
     "progress": "Progres",
     "combinations": "kombinasi",
     "bestCombination": "Kombinasi Terbaik",
+    "bestCombinationTab": "Kombinasi Terbaik",
+    "fuzzyMembershipTab": "Grafik Keanggotaan Fuzzy",
     "fuzzyScore": "Skor Fuzzy",
     "accelStart": "Aksel. Awal",
     "vp1FwStart": "v_p1 (FW Awal)",

@@ -6,13 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
-import {
-  Play,
-  Loader2,
-  Trophy,
-  Activity,
-  Download,
-} from "lucide-react";
+import { Play, Loader2, Trophy, Activity, Download } from "lucide-react";
 import PageLayout from "@/components/page-layout";
 import { InputWidget } from "@/components/inputs/input-widget";
 import {
@@ -336,9 +330,11 @@ export default function OptimizationPage() {
         {best && results.length > 0 && (
           <Tabs defaultValue="winners" className="w-full mt-4">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="winners">Best Combination</TabsTrigger>
+              <TabsTrigger value="winners">
+                {t("bestCombinationTab")}
+              </TabsTrigger>
               <TabsTrigger value="fuzzy-membership-chart">
-                Fuzzy Membership Charts
+                {t("fuzzyMembershipTab")}
               </TabsTrigger>
             </TabsList>
             <TabsContent value="winners">

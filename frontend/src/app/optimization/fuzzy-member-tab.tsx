@@ -108,25 +108,60 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
       const x = effMinT + (i * rT) / steps;
       rawTimeData.push({
         x: Number(x.toFixed(1)),
-        Short: trap(x, effMinT, effMinT, effMinT + 0.25 * rT, effMinT + 0.45 * rT),
-        Medium: tri(x, effMinT + 0.3 * rT, effMinT + 0.5 * rT, effMinT + 0.7 * rT),
-        Long: trap(x, effMinT + 0.55 * rT, effMinT + 0.75 * rT, effMaxT, effMaxT),
+        Short: trap(
+          x,
+          effMinT,
+          effMinT,
+          effMinT + 0.25 * rT,
+          effMinT + 0.45 * rT,
+        ),
+        Medium: tri(
+          x,
+          effMinT + 0.3 * rT,
+          effMinT + 0.5 * rT,
+          effMinT + 0.7 * rT,
+        ),
+        Long: trap(
+          x,
+          effMinT + 0.55 * rT,
+          effMinT + 0.75 * rT,
+          effMaxT,
+          effMaxT,
+        ),
       });
     }
-    
+
     results.forEach((r) => {
       const x = Number(r.travelTime.toFixed(1));
       rawTimeData.push({
         x,
-        Short: trap(x, effMinT, effMinT, effMinT + 0.25 * rT, effMinT + 0.45 * rT),
-        Medium: tri(x, effMinT + 0.3 * rT, effMinT + 0.5 * rT, effMinT + 0.7 * rT),
-        Long: trap(x, effMinT + 0.55 * rT, effMinT + 0.75 * rT, effMaxT, effMaxT),
+        Short: trap(
+          x,
+          effMinT,
+          effMinT,
+          effMinT + 0.25 * rT,
+          effMinT + 0.45 * rT,
+        ),
+        Medium: tri(
+          x,
+          effMinT + 0.3 * rT,
+          effMinT + 0.5 * rT,
+          effMinT + 0.7 * rT,
+        ),
+        Long: trap(
+          x,
+          effMinT + 0.55 * rT,
+          effMinT + 0.75 * rT,
+          effMaxT,
+          effMaxT,
+        ),
         dot: 0.02,
-        winnerDot: best && Math.abs(x - best.travelTime) < 0.01 ? 0.02 : undefined,
+        winnerDot:
+          best && Math.abs(x - best.travelTime) < 0.01 ? 0.02 : undefined,
       });
     });
-    
-    const timeData = rawTimeData.sort((a,b) => a.x - b.x);
+
+    const timeData = rawTimeData.sort((a, b) => a.x - b.x);
 
     // ── Motor Power Input Membership ──
     const rawPowerData = [];
@@ -134,9 +169,26 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
       const x = effMinP + (i * rP) / steps;
       rawPowerData.push({
         x: Number(x.toFixed(1)),
-        Low: trap(x, effMinP, effMinP, effMinP + 0.25 * rP, effMinP + 0.45 * rP),
-        Medium: tri(x, effMinP + 0.3 * rP, effMinP + 0.5 * rP, effMinP + 0.7 * rP),
-        High: trap(x, effMinP + 0.55 * rP, effMinP + 0.75 * rP, effMaxP, effMaxP),
+        Low: trap(
+          x,
+          effMinP,
+          effMinP,
+          effMinP + 0.25 * rP,
+          effMinP + 0.45 * rP,
+        ),
+        Medium: tri(
+          x,
+          effMinP + 0.3 * rP,
+          effMinP + 0.5 * rP,
+          effMinP + 0.7 * rP,
+        ),
+        High: trap(
+          x,
+          effMinP + 0.55 * rP,
+          effMinP + 0.75 * rP,
+          effMaxP,
+          effMaxP,
+        ),
       });
     }
 
@@ -144,15 +196,33 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
       const x = Number(r.peakMotorPower.toFixed(1));
       rawPowerData.push({
         x,
-        Low: trap(x, effMinP, effMinP, effMinP + 0.25 * rP, effMinP + 0.45 * rP),
-        Medium: tri(x, effMinP + 0.3 * rP, effMinP + 0.5 * rP, effMinP + 0.7 * rP),
-        High: trap(x, effMinP + 0.55 * rP, effMinP + 0.75 * rP, effMaxP, effMaxP),
+        Low: trap(
+          x,
+          effMinP,
+          effMinP,
+          effMinP + 0.25 * rP,
+          effMinP + 0.45 * rP,
+        ),
+        Medium: tri(
+          x,
+          effMinP + 0.3 * rP,
+          effMinP + 0.5 * rP,
+          effMinP + 0.7 * rP,
+        ),
+        High: trap(
+          x,
+          effMinP + 0.55 * rP,
+          effMinP + 0.75 * rP,
+          effMaxP,
+          effMaxP,
+        ),
         dot: 0.02,
-        winnerDot: best && Math.abs(x - best.peakMotorPower) < 0.01 ? 0.02 : undefined,
+        winnerDot:
+          best && Math.abs(x - best.peakMotorPower) < 0.01 ? 0.02 : undefined,
       });
     });
 
-    const powerData = rawPowerData.sort((a,b) => a.x - b.x);
+    const powerData = rawPowerData.sort((a, b) => a.x - b.x);
 
     // ── Output Membership (Score 0-100) — same for both engines ──
     const rawOutputData = [];
@@ -176,11 +246,12 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
         Good: tri(x, 45, 62, 78),
         Excellent: trap(x, 68, 82, 100, 100),
         dot: 0.02,
-        winnerDot: best && Math.abs(x - best.fuzzyScore) < 0.01 ? 0.02 : undefined,
+        winnerDot:
+          best && Math.abs(x - best.fuzzyScore) < 0.01 ? 0.02 : undefined,
       });
     });
 
-    const outputData = rawOutputData.sort((a,b) => a.x - b.x);
+    const outputData = rawOutputData.sort((a, b) => a.x - b.x);
 
     // ── Compute best result's membership degrees ──
     const bT = best.travelTime;
@@ -344,9 +415,12 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
                   }}
                 />
                 <Tooltip
-                  contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                  
-                  labelStyle={{ color: 'var(--foreground)' }}
+                  contentStyle={{
+                    backgroundColor: "var(--card)",
+                    borderColor: "var(--border)",
+                    color: "var(--foreground)",
+                  }}
+                  labelStyle={{ color: "var(--foreground)" }}
                   labelFormatter={(v) => `Time: ${v}s`}
                   formatter={(value: number, name: string) => {
                     if (name === "Winner" || name === "All Results") return [];
@@ -483,9 +557,12 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
                   }}
                 />
                 <Tooltip
-                  contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                  
-                  labelStyle={{ color: 'var(--foreground)' }}
+                  contentStyle={{
+                    backgroundColor: "var(--card)",
+                    borderColor: "var(--border)",
+                    color: "var(--foreground)",
+                  }}
+                  labelStyle={{ color: "var(--foreground)" }}
                   labelFormatter={(v) => `Power: ${v}kW`}
                   formatter={(value: number, name: string) => {
                     if (name === "Winner" || name === "All Results") return [];
@@ -621,12 +698,16 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
                 }}
               />
               <Tooltip
-                contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                
-                labelStyle={{ color: 'var(--foreground)' }}
+                contentStyle={{
+                  backgroundColor: "var(--card)",
+                  borderColor: "var(--border)",
+                  color: "var(--foreground)",
+                }}
+                labelStyle={{ color: "var(--foreground)" }}
                 labelFormatter={(v) => `Score: ${v}`}
                 formatter={(value: number, name: string) => {
-                  if (name === "Winner Score" || name === "All Scores") return [];
+                  if (name === "Winner Score" || name === "All Scores")
+                    return [];
                   return [value.toFixed(3), `μ(${name})`];
                 }}
               />

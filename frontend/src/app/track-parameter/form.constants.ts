@@ -27,7 +27,7 @@ export const TrackFormSchema = z.object({
       error: "This Value must be a number",
     })
     .min(0, { error: "Value must be non-negative" })
-    .max(100000, { error: "Value cannot exceed 5000" }),
+    .max(100000, { error: "Value cannot exceed 100000" }),
   slope: z.coerce
     .number<number>({
       error: "This Value must be a number",

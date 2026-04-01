@@ -228,6 +228,8 @@
     "progress": "Progress",
     "combinations": "combinations",
     "bestCombination": "Best Combination",
+    "bestCombinationTab": "Best Combination",
+    "fuzzyMembershipTab": "Fuzzy Membership Chart",
     "fuzzyScore": "Fuzzy Score",
     "accelStart": "Accel. Start",
     "vp1FwStart": "v_p1 (FW Start)",
