@@ -301,12 +301,10 @@ export const api = {
 
   // ==================== Fuzzy Optimization ====================
   startOptimization: async (params: {
-    accelLow: number;
-    accelMedium: number;
-    accelHigh: number;
-    weakeningLow: number;
-    weakeningMedium: number;
-    weakeningHigh: number;
+    accelMin: number;
+    accelMax: number;
+    weakeningMin: number;
+    weakeningMax: number;
   }): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/optimization/start`, {
       method: "POST",

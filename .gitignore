@@ -165,3 +165,5 @@ Thumbs.db
 *.bak
 *.cache
 /docs
+/documentations/my-docs/
+/debug/

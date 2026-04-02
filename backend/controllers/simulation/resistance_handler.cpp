@@ -36,10 +36,9 @@ double ResistanceHandler::calculateResRadius(float m, float radius) {
 double ResistanceHandler::calculateStartRes(double slope, double radius) {
   resistanceData->r_train =
       calculateResTrain(massData->mass_totalLoad, resistanceData->startRes);
-  resistanceData->r_slope =
-      calculateResSlope(massData->mass_totalInertial, slope);
+  resistanceData->r_slope = calculateResSlope(massData->mass_totalLoad, slope);
   resistanceData->r_radius =
-      calculateResRadius(massData->mass_totalInertial, radius);
+      calculateResRadius(massData->mass_totalLoad, radius);
   return resistanceData->r_train + resistanceData->r_slope +
          resistanceData->r_radius;
 }

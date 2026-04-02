@@ -378,9 +378,9 @@ ApiHandler::handleStartOptimization(const QJsonObject &data) {
   QList<double> vp1Values;
 
   const double accLow =
-      data.contains("accelLow") ? data["accelLow"].toDouble() : 0.0;
+      data.contains("accelMin") ? data["accelMin"].toDouble() : 0.0;
   const double accHigh =
-      data.contains("accelHigh") ? data["accelHigh"].toDouble() : 0.0;
+      data.contains("accelMax") ? data["accelMax"].toDouble() : 0.0;
   if (accLow > 0.0 && accHigh >= accLow) {
     constexpr double kAccStep = 0.05; // m/s²
     const int steps = qRound((accHigh - accLow) / kAccStep);
@@ -389,9 +389,9 @@ ApiHandler::handleStartOptimization(const QJsonObject &data) {
   }
 
   const double vp1Low =
-      data.contains("weakeningLow") ? data["weakeningLow"].toDouble() : 0.0;
+      data.contains("weakeningMin") ? data["weakeningMin"].toDouble() : 0.0;
   const double vp1High =
-      data.contains("weakeningHigh") ? data["weakeningHigh"].toDouble() : 0.0;
+      data.contains("weakeningMax") ? data["weakeningMax"].toDouble() : 0.0;
   if (vp1Low > 0.0 && vp1High >= vp1Low) {
     constexpr double kVp1Step = 5.0; // km/h
     const int steps = qRound((vp1High - vp1Low) / kVp1Step);

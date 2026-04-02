@@ -10,24 +10,20 @@ const membershipField = (max: number) =>
     .max(max, { error: `Value cannot exceed ${max}` });
 
 export const OptimizationFormSchema = z.object({
-  // Acceleration membership peaks (m/s²)
-  accelLow: membershipField(10),
-  accelMedium: membershipField(10),
-  accelHigh: membershipField(10),
-  // Weakening point membership peaks (km/h)
-  weakeningLow: membershipField(500),
-  weakeningMedium: membershipField(500),
-  weakeningHigh: membershipField(500),
+  // Acceleration search boundaries (m/s²)
+  accelMin: membershipField(10),
+  accelMax: membershipField(10),
+  // Weakening point search boundaries (km/h)
+  weakeningMin: membershipField(500),
+  weakeningMax: membershipField(500),
 });
 
 export const accelerationFormDatas: InputType[] = [
-  { label: "Low", unit: "m/s²", type: "field", name: "accelLow" },
-  { label: "Medium", unit: "m/s²", type: "field", name: "accelMedium" },
-  { label: "High", unit: "m/s²", type: "field", name: "accelHigh" },
+  { label: "Minimum", unit: "m/s²", type: "field", name: "accelMin" },
+  { label: "Maximum", unit: "m/s²", type: "field", name: "accelMax" },
 ];
 
 export const weakeningFormDatas: InputType[] = [
-  { label: "Low", unit: "km/h", type: "field", name: "weakeningLow" },
-  { label: "Medium", unit: "km/h", type: "field", name: "weakeningMedium" },
-  { label: "High", unit: "km/h", type: "field", name: "weakeningHigh" },
+  { label: "Minimum", unit: "km/h", type: "field", name: "weakeningMin" },
+  { label: "Maximum", unit: "km/h", type: "field", name: "weakeningMax" },
 ];

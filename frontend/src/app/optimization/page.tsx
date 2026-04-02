@@ -6,16 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
-import {
-  Play,
-  Loader2,
-  Trophy,
-  Zap,
-  Clock,
-  Activity,
-  Gauge,
-  Download,
-} from "lucide-react";
+import { Play, Loader2, Trophy, Activity, Download } from "lucide-react";
 import PageLayout from "@/components/page-layout";
 import { InputWidget } from "@/components/inputs/input-widget";
 import {
@@ -29,6 +20,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormPersistence } from "@/contexts/FormPersistenceContext";
 import { useTranslations } from "next-intl";
 import { exportTableToCsv } from "@/lib/csv-export";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { WinnerTab } from "./winner-tab";
+import { FuzzyMemberTab } from "./fuzzy-member-tab";
 
 interface OptResult {
   acc_start: number; // m/s²
@@ -75,12 +69,10 @@ export default function OptimizationPage() {
   const constantForm = useForm<z.infer<typeof OptimizationFormSchema>>({
     resolver: zodResolver(OptimizationFormSchema),
     defaultValues: {
-      accelLow: 0.6,
-      accelMedium: 1.0,
-      accelHigh: 1.2,
-      weakeningLow: 35,
-      weakeningMedium: 55,
-      weakeningHigh: 70,
+      accelMin: 0.6,
+      accelMax: 1.2,
+      weakeningMin: 35,
+      weakeningMax: 70,
     },
   });
 
@@ -131,7 +123,9 @@ export default function OptimizationPage() {
           stopPolling();
           if (status.completedCombinations > 0) {
             toast.success(
-              t("toast.complete", { count: String(status.completedCombinations) }),
+              t("toast.complete", {
+                count: String(status.completedCombinations),
+              }),
             );
           } else {
             toast.error(t("toast.failed"));
@@ -187,12 +181,10 @@ export default function OptimizationPage() {
       setCompleted(0);
       setHasStarted(true);
       const vals = constantForm.getValues();
-      const nAcc = Math.round((vals.accelHigh - vals.accelLow) / 0.05) + 1;
-      const nVp1 = Math.round((vals.weakeningHigh - vals.weakeningLow) / 5) + 1;
+      const nAcc = Math.round((vals.accelMax - vals.accelMin) / 0.05) + 1;
+      const nVp1 = Math.round((vals.weakeningMax - vals.weakeningMin) / 5) + 1;
       await api.startOptimization(vals);
-      toast.success(
-        t("toast.started", { combinations: String(nAcc * nVp1) }),
-      );
+      toast.success(t("toast.started", { combinations: String(nAcc * nVp1) }));
       setIsRunning(true);
       startPolling();
     } catch (error) {
@@ -217,10 +209,8 @@ export default function OptimizationPage() {
           <div className="w-full">
             <div className="flex flex-row justify-between w-full">
               <div className="flex flex-col">
-              <p className="heading-2 tracking-tight">{t("title")}</p>
-                <p className="text-muted-foreground mt-1">
-                  {t("description")}
-                </p>
+                <p className="heading-2 tracking-tight">{t("title")}</p>
+                <p className="text-muted-foreground mt-1">{t("description")}</p>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -230,7 +220,8 @@ export default function OptimizationPage() {
                 >
                   {isRunning ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("running")}
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                      {t("running")}
                     </>
                   ) : (
                     <>
@@ -247,7 +238,10 @@ export default function OptimizationPage() {
                       [
                         { key: "acc_start", header: "acc_start (m/s²)" },
                         { key: "v_p1", header: "v_p1 (km/h)" },
-                        { key: "peakMotorPower", header: "Peak Power/Motor (kW)" },
+                        {
+                          key: "peakMotorPower",
+                          header: "Peak Power/Motor (kW)",
+                        },
                         { key: "travelTime", header: "Travel Time (s)" },
                         { key: "fuzzyScore", header: "Fuzzy Score" },
                       ],
@@ -263,9 +257,9 @@ export default function OptimizationPage() {
             <div className="w-full">
               <Card className="w-full">
                 <CardHeader>
-                  <p className="heading-3">{t("fuzzyRangesTitle")}</p>
+                  <p className="heading-3">{t("searchSpaceTitle")}</p>
                   <p className="text-muted-foreground">
-                    {t("fuzzyRangesDescription")}
+                    {t("searchSpaceDescription")}
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -275,7 +269,7 @@ export default function OptimizationPage() {
                       <p className="text-sm font-semibold">
                         {t("acceleration")}
                       </p>
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 gap-4">
                         {accelerationFormDatas.map((formData) => (
                           <InputWidget
                             key={formData.name}
@@ -290,7 +284,7 @@ export default function OptimizationPage() {
                       <p className="text-sm font-semibold">
                         {t("weakeningPoint")}
                       </p>
-                      <div className="grid grid-cols-3 gap-4">
+                      <div className="grid grid-cols-2 gap-4">
                         {weakeningFormDatas.map((formData) => (
                           <InputWidget
                             key={formData.name}
@@ -332,75 +326,24 @@ export default function OptimizationPage() {
           </div>
         )}
 
-        {/* Winner Card */}
-        {best && (
-          <Card className="border-2 border-yellow-400 dark:border-yellow-500">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-yellow-600 dark:text-yellow-400">
-                <Trophy className="h-6 w-6" />
-                {t("bestCombination")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                {/* Fuzzy Score */}
-                <div className="flex flex-col items-center p-4 bg-secondary rounded-lg col-span-2 md:col-span-1">
-                  <Activity className="h-6 w-6 mb-2 text-primary" />
-                  <p className="text-xs text-muted-foreground">{t("fuzzyScore")}</p>
-                  <p
-                    className={`text-3xl font-black ${scoreColor(best.fuzzyScore)}`}
-                  >
-                    {best.fuzzyScore.toFixed(1)}
-                  </p>
-                  <span
-                    className={`mt-1 text-xs font-semibold px-2 py-0.5 rounded-full ${scoreBadgeClass(
-                      best.fuzzyScore,
-                    )}`}
-                  >
-                    {scoreLabel(best.fuzzyScore, t)}
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
-                  <Gauge className="h-6 w-6 mb-2 text-blue-500" />
-                  <p className="text-xs text-muted-foreground">{t("accelStart")}</p>
-                  <p className="text-2xl font-bold">
-                    {best.acc_start.toFixed(2)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">m/s²</p>
-                </div>
-
-                <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
-                  <Activity className="h-6 w-6 mb-2 text-purple-500" />
-                  <p className="text-xs text-muted-foreground">
-                    {t("vp1FwStart")}
-                  </p>
-                  <p className="text-2xl font-bold">{best.v_p1.toFixed(1)}</p>
-                  <p className="text-xs text-muted-foreground">km/h</p>
-                </div>
-
-                <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
-                  <Zap className="h-6 w-6 mb-2 text-yellow-500" />
-                  <p className="text-xs text-muted-foreground">
-                    {t("peakPowerMotor")}
-                  </p>
-                  <p className="text-2xl font-bold">
-                    {best.peakMotorPower.toFixed(1)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">kW</p>
-                </div>
-
-                <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
-                  <Clock className="h-6 w-6 mb-2 text-green-500" />
-                  <p className="text-xs text-muted-foreground">{t("travelTime")}</p>
-                  <p className="text-2xl font-bold">
-                    {best.travelTime.toFixed(0)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{t("seconds")}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Optimization Results Tabs */}
+        {best && results.length > 0 && (
+          <Tabs defaultValue="winners" className="w-full mt-4">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="winners">
+                {t("bestCombinationTab")}
+              </TabsTrigger>
+              <TabsTrigger value="fuzzy-membership-chart">
+                {t("fuzzyMembershipTab")}
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="winners">
+              <WinnerTab best={best} t={t} />
+            </TabsContent>
+            <TabsContent value="fuzzy-membership-chart">
+              <FuzzyMemberTab results={results} best={best} />
+            </TabsContent>
+          </Tabs>
         )}
 
         {/* Results Table */}
@@ -504,9 +447,7 @@ export default function OptimizationPage() {
             <CardContent className="flex flex-col items-center justify-center py-16 gap-4 text-muted-foreground">
               <Activity className="h-12 w-12 opacity-30" />
               <p className="text-lg font-medium">{t("noResults")}</p>
-              <p className="text-sm">
-                {t("noResultsDescription")}
-              </p>
+              <p className="text-sm">{t("noResultsDescription")}</p>
             </CardContent>
           </Card>
         )}
