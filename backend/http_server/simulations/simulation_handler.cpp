@@ -295,7 +295,7 @@ QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
           double vLimit = m_context.stationData->stat_v_limit;
           summary["distanceOnBraking"] =
               m_trainSimulation->m_simulationTrackHandler
-                  ->calculateBrakingTrack(vLimit);
+                  ->calculateStaticBrakingTrack(vLimit);
           summary["distanceOnEmergencyBraking"] =
               m_trainSimulation->m_simulationTrackHandler
                   ->calculateBrakingEmergencyTrack();

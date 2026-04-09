@@ -25,7 +25,12 @@ export function LocaleSwitcherButton() {
 
   const switchLocale = (locale: Locale) => {
     localStorage.setItem("locale", locale);
-    window.location.reload();
+    setCurrent(locale);
+    // Dispatch a custom event so LocaleProvider hot-swaps messages
+    // without a full page reload (which crashes Qt WebEngine in built apps)
+    window.dispatchEvent(
+      new CustomEvent("locale-change", { detail: locale })
+    );
   };
 
   const display = LOCALE_MAP[current] ?? LOCALE_MAP.en;
