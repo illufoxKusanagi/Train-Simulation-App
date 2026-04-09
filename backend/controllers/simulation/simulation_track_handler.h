@@ -17,9 +17,6 @@ public:
   double calculateSafetySimulationTrack(double speed);
   double calculateEmergencySafetySimulationTrack();
   double calculateStaticBrakingTrack(double speed);
-  double calculateStaticNormalSimulationTrack(double speed);
-  double calculateStaticDelaySimulationTrack(double speed);
-  double calculateStaticSafetySimulationTrack(double speed);
   double calculateOdo(double speed);
 
 private:

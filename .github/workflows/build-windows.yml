@@ -64,13 +64,25 @@ jobs:
             -DCMAKE_PREFIX_PATH="$QtRoot" `
             ..
           if ($LASTEXITCODE -ne 0) { throw "CMake configure failed" }
-
           & cmake --build . --config Release
           if ($LASTEXITCODE -ne 0) { throw "CMake build failed" }
 
       - name: Install OpenSSL
         shell: powershell
-        run: choco install openssl --version=3.4.1 --no-progress -y
+        run: |
+          # Download directly from slproweb (Chocolatey package breaks whenever they update)
+          $hashesUrl = "https://raw.githubusercontent.com/slproweb/opensslhashes/master/win32_openssl_hashes.json"
+          $hashes = Invoke-RestMethod -Uri $hashesUrl
+          # Find the latest Win64 full (non-light) EXE
+          $entry = $hashes.files.PSObject.Properties |
+            Where-Object { $_.Name -match '^Win64OpenSSL-3' -and $_.Name -notmatch 'Light' -and $_.Name -match '\.exe$' } |
+            Sort-Object { [version]($_.Value.basever) } -Descending |
+            Select-Object -First 1
+          $url = $entry.Value.url
+          Write-Host "Downloading OpenSSL from: $url"
+          Invoke-WebRequest -Uri $url -OutFile "$env:TEMP\openssl.exe" -UseBasicParsing
+          Start-Process -FilePath "$env:TEMP\openssl.exe" -ArgumentList "/silent","/verysilent","/sp-","/suppressmsgboxes" -Wait
+          Write-Host "OpenSSL installed successfully"
 
       - name: Deploy Qt Dependencies
         shell: powershell
