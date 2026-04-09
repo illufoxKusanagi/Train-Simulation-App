@@ -70,7 +70,7 @@ jobs:
 
       - name: Install OpenSSL
         shell: powershell
-        run: choco install openssl --no-progress -y
+        run: choco install openssl --version=3.4.1 --no-progress -y
 
       - name: Deploy Qt Dependencies
         shell: powershell
