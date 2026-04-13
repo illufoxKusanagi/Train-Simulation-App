@@ -26,7 +26,7 @@ double TractiveEffortHandler::calculateTotalBrakeForce() {
 }
 
 void TractiveEffortHandler::calculatePoweringForce(float acc, float v) {
-  resistanceData->f_start = calculateStartForce(movingData->acc_start);
+  resistanceData->f_start = calculateStartForce(movingData->acc_start_si);
   if (v <= movingData->v_p1) {
     resistanceData->f_motor = resistanceData->f_start;
   } else if (v > movingData->v_p1 && v <= movingData->v_p2) {
@@ -40,7 +40,7 @@ void TractiveEffortHandler::calculatePoweringForce(float acc, float v) {
 
 void TractiveEffortHandler::calculateBrakingForce() {
   resistanceData->f_brake =
-      massData->mass_totalInertial * movingData->decc_start;
+      massData->mass_totalInertial * movingData->decc_start_si;
   if (movingData->v <= movingData->v_b1) {
     resistanceData->f_motor = -resistanceData->f_brake;
   } else if (movingData->v > movingData->v_b1 &&

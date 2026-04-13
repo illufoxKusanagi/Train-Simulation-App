@@ -16,7 +16,7 @@ double SimulationTrackHandler::calculateBrakingTrack(double speed) {
 
   double v_b1 = movingData->v_b1 / constantData->cV;
   double v_b2 = movingData->v_b2 / constantData->cV;
-  double decc = movingData->decc_start; // Deceleration in m/s²
+  double decc = movingData->decc_start_si; // Deceleration in m/s²
 
   double totalDistance = 0.0;
 
@@ -60,13 +60,34 @@ double SimulationTrackHandler::calculateBrakingTrack(double speed) {
   return totalDistance;
 }
 
-double SimulationTrackHandler::calculateBrakingEmergencyTrack() {
+double SimulationTrackHandler::calculateStaticBrakingTrack() {
+  double speed;
   if (simulationDatas->trainSpeedsSi.isEmpty())
+    speed = 0.0;
+  else
+    speed = simulationDatas->trainSpeedsSi.last();
+  if (movingData->decc_start_si <= 0.0) {
     return 0.0;
+  }
 
-  double speed = simulationDatas->trainSpeedsSi.last();
+  double brakingDistance = 0.0;
+  brakingDistance = (speed * constantData->t_reaction) +
+                    pow(speed, 2) / (2.0 * movingData->decc_start_si);
+  return brakingDistance;
+}
+
+double SimulationTrackHandler::calculateBrakingEmergencyTrack() {
+  double speed;
+  if (simulationDatas->trainSpeedsSi.isEmpty())
+    speed = 0.0;
+  else
+    speed = simulationDatas->trainSpeedsSi.last();
+  if (movingData->decc_start_si <= 0.0) {
+    return 0.0;
+  }
+
   double brakingTrack = (speed * constantData->t_reaction) +
-                        (pow(speed, 2) / (2 * movingData->decc_emergency));
+                        (pow(speed, 2) / (2 * movingData->decc_emergency_si));
   return brakingTrack;
 
   // double speed = simulationDatas->trainSpeedsSi.last(); // Already in m/s
@@ -86,19 +107,19 @@ double SimulationTrackHandler::calculateBrakingEmergencyTrack() {
   // double brakingDistance = calculateBrakingTrack(speed_kmh);
 
   // // Scale by the ratio of emergency to normal deceleration
-  // double decc_ratio = movingData->decc_emergency / movingData->decc_start;
-  // double emergencyBrakingDistance =
-  //     brakingDistance / movingData->decc_emergency;
+  // double decc_ratio = movingData->decc_emergency_si /
+  // movingData->decc_start_si; double emergencyBrakingDistance =
+  //     brakingDistance / movingData->decc_emergency_si;
 
   // return reactionDistance + emergencyBrakingDistance;
 }
 
-double SimulationTrackHandler::calculateNormalSimulationTrack(double speed) {
+double SimulationTrackHandler::calculateNormalSimulationTrack() {
   if (simulationDatas->distanceTotal.isEmpty())
     return 0.0;
   double poweringDistance = simulationDatas->distanceTotal.last();
   double trainLength = trainData->trainsetLength;
-  double brakingDistance = calculateBrakingTrack(speed);
+  double brakingDistance = calculateStaticBrakingTrack();
   return poweringDistance + trainLength + brakingDistance;
 }
 
@@ -111,14 +132,14 @@ double SimulationTrackHandler::calculateEmergencyNormalSimulationTrack() {
   return poweringDistance + trainLength + brakingDistance;
 }
 
-double SimulationTrackHandler::calculateDelaySimulationTrack(double speed) {
+double SimulationTrackHandler::calculateDelaySimulationTrack() {
   if (simulationDatas->distanceTotal.isEmpty() ||
       simulationDatas->trainSpeedsSi.isEmpty() ||
       simulationDatas->accelerationsSi.isEmpty())
     return 0.0;
   double poweringDistance = simulationDatas->distanceTotal.last();
   double trainLength = trainData->trainsetLength;
-  double brakingDistance = calculateBrakingTrack(speed);
+  double brakingDistance = calculateStaticBrakingTrack();
   return poweringDistance + brakingDistance + trainLength +
          (simulationDatas->trainSpeedsSi.last() * constantData->t_delay) +
          (0.5 * simulationDatas->accelerationsSi.last() *
@@ -139,8 +160,8 @@ double SimulationTrackHandler::calculateEmergencyDelaySimulationTrack() {
           pow(constantData->t_delay, 2));
 }
 
-double SimulationTrackHandler::calculateSafetySimulationTrack(double speed) {
-  return 1.2 * calculateDelaySimulationTrack(speed);
+double SimulationTrackHandler::calculateSafetySimulationTrack() {
+  return 1.2 * calculateDelaySimulationTrack();
 }
 
 double SimulationTrackHandler::calculateEmergencySafetySimulationTrack() {

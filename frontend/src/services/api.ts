@@ -322,7 +322,7 @@ export const api = {
   getOptimizationStatus: async (): Promise<{
     isRunning: boolean;
     results: Array<{
-      acc_start: number; // m/s²
+      acc_start_si: number; // m/s²
       v_p1: number; // km/h
       peakMotorPower: number; // kW/motor
       travelTime: number; // seconds
@@ -330,7 +330,7 @@ export const api = {
     }>;
     best:
       | {
-          acc_start: number;
+          acc_start_si: number;
           v_p1: number;
           peakMotorPower: number;
           travelTime: number;

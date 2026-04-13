@@ -56,8 +56,8 @@ void UtilityHandler::resetSimulation() {
   context->trainMotorData->tm_f_res = 0;
   context->trainMotorData->tm_f = 0;
   context->trainMotorData->tm_t = 0;
+  context->movingData->acc_si = context->movingData->acc_start_si;
   context->movingData->acc = context->movingData->acc_start;
-  context->movingData->acc_si = context->movingData->acc_start;
   context->movingData->v = 0;
   context->movingData->v_si = 0;
   context->powerData->p_wheel = 0;

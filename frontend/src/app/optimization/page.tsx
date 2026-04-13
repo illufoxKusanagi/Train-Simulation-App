@@ -25,7 +25,7 @@ import { WinnerTab } from "./winner-tab";
 import { FuzzyMemberTab } from "./fuzzy-member-tab";
 
 interface OptResult {
-  acc_start: number; // m/s²
+  acc_start_si: number; // m/s²
   v_p1: number; // km/h
   peakMotorPower: number; // kW/motor
   travelTime: number; // seconds
@@ -236,7 +236,7 @@ export default function OptimizationPage() {
                     exportTableToCsv(
                       results,
                       [
-                        { key: "acc_start", header: "acc_start (m/s²)" },
+                        { key: "acc_start_si", header: "acc_start_si (m/s²)" },
                         { key: "v_p1", header: "v_p1 (km/h)" },
                         {
                           key: "peakMotorPower",
@@ -360,7 +360,7 @@ export default function OptimizationPage() {
                   <tr className="border-b text-muted-foreground">
                     <th className="text-left py-2 pr-4 font-semibold">#</th>
                     <th className="text-right py-2 pr-4 font-semibold">
-                      acc_start (m/s²)
+                      acc_start_si (m/s²)
                     </th>
                     <th className="text-right py-2 pr-4 font-semibold">
                       v_p1 (km/h)
@@ -380,11 +380,17 @@ export default function OptimizationPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {results.map((r, i) => {
+                  {/* {results.map((r, i) => {
                     const isBest =
                       best &&
-                      r.acc_start === best.acc_start &&
-                      r.v_p1 === best.v_p1;
+                      r.acc_start_si === best.acc_start_si &&
+                      r.v_p1 === best.v_p1; */}
+                  {results.map((r, i) => {
+                    const sameOptResult = (a: OptResult, b: OptResult) =>
+                      Math.abs(a.acc_start_si - b.acc_start_si) < 1e-6 &&
+                      Math.abs(a.v_p1 - b.v_p1) < 1e-6;
+
+                    const isBest = best && sameOptResult(r, best);
                     return (
                       <tr
                         key={i}
@@ -405,7 +411,7 @@ export default function OptimizationPage() {
                           )}
                         </td>
                         <td className="text-right py-2 pr-4 font-mono">
-                          {r.acc_start.toFixed(2)}
+                          {r.acc_start_si.toFixed(2)}
                         </td>
                         <td className="text-right py-2 pr-4 font-mono">
                           {r.v_p1.toFixed(1)}

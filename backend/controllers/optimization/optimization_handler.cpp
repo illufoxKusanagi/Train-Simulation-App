@@ -14,11 +14,11 @@ OptimizationHandler::OptimizationHandler(
       m_simulationMutex(&context->simulationMutex) {}
 
 // =============================================================================
-// Time Engine Setup — evaluates TravelTime (shaped by acc_start).
+// Time Engine Setup — evaluates TravelTime (shaped by acc_start_si).
 //
-// A shorter travel time means acc_start enabled faster acceleration → better.
-// 3 input terms (Short/Medium/Long) × 1 output (TimeScore 0–100) = 3 rules.
-// Ranges are derived from actual Pass 1 data.
+// A shorter travel time means acc_start_si enabled faster acceleration →
+// better. 3 input terms (Short/Medium/Long) × 1 output (TimeScore 0–100) = 3
+// rules. Ranges are derived from actual Pass 1 data.
 // =============================================================================
 void OptimizationHandler::setupTimeEngine(double minT, double maxT) {
   m_timeEngine.clear();
@@ -113,7 +113,7 @@ void OptimizationHandler::setupPowerEngine(double minP, double maxP) {
 }
 
 // Final score = average of both sub-scores.
-// This gives equal weight to travel time quality (acc_start contribution)
+// This gives equal weight to travel time quality (acc_start_si contribution)
 // and motor power quality (v_p1 contribution).
 double OptimizationHandler::evaluateFuzzyScore(double travelTime,
                                                double motorPower) {
@@ -143,7 +143,7 @@ void OptimizationHandler::handleOptimization(
   }
 
   // Save and restore user's original parameters
-  const double originalAcc = m_movingData->acc_start;
+  const double originalAcc = m_movingData->acc_start_si;
   const double originalVp1 = m_movingData->v_p1;
 
   // Use the caller-supplied candidates directly.
@@ -170,7 +170,7 @@ void OptimizationHandler::handleOptimization(
       // Set parameters and run simulation WITHOUT holding the outer mutex.
       // runDynamicSimulation() acquires m_simulationMutex internally for each
       // step — holding it here too would deadlock (QMutex is non-recursive).
-      m_movingData->acc_start = acc;
+      m_movingData->acc_start_si = acc;
       m_movingData->v_p1 = vp1;
 
       // Block signals so simulationCompleted is NOT emitted during the sweep.
@@ -201,7 +201,7 @@ void OptimizationHandler::handleOptimization(
 
   // Restore user parameters (no mutex needed — simulation is done and we own
   // m_movingData exclusively while m_isRunning == 1).
-  m_movingData->acc_start = originalAcc;
+  m_movingData->acc_start_si = originalAcc;
   m_movingData->v_p1 = originalVp1;
 
   if (rawData.isEmpty()) {
@@ -235,7 +235,7 @@ void OptimizationHandler::handleOptimization(
     QMutexLocker lk(&m_resultsMutex);
     for (const RawEntry &e : rawData) {
       OptResult r;
-      r.acc_start = e.acc;
+      r.acc_start_si = e.acc;
       r.v_p1 = e.vp1;
       r.peakMotorPower = e.peakPower;
       r.travelTime = e.travelTime;

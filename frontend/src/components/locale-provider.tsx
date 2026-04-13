@@ -1,7 +1,8 @@
 "use client";
 
 import { NextIntlClientProvider } from "next-intl";
-import { useEffect, useState } from "react";
+// import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import enMessages from "../../messages/en.json";
 
@@ -9,23 +10,51 @@ type Messages = Record<string, unknown>;
 
 const SUPPORTED_LOCALES = ["en", "id"];
 
+// export function LocaleProvider({ children }: { children: React.ReactNode }) {
+//   const [locale, setLocale] = useState("en");
+//   const [messages, setMessages] = useState<Messages>(enMessages);
+
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocale] = useState("en");
   const [messages, setMessages] = useState<Messages>(enMessages);
+  const localeLoadSeq = useRef(0);
+
+  const loadLocale = useCallback(async (target: string) => {
+    const seq = ++localeLoadSeq.current;
+    if (target === "en") {
+      setMessages(enMessages);
+      setLocale("en");
+      return;
+    }
+    if (!SUPPORTED_LOCALES.includes(target)) return;
+    try {
+      const m = await import(`../../messages/${target}.json`);
+      if (seq !== localeLoadSeq.current) return;
+      setMessages(m.default as Messages);
+      setLocale(target);
+    } catch (err) {
+      console.error(`Failed to load locale "${target}":`, err);
+    }
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem("locale");
     if (saved && saved !== "en" && SUPPORTED_LOCALES.includes(saved)) {
-      import(`../../messages/${saved}.json`)
-        .then((m) => {
-          setMessages(m.default as Messages);
-          setLocale(saved);
-        })
-        .catch((err) => {
-          console.error(`Failed to load locale "${saved}":`, err);
-        });
+      loadLocale(saved);
     }
-  }, []);
+  }, [loadLocale]);
+
+  // Listen for locale-change events dispatched by the locale switcher button
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail;
+      if (detail) {
+        loadLocale(detail);
+      }
+    };
+    window.addEventListener("locale-change", handler);
+    return () => window.removeEventListener("locale-change", handler);
+  }, [loadLocale]);
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>

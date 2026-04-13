@@ -41,20 +41,21 @@ void RunningDataHandler::setDifferenceCoastingSpeed(double v_diffCoast) {
   }
 }
 
-void RunningDataHandler::setEmergencyBrakeDeceleration(double decc_emergency) {
+void RunningDataHandler::setEmergencyBrakeDeceleration(
+    double decc_emergency_si) {
   if (m_movingData) {
-    m_movingData->decc_emergency = decc_emergency;
+    m_movingData->decc_emergency_si = decc_emergency_si;
   }
 }
 
 void RunningDataHandler::setAccelerationValue(double acceleration) {
   if (m_movingData) {
-    m_movingData->acc_start = acceleration;
+    m_movingData->acc_start_si = acceleration;
   }
 }
 
 void RunningDataHandler::setDecelerationValue(double decceleration) {
   if (m_movingData) {
-    m_movingData->decc_start = decceleration;
+    m_movingData->decc_start_si = decceleration;
   }
 }

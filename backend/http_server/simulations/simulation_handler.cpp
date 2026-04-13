@@ -224,14 +224,12 @@ QJsonObject SimulationHandler::getStaticResults() {
   QJsonArray normalBraking;
   QJsonArray emergencyBraking;
 
-  double vLimit = m_context.stationData->stat_v_limit;
-
   normalBraking.append(m_trainSimulation->m_simulationTrackHandler
-                           ->calculateNormalSimulationTrack(vLimit));
+                           ->calculateNormalSimulationTrack());
   normalBraking.append(m_trainSimulation->m_simulationTrackHandler
-                           ->calculateDelaySimulationTrack(vLimit));
+                           ->calculateDelaySimulationTrack());
   normalBraking.append(m_trainSimulation->m_simulationTrackHandler
-                           ->calculateSafetySimulationTrack(vLimit));
+                           ->calculateSafetySimulationTrack());
 
   emergencyBraking.append(m_trainSimulation->m_simulationTrackHandler
                               ->calculateEmergencyNormalSimulationTrack());
@@ -295,7 +293,7 @@ QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
           double vLimit = m_context.stationData->stat_v_limit;
           summary["distanceOnBraking"] =
               m_trainSimulation->m_simulationTrackHandler
-                  ->calculateBrakingTrack(vLimit);
+                  ->calculateStaticBrakingTrack();
           summary["distanceOnEmergencyBraking"] =
               m_trainSimulation->m_simulationTrackHandler
                   ->calculateBrakingEmergencyTrack();

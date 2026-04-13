@@ -7,7 +7,6 @@
   ],
   "scripts": {
     "dev": "./scripts/run.sh dev",
-    "dev:backend": "cd backend && ./scripts/smart-run.sh",
     "dev:frontend": "cd frontend && npm run dev",
     "build": "./build.sh prod",
     "build:backend": "cd backend && mkdir -p build && cd build && cmake .. && cmake --build .",

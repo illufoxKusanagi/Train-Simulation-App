@@ -95,6 +95,7 @@ struct FuzzyRule {
 ```
 
 Example (Short travel time AND Low motor power → Excellent score):
+
 ```cpp
 antecedents["TravelTime"] = "Short";
 antecedents["MotorPower"] = "Low";
@@ -239,10 +240,10 @@ so the centroid output is smooth and continuous across the 0–100 range.
 
 ### 6.1 Sweep Grid Construction
 
-Centred on the user's currently loaded `acc_start` and `v_p1`:
+Centred on the user's currently loaded `acc_start_si` and `v_p1`:
 
 ```
-acc  : 5 values at { -0.2, -0.1, 0, +0.1, +0.2 } m/s² from acc_start
+acc  : 5 values at { -0.2, -0.1, 0, +0.1, +0.2 } m/s² from acc_start_si
        clamped to [0.3, 1.5] m/s²
 
 v_p1 : 4 offsets { -15, -5, +5, +15 } km/h from v_p1
@@ -258,7 +259,7 @@ a single-point sweep.
 ```
 for each acc in accValues:
   for each v_p1 in vp1Values:
-    m_movingData->acc_start = acc
+    m_movingData->acc_start_si = acc
     m_movingData->v_p1      = v_p1
     m_trainSimulation->runDynamicSimulation()       ← acquires its own mutex
     record peakMotorPower = max(powerMotorOutPerMotor)
@@ -355,6 +356,7 @@ Fuzzy logic fixes this by allowing **partial membership**. Instead of "you are C
 ### Applying This to Train Optimization
 
 After running 20 simulations, each one has two results:
+
 - **How long did the trip take?** (travel time, in seconds)
 - **How hard did the motor work?** (peak motor power, in kW)
 
@@ -376,11 +378,13 @@ You divide that range into three zones: **Short**, **Medium**, **Long**. But ins
 ```
 
 A trip that took **215 s** falls inside the Short zone and slightly into Medium:
+
 - Short membership: **0.89** (89% short)
 - Medium membership: **0.0**
 - Long membership: **0.0**
 
 A trip that took **235 s** sits right between Medium and Long:
+
 - Short membership: **0.0**
 - Medium membership: **0.5**
 - Long membership: **0.4**
@@ -388,6 +392,7 @@ A trip that took **235 s** sits right between Medium and Long:
 This is called **fuzzification** — converting a crisp number into membership degrees for each label.
 
 The same thing happens for motor power. Say the range is 150 kW to 200 kW. A result with 185 kW would be mostly High, somewhat Medium, not Low at all:
+
 - Low: **0.0**
 - Medium: **0.3**
 - High: **0.7**
@@ -406,6 +411,7 @@ IF travel time is Long   AND motor power is High  → score is Poor
 ```
 
 These rules are just common sense written down:
+
 - Fast trip + efficient motor = excellent
 - Fast trip but motor is overloaded = only fair (speed isn't everything)
 - Slow trip + inefficient motor = poor
@@ -430,10 +436,12 @@ Result: the Good rule fired at 30% strength, the Fair rule fired at 70% strength
 ### Step 3 — Combining the Votes (Aggregation)
 
 Both rules are "voting" for an output score:
+
 - Good says the score should be around **62** (its peak), with 30% confidence
 - Fair says the score should be around **38** (its peak), with 70% confidence
 
 The engine doesn't just pick one winner. It combines both votes into a single blurry shape. Think of it like two people pushing a slider:
+
 - One person pushes toward 62 with 30% strength
 - The other pushes toward 38 with 70% strength
 
@@ -475,4 +483,3 @@ The rule table encodes these non-linear trade-offs exactly as a human engineer w
 | **Rule Evaluation** | Check all 9 IF-THEN rules, fire the matching ones | "A short+high-power trip → Fair. A short+medium-power trip → Good." |
 | **Aggregation**     | Combine all fired rules into one output shape     | "Both votes combined, weighted by how strongly they fired"          |
 | **Defuzzification** | Find the centre of gravity of that shape          | "Where does the overall weight of all votes land?"                  |
-

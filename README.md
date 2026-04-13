@@ -1,4 +1,5 @@
 # Train Simulation App
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](https://opensource.org/licenses/MIT)
 [![Release](https://img.shields.io/github/v/release/illufoxKusanagi/Train-Simulation-App?display_name=tag&sort=semver)](https://github.com/illufoxKusanagi/Train-Simulation-App/releases)
 [![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows-blue)](#)
@@ -76,6 +77,7 @@ The app was originally a **pure Qt Widgets** desktop application (QWidgets + QCh
 ## Features
 
 ### Parameter Configuration
+
 - **Train Parameters** — Car composition (M1/M2/Tc/T counts, up to 12-car trains), car masses, passenger counts, gear ratio, wheel diameter, axle count, inertia coefficients. Car-count presets auto-fill formation.
 - **Running Parameters** — Start resistance, acceleration/deceleration rates, speed notch points (P1, P2, B1, B2), coasting delta, emergency braking rate.
 - **Track Parameters** — Station count and spacing, gradient, curve radius, speed limit, dwell time. Supports CSV upload for slope/radius profiles.
@@ -84,11 +86,13 @@ The app was originally a **pure Qt Widgets** desktop application (QWidgets + QCh
 All forms persist state in `localStorage` via `FormPersistenceContext` so inputs survive page navigation and app restarts.
 
 ### Simulation Engine
+
 - **Static simulation** — Physics-based time-step integration across a full inter-station trip (powering → coasting → braking).
 - **Dynamic simulation** — Adaptive simulation accounting for actual track geometry (slope, curve) at each step.
 - Real-time status polling so the UI updates as the backend computes.
 
 ### Output & Visualization
+
 Six dedicated chart tabs, each with independent CSV and Excel export:
 
 | Tab         | Key variables                                                  |
@@ -103,7 +107,8 @@ Six dedicated chart tabs, each with independent CSV and Excel export:
 Summary cards display: max speed, total distance, max traction effort, adhesion, peak catenary power/current, peak VVVF power/current, energy consumption, energy powering, max motor power per motor.
 
 ### Fuzzy Logic Optimization
-Parameter sweep over user-defined ranges of acceleration (`acc_start`) and weakening point (`v_p1`). Each combination runs a full simulation and is scored by a **Mamdani fuzzy inference system**:
+
+Parameter sweep over user-defined ranges of acceleration (`acc_start_si`) and weakening point (`v_p1`). Each combination runs a full simulation and is scored by a **Mamdani fuzzy inference system**:
 
 - Inputs: Acceleration, Weakening Point, Gradient, Speed Limit
 - Membership functions: Triangle and Trapezoid sets
@@ -114,9 +119,11 @@ Parameter sweep over user-defined ranges of acceleration (`acc_start`) and weake
 Live progress bar and best-result card update in real time during the sweep.
 
 ### Native File Dialogs
+
 When running inside the Qt window, CSV and Excel exports use a native OS file-save dialog via Qt WebChannel (`FileBridge`). When accessed directly in a browser (dev mode), a standard browser download is used as fallback.
 
 ### Dark Mode
+
 Full dark mode toggle (system / light / dark) via `next-themes`. All colors use CSS custom properties so switching is instantaneous.
 
 ---
@@ -124,6 +131,7 @@ Full dark mode toggle (system / light / dark) via `next-themes`. All colors use 
 ## Tech Stack
 
 ### Frontend
+
 | Library            | Version | Role                                            |
 | ------------------ | ------- | ----------------------------------------------- |
 | Next.js            | 15      | App Router, SSG (`output: export` for prod)     |
@@ -140,6 +148,7 @@ Full dark mode toggle (system / light / dark) via `next-themes`. All colors use 
 | sonner             | 2       | Toast notifications                             |
 
 ### Backend
+
 | Technology    | Role                                              |
 | ------------- | ------------------------------------------------- |
 | C++17         | Language                                          |
@@ -260,6 +269,7 @@ train-app-simulation/
 **Qt modules required:** `Core`, `Network`, `HttpServer`, `Widgets`, `WebEngineWidgets`, `WebChannel`, `Concurrent`
 
 **Fedora / RHEL:**
+
 ```bash
 sudo dnf install qt6-qtbase-devel qt6-qtwebengine-devel \
                  qt6-qthttpserver-devel qt6-qtwebchannel-devel \
@@ -267,12 +277,14 @@ sudo dnf install qt6-qtbase-devel qt6-qtwebengine-devel \
 ```
 
 **Ubuntu / Debian:**
+
 ```bash
 sudo apt install qt6-base-dev qt6-webengine-dev \
                  cmake ninja-build nodejs npm
 ```
 
 **Windows:** Install Qt 6.7+ via the Qt online installer. Check:
+
 - Qt 6.x.x with `Qt WebEngine`, `Qt WebChannel`, `Qt HttpServer`
 - CMake 3.x
 - Ninja
@@ -441,7 +453,7 @@ Every step appends to `SimulationDatas` arrays. The full set is defined in [`fro
 
 ## Fuzzy Optimization
 
-The optimization page sweeps a user-defined grid of `(acc_start, v_p1)` combinations. Each point runs a full simulation and is scored by the Mamdani fuzzy engine.
+The optimization page sweeps a user-defined grid of `(acc_start_si, v_p1)` combinations. Each point runs a full simulation and is scored by the Mamdani fuzzy engine.
 
 ### Fuzzy Variables
 
@@ -478,5 +490,4 @@ For implementation details mapped to the thesis equations, see [`documentations/
 
 ---
 
-*Licensed under the [MIT License](LICENSE).*
-
+_Licensed under the [MIT License](LICENSE)._
