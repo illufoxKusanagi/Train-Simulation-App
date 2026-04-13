@@ -66,6 +66,9 @@ double SimulationTrackHandler::calculateStaticBrakingTrack() {
     speed = 0.0;
   else
     speed = simulationDatas->trainSpeedsSi.last();
+  if (movingData->decc_start_si <= 0.0) {
+    return 0.0;
+  }
 
   double brakingDistance = 0.0;
   brakingDistance = (speed * constantData->t_reaction) +
@@ -79,6 +82,9 @@ double SimulationTrackHandler::calculateBrakingEmergencyTrack() {
     speed = 0.0;
   else
     speed = simulationDatas->trainSpeedsSi.last();
+  if (movingData->decc_start_si <= 0.0) {
+    return 0.0;
+  }
 
   double brakingTrack = (speed * constantData->t_reaction) +
                         (pow(speed, 2) / (2 * movingData->decc_emergency_si));
