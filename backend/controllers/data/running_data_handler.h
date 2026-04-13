@@ -24,7 +24,7 @@ private:
   void setWeakeningPoint3(double v_b1);
   void setWeakeningPoint4(double v_b2);
   void setDifferenceCoastingSpeed(double v_diffCoast);
-  void setEmergencyBrakeDeceleration(double decc_emergency);
+  void setEmergencyBrakeDeceleration(double decc_emergency_si);
   std::vector<double> toStdVector(const QList<double> &list) const;
 };
 

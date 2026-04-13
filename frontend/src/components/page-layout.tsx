@@ -19,7 +19,7 @@ export default function PageLayout({
 }: PageMoldProps) {
   return (
     <SidebarProvider defaultOpen={sidebarDefaultOpen}>
-      <div className={`flex flex-col w-full h-screen ${className}`}>
+      <div className={`flex flex-col w-full h-full ${className}`}>
         <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-accent/60 border-b border-border">
           <AppSidebar />
           <div className="flex items-center justify-between px-4 py-3">

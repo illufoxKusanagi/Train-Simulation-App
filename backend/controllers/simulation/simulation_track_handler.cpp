@@ -77,7 +77,7 @@ double SimulationTrackHandler::calculateBrakingEmergencyTrack() {
     speed = 0.0;
 
   double brakingTrack = (speed * constantData->t_reaction) +
-                        (pow(speed, 2) / (2 * movingData->decc_emergency));
+                        (pow(speed, 2) / (2 * movingData->decc_emergency_si));
   return brakingTrack;
 
   // double speed = simulationDatas->trainSpeedsSi.last(); // Already in m/s
@@ -97,9 +97,9 @@ double SimulationTrackHandler::calculateBrakingEmergencyTrack() {
   // double brakingDistance = calculateBrakingTrack(speed_kmh);
 
   // // Scale by the ratio of emergency to normal deceleration
-  // double decc_ratio = movingData->decc_emergency / movingData->decc_start_si;
-  // double emergencyBrakingDistance =
-  //     brakingDistance / movingData->decc_emergency;
+  // double decc_ratio = movingData->decc_emergency_si /
+  // movingData->decc_start_si; double emergencyBrakingDistance =
+  //     brakingDistance / movingData->decc_emergency_si;
 
   // return reactionDistance + emergencyBrakingDistance;
 }

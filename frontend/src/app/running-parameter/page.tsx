@@ -35,7 +35,7 @@ export default function RunningPage() {
     v_p1: 35,
     v_p2: 65,
     decc_start_si: 1,
-    decc_emergency: 1.2,
+    decc_emergency_si: 1.2,
     v_b1: 55,
     v_b2: 70,
   };
@@ -97,7 +97,7 @@ export default function RunningPage() {
       //   v_b1: data.v_b1,
       //   v_b2: data.v_b2,
       //   decc_start_si: data.decc_start_si,
-      //   decc_emergency: data.decc_emergency,
+      //   decc_emergency_si: data.decc_emergency_si,
       // };
 
       const result = await api.updateRunningParameters(data);
@@ -135,7 +135,7 @@ export default function RunningPage() {
         "v_p1",
         "v_p2",
         "decc_start_si",
-        "decc_emergency",
+        "decc_emergency_si",
         "v_b1",
         "v_b2",
       ];
@@ -170,7 +170,7 @@ export default function RunningPage() {
 
   return (
     <PageLayout>
-      <Card className="px-6 py-8 min-h-[40rem] h-fit w-full max-w-2xl rounded-3xl justify-center">
+      <Card className="px-6 py-8 min-h-[40rem] h-full w-full max-w-2xl rounded-3xl justify-center overflow-auto">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">{trans("title")}</CardTitle>
           <CardDescription>{trans("description")}</CardDescription>

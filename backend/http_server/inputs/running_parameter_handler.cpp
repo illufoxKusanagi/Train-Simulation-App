@@ -26,7 +26,7 @@ QHttpServerResponse RunningParameterHandler::handleGetRunningParameters() {
   runningParams["v_b1"] = m_context.movingData->v_b1;
   runningParams["v_b2"] = m_context.movingData->v_b2;
   runningParams["decc_start_si"] = m_context.movingData->decc_start_si;
-  runningParams["decc_emergency"] = m_context.movingData->decc_emergency;
+  runningParams["decc_emergency_si"] = m_context.movingData->decc_emergency_si;
 
   if (m_context.loadData) {
     runningParams["n_PTc"] = m_context.loadData->n_PTc;
@@ -88,9 +88,9 @@ QHttpServerResponse RunningParameterHandler::handleUpdateRunningParameters(
       m_context.movingData->decc_start_si =
           runningParams["decc_start_si"].toDouble();
     }
-    if (runningParams.contains("decc_emergency")) {
-      m_context.movingData->decc_emergency =
-          runningParams["decc_emergency"].toDouble();
+    if (runningParams.contains("decc_emergency_si")) {
+      m_context.movingData->decc_emergency_si =
+          runningParams["decc_emergency_si"].toDouble();
     }
 
     if (m_context.loadData) {

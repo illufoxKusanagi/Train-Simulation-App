@@ -75,7 +75,7 @@ export interface RunningParams {
   v_b1: number;
   v_b2: number;
   decc_start_si: number;
-  decc_emergency: number;
+  decc_emergency_si: number;
 }
 
 export interface ElectricalParams {
