@@ -259,12 +259,15 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
       m_context.movingData->v = 0.0;
       m_context.movingData->v_diffCoast = 5.0;
       m_context.movingData->acc_start_si = 0.8;
+      m_context.movingData->acc_start = 2.88;
       m_context.movingData->v_p1 = 35.0;
       m_context.movingData->v_p2 = 65.0;
       m_context.movingData->v_b1 = 55.0;
       m_context.movingData->v_b2 = 70.0;
       m_context.movingData->decc_start_si = 1.0;
+      m_context.movingData->decc_start = 3.88;
       m_context.movingData->decc_emergency_si = 1.2;
+      m_context.movingData->decc_emergency = 5.16;
     }
 
     if (m_context.energyData) {
@@ -334,7 +337,11 @@ QHttpServerResponse ApiHandler::handleDebugContext() {
 
   if (m_context.movingData) {
     movingData["acc_start_si"] = m_context.movingData->acc_start_si;
+    movingData["acc_start"] = m_context.movingData->acc_start;
     movingData["decc_start_si"] = m_context.movingData->decc_start_si;
+    movingData["decc_start"] = m_context.movingData->decc_start;
+    movingData["decc_emergency_si"] = m_context.movingData->decc_emergency_si;
+    movingData["decc_emergency"] = m_context.movingData->decc_emergency;
     movingData["v"] = m_context.movingData->v;
     movingData["acc"] = m_context.movingData->acc;
   }

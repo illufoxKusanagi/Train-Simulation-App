@@ -21,12 +21,15 @@ QHttpServerResponse RunningParameterHandler::handleGetRunningParameters() {
   runningParams["startRes"] = m_context.resistanceData->startRes;
   runningParams["v_diffCoast"] = m_context.movingData->v_diffCoast;
   runningParams["acc_start_si"] = m_context.movingData->acc_start_si;
+  runningParams["acc_start"] = m_context.movingData->acc_start;
   runningParams["v_p1"] = m_context.movingData->v_p1;
   runningParams["v_p2"] = m_context.movingData->v_p2;
   runningParams["v_b1"] = m_context.movingData->v_b1;
   runningParams["v_b2"] = m_context.movingData->v_b2;
   runningParams["decc_start_si"] = m_context.movingData->decc_start_si;
+  runningParams["decc_start"] = m_context.movingData->decc_start;
   runningParams["decc_emergency_si"] = m_context.movingData->decc_emergency_si;
+  runningParams["decc_emergency"] = m_context.movingData->decc_emergency;
 
   if (m_context.loadData) {
     runningParams["n_PTc"] = m_context.loadData->n_PTc;
@@ -72,6 +75,10 @@ QHttpServerResponse RunningParameterHandler::handleUpdateRunningParameters(
       m_context.movingData->acc_start_si =
           runningParams["acc_start_si"].toDouble();
     }
+    if (runningParams.contains("acc_start")) {
+      m_context.movingData->acc_start =
+          runningParams["acc_start"].toDouble();
+    }
     if (runningParams.contains("v_p1")) {
       m_context.movingData->v_p1 = runningParams["v_p1"].toDouble();
     }
@@ -88,9 +95,17 @@ QHttpServerResponse RunningParameterHandler::handleUpdateRunningParameters(
       m_context.movingData->decc_start_si =
           runningParams["decc_start_si"].toDouble();
     }
+    if (runningParams.contains("decc_start")) {
+      m_context.movingData->decc_start =
+          runningParams["decc_start"].toDouble();
+    }
     if (runningParams.contains("decc_emergency_si")) {
       m_context.movingData->decc_emergency_si =
           runningParams["decc_emergency_si"].toDouble();
+    }
+    if (runningParams.contains("decc_emergency")) {
+      m_context.movingData->decc_emergency =
+          runningParams["decc_emergency"].toDouble();
     }
 
     if (m_context.loadData) {

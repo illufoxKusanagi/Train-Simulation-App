@@ -30,6 +30,12 @@ export const RunningFormSchema = z.object({
     })
     .min(0, { message: "Value must be non-negative" })
     .max(5000, { message: "Value cannot exceed 5000" }),
+  acc_start: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(18000, { message: "Value cannot exceed 18000" }),
   v_p1: z.coerce
     .number<number>({
       message: inputErrorMessage,
@@ -48,12 +54,24 @@ export const RunningFormSchema = z.object({
     })
     .min(0, { message: "Value must be non-negative" })
     .max(5000, { message: "Value cannot exceed 5000" }),
+  decc_start: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(18000, { message: "Value cannot exceed 18000" }),
   decc_emergency_si: z.coerce
     .number<number>({
       message: inputErrorMessage,
     })
     .min(0, { message: "Value must be non-negative" })
     .max(5000, { message: "Value cannot exceed 5000" }),
+  decc_emergency: z.coerce
+    .number<number>({
+      message: inputErrorMessage,
+    })
+    .min(0, { message: "Value must be non-negative" })
+    .max(18000, { message: "Value cannot exceed 18000" }),
   v_b1: z.coerce
     .number<number>({
       message: inputErrorMessage,
@@ -149,8 +167,18 @@ export const constantInputFormDatas: InputType[] = [
     label: "Emergency Brake Deceleration",
     unit: "km/h/s",
     type: "field",
-    name: "decc_emergency_si",
+    name: "decc_emergency",
   },
 ];
 
 export const constantFormRows = chunkArray(constantInputFormDatas, 3);
+
+// Conversion factor between SI (m/s²) and train units (km/h/s)
+export const CV = 3.6;
+
+// Pairs of (SI field, non-SI field) for bidirectional sync
+export const siNonSiPairs: [string, string][] = [
+  ["acc_start_si", "acc_start"],
+  ["decc_start_si", "decc_start"],
+  ["decc_emergency_si", "decc_emergency"],
+];
