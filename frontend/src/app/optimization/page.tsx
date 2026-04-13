@@ -380,11 +380,17 @@ export default function OptimizationPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {results.map((r, i) => {
+                  {/* {results.map((r, i) => {
                     const isBest =
                       best &&
                       r.acc_start_si === best.acc_start_si &&
-                      r.v_p1 === best.v_p1;
+                      r.v_p1 === best.v_p1; */}
+                  {results.map((r, i) => {
+                    const sameOptResult = (a: OptResult, b: OptResult) =>
+                      Math.abs(a.acc_start_si - b.acc_start_si) < 1e-6 &&
+                      Math.abs(a.v_p1 - b.v_p1) < 1e-6;
+
+                    const isBest = best && sameOptResult(r, best);
                     return (
                       <tr
                         key={i}

@@ -264,9 +264,9 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
       m_context.movingData->v_p2 = 65.0;
       m_context.movingData->v_b1 = 55.0;
       m_context.movingData->v_b2 = 70.0;
-      m_context.movingData->decc_start_si = 1.0;
+      m_context.movingData->decc_start_si = 1.078;
       m_context.movingData->decc_start = 3.88;
-      m_context.movingData->decc_emergency_si = 1.2;
+      m_context.movingData->decc_emergency_si = 1.43;
       m_context.movingData->decc_emergency = 5.16;
     }
 

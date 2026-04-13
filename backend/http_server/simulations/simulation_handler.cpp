@@ -224,8 +224,6 @@ QJsonObject SimulationHandler::getStaticResults() {
   QJsonArray normalBraking;
   QJsonArray emergencyBraking;
 
-  double vLimit = m_context.stationData->stat_v_limit;
-
   normalBraking.append(m_trainSimulation->m_simulationTrackHandler
                            ->calculateNormalSimulationTrack());
   normalBraking.append(m_trainSimulation->m_simulationTrackHandler

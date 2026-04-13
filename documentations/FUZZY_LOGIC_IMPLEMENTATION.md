@@ -129,7 +129,7 @@ The system optimizes **5 design parameters** to find the optimal motor power per
 
 #### Stage 1: Coarse Grid Search (~40 runs)
 
-```
+```text
 Parameter Ranges:
   - Acceleration: [0.8, 1.0, 1.2] m/s² (3 values)
   - Weakening Point: [70, 85, 100] km/h (3 values)
@@ -150,7 +150,7 @@ Result: Top 3 best configurations
 
 #### Stage 2: Refinement (~90 runs)
 
-```
+```text
 For each of the top 3 from Stage 1:
   - Create ±10% range around the best values
   - Use finer steps
@@ -163,7 +163,7 @@ Result: Best configuration with higher precision
 
 #### Stage 3: Final Tuning (~30 runs)
 
-```
+```text
 Around the single best configuration:
   - Very fine adjustments (±5% range)
   - Finest step size

@@ -79,9 +79,29 @@ jobs:
             Sort-Object { [version]($_.Value.basever) } -Descending |
             Select-Object -First 1
           $url = $entry.Value.url
+          $installerPath = "$env:TEMP\openssl.exe"
+          $sha256Property = $entry.Value.PSObject.Properties |
+            Where-Object { $_.Name -match '^sha256$' } |
+            Select-Object -First 1
+          if (-not $sha256Property -or -not $sha256Property.Value) {
+            throw "Could not determine expected SHA256 for OpenSSL installer from $hashesUrl"
+          }
+          $expectedSha256 = $sha256Property.Value.ToString().Trim().ToLowerInvariant()
+
           Write-Host "Downloading OpenSSL from: $url"
-          Invoke-WebRequest -Uri $url -OutFile "$env:TEMP\openssl.exe" -UseBasicParsing
-          Start-Process -FilePath "$env:TEMP\openssl.exe" -ArgumentList "/silent","/verysilent","/sp-","/suppressmsgboxes" -Wait
+          Invoke-WebRequest -Uri $url -OutFile $installerPath -UseBasicParsing
+
+          $actualSha256 = (Get-FileHash -Path $installerPath -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actualSha256 -ne $expectedSha256) {
+            throw "OpenSSL installer SHA256 mismatch. Expected: $expectedSha256 Actual: $actualSha256"
+          }
+
+          $signature = Get-AuthenticodeSignature -FilePath $installerPath
+          if ($signature.Status -ne 'Valid') {
+            throw "OpenSSL installer Authenticode signature is not valid. Status: $($signature.Status)"
+          }
+
+          Start-Process -FilePath $installerPath -ArgumentList "/silent","/verysilent","/sp-","/suppressmsgboxes" -Wait
           Write-Host "OpenSSL installed successfully"
 
       - name: Deploy Qt Dependencies

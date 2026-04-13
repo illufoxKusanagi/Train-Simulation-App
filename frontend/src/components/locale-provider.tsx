@@ -1,7 +1,8 @@
 "use client";
 
 import { NextIntlClientProvider } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+// import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import enMessages from "../../messages/en.json";
 
@@ -9,11 +10,17 @@ type Messages = Record<string, unknown>;
 
 const SUPPORTED_LOCALES = ["en", "id"];
 
+// export function LocaleProvider({ children }: { children: React.ReactNode }) {
+//   const [locale, setLocale] = useState("en");
+//   const [messages, setMessages] = useState<Messages>(enMessages);
+
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocale] = useState("en");
   const [messages, setMessages] = useState<Messages>(enMessages);
+  const localeLoadSeq = useRef(0);
 
   const loadLocale = useCallback(async (target: string) => {
+    const seq = ++localeLoadSeq.current;
     if (target === "en") {
       setMessages(enMessages);
       setLocale("en");
@@ -22,6 +29,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     if (!SUPPORTED_LOCALES.includes(target)) return;
     try {
       const m = await import(`../../messages/${target}.json`);
+      if (seq !== localeLoadSeq.current) return;
       setMessages(m.default as Messages);
       setLocale(target);
     } catch (err) {
