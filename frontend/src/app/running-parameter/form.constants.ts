@@ -24,7 +24,7 @@ export const RunningFormSchema = z.object({
     })
     .min(0, { message: "Value must be non-negative" })
     .max(5000, { message: "Value cannot exceed 5000" }),
-  acc_start: z.coerce
+  acc_start_si: z.coerce
     .number<number>({
       message: inputErrorMessage,
     })
@@ -42,7 +42,7 @@ export const RunningFormSchema = z.object({
     })
     .min(0, { message: "Value must be non-negative" })
     .max(5000, { message: "Value cannot exceed 5000" }),
-  decc_start: z.coerce
+  decc_start_si: z.coerce
     .number<number>({
       message: inputErrorMessage,
     })
@@ -109,13 +109,13 @@ export const constantInputFormDatas: InputType[] = [
     label: "Acceleration",
     unit: "m/s²",
     type: "field",
-    name: "acc_start",
+    name: "acc_start_si",
   },
   {
     label: "Deceleration",
     unit: "m/s²",
     type: "field",
-    name: "decc_start",
+    name: "decc_start_si",
   },
   {
     label: "Emergency Brake Deceleration",

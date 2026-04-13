@@ -58,9 +58,9 @@ void TrainSimulationHandler::initData() {
     QMutexLocker locker(m_simulationMutex);
     movingData->v = 0.0;
     movingData->v_si = 0.0;
-    movingData->acc = movingData->acc_start;
-    movingData->acc_si = movingData->acc_start;
-    movingData->decc = movingData->decc_start * constantData->cV;
+    movingData->acc = movingData->acc_start_si;
+    movingData->acc_si = movingData->acc_start_si;
+    movingData->decc = movingData->decc_start_si * constantData->cV;
     movingData->x = 0.0;
     movingData->x_total = 0.0;
     movingData->time = 0.0;

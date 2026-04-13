@@ -189,7 +189,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   2. `api.ts startOptimization` had no parameters and sent an empty POST body
   3. `http_server.cpp` POST route ignored the request body entirely (`const QHttpServerRequest &` not parsed)
   4. `api_handler.cpp handleStartOptimization()` accepted no parameters
-  5. `optimization_handler.cpp handleOptimization()` built its own `accValues`/`vp1Values` from a fixed ±0.1 centered sweep around user's current `acc_start`, and ±{15,5,-5,-15} km/h around `v_p1`
+  5. `optimization_handler.cpp handleOptimization()` built its own `accValues`/`vp1Values` from a fixed ±0.1 centered sweep around user's current `acc_start_si`, and ±{15,5,-5,-15} km/h around `v_p1`
 - **Solution:**
   - `handleOptimization()` signature changed to `handleOptimization(const QList<double> &accCandidates, const QList<double> &vp1Candidates)`; auto-sweep building replaced with the passed candidates
   - `m_totalCombinations` (`QAtomicInt`) added to `OptimizationHandler` — set to `accCandidates.size() × vp1Candidates.size()` at the start of each run; exposed via `getTotalCombinations()`
@@ -248,9 +248,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Fixed output terms on [0,100]: Poor = Trapezoid(0,0,15,30), Fair = Triangle(20,38,55), Good = Triangle(45,62,78), Excellent = Trapezoid(68,82,100,100)
   - `eval_term` + `cog_defuzzify` — Mamdani MIN implication, MAX aggregation, COG over 101 sample points
   - `plot_time_engine` / `plot_power_engine` — full engine plots with optional COG walkthrough example
-  - `plot_acceleration_membership` — hypothetical acc_start MFs over [0.3, 1.5] m/s² (reference; parameter is swept discretely, not fuzzified)
+  - `plot_acceleration_membership` — hypothetical acc_start_si MFs over [0.3, 1.5] m/s² (reference; parameter is swept discretely, not fuzzified)
   - `plot_weakening_speed_membership` — hypothetical v_p1 MFs over [20, v_limit−5] km/h with candidate lines marked (reference; same reason)
-  - `plot_sweep_candidates` — bar chart of 5 acc_start + 4 v_p1 candidate grid (the actual discrete sweep values)
+  - `plot_sweep_candidates` — bar chart of 5 acc_start_si + 4 v_p1 candidate grid (the actual discrete sweep values)
   - `plot_final_score_sweep` — 4×5 score heatmap grid for all 20 parameter combinations
   - `plot_overview_grid` — 2×3 summary figure
   - Saves all plots to `fuzzy_graphs/` as both PNG and PDF
@@ -290,11 +290,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Files:** `backend/controllers/optimization/optimization_handler.h`, `optimization_handler.cpp`
 - **What:** Two-pass parameter sweep optimizer using the fuzzy engine
-  - `OptResult` struct: `acc_start` (m/s²), `v_p1` (km/h), `peakMotorPower` (kW/motor), `travelTime` (s), `fuzzyScore` (0–100)
+  - `OptResult` struct: `acc_start_si` (m/s²), `v_p1` (km/h), `peakMotorPower` (kW/motor), `travelTime` (s), `fuzzyScore` (0–100)
   - **Pass 1:** Sweeps all `acc × v_p1` combinations (up to 5 × 4 = 20), calls `runDynamicSimulation()` for each, records `(travelTime, peakMotorPower)` raw metrics
   - **Pass 2:** Derives actual min/max ranges from real Pass 1 data, calibrates `setupFuzzyEngine()` with those ranges (+ 5% margin), then scores every result via `evaluateFuzzyScore()`
   - Engine is never calibrated against hardcoded static ranges — adapts to any train + track configuration
-  - Sweep is centred on user's actual loaded parameters (`acc_start`, `v_p1`); values are clamped to physical limits
+  - Sweep is centred on user's actual loaded parameters (`acc_start_si`, `v_p1`); values are clamped to physical limits
   - `m_resultsMutex` (`QMutex`) guards `m_results` / `m_bestResult`; `m_isRunning` (`QAtomicInt`) prevents concurrent runs
   - Emits `optimizationComplete(OptResult best)` signal on finish
 - **Fuzzy variable setup (`setupFuzzyEngine`):**
@@ -406,7 +406,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Functions:** `calculateBrakingTrack()`, `calculateBrakingEmergencyTrack()`
 - **Issue:** Initial fix reduced error from 69m to 30m, but gap kept increasing during simulation
 - **Root Cause:** Formula only accounted for brake force, not total resistances helping deceleration
-  - **Brake force only:** `f_brake = mass × decc_start` (constant)
+  - **Brake force only:** `f_brake = mass × decc_start_si` (constant)
   - **Missing resistances:** Davis equation + slope + curve effects
   - During braking, running resistance HELPS slow the train but wasn't accounted for
 - **Solution:** Calculate NET deceleration including all resistance forces
@@ -443,13 +443,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Functions:** `calculateBrakingTrack()`, `calculateBrakingEmergencyTrack()`
 - **Issue:** Train overshooting station by 69 meters (stopped at 1303m instead of 1234m)
 - **Root Cause:** Formula-simulation mismatch
-  - **Simulation** uses `resistanceData->f_brake` (constant: mass × decc_start) for deceleration calculation
+  - **Simulation** uses `resistanceData->f_brake` (constant: mass × decc_start_si) for deceleration calculation
   - **Previous formula** assumed field-weakened `resistanceData->f_motor` (varies with 1/v or 1/v²)
   - Result: Train braked with constant deceleration but formula predicted slower variable deceleration
 - **Initial Solution:** Reverted to simple constant deceleration formula
   ```cpp
   // Simple formula:
-  brakingDistance = (v² / (2 × decc_start))
+  brakingDistance = (v² / (2 × decc_start_si))
   ```
 - **Note:** This initial fix was later improved (see above) to account for running resistance
 
@@ -547,7 +547,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
   ```cpp
   // OLD (Incorrect):
-  brakingTrack = (pow(m_speed, 2) / (2 * movingData->decc_start));
+  brakingTrack = (pow(m_speed, 2) / (2 * movingData->decc_start_si));
 
   // NEW (Correct - accounts for field weakening):
   // Case-by-case integration based on current speed vs v_b1, v_b2
@@ -571,8 +571,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 **For constant deceleration region (v < v_b1):**
 
 ```
-F_brake = m × decc_start
-a = decc_start
+F_brake = m × decc_start_si
+a = decc_start_si
 v² = v₀² - 2 × a × d
 d = v² / (2 × a)
 ```
@@ -581,21 +581,21 @@ d = v² / (2 × a)
 
 ```
 F_brake = (f_brake × v_b1) / v
-a(v) = (f_brake × v_b1) / (m × v) = decc_start × (v_b1 / v)
+a(v) = (f_brake × v_b1) / (m × v) = decc_start_si × (v_b1 / v)
 Using: v × dv = a × dx
-Integration: ∫v dv = ∫(decc_start × v_b1) dx
-Result: (v² - v_b1²) / 2 = decc_start × v_b1 × Δx
-Δx = (v² - v_b1²) / (2 × decc_start)
+Integration: ∫v dv = ∫(decc_start_si × v_b1) dx
+Result: (v² - v_b1²) / 2 = decc_start_si × v_b1 × Δx
+Δx = (v² - v_b1²) / (2 × decc_start_si)
 ```
 
 **For second field weakening region (v > v_b2):**
 
 ```
 F_brake = (f_brake × v_b1 × v_b2) / v²
-a(v) = decc_start × (v_b1 × v_b2 / v²)
-Integration: ∫v dv = ∫(decc_start × v_b1 × v_b2 / v) dx
-Result: v² / 2 = decc_start × v_b1 × v_b2 × ln(v) + C
-Δx = (v³ - v_b2³) / (3 × decc_start × v_b1 × v_b2)
+a(v) = decc_start_si × (v_b1 × v_b2 / v²)
+Integration: ∫v dv = ∫(decc_start_si × v_b1 × v_b2 / v) dx
+Result: v² / 2 = decc_start_si × v_b1 × v_b2 × ln(v) + C
+Δx = (v³ - v_b2³) / (3 × decc_start_si × v_b1 × v_b2)
 ```
 
 ---

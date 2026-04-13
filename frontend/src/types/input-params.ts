@@ -69,12 +69,12 @@ export interface TrackParams {
 export interface RunningParams {
   startRes: number;
   v_diffCoast: number;
-  acc_start: number;
+  acc_start_si: number;
   v_p1: number;
   v_p2: number;
   v_b1: number;
   v_b2: number;
-  decc_start: number;
+  decc_start_si: number;
   decc_emergency: number;
 }
 

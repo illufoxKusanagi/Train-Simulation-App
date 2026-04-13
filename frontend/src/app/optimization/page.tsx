@@ -25,7 +25,7 @@ import { WinnerTab } from "./winner-tab";
 import { FuzzyMemberTab } from "./fuzzy-member-tab";
 
 interface OptResult {
-  acc_start: number; // m/s²
+  acc_start_si: number; // m/s²
   v_p1: number; // km/h
   peakMotorPower: number; // kW/motor
   travelTime: number; // seconds
@@ -236,7 +236,7 @@ export default function OptimizationPage() {
                     exportTableToCsv(
                       results,
                       [
-                        { key: "acc_start", header: "acc_start (m/s²)" },
+                        { key: "acc_start_si", header: "acc_start_si (m/s²)" },
                         { key: "v_p1", header: "v_p1 (km/h)" },
                         {
                           key: "peakMotorPower",
@@ -360,7 +360,7 @@ export default function OptimizationPage() {
                   <tr className="border-b text-muted-foreground">
                     <th className="text-left py-2 pr-4 font-semibold">#</th>
                     <th className="text-right py-2 pr-4 font-semibold">
-                      acc_start (m/s²)
+                      acc_start_si (m/s²)
                     </th>
                     <th className="text-right py-2 pr-4 font-semibold">
                       v_p1 (km/h)
@@ -383,7 +383,7 @@ export default function OptimizationPage() {
                   {results.map((r, i) => {
                     const isBest =
                       best &&
-                      r.acc_start === best.acc_start &&
+                      r.acc_start_si === best.acc_start_si &&
                       r.v_p1 === best.v_p1;
                     return (
                       <tr
@@ -405,7 +405,7 @@ export default function OptimizationPage() {
                           )}
                         </td>
                         <td className="text-right py-2 pr-4 font-mono">
-                          {r.acc_start.toFixed(2)}
+                          {r.acc_start_si.toFixed(2)}
                         </td>
                         <td className="text-right py-2 pr-4 font-mono">
                           {r.v_p1.toFixed(1)}

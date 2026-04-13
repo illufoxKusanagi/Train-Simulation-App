@@ -49,12 +49,12 @@ void RunningDataHandler::setEmergencyBrakeDeceleration(double decc_emergency) {
 
 void RunningDataHandler::setAccelerationValue(double acceleration) {
   if (m_movingData) {
-    m_movingData->acc_start = acceleration;
+    m_movingData->acc_start_si = acceleration;
   }
 }
 
 void RunningDataHandler::setDecelerationValue(double decceleration) {
   if (m_movingData) {
-    m_movingData->decc_start = decceleration;
+    m_movingData->decc_start_si = decceleration;
   }
 }

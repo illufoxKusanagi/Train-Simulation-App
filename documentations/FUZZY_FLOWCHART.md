@@ -12,7 +12,7 @@ flowchart TD
     B -- No --> C[/Tell the user:\nPlease run a simulation first\nso we have a starting point/]
     C --> Z([Done])
 
-    B -- Yes --> D[Remember the user's current settings:\nacc_start and v_p1]
+    B -- Yes --> D[Remember the user's current settings:\nacc_start_si and v_p1]
 
     D --> E["Build 20 combinations to try:\n• 5 slightly different acceleration values\n  centred on the current one\n• 4 slightly different field-weakening speeds\n  centred on the current one\n  = 5 × 4 = 20 combinations"]
 
@@ -125,20 +125,22 @@ flowchart TD
 ## How to View These Diagrams
 
 ### Option 1 — VS Code (recommended, free)
+
 1. Press `Ctrl+Shift+X`
 2. Search **Markdown Preview Mermaid Support** (by Matt Bierner) → Install
 3. Open this file → press `Ctrl+Shift+V`
 4. The flowcharts render live inside the preview panel
 
 ### Option 2 — Online (best for exporting to PNG/PDF for your thesis)
+
 1. Go to **https://mermaid.live**
 2. Copy the code between the triple backticks of any flowchart
 3. Paste it into the left panel — the diagram appears on the right
 4. Click **Export** → PNG or SVG
 
 ### Option 3 — GitHub
-Push this file and open it on GitHub. Mermaid renders automatically — no tools needed.
 
+Push this file and open it on GitHub. Mermaid renders automatically — no tools needed.
 
 ```mermaid
 flowchart TD
@@ -146,14 +148,14 @@ flowchart TD
     B --> C{Has the user run\na simulation first?}
     C -- No --> D[/Show error:\nRun a simulation first/]
     D --> Z([End])
-    C -- Yes --> E[Save user's original\nacc_start and v_p1]
+    C -- Yes --> E[Save user's original\nacc_start_si and v_p1]
 
     E --> F[Build candidate lists:\nacc: 5 values centred on current acc\nv_p1: 4 offsets from current v_p1]
 
     F --> G[/=== PASS 1: Simulation Sweep ===/]
 
     G --> H[Take next acc × v_p1 combination]
-    H --> I[Set acc_start and v_p1\nin simulation parameters]
+    H --> I[Set acc_start_si and v_p1\nin simulation parameters]
     I --> J[Run dynamic simulation]
     J --> K{Did simulation\nproduce output?}
     K -- No --> L[Skip this combination\nlog warning]
@@ -161,7 +163,7 @@ flowchart TD
     M --> N{More combinations\nremaining?}
     L --> N
     N -- Yes --> H
-    N -- No --> O[Restore user's original\nacc_start and v_p1]
+    N -- No --> O[Restore user's original\nacc_start_si and v_p1]
 
     O --> P{Any valid\nresults from Pass 1?}
     P -- No --> Q[/Show error:\nNo results produced/]
@@ -245,13 +247,17 @@ flowchart TD
 ## How to View These Diagrams
 
 ### Option 1 — VS Code (recommended)
+
 Install the extension **"Markdown Preview Mermaid Support"** by Matt Bierner:
+
 - Press `Ctrl+Shift+X` → search `Markdown Preview Mermaid Support` → Install
 - Open this file → press `Ctrl+Shift+V` to open the Markdown preview
 - The flowcharts render automatically inside the preview
 
 ### Option 2 — GitHub
+
 Push this file to your repository. GitHub renders Mermaid diagrams natively inside Markdown files — no extension needed.
 
 ### Option 3 — Online
+
 Copy any code block (the text between the triple backticks) and paste it into **https://mermaid.live** — it renders and you can export as PNG or SVG for your thesis.

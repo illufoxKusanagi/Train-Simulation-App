@@ -2,7 +2,7 @@ import { Trophy, Activity, Gauge, Zap, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface OptResult {
-  acc_start: number;
+  acc_start_si: number;
   v_p1: number;
   peakMotorPower: number;
   travelTime: number;
@@ -67,7 +67,7 @@ export function WinnerTab({ best, t }: WinnerTabProps) {
           <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
             <Gauge className="h-6 w-6 mb-2 text-blue-500" />
             <p className="text-xs text-muted-foreground">{t("accelStart")}</p>
-            <p className="text-2xl font-bold">{best.acc_start.toFixed(2)}</p>
+            <p className="text-2xl font-bold">{best.acc_start_si.toFixed(2)}</p>
             <p className="text-xs text-muted-foreground">m/s²</p>
           </div>
 
@@ -80,8 +80,12 @@ export function WinnerTab({ best, t }: WinnerTabProps) {
 
           <div className="flex flex-col items-center p-4 bg-secondary rounded-lg">
             <Zap className="h-6 w-6 mb-2 text-yellow-500" />
-            <p className="text-xs text-muted-foreground">{t("peakPowerMotor")}</p>
-            <p className="text-2xl font-bold">{best.peakMotorPower.toFixed(1)}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("peakPowerMotor")}
+            </p>
+            <p className="text-2xl font-bold">
+              {best.peakMotorPower.toFixed(1)}
+            </p>
             <p className="text-xs text-muted-foreground">kW</p>
           </div>
 

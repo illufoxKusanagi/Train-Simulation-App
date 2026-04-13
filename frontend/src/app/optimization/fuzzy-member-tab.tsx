@@ -21,7 +21,7 @@ import {
 import { Clock, Zap, Trophy, ArrowRight } from "lucide-react";
 
 interface OptResult {
-  acc_start: number;
+  acc_start_si: number;
   v_p1: number;
   peakMotorPower: number;
   travelTime: number;

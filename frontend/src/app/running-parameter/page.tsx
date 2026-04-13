@@ -31,10 +31,10 @@ export default function RunningPage() {
   const defaultValues = {
     startRes: 39.2,
     v_diffCoast: 5,
-    acc_start: 0.8,
+    acc_start_si: 0.8,
     v_p1: 35,
     v_p2: 65,
-    decc_start: 1,
+    decc_start_si: 1,
     decc_emergency: 1.2,
     v_b1: 55,
     v_b2: 70,
@@ -91,12 +91,12 @@ export default function RunningPage() {
       // const params = {
       //   startRes: data.startRes,
       //   v_diffCoast: data.v_diffCoast,
-      //   acc_start: data.acc_start,
+      //   acc_start_si: data.acc_start_si,
       //   v_p1: data.v_p1,
       //   v_p2: data.v_p2,
       //   v_b1: data.v_b1,
       //   v_b2: data.v_b2,
-      //   decc_start: data.decc_start,
+      //   decc_start_si: data.decc_start_si,
       //   decc_emergency: data.decc_emergency,
       // };
 
@@ -115,8 +115,6 @@ export default function RunningPage() {
     }
   }
 
-
-
   const processCsvText = (text: string) => {
     console.log("📂 processing CSV upload...");
     const lines = text.split(/\r\n|\n/);
@@ -133,10 +131,10 @@ export default function RunningPage() {
       const validKeys: (keyof z.infer<typeof RunningFormSchema>)[] = [
         "startRes",
         "v_diffCoast",
-        "acc_start",
+        "acc_start_si",
         "v_p1",
         "v_p2",
-        "decc_start",
+        "decc_start_si",
         "decc_emergency",
         "v_b1",
         "v_b2",
@@ -175,9 +173,7 @@ export default function RunningPage() {
       <Card className="px-6 py-8 min-h-[40rem] h-fit w-full max-w-2xl rounded-3xl justify-center">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">{trans("title")}</CardTitle>
-          <CardDescription>
-            {trans("description")}
-          </CardDescription>
+          <CardDescription>{trans("description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...constantForm}>

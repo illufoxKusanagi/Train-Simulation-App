@@ -258,12 +258,12 @@ QHttpServerResponse ApiHandler::handleQuickInit() {
     if (m_context.movingData) {
       m_context.movingData->v = 0.0;
       m_context.movingData->v_diffCoast = 5.0;
-      m_context.movingData->acc_start = 0.8;
+      m_context.movingData->acc_start_si = 0.8;
       m_context.movingData->v_p1 = 35.0;
       m_context.movingData->v_p2 = 65.0;
       m_context.movingData->v_b1 = 55.0;
       m_context.movingData->v_b2 = 70.0;
-      m_context.movingData->decc_start = 1.0;
+      m_context.movingData->decc_start_si = 1.0;
       m_context.movingData->decc_emergency = 1.2;
     }
 
@@ -333,8 +333,8 @@ QHttpServerResponse ApiHandler::handleDebugContext() {
   }
 
   if (m_context.movingData) {
-    movingData["acc_start"] = m_context.movingData->acc_start;
-    movingData["decc_start"] = m_context.movingData->decc_start;
+    movingData["acc_start_si"] = m_context.movingData->acc_start_si;
+    movingData["decc_start_si"] = m_context.movingData->decc_start_si;
     movingData["v"] = m_context.movingData->v;
     movingData["acc"] = m_context.movingData->acc;
   }
@@ -429,7 +429,7 @@ QHttpServerResponse ApiHandler::handleGetOptimizationStatus() {
   QJsonArray resultsArray;
   for (const OptResult &r : m_optimizationHandler->getResults()) {
     QJsonObject row;
-    row["acc_start"] = r.acc_start;
+    row["acc_start_si"] = r.acc_start_si;
     row["v_p1"] = r.v_p1;
     row["peakMotorPower"] = r.peakMotorPower;
     row["travelTime"] = r.travelTime;
@@ -442,7 +442,7 @@ QHttpServerResponse ApiHandler::handleGetOptimizationStatus() {
       !m_optimizationHandler->getResults().isEmpty()) {
     OptResult best = m_optimizationHandler->getBestResult();
     QJsonObject bestObj;
-    bestObj["acc_start"] = best.acc_start;
+    bestObj["acc_start_si"] = best.acc_start_si;
     bestObj["v_p1"] = best.v_p1;
     bestObj["peakMotorPower"] = best.peakMotorPower;
     bestObj["travelTime"] = best.travelTime;

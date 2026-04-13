@@ -12,7 +12,7 @@
 #include <QObject>
 
 struct OptResult {
-  double acc_start;
+  double acc_start_si;
   double v_p1;
   double peakMotorPower;
   double travelTime;

@@ -403,7 +403,7 @@ def plot_output_score_mf(display_inline=True, save_files=True, output_dir='fuzzy
 def plot_final_score_sweep(raw_min_t, raw_max_t, raw_min_p, raw_max_p,
                            display_inline=True, save_files=True, output_dir='fuzzy_graphs'):
     """
-    Sweep all 20 (acc_start × v_p1) candidate combinations that Pass 2 would
+    Sweep all 20 (acc_start_si × v_p1) candidate combinations that Pass 2 would
     evaluate, computing timeScore, powerScore, and finalScore.
 
     Uses 4 × 5 = 20 evenly-spaced points inside the ranges as a demo —
@@ -475,7 +475,7 @@ def plot_sweep_candidates(orig_acc=0.8, orig_vp1=60.0, v_limit=100.0,
 
     Mirrors the sweep-building logic in optimization_handler.cpp:
 
-        // acc_start: 5 values, 0.1 m/s² step, centred at originalAcc,
+        // acc_start_si: 5 values, 0.1 m/s² step, centred at originalAcc,
         //            clamped to [0.3, 1.5]
         for (int i = -2; i <= 2; ++i)  v = round(originalAcc + i*0.1, 1)
 
@@ -485,11 +485,11 @@ def plot_sweep_candidates(orig_acc=0.8, orig_vp1=60.0, v_limit=100.0,
 
     Parameters
     ----------
-    orig_acc  : float — user's loaded acc_start (m/s²), e.g. 0.8
+    orig_acc  : float — user's loaded acc_start_si (m/s²), e.g. 0.8
     orig_vp1  : float — user's loaded v_p1 (km/h),    e.g. 60.0
     v_limit   : float — train's v_limit (km/h),        e.g. 100.0
     """
-    # Build acc_start candidates (mirrors C++ loop)
+    # Build acc_start_si candidates (mirrors C++ loop)
     acc_candidates = []
     for i in range(-2, 3):
         v = round(orig_acc + i * 0.1, 1)
@@ -514,7 +514,7 @@ def plot_sweep_candidates(orig_acc=0.8, orig_vp1=60.0, v_limit=100.0,
         'produces TravelTime + MotorPower → scored by fuzzy engines',
         fontsize=12, fontweight='bold')
 
-    # ── Left: acc_start ─────────────────────────────────────────────────────
+    # ── Left: acc_start_si ─────────────────────────────────────────────────────
     ax = axes[0]
     colors_acc = ['steelblue' if v != orig_acc else 'gold' for v in acc_candidates]
     bars = ax.bar(range(len(acc_candidates)),
@@ -534,7 +534,7 @@ def plot_sweep_candidates(orig_acc=0.8, orig_vp1=60.0, v_limit=100.0,
     ax.set_xlim(-0.6, len(acc_candidates) - 0.4)
     ax.set_xlabel(f'Candidate index  (step = 0.1 m/s², clamped to [0.3, 1.5])',
                   fontsize=10, fontweight='bold')
-    ax.set_title(f'acc_start candidates  ({len(acc_candidates)} values)\n'
+    ax.set_title(f'acc_start_si candidates  ({len(acc_candidates)} values)\n'
                  f'Controls acceleration rate → affects TravelTime',
                  fontsize=11, fontweight='bold')
 
@@ -602,9 +602,9 @@ def plot_sweep_candidates(orig_acc=0.8, orig_vp1=60.0, v_limit=100.0,
 def plot_acceleration_membership(acc_min=0.3, acc_max=1.5,
                                  display_inline=True, save_files=True, output_dir='fuzzy_graphs'):
     """
-    Plot hypothetical membership functions for acc_start (m/s²).
+    Plot hypothetical membership functions for acc_start_si (m/s²).
 
-    acc_start is a design parameter, NOT a fuzzy input — the optimizer sweeps
+    acc_start_si is a design parameter, NOT a fuzzy input — the optimizer sweeps
     5 discrete values of it and runs simulations. This plot shows what the
     membership landscape would look like IF it were fuzzified, as a reference.
 
@@ -624,10 +624,10 @@ def plot_acceleration_membership(acc_min=0.3, acc_max=1.5,
         ax.fill_between(x, 0, mf, alpha=0.20, color=color)
         ax.plot(x, mf, color=color, linewidth=2.5, label=label_map[key])
 
-    ax.set_xlabel('Acceleration acc_start (m/s²)', fontsize=11, fontweight='bold')
+    ax.set_xlabel('Acceleration acc_start_si (m/s²)', fontsize=11, fontweight='bold')
     ax.set_ylabel('Membership Degree', fontsize=11, fontweight='bold')
     ax.set_title(
-        'acc_start — Hypothetical Membership Functions\n'
+        'acc_start_si — Hypothetical Membership Functions\n'
         '(design parameter, not a fuzzy engine input — shown for reference only)',
         fontsize=12, fontweight='bold')
     ax.legend(fontsize=10)
@@ -635,7 +635,7 @@ def plot_acceleration_membership(acc_min=0.3, acc_max=1.5,
     ax.set_xlim(lo - pad, hi + pad)
     ax.set_ylim(-0.05, 1.15)
     ax.annotate(
-        f'Actual sweep: 5 discrete values centred at user acc_start,\nstep = 0.1 m/s², clamped to [{acc_min}, {acc_max}] m/s²',
+        f'Actual sweep: 5 discrete values centred at user acc_start_si,\nstep = 0.1 m/s², clamped to [{acc_min}, {acc_max}] m/s²',
         xy=(0.02, 0.05), xycoords='axes fraction', fontsize=9,
         bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.7))
 
@@ -823,7 +823,7 @@ def main(display_inline=True, save_files=True,
                                fuzzification + COG (default: midpoint of range)
     example_power   : float  — optional single crisp MotorPower to demonstrate
                                fuzzification + COG (default: midpoint of range)
-    orig_acc        : float  — user's original acc_start value (m/s²), used to
+    orig_acc        : float  — user's original acc_start_si value (m/s²), used to
                                build the 5-candidate sweep plot (default: 0.8)
     orig_vp1        : float  — user's original v_p1 (km/h), used to build the
                                4-candidate sweep plot (default: 60.0)
@@ -860,15 +860,15 @@ def main(display_inline=True, save_files=True,
     print(f"  Example MotorPower  : {example_power:.1f} kW")
     print(sep)
 
-    # ── 1. Sweep candidates (acc_start + v_p1 — design parameters) ──────────
-    print(f"\n[1/8] Pass 1 sweep candidates — acc_start ({orig_acc} m/s²) + v_p1 ({orig_vp1} km/h)")
+    # ── 1. Sweep candidates (acc_start_si + v_p1 — design parameters) ──────────
+    print(f"\n[1/8] Pass 1 sweep candidates — acc_start_si ({orig_acc} m/s²) + v_p1 ({orig_vp1} km/h)")
     plot_sweep_candidates(orig_acc=orig_acc, orig_vp1=orig_vp1, v_limit=v_limit,
                           display_inline=display_inline,
                           save_files=save_files,
                           output_dir=output_dir)
 
     # ── 2. Acceleration membership (reference plot) ──────────────────────────
-    print(f"\n[2/8] acc_start — hypothetical membership functions (reference)")
+    print(f"\n[2/8] acc_start_si — hypothetical membership functions (reference)")
     plot_acceleration_membership(acc_min=0.3, acc_max=1.5,
                                  display_inline=display_inline,
                                  save_files=save_files,
