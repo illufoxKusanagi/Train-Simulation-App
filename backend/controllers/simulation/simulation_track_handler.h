@@ -10,13 +10,13 @@ public:
   explicit SimulationTrackHandler(AppContext &context);
   double calculateBrakingTrack(double speed);
   double calculateBrakingEmergencyTrack();
-  double calculateNormalSimulationTrack(double speed);
+  double calculateNormalSimulationTrack();
   double calculateEmergencyNormalSimulationTrack();
-  double calculateDelaySimulationTrack(double speed);
+  double calculateDelaySimulationTrack();
   double calculateEmergencyDelaySimulationTrack();
-  double calculateSafetySimulationTrack(double speed);
+  double calculateSafetySimulationTrack();
   double calculateEmergencySafetySimulationTrack();
-  double calculateStaticBrakingTrack(double speed);
+  double calculateStaticBrakingTrack();
   double calculateOdo(double speed);
 
 private:
