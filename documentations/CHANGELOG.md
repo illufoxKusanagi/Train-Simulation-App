@@ -6,6 +6,64 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Unreleased] - 2026-04-13
+
+### Added
+
+#### Non-SI Unit Parameters (`acc_start`, `decc_start`, `decc_emergency`)
+
+- **Files affected:**
+  - `backend/models/moving_data.h`
+  - `backend/http_server/inputs/running_parameter_handler.cpp`
+  - `backend/http_server/api_handler.cpp`
+  - `frontend/src/types/input-params.ts`
+  - `frontend/src/app/running-parameter/form.constants.ts`
+  - `frontend/src/app/running-parameter/page.tsx`
+  - `frontend/public/running_parameters_template.csv`
+- **What:** Introduced non-SI (km/h/s) counterparts for acceleration and deceleration parameters alongside the existing SI (m/s²) fields.
+  - `acc_start` (default: 2.88 km/h/s) — non-SI counterpart of `acc_start_si`
+  - `decc_start` (default: 3.88 km/h/s) — non-SI counterpart of `decc_start_si`
+  - `decc_emergency` (default: 5.16 km/h/s) — non-SI counterpart of `decc_emergency_si`
+- **Backend:** Added `decc_emergency` field to `MovingData` struct. Updated `RunningParameterHandler` to read/write all three non-SI fields in both GET and POST handlers. Added defaults in `handleQuickInit()` and fields in `handleDebugContext()`.
+- **Frontend:** Added Zod schema validation and form field definitions for `acc_start`, `decc_start`, `decc_emergency`. Implemented **bidirectional real-time sync** between SI and non-SI fields using `react-hook-form` `watch()` with an `isSyncing` ref guard to prevent infinite update loops:
+  - Editing an SI field → auto-updates its non-SI counterpart (`× 3.6`)
+  - Editing a non-SI field → auto-updates its SI counterpart (`÷ 3.6`)
+- **CSV template:** Updated `running_parameters_template.csv` with the three new fields and default values.
+
+### Changed
+
+#### BREAKING CHANGE: `decc_emergency` → `decc_emergency_si` Rename
+
+- **Files affected (11 files):**
+  - `backend/models/moving_data.h`
+  - `backend/controllers/data/running_data_handler.cpp`
+  - `backend/controllers/simulation/simulation_track_handler.cpp`
+  - `backend/http_server/inputs/running_parameter_handler.cpp`
+  - `backend/http_server/api_handler.cpp`
+  - `frontend/src/types/input-params.ts`
+  - `frontend/src/app/running-parameter/form.constants.ts`
+  - `frontend/src/app/running-parameter/page.tsx`
+  - `frontend/public/running_parameters_template.csv`
+- **What:** Renamed the existing `decc_emergency` field to `decc_emergency_si` across the entire codebase for consistency with the `_si` suffix naming convention (m/s² units). The freed `decc_emergency` name is now used for the new non-SI (km/h/s) field.
+
+### Fixed
+
+#### Braking Distance Division-by-Zero Guard
+
+- **File:** `backend/controllers/simulation/simulation_track_handler.cpp`
+- **Functions:** `calculateStaticBrakingTrack()`, `calculateBrakingEmergencyTrack()`
+- **Issue:** Potential division by zero when `decc_start_si` or `decc_emergency_si` is zero or negative.
+- **Solution:** Added early return guard `if (movingData->decc_start_si <= 0.0) return 0.0;` before the braking distance formula. Also fixed the order of the empty-list check so `speed` is assigned `0.0` before attempting to access `.last()` on a potentially empty list.
+
+#### Frontend: `next-intl` ENVIRONMENT_FALLBACK Crash
+
+- **File:** `frontend/src/i18n/request.ts`
+- **Issue:** The application crashed on page load with `Error: ENVIRONMENT_FALLBACK: There is no timeZone configured`. This caused the Qt WebEngine window to close immediately after opening.
+- **Root Cause:** `next-intl` v4.x requires a `timeZone` in the request configuration to avoid server/client markup mismatches. The field was missing from `getRequestConfig()`.
+- **Solution:** Added `timeZone: "Asia/Jakarta"` to the `getRequestConfig()` return object.
+
+---
+
 ## [Unreleased] - 2026-04-01
 
 ### Added
