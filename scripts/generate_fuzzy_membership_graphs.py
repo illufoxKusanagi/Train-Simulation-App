@@ -599,7 +599,7 @@ def plot_sweep_candidates(orig_acc=0.8, orig_vp1=60.0, v_limit=100.0,
     return fig
 
 
-def plot_acceleration_membership(acc_min=0.3, acc_max=1.5,
+def plot_acceleration_membership(acc_min=0.3, acc_linear=1.5,
                                  display_inline=True, save_files=True, output_dir='fuzzy_graphs'):
     """
     Plot hypothetical membership functions for acc_start_si (m/s²).
@@ -611,7 +611,7 @@ def plot_acceleration_membership(acc_min=0.3, acc_max=1.5,
     Terms use the same dynamic-breakpoint formula as the real engines
     (5% margin + percentage fractions of the value range).
     """
-    bp = compute_input_breakpoints(acc_min, acc_max)
+    bp = compute_input_breakpoints(acc_min, acc_linear)
     lo, hi = bp['min'], bp['max']
     pad = (hi - lo) * 0.05
     x = np.linspace(lo - pad, hi + pad, 2000)
@@ -635,7 +635,7 @@ def plot_acceleration_membership(acc_min=0.3, acc_max=1.5,
     ax.set_xlim(lo - pad, hi + pad)
     ax.set_ylim(-0.05, 1.15)
     ax.annotate(
-        f'Actual sweep: 5 discrete values centred at user acc_start_si,\nstep = 0.1 m/s², clamped to [{acc_min}, {acc_max}] m/s²',
+        f'Actual sweep: 5 discrete values centred at user acc_start_si,\nstep = 0.1 m/s², clamped to [{acc_min}, {acc_linear}] m/s²',
         xy=(0.02, 0.05), xycoords='axes fraction', fontsize=9,
         bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.7))
 
@@ -869,7 +869,7 @@ def main(display_inline=True, save_files=True,
 
     # ── 2. Acceleration membership (reference plot) ──────────────────────────
     print(f"\n[2/8] acc_start_si — hypothetical membership functions (reference)")
-    plot_acceleration_membership(acc_min=0.3, acc_max=1.5,
+    plot_acceleration_membership(acc_min=0.3, acc_linear=1.5,
                                  display_inline=display_inline,
                                  save_files=save_files,
                                  output_dir=output_dir)

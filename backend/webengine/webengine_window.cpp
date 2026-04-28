@@ -71,7 +71,7 @@ void WebEngineWindow::setupUi() {
     QAction *devToolsAction = new QAction("🔧 DevTools", this);
     connect(devToolsAction, &QAction::triggered, this, [this]() {
       if (m_webView && m_webView->page()) {
-        QWebEngineView *devToolsView = new QWebEngineView(this);
+        QWebEngineView *devToolsView = new QWebEngineView();
         devToolsView->setAttribute(Qt::WA_DeleteOnClose, true);
         m_webView->page()->setDevToolsPage(devToolsView->page());
         devToolsView->setWindowTitle("DevTools - Train Simulation");

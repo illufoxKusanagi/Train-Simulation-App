@@ -69,12 +69,18 @@ export interface TrackParams {
 export interface RunningParams {
   startRes: number;
   v_diffCoast: number;
+  acc_linear_si: number;
+  acc_linear: number;
+  pow_gear: string;
   acc_start_si: number;
   acc_start: number;
   v_p1: number;
   v_p2: number;
   v_b1: number;
   v_b2: number;
+  decc_linear_si: number;
+  decc_linear: number;
+  brake_gear: string;
   decc_start_si: number;
   decc_start: number;
   decc_emergency_si: number;

@@ -24,8 +24,8 @@ export function InputField({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className="flex flex-col w-full ">
-          <FormLabel className="h-8 items-end">{label}</FormLabel>
+        <FormItem className="flex flex-col w-full justify-between">
+          <FormLabel className="items-end">{label}</FormLabel>
           <FormControl>
             <div className="flex items-center gap-2">
               <Input
@@ -33,9 +33,8 @@ export function InputField({
                 type="text"
                 inputMode="decimal"
                 readOnly={isReadOnly}
-                className={`flex-1 ${
-                  isReadOnly ? "bg-blue-50 border-blue-200" : ""
-                }`}
+                className={`flex-1 ${isReadOnly ? "bg-blue-50 border-blue-200" : ""
+                  }`}
                 value={
                   rawValue !== null
                     ? rawValue
