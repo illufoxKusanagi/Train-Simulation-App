@@ -1,9 +1,15 @@
 startRes,39.2
 v_diffCoast,5
+acc_linear_si,0.8
+acc_linear,2.88
+pow_gear,P7
 acc_start_si,0.8
 acc_start,2.88
 v_p1,35
 v_p2,65
+decc_linear_si,1.078
+decc_linear,3.88
+brake_gear,B7
 decc_start_si,1.078
 decc_start,3.88
 decc_emergency_si,1.43

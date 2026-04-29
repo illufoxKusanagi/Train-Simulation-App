@@ -137,7 +137,7 @@ export const api = {
   },
 
   updateRunningParameters: async (
-    params: Record<string, number>,
+    params: Record<string, number | string>,
   ): Promise<{ status: string; message: string }> => {
     const res = await fetch(`${API_BASE_URL}/api/parameters/running`, {
       method: "POST",
