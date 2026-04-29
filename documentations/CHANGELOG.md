@@ -6,6 +6,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Unreleased] - 2026-04-29
+
+### Added
+
+#### Powering Gear (P1–P7) & Braking Gear (B1–B7)
+
+- **Files affected:**
+  - `frontend/src/app/running-parameter/form.constants.ts`
+  - `frontend/src/app/running-parameter/page.tsx`
+  - `frontend/src/types/input-params.ts`
+  - `frontend/src/services/api.ts`
+  - `frontend/public/running_parameters_template.csv`
+- **What:** Introduced gear-based acceleration/deceleration scaling. The user inputs a "linear" (maximum) value and selects a gear notch; the effective value sent to the backend is computed automatically.
+  - **Formula:** `acc_start_si = acc_linear_si × (gear / 7)`
+  - P7/B7 = full capability, P1/B1 = 1/7 of maximum
+- **Frontend-only computation:** The gear calculation happens entirely in the frontend via `react-hook-form` watchers. The backend continues to receive `acc_start_si`/`decc_start_si` unchanged — zero backend modifications required.
+- **Dropdown options:** `pow_gear` renders P1–P7, `brake_gear` renders B1–B7 via the existing `InputDropdown` component.
+- **Computed fields:** `acc_start_si`, `acc_start`, `decc_start_si`, `decc_start` are now **read-only** form fields that auto-update whenever the linear input or gear selection changes.
+
+### Changed
+
+#### Rename: `acc_start_si` → `acc_linear_si` (User Input Field)
+
+- **Files affected:**
+  - `frontend/src/app/running-parameter/form.constants.ts`
+  - `frontend/src/app/running-parameter/page.tsx`
+  - `frontend/src/types/input-params.ts`
+- **What:** The user-editable acceleration field was renamed from `acc_start_si` to `acc_linear_si` to distinguish it from the gear-computed effective value. Same for `acc_start` → `acc_linear`, `decc_start_si` → `decc_linear_si`, `decc_start` → `decc_linear`.
+- **Impact:** `acc_start_si`/`decc_start_si` are now computed values (read-only), while `acc_linear_si`/`decc_linear_si` are the user-editable inputs.
+- **Bidirectional sync** updated: SI↔non-SI pairs now sync `acc_linear_si` ↔ `acc_linear` (×3.6) instead of the old field names.
+
+---
+
 ## [Unreleased] - 2026-04-13
 
 ### Added
