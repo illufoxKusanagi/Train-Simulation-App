@@ -168,7 +168,7 @@
       "maxVvvfPower": "Daya VVVF Maks",
       "maxCatenaryPower": "Daya Pantograf Maks",
       "maxTractionEffort": "Gaya Traksi Maks",
-      "maxEnergyConsumption": "Konsumsi Energi Maks",
+      "maxEnergyConsumption": "Total Konsumsi Energi",
       "maxPowerPerMotor": "Daya Maks per Motor",
       "maxVvvfCurrent": "Arus VVVF Maks",
       "maxCatenaryCurrent": "Arus Pantograf Maks",

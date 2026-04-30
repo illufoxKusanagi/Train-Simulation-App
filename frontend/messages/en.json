@@ -168,7 +168,7 @@
       "maxVvvfPower": "Max VVVF Power",
       "maxCatenaryPower": "Max Catenary Power",
       "maxTractionEffort": "Max Traction Effort",
-      "maxEnergyConsumption": "Max Energy Consumption",
+      "maxEnergyConsumption": "Total Energy Consumption",
       "maxPowerPerMotor": "Max Power per Motor",
       "maxVvvfCurrent": "Max VVVF Current",
       "maxCatenaryCurrent": "Max Catenary Current",

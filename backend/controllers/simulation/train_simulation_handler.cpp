@@ -465,8 +465,13 @@ double TrainSimulationHandler::getDistanceTravelled() {
 double TrainSimulationHandler::getMaxEnergyConsumption() {
   if (simulationDatas.energyConsumptions.isEmpty())
     return 0.0;
-  return *std::max_element(simulationDatas.energyConsumptions.begin(),
-                           simulationDatas.energyConsumptions.end());
+  double totalEnergyConsumption;
+  for (double value : simulationDatas.energyConsumptions) {
+    totalEnergyConsumption += value;
+  }
+  return totalEnergyConsumption;
+  // return *std::max_element(simulationDatas.energyConsumptions.begin(),
+  //                          simulationDatas.energyConsumptions.end());
 }
 
 double TrainSimulationHandler::getMaxEnergyRegen() {
