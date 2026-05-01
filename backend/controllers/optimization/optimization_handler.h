@@ -61,10 +61,11 @@ private:
 
   void setupTimeEngine(double minT, double maxT);
   void setupPowerEngine(double minP, double maxP);
-  void setupEnergyEngine(double minP, double maxP);
+  void setupEnergyEngine(double minE, double maxE);
 
   double evaluateFuzzyScore(double travelTime, double motorPower,
                             double energyConsumption);
+  // );
 
   double findMaximumPowerMotorPerCar();
 };

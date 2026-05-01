@@ -36,6 +36,7 @@ struct SimulationDatas {
   QList<double> currentCatenary;
   QList<double> currentVvvf;
   QList<double> energyConsumptions;
+  QList<double> totalEnergyConsumptions;
   QList<double> energyPowerings;
   QList<double> energyRegenerations;
   QList<double> energyAps;

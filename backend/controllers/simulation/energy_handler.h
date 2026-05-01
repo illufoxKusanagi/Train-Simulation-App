@@ -8,6 +8,7 @@ class EnergyHandler : public QObject {
 public:
   explicit EnergyHandler(AppContext &context);
   double calculateEnergyConsumption(int i);
+  double calculateTotalEnergyConsumption(int i);
   double calculateEnergyOfPowering(int i);
   double calculateEnergyRegeneration(int i);
   double calculateEnergyOfAps(int i);

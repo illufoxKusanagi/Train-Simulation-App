@@ -65,7 +65,7 @@ public:
   double getMaxCatenaryCurrent();
   double getMaxTractionEffort();
   double getDistanceTravelled();
-  double getMaxEnergyConsumption();
+  double getTotalEnergyConsumption();
   double getMaxEnergyRegen();
   double getMaxEnergyPowering();
   double getMaxEnergyAps();

@@ -14,8 +14,9 @@ OptimizationHandler::OptimizationHandler(
       m_simulationMutex(&context->simulationMutex) {}
 
 // =============================================================================
-// Time Engine Setup — evaluates TravelTime.
+// Time Engine Setup — evaluates TravelTime (shaped by acc_start_si).
 //
+// A shorter travel time means acc_start_si enabled faster acceleration →
 // better. 3 input terms (Short/Medium/Long) × 1 output (TimeScore 0–100) = 3
 // rules. Ranges are derived from actual Pass 1 data.
 // =============================================================================
@@ -62,8 +63,9 @@ void OptimizationHandler::setupTimeEngine(double minT, double maxT) {
 }
 
 // =============================================================================
-// Power Engine Setup — evaluates MotorPower.
+// Power Engine Setup — evaluates MotorPower (shaped by v_p1).
 //
+// A lower peak power means v_p1 allowed the motor to work more efficiently.
 // 3 input terms (Low/Medium/High) × 1 output (PowerScore 0–100) = 3 rules.
 // Ranges are derived from actual Pass 1 data.
 // =============================================================================
@@ -111,10 +113,10 @@ void OptimizationHandler::setupPowerEngine(double minP, double maxP) {
 }
 
 // =============================================================================
-// Energy Engine Setup — evaluates EnergyConsumption
-//
-// 3 input terms (Low/Medium/High) × 1 output (EnergyScore 0–100) = 3 rules.
-// Ranges are derived from actual Pass 1 data.
+// Energy Consumption Setup
+// A lower peak power means v_p1 allowed the motor to work more efficiently.
+// 3 input terms (Low/Medium/High) × 1 output (EnergyConsumption 0–100) = 3
+// rules. Ranges are derived from actual Pass 1 data.
 // =============================================================================
 void OptimizationHandler::setupEnergyEngine(double minE, double maxE) {
   m_energyEngine.clear();
@@ -125,8 +127,8 @@ void OptimizationHandler::setupEnergyEngine(double minE, double maxE) {
   maxE += margin;
   const double r = maxE - minE;
 
-  // ── Input: EnergyConsumption — Low=efficient(good), High=hungry(bad)
-  // ────────────
+  // ── Input: EnergyConsupmtion — Low=efficient(good), High=hungry(bad)
+  // ────────────────────────────────────────────────
   auto energyConsumption =
       std::make_shared<FuzzyVariable>("EnergyConsumption", minE, maxE);
   energyConsumption->addTerm(std::make_shared<TrapezoidSet>(
@@ -136,7 +138,8 @@ void OptimizationHandler::setupEnergyEngine(double minE, double maxE) {
   energyConsumption->addTerm(std::make_shared<TrapezoidSet>(
       "High", minE + 0.55 * r, minE + 0.75 * r, maxE, maxE));
 
-  // ── Output: EnergyScore (0–100) ────────────────────────────────────────────
+  // ── Output: EnergyScore (0–100)
+  // ────────────────────────────────────────────────
   auto energyScore = std::make_shared<FuzzyVariable>("EnergyScore", 0.0, 100.0);
   energyScore->addTerm(
       std::make_shared<TrapezoidSet>("Poor", 0.0, 0.0, 15.0, 30.0));
@@ -148,7 +151,7 @@ void OptimizationHandler::setupEnergyEngine(double minE, double maxE) {
   m_energyEngine.addInputVariable(energyConsumption);
   m_energyEngine.addOutputVariable(energyScore);
 
-  // ── 3 Rules for Energy Consumption
+  // ── 3 Rules for EnergyConsumption
   // ────────────────────────────────────────────────
   // Rule: IF EnergyConsumption is X → EnergyScore is Y
   auto makeRule = [](const QString &term, const QString &score) -> FuzzyRule {
@@ -162,8 +165,9 @@ void OptimizationHandler::setupEnergyEngine(double minE, double maxE) {
   m_energyEngine.addRule(makeRule("High", "Poor"));
 }
 
-// Final score = average of all three sub-scores.
-// This gives equal weight to travel time, motor power, and energy consumption.
+// Final score = average of both sub-scores.
+// This gives equal weight to travel time quality (acc_start_si contribution)
+// and motor power quality (v_p1 contribution).
 double OptimizationHandler::evaluateFuzzyScore(double travelTime,
                                                double motorPower,
                                                double energyConsumption) {
@@ -213,8 +217,13 @@ void OptimizationHandler::handleOptimization(
   }
 
   struct RawEntry {
-    double acc, vp1, peakPower, travelTime, energyConsumption;
+    double acc;
+    double vp1;
+    double peakPower;
+    double travelTime;
+    double energyConsumption;
   };
+
   QList<RawEntry> rawData;
 
   for (double acc : accValues) {
@@ -231,8 +240,8 @@ void OptimizationHandler::handleOptimization(
       // queued slots can fire mid-loop of the NEXT combo's simulation,
       // corrupting movingData->v, energyData->e_pow, etc. and producing
       // different scores on repeated runs. initData() + clearSimulationDatas()
-      // inside runDynamicSimulation() already reset all state we need; we don't
-      // need the signal-triggered reset here.
+      // inside runDynamicSimulation() already reset all state we need, including
+      // e_motor (reset in initData() so each combo starts with zero energy).
       m_trainSimulation->blockSignals(true);
       m_trainSimulation->runDynamicSimulation();
       m_trainSimulation->blockSignals(false);
@@ -263,9 +272,13 @@ void OptimizationHandler::handleOptimization(
   }
 
   // ── PASS 2: derive ranges from actual data, calibrate engine, score ─────
-  double minT = rawData[0].travelTime, maxT = rawData[0].travelTime;
-  double minP = rawData[0].peakPower, maxP = rawData[0].peakPower;
-  double minE = rawData[0].energyConsumption, maxE = rawData[0].energyConsumption;
+  double minT = rawData[0].travelTime;
+  double maxT = rawData[0].travelTime;
+  double minP = rawData[0].peakPower;
+  double maxP = rawData[0].peakPower;
+  double minE = rawData[0].energyConsumption;
+  double maxE = rawData[0].energyConsumption;
+
   for (const RawEntry &e : rawData) {
     minT = std::min(minT, e.travelTime);
     maxT = std::max(maxT, e.travelTime);
@@ -274,6 +287,7 @@ void OptimizationHandler::handleOptimization(
     minE = std::min(minE, e.energyConsumption);
     maxE = std::max(maxE, e.energyConsumption);
   }
+
   // Avoid degenerate (all-same) range
   if (maxT - minT < 1.0) {
     minT -= 1.0;

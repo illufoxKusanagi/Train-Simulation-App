@@ -67,6 +67,11 @@ void TrainSimulationHandler::initData() {
     movingData->time_total = 0.0;
     stationData->x_odo = 0.0;
     stationData->x_deficit = 0.0;
+    energyData->e_motor = 0.0;
+    // Reset cumulative energy so each simulation run starts from zero.
+    // resetSimulation() also does this via the simulationCompleted signal,
+    // but initData() runs first and ensures the optimization sweep (which
+    // blocks signals) also gets a clean slate per combo.
   }
 }
 
@@ -192,7 +197,6 @@ void TrainSimulationHandler::runDynamicSimulation() {
         movingData->acc = 0;
         movingData->acc_si = 0;
         energyData->e_aps = 0;
-        energyData->e_motor = 0;
         trainStopTime += constantData->dt;
         time += constantData->dt;
         simulationDatas.time.append(constantData->dt);
@@ -288,6 +292,8 @@ void TrainSimulationHandler::runDynamicSimulation() {
         }
       }
       energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
+      // energyData->e_motor_tot += energyData->e_motor;
+      // m_energyHandler->calculateTotalEnergyConsumption(i);
       energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
       phase == "Braking" ? energyData->e_catenary +=
                            m_energyHandler->calculateEnergyRegeneration(i)
@@ -316,6 +322,7 @@ void TrainSimulationHandler::runDynamicSimulation() {
       }
       i++;
     }
+    m_utilityHandler->resetSimulation();
     emit simulationCompleted();
   } else {
     emit simulationError();
@@ -462,14 +469,15 @@ double TrainSimulationHandler::getDistanceTravelled() {
   return simulationDatas.distanceTotal.last();
 }
 
-double TrainSimulationHandler::getMaxEnergyConsumption() {
+double TrainSimulationHandler::getTotalEnergyConsumption() {
   if (simulationDatas.energyConsumptions.isEmpty())
     return 0.0;
-  double totalEnergyConsumption;
-  for (double value : simulationDatas.energyConsumptions) {
-    totalEnergyConsumption += value;
-  }
-  return totalEnergyConsumption;
+  // double totalEnergyConsumption;
+  // for (double value : simulationDatas.energyConsumptions) {
+  //   totalEnergyConsumption += value;
+  // }
+  // return totalEnergyConsumption;
+  return simulationDatas.energyConsumptions.last();
   // return *std::max_element(simulationDatas.energyConsumptions.begin(),
   //                          simulationDatas.energyConsumptions.end());
 }
@@ -548,6 +556,8 @@ void TrainSimulationHandler::calculateEnergies(int i) {
   energyData->e_motor += m_energyHandler->calculateEnergyConsumption(i);
   energyData->e_pow += m_energyHandler->calculateEnergyOfPowering(i);
   energyData->e_aps += m_energyHandler->calculateEnergyOfAps(i);
+  // energyData->e_motor_tot =
+  // m_energyHandler->calculateTotalEnergyConsumption(i);
 }
 
 void TrainSimulationHandler::addEnergySimulationDatas() {
