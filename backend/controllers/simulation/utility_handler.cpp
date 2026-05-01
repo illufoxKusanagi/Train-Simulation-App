@@ -30,6 +30,8 @@ void UtilityHandler::addSimulationDatas(int i, double time, QString phase) {
       context->powerData->p_motorOutPerMotor);
   simulationDatas->powerMotorIn.append(context->powerData->p_motorIn);
   simulationDatas->energyConsumptions.append(context->energyData->e_motor);
+  //   simulationDatas->totalEnergyConsumptions.append(
+  //       context->energyData->e_motor_tot);
   simulationDatas->energyPowerings.append(context->energyData->e_pow);
   simulationDatas->energyRegenerations.append(context->energyData->e_reg);
   simulationDatas->energyAps.append(context->energyData->e_aps);
@@ -114,6 +116,7 @@ void UtilityHandler::clearSimulationDatas() {
   simulationDatas->distanceTotal.clear();
   simulationDatas->timeTotal.clear();
   simulationDatas->energyConsumptions.clear();
+  //   simulationDatas->totalEnergyConsumptions.clear();
   simulationDatas->energyPowerings.clear();
   simulationDatas->energyRegenerations.clear();
   simulationDatas->energyAps.clear();

@@ -17,6 +17,7 @@ struct OptResult {
   double peakMotorPower;
   double travelTime;
   double fuzzyScore;
+  double energyConsumption;
 };
 
 class OptimizationHandler : public QObject {
@@ -50,6 +51,7 @@ private:
   QMutex *m_simulationMutex;
   FuzzyEngine m_timeEngine;
   FuzzyEngine m_powerEngine;
+  FuzzyEngine m_energyEngine;
 
   mutable QMutex m_resultsMutex;
   QList<OptResult> m_results;
@@ -59,8 +61,11 @@ private:
 
   void setupTimeEngine(double minT, double maxT);
   void setupPowerEngine(double minP, double maxP);
+  void setupEnergyEngine(double minE, double maxE);
 
-  double evaluateFuzzyScore(double travelTime, double motorPower);
+  double evaluateFuzzyScore(double travelTime, double motorPower,
+                            double energyConsumption);
+  // );
 
   double findMaximumPowerMotorPerCar();
 };

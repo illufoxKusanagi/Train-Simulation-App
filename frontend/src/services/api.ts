@@ -326,6 +326,7 @@ export const api = {
       v_p1: number; // km/h
       peakMotorPower: number; // kW/motor
       travelTime: number; // seconds
+      energyConsumption: number; // kWh
       fuzzyScore: number; // 0–100
     }>;
     best:
@@ -334,6 +335,7 @@ export const api = {
           v_p1: number;
           peakMotorPower: number;
           travelTime: number;
+          energyConsumption: number;
           fuzzyScore: number;
         }
       | Record<string, never>;

@@ -277,7 +277,7 @@ QHttpServerResponse SimulationHandler::handleGetSimulationStatus() {
         summary["maxTractionEffort"] =
             m_trainSimulation->getMaxTractionEffort();
         summary["maxEnergyConsumption"] =
-            m_trainSimulation->getMaxEnergyConsumption();
+            m_trainSimulation->getTotalEnergyConsumption();
 
         summary["maxCatenaryPower"] = m_trainSimulation->getMaxCatenaryPower();
         summary["maxVvvfPower"] = m_trainSimulation->getMaxVvvfPower();

@@ -18,7 +18,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Clock, Zap, Trophy, ArrowRight } from "lucide-react";
+import { Clock, Zap, Trophy, ArrowRight, BatteryCharging } from "lucide-react";
 
 interface OptResult {
   acc_start_si: number;
@@ -26,6 +26,7 @@ interface OptResult {
   peakMotorPower: number;
   travelTime: number;
   fuzzyScore: number;
+  energyConsumption: number;
 }
 
 interface FuzzyMemberTabProps {
@@ -55,15 +56,19 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
       return {
         timeData: [],
         powerData: [],
+        energyData: [],
         outputData: [],
         bestTimeMu: { Short: 0, Medium: 0, Long: 0 },
         bestPowerMu: { Low: 0, Medium: 0, High: 0 },
+        bestEnergyMu: { Low: 0, Medium: 0, High: 0 },
         bestOutputMu: { Poor: 0, Fair: 0, Good: 0, Excellent: 0 },
         bounds: {
           effMinT: 0,
           effMaxT: 0,
           effMinP: 0,
           effMaxP: 0,
+          effMinE: 0,
+          effMaxE: 0,
         },
       };
 
@@ -72,12 +77,16 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
       maxT = results[0].travelTime;
     let minP = results[0].peakMotorPower,
       maxP = results[0].peakMotorPower;
+    let minE = results[0].energyConsumption,
+      maxE = results[0].energyConsumption;
 
     for (const r of results) {
       if (r.travelTime < minT) minT = r.travelTime;
       if (r.travelTime > maxT) maxT = r.travelTime;
       if (r.peakMotorPower < minP) minP = r.peakMotorPower;
       if (r.peakMotorPower > maxP) maxP = r.peakMotorPower;
+      if (r.energyConsumption < minE) minE = r.energyConsumption;
+      if (r.energyConsumption > maxE) maxE = r.energyConsumption;
     }
 
     // Backend degenerate guard
@@ -88,6 +97,10 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
     if (maxP - minP < 1.0) {
       minP -= 1.0;
       maxP += 1.0;
+    }
+    if (maxE - minE < 1.0) {
+      minE -= 1.0;
+      maxE += 1.0;
     }
 
     // Backend 5% expansion margins
@@ -100,6 +113,11 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
     const effMinP = minP - marginP;
     const effMaxP = maxP + marginP;
     const rP = effMaxP - effMinP;
+
+    const marginE = (maxE - minE) * 0.05;
+    const effMinE = minE - marginE;
+    const effMaxE = maxE + marginE;
+    const rE = effMaxE - effMinE;
 
     // ── Travel Time Input Membership ──
     const steps = 150;
@@ -224,6 +242,33 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
 
     const powerData = rawPowerData.sort((a, b) => a.x - b.x);
 
+    // ── Energy Consumption Input Membership ──
+    const rawEnergyData = [];
+    for (let i = 0; i <= steps; i++) {
+      const x = effMinE + (i * rE) / steps;
+      rawEnergyData.push({
+        x: Number(x.toFixed(2)),
+        Low: trap(x, effMinE, effMinE, effMinE + 0.25 * rE, effMinE + 0.45 * rE),
+        Medium: tri(x, effMinE + 0.3 * rE, effMinE + 0.5 * rE, effMinE + 0.7 * rE),
+        High: trap(x, effMinE + 0.55 * rE, effMinE + 0.75 * rE, effMaxE, effMaxE),
+      });
+    }
+
+    results.forEach((r) => {
+      const x = Number(r.energyConsumption.toFixed(2));
+      rawEnergyData.push({
+        x,
+        Low: trap(x, effMinE, effMinE, effMinE + 0.25 * rE, effMinE + 0.45 * rE),
+        Medium: tri(x, effMinE + 0.3 * rE, effMinE + 0.5 * rE, effMinE + 0.7 * rE),
+        High: trap(x, effMinE + 0.55 * rE, effMinE + 0.75 * rE, effMaxE, effMaxE),
+        dot: 0.02,
+        winnerDot:
+          best && Math.abs(x - best.energyConsumption) < 0.001 ? 0.02 : undefined,
+      });
+    });
+
+    const energyData = rawEnergyData.sort((a, b) => a.x - b.x);
+
     // ── Output Membership (Score 0-100) — same for both engines ──
     const rawOutputData = [];
     for (let i = 0; i <= 100; i++) {
@@ -281,19 +326,15 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
     const bP = best.peakMotorPower;
     const bestPowerMu = {
       Low: trap(bP, effMinP, effMinP, effMinP + 0.25 * rP, effMinP + 0.45 * rP),
-      Medium: tri(
-        bP,
-        effMinP + 0.3 * rP,
-        effMinP + 0.5 * rP,
-        effMinP + 0.7 * rP,
-      ),
-      High: trap(
-        bP,
-        effMinP + 0.55 * rP,
-        effMinP + 0.75 * rP,
-        effMaxP,
-        effMaxP,
-      ),
+      Medium: tri(bP, effMinP + 0.3 * rP, effMinP + 0.5 * rP, effMinP + 0.7 * rP),
+      High: trap(bP, effMinP + 0.55 * rP, effMinP + 0.75 * rP, effMaxP, effMaxP),
+    };
+
+    const bE = best.energyConsumption;
+    const bestEnergyMu = {
+      Low: trap(bE, effMinE, effMinE, effMinE + 0.25 * rE, effMinE + 0.45 * rE),
+      Medium: tri(bE, effMinE + 0.3 * rE, effMinE + 0.5 * rE, effMinE + 0.7 * rE),
+      High: trap(bE, effMinE + 0.55 * rE, effMinE + 0.75 * rE, effMaxE, effMaxE),
     };
 
     const bS = best.fuzzyScore;
@@ -307,11 +348,13 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
     return {
       timeData,
       powerData,
+      energyData,
       outputData,
       bestTimeMu,
       bestPowerMu,
+      bestEnergyMu,
       bestOutputMu,
-      bounds: { effMinT, effMaxT, effMinP, effMaxP },
+      bounds: { effMinT, effMaxT, effMinP, effMaxP, effMinE, effMaxE },
     };
   }, [results, best]);
 
@@ -322,6 +365,9 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
     (a, b) => b[1] - a[1],
   )[0];
   const dominantPower = Object.entries(chartData.bestPowerMu).sort(
+    (a, b) => b[1] - a[1],
+  )[0];
+  const dominantEnergy = Object.entries(chartData.bestEnergyMu).sort(
     (a, b) => b[1] - a[1],
   )[0];
   const dominantOutput = Object.entries(chartData.bestOutputMu).sort(
@@ -353,6 +399,14 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
               <ArrowRight className="h-3 w-3 text-muted-foreground" />
               <span className="px-2 py-1 rounded bg-blue-100 dark:bg-blue-900 text-xs font-semibold text-blue-700 dark:text-blue-300">
                 μ({dominantPower[0]}) = {dominantPower[1].toFixed(3)}
+              </span>
+              <span className="text-muted-foreground mx-1">|</span>
+              <span className="px-2 py-1 rounded bg-secondary text-xs font-mono">
+                Energy = {best.energyConsumption.toFixed(2)}kWh
+              </span>
+              <ArrowRight className="h-3 w-3 text-muted-foreground" />
+              <span className="px-2 py-1 rounded bg-purple-100 dark:bg-purple-900 text-xs font-semibold text-purple-700 dark:text-purple-300">
+                μ({dominantEnergy[0]}) = {dominantEnergy[1].toFixed(3)}
               </span>
               <span className="text-muted-foreground mx-1">|</span>
               <span className="px-2 py-1 rounded bg-secondary text-xs font-mono">
@@ -654,6 +708,140 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
         </Card>
       </div>
 
+      {/* Energy Consumption Membership */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <BatteryCharging className="h-5 w-5 text-purple-500" />
+            Energy Consumption Membership
+          </CardTitle>
+          <CardDescription>
+            Input variable: Low (efficient) → High (hungry). Range:{" "}
+            {chartData.bounds.effMinE.toFixed(2)}kWh –{" "}
+            {chartData.bounds.effMaxE.toFixed(2)}kWh
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="h-72 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart
+              data={chartData.energyData}
+              margin={{ top: 35, right: 20, left: -10, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis
+                dataKey="x"
+                type="number"
+                domain={["dataMin", "dataMax"]}
+                tickCount={8}
+                tick={{ fontSize: 11 }}
+                tickFormatter={(v) => v.toFixed(1)}
+                label={{
+                  value: "Energy Consumption (kWh)",
+                  position: "insideBottom",
+                  offset: -2,
+                  fontSize: 11,
+                }}
+              />
+              <YAxis
+                tick={{ fontSize: 11 }}
+                domain={[0, 1.05]}
+                label={{
+                  value: "μ(x)",
+                  angle: -90,
+                  position: "insideLeft",
+                  offset: 20,
+                  fontSize: 11,
+                }}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--card)",
+                  borderColor: "var(--border)",
+                  color: "var(--foreground)",
+                }}
+                labelStyle={{ color: "var(--foreground)" }}
+                labelFormatter={(v) => `Energy: ${v}kWh`}
+                formatter={(value: number, name: string) => {
+                  if (name === "Winner" || name === "All Results") return [];
+                  return [value.toFixed(3), `μ(${name})`];
+                }}
+              />
+              <Legend />
+              <Area
+                type="linear"
+                dataKey="Low"
+                stroke="#22c55e"
+                fill="#22c55e"
+                fillOpacity={0.1}
+                strokeWidth={2.5}
+                dot={false}
+              />
+              <Area
+                type="linear"
+                dataKey="Medium"
+                stroke="#a855f7"
+                fill="#a855f7"
+                fillOpacity={0.1}
+                strokeWidth={2.5}
+                dot={false}
+              />
+              <Area
+                type="linear"
+                dataKey="High"
+                stroke="#ef4444"
+                fill="#ef4444"
+                fillOpacity={0.1}
+                strokeWidth={2.5}
+                dot={false}
+              />
+              <Scatter
+                dataKey="dot"
+                fill="var(--muted-foreground)"
+                opacity={0.4}
+                r={3}
+                name="All Results"
+              />
+              <Scatter
+                dataKey="winnerDot"
+                fill="var(--primary)"
+                shape="star"
+                r={8}
+                name="Winner"
+              />
+              <ReferenceLine
+                x={Number(best.energyConsumption.toFixed(2))}
+                stroke="var(--primary)"
+                isFront={true}
+                strokeWidth={2}
+                strokeDasharray="6 3"
+                label={{
+                  value: `★ ${best.energyConsumption.toFixed(2)}kWh`,
+                  fill: "var(--primary)",
+                  position: "top",
+                  fontSize: 14,
+                  fontWeight: "bold",
+                }}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </CardContent>
+        <div className="px-6 pb-4 flex gap-2 flex-wrap">
+          <span className="text-xs text-muted-foreground">Winner membership:</span>
+          {Object.entries(chartData.bestEnergyMu).map(([name, val]) => (
+            <span
+              key={name}
+              className={`text-xs px-2 py-0.5 rounded-full font-mono ${
+                val > 0
+                  ? "bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 font-semibold"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {name}: {val.toFixed(3)}
+            </span>
+          ))}
+        </div>
+      </Card>
+
       {/* Output Membership Chart (Score 0-100) */}
       <Card>
         <CardHeader className="pb-2">
@@ -662,8 +850,8 @@ export function FuzzyMemberTab({ results, best }: FuzzyMemberTabProps) {
             Output Membership — Optimization Score
           </CardTitle>
           <CardDescription>
-            Defuzzified output (Centroid) from both Time Engine and Power
-            Engine. The final score is the average of TimeScore and PowerScore.
+            Defuzzified output (Centroid) from Time, Power, and Energy engines.
+            The final score is the average of TimeScore, PowerScore, and EnergyScore.
           </CardDescription>
         </CardHeader>
         <CardContent className="h-72 w-full">

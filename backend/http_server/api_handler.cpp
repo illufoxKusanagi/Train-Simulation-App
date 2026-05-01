@@ -440,6 +440,7 @@ QHttpServerResponse ApiHandler::handleGetOptimizationStatus() {
     row["v_p1"] = r.v_p1;
     row["peakMotorPower"] = r.peakMotorPower;
     row["travelTime"] = r.travelTime;
+    row["energyConsumption"] = r.energyConsumption;
     row["fuzzyScore"] = r.fuzzyScore;
     resultsArray.append(row);
   }
@@ -453,6 +454,7 @@ QHttpServerResponse ApiHandler::handleGetOptimizationStatus() {
     bestObj["v_p1"] = best.v_p1;
     bestObj["peakMotorPower"] = best.peakMotorPower;
     bestObj["travelTime"] = best.travelTime;
+    bestObj["energyConsumption"] = best.energyConsumption;
     bestObj["fuzzyScore"] = best.fuzzyScore;
     response["best"] = bestObj;
   } else {

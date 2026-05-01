@@ -16,6 +16,7 @@ struct EnergyData {
   double e_catenary = 0;
   double curr_catenary = 0;
   double curr_vvvf = 0;
+  double e_motor_tot = 0;
 };
 
 #endif // ENERGY_DATA_H

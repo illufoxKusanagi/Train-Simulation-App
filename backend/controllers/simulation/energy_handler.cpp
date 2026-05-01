@@ -10,6 +10,17 @@ double EnergyHandler::calculateEnergyConsumption(int i) {
   return powerData->p_motorOut / 3600 * simulationDatas->time[i];
 }
 
+double EnergyHandler::calculateTotalEnergyConsumption(int i) {
+  if (i < 0 || i >= simulationDatas->time.size())
+    return 0;
+
+  if (i == 0)
+    return simulationDatas->energyConsumptions[i];
+
+  return simulationDatas->energyConsumptions[i - 1] +
+         simulationDatas->energyConsumptions[i];
+}
+
 double EnergyHandler::calculateEnergyOfPowering(int i) {
   if (i < 0 || i >= simulationDatas->time.size())
     return 0;

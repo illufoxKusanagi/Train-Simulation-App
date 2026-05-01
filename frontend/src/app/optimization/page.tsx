@@ -30,6 +30,7 @@ interface OptResult {
   peakMotorPower: number; // kW/motor
   travelTime: number; // seconds
   fuzzyScore: number; // 0–100
+  energyConsumption: number; // kWh
 }
 
 function scoreColor(score: number): string {
@@ -238,11 +239,9 @@ export default function OptimizationPage() {
                       [
                         { key: "acc_start_si", header: "acc_start_si (m/s²)" },
                         { key: "v_p1", header: "v_p1 (km/h)" },
-                        {
-                          key: "peakMotorPower",
-                          header: "Peak Power/Motor (kW)",
-                        },
+                        { key: "peakMotorPower", header: "Peak Power/Motor (kW)" },
                         { key: "travelTime", header: "Travel Time (s)" },
+                        { key: "energyConsumption", header: "Energy Consumption (kWh)" },
                         { key: "fuzzyScore", header: "Fuzzy Score" },
                       ],
                       "optimization-results.csv",
@@ -371,6 +370,9 @@ export default function OptimizationPage() {
                     <th className="text-right py-2 pr-4 font-semibold">
                       Travel Time (s)
                     </th>
+                    <th className="text-right py-2 pr-4 font-semibold">
+                      Energy (kWh)
+                    </th>
                     <th className="text-right py-2 font-semibold">
                       {t("fuzzyScore")}
                     </th>
@@ -421,6 +423,9 @@ export default function OptimizationPage() {
                         </td>
                         <td className="text-right py-2 pr-4 font-mono">
                           {r.travelTime.toFixed(0)}
+                        </td>
+                        <td className="text-right py-2 pr-4 font-mono">
+                          {r.energyConsumption.toFixed(2)}
                         </td>
                         <td
                           className={`text-right py-2 pr-2 font-mono font-bold ${scoreColor(
